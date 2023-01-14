@@ -5453,9 +5453,6 @@ impl Float {
 
     /// Computes the sine of π&nbsp;×&nbsp;`self`, rounding to the nearest.
     ///
-    /// For example, if <i>u</i>&nbsp;=&nbsp;360, then this is the tangent for
-    /// `self` in degrees.
-    ///
     /// # Examples
     ///
     /// ```rust
