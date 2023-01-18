@@ -511,6 +511,7 @@ impl Rational {
     /// This conversion can also be performed using
     ///   * <code>(\&rational).[az][az::Az::az]::\<[f32]>()</code>
     ///   * <code>rational.[borrow]\().[az][az::Az::az]::\<[f32]>()</code>
+    ///   * <code>rational.[az][az::Az::az]::\<[f32]>()</code>
     ///
     /// # Examples
     ///
@@ -537,6 +538,7 @@ impl Rational {
     /// This conversion can also be performed using
     ///   * <code>(\&rational).[az][az::Az::az]::\<[f64]>()</code>
     ///   * <code>rational.[borrow]\().[az][az::Az::az]::\<[f64]>()</code>
+    ///   * <code>rational.[az][az::Az::az]::\<[f64]>()</code>
     ///
     /// # Examples
     ///
