@@ -718,6 +718,7 @@ impl Float {
     /// This conversion can also be performed using
     ///   * <code>(\&float).[checked\_as]::\<[Integer]>()</code>
     ///   * <code>float.[borrow]\().[checked\_as]::\<[Integer]>()</code>
+    ///   * <code>float.[checked\_as]::\<[Integer]>()</code>
     ///
     /// # Examples
     ///
@@ -810,6 +811,7 @@ impl Float {
     ///   * <code>[Rational]::[try\_from]\(float)</code>
     ///   * <code>(\&float).[checked\_as]::\<[Rational]>()</code>
     ///   * <code>float.[borrow]\().[checked\_as]::\<[Rational]>()</code>
+    ///   * <code>float.[checked\_as]::\<[Rational]>()</code>
     ///
     ///
     /// # Examples
