@@ -1056,6 +1056,7 @@ impl Integer {
     ///   * <code>[i8]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[i8]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[i8]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[i8]>()</code>
     ///
     /// # Examples
     ///
@@ -1084,6 +1085,7 @@ impl Integer {
     ///   * <code>[i16]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[i16]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[i16]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[i16]>()</code>
     ///
     /// # Examples
     ///
@@ -1112,6 +1114,7 @@ impl Integer {
     ///   * <code>[i32]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[i32]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[i32]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[i32]>()</code>
     ///
     /// # Examples
     ///
@@ -1140,6 +1143,7 @@ impl Integer {
     ///   * <code>[i64]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[i64]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[i64]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[i64]>()</code>
     ///
     /// # Examples
     ///
@@ -1168,6 +1172,7 @@ impl Integer {
     ///   * <code>[i128]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[i128]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[i128]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[i128]>()</code>
     ///
     /// # Examples
     ///
@@ -1196,6 +1201,7 @@ impl Integer {
     ///   * <code>[isize]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[isize]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[isize]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[isize]>()</code>
     ///
     /// # Examples
     ///
@@ -1222,6 +1228,7 @@ impl Integer {
     ///   * <code>[u8]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[u8]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[u8]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[u8]>()</code>
     ///
     /// # Examples
     ///
@@ -1250,6 +1257,7 @@ impl Integer {
     ///   * <code>[u16]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[u16]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[u16]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[u16]>()</code>
     ///
     /// # Examples
     ///
@@ -1278,6 +1286,7 @@ impl Integer {
     ///   * <code>[u32]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[u32]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[u32]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[u32]>()</code>
     ///
     /// # Examples
     ///
@@ -1306,6 +1315,7 @@ impl Integer {
     ///   * <code>[u64]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[u64]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[u64]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[u64]>()</code>
     ///
     /// # Examples
     ///
@@ -1334,6 +1344,7 @@ impl Integer {
     ///   * <code>[u128]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[u128]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[u128]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[u128]>()</code>
     ///
     /// # Examples
     ///
@@ -1364,6 +1375,7 @@ impl Integer {
     ///   * <code>[usize]::[try\_from]\(integer)</code>
     ///   * <code>(\&integer).[checked\_as]::\<[usize]>()</code>
     ///   * <code>integer.[borrow]\().[checked\_as]::\<[usize]>()</code>
+    ///   * <code>integer.[checked\_as]::\<[usize]>()</code>
     ///
     /// # Examples
     ///
@@ -1390,6 +1402,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[i8]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[i8]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[i8]>()</code>
     ///
     /// # Examples
     ///
@@ -1411,6 +1424,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[i16]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[i16]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[i16]>()</code>
     ///
     /// # Examples
     ///
@@ -1432,6 +1446,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[i32]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[i32]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[i32]>()</code>
     ///
     /// # Examples
     ///
@@ -1453,6 +1468,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[i64]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[i64]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[i64]>()</code>
     ///
     /// # Examples
     ///
@@ -1474,6 +1490,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[i128]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[i128]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[i128]>()</code>
     ///
     /// # Examples
     ///
@@ -1499,6 +1516,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[isize]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[isize]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[isize]>()</code>
     ///
     /// # Examples
     ///
@@ -1520,6 +1538,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[u8]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[u8]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[u8]>()</code>
     ///
     /// # Examples
     ///
@@ -1543,6 +1562,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[u16]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[u16]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[u16]>()</code>
     ///
     /// # Examples
     ///
@@ -1566,6 +1586,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[u32]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[u32]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[u32]>()</code>
     ///
     /// # Examples
     ///
@@ -1589,6 +1610,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[u64]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[u64]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[u64]>()</code>
     ///
     /// # Examples
     ///
@@ -1612,6 +1634,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[u128]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[u128]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[u128]>()</code>
     ///
     /// # Examples
     ///
@@ -1642,6 +1665,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[wrapping\_as]::\<[usize]>()</code>
     ///   * <code>integer.[borrow]\().[wrapping\_as]::\<[usize]>()</code>
+    ///   * <code>integer.[wrapping\_as]::\<[usize]>()</code>
     ///
     /// # Examples
     ///
@@ -1663,6 +1687,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[az]::\<[f32]>()</code>
     ///   * <code>integer.[borrow]\().[az]::\<[f32]>()</code>
+    ///   * <code>integer.[az]::\<[f32]>()</code>
     ///
     /// # Examples
     ///
@@ -1689,6 +1714,7 @@ impl Integer {
     /// This conversion can also be performed using
     ///   * <code>(\&integer).[az]::\<[f64]>()</code>
     ///   * <code>integer.[borrow]\().[az]::\<[f64]>()</code>
+    ///   * <code>integer.[az]::\<[f64]>()</code>
     ///
     /// # Examples
     ///
