@@ -14,6 +14,7 @@ environment:
   MSRV: 1.65.0
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      APPVEYOR_SAVE_CACHE_ON_ERROR: true
       TARGET: x86_64-pc-windows-gnu
       CC: gcc
       CONFIG_SITE: C:/msys64/mingw64/etc/config.site
@@ -25,6 +26,7 @@ environment:
       MSYSTEM_CHOST: x86_64-w64-mingw32
       MSYSTEM_PREFIX: C:/msys64/mingw64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+      APPVEYOR_SAVE_CACHE_ON_ERROR: true
       CC: clang
       TARGET: i686-pc-windows-gnu
       CONFIG_SITE: C:/msys64/mingw32/etc/config.site
@@ -70,6 +72,8 @@ test_script:
 
 after_test:
   - bash -c "cd ""$USERPROFILE/.cargo/registry""; for c in cache/*/*.crate; do s=src/${c#cache/}; if [ ! -e ${s/.crate/} ]; then rm -v $c; fi; done; find cache -name \*.crate | sort"
+  # delete named stale versions
+  - bash -c "cd ""$LOCALAPPDATA"" && rm -rfv gmp-mpfr-sys/gmp-mpfr-sys-1.5.0-*"
   - bash -c "cd ""$LOCALAPPDATA""; find gmp-mpfr-sys -name \*.[ah] | sort"
   # cache updating bug workaround
   - bash -c "cd ""$LOCALAPPDATA""; find gmp-mpfr-sys -name \*.[ah] | sort > gmp-mpfr-sys/list"
