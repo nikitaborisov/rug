@@ -172,10 +172,11 @@ f4.assign_round(27, Round::Nearest);
 assert_eq!(f4, 28);
 ```
 */
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[non_exhaustive]
 pub enum Round {
     /// Round towards the nearest, with ties rounding to even.
+    #[default]
     Nearest,
     /// Round towards zero.
     Zero,
@@ -214,13 +215,6 @@ impl Round {
             Round::Down => Round::Up,
             _ => self,
         }
-    }
-}
-
-impl Default for Round {
-    #[inline]
-    fn default() -> Round {
-        Round::Nearest
     }
 }
 
