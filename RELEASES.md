@@ -7,9 +7,10 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.19.1 (2023-02-14)
 ===========================
 
-  * Bug fix: <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]
-    and <code>[Complex][com-1-19]::[mutate\_real\_imag][com-mri-1-19] were not
-    unwind-safe ([issue 47]).
+  * Bug fix:
+    <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]</code> and
+    <code>[Complex][com-1-19]::[mutate\_real\_imag][com-mri-1-19]</code> were
+    not unwind-safe ([issue 47]).
 
 Version 1.19.0 (2023-01-06)
 ===========================
