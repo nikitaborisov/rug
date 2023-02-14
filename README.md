@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.19.1 news (unreleased)
+### Version 1.19.1 news (2023-02-14)
 
   * Bug fix: <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]
     and <code>[Complex][com-1-19]::[mutate\_real\_imag][com-mri-1-19] were not

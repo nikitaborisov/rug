@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.19.1 (unreleased)
+Version 1.19.1 (2023-02-14)
 ===========================
 
   * Bug fix: <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]
