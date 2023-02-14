@@ -844,18 +844,26 @@ impl Complex {
     where
         F: FnOnce(&mut Complex),
     {
+        struct SplitOnDrop<'a, 'b>(ManuallyDrop<Complex>, &'a mut Float, &'b mut Float);
+
+        impl Drop for SplitOnDrop<'_, '_> {
+            fn drop(&mut self) {
+                // Safety: the values of the complex number parts are individually valid.
+                unsafe {
+                    *self.1.inner_mut() = *self.0.real().inner();
+                    *self.2.inner_mut() = *self.0.imag().inner();
+                }
+            }
+        }
+
         let raw = mpc_t {
             re: *real.inner(),
             im: *imag.inner(),
         };
         // Safety: real and imag are mutable and unaliased as they are mutable references.
-        let mut c = ManuallyDrop::new(unsafe { Complex::from_raw(raw) });
-        func(&mut c);
-        // Safety: the values of the complex number parts are individually valid.
-        unsafe {
-            *real.inner_mut() = *c.real().inner();
-            *imag.inner_mut() = *c.imag().inner();
-        }
+        let combined = ManuallyDrop::new(unsafe { Complex::from_raw(raw) });
+        let mut guard = SplitOnDrop(combined, real, imag);
+        func(&mut guard.0);
     }
 
     /// Borrows a negated copy of the [`Complex`] number.

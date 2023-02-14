@@ -8,7 +8,8 @@ Version 1.19.1 (unreleased)
 ===========================
 
   * Bug fix: <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]
-    was not unwind-safe ([issue 47]).
+    and <code>[Complex][com-1-19]::[mutate\_real\_imag][com-mri-1-19] were not
+    unwind-safe ([issue 47]).
 
 Version 1.19.0 (2023-01-06)
 ===========================
@@ -126,6 +127,7 @@ Version 1.19.0 (2023-01-06)
 [com-i-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.imag
 [com-ir-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.into_raw
 [com-iri-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.into_real_imag
+[com-mri-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.mutate_real_imag
 [com-p-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.prec
 [com-r-1-19]: https://docs.rs/rug/~1.19/rug/struct.Complex.html#method.real
 [flo-1-19]: https://docs.rs/rug/~1.19/rug/struct.Float.html

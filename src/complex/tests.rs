@@ -18,8 +18,11 @@ use crate::float;
 use crate::float::tests::{clear_nanflag, nanflag, Cmp};
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
-use crate::{Assign, Complex};
+use crate::{Assign, Complex, Float};
 use core::cmp::Ordering;
+use core::panic::AssertUnwindSafe;
+use core::ptr::NonNull;
+use std::panic;
 
 #[test]
 fn check_from_str() {
@@ -354,4 +357,24 @@ fn check_sum_dot() {
     assert_eq!(n.clone() - dot(), -10);
     // (-5.5, 7.6875) - (-15.5, 7.6875) = 10
     assert_eq!(dot() - n, 10);
+}
+
+#[test]
+fn check_unwind_safety() {
+    let mut real = Float::with_val(53, 42);
+    let old_data = real.inner().d;
+    let mut new_data = NonNull::dangling();
+    panic::catch_unwind(AssertUnwindSafe(|| {
+        Complex::mutate_real_imag(&mut real, &mut Float::new(53), |c| {
+            let new_val = Float::new(53);
+            new_data = new_val.inner().d;
+            // drop old value
+            *c.mut_real() = new_val;
+            panic!();
+        });
+    }))
+    .unwrap_err();
+    let data_at_end = real.inner().d;
+    assert_ne!(data_at_end, old_data);
+    assert_eq!(data_at_end, new_data);
 }
