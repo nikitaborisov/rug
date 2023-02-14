@@ -816,11 +816,19 @@ impl Rational {
     where
         F: FnOnce(&mut Integer, &mut Integer),
     {
+        struct CanonicalizeOnDrop<'a>(&'a mut Rational);
+
+        impl Drop for CanonicalizeOnDrop<'_> {
+            fn drop(&mut self) {
+                xmpq::canonicalize(self.0);
+            }
+        }
+
+        let guard = CanonicalizeOnDrop(self);
         unsafe {
-            let (num, den) = xmpq::numref_denref(self);
+            let (num, den) = xmpq::numref_denref(guard.0);
             func(num, den);
         }
-        xmpq::canonicalize(self);
     }
 
     /// Borrows the numerator and denominator mutably without canonicalizing

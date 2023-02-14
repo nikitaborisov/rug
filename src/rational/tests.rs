@@ -17,6 +17,8 @@
 use crate::ops::SubFrom;
 use crate::rational::SmallRational;
 use crate::{Assign, Complete, Integer, Rational};
+use core::panic::AssertUnwindSafe;
+use std::panic;
 
 #[test]
 fn check_fract_trunc() {
@@ -319,4 +321,19 @@ fn check_sum_dot_product() {
     assert_eq!(n, (-25, 3));
     assert_eq!(n.clone() * product(), (125, 18));
     assert_eq!(product() * n, (125, 18));
+}
+
+#[test]
+fn check_unwind_safety() {
+    let mut r = Rational::new();
+    panic::catch_unwind(AssertUnwindSafe(|| {
+        r.mutate_numer_denom(|num, den| {
+            num.assign(2);
+            den.assign(4);
+            panic!();
+        });
+    }))
+    .unwrap_err();
+    assert_eq!(*r.numer(), 1);
+    assert_eq!(*r.denom(), 2);
 }

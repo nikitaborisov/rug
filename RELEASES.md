@@ -4,6 +4,12 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.19.1 (unreleased)
+===========================
+
+  * Bug fix: <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]
+    was not unwind-safe ([issue 47]).
+
 Version 1.19.0 (2023-01-06)
 ===========================
 
@@ -226,6 +232,7 @@ Version 1.19.0 (2023-01-06)
 [int-c-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.cmp0
 [int-ie-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_even
 [int-io-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_odd
+[issue 47]: https://gitlab.com/tspiteri/rug/-/issues/47
 [r-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html
 [r-az-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html#variant.AwayZero
 [rat-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html
@@ -238,6 +245,7 @@ Version 1.19.0 (2023-01-06)
 [rat-ii-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html#method.is_integer
 [rat-ind-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html#method.into_numer_denom
 [rat-ir-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html#method.into_raw
+[rat-mnd-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html#method.mutate_numer_denom
 [rat-n-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html#method.numer
 [sys-1-5]: https://docs.rs/gmp-mpfr-sys/~1.5/gmp_mpfr_sys/index.html
 
