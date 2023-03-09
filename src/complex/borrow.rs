@@ -102,7 +102,7 @@ impl<'a> BorrowComplex<'a> {
     ///
     /// let c = Complex::with_val(53, (23.5, -12.25));
     /// let b = c.as_conj();
-    /// let using_method: &Complex = &BorrowComplex::const_deref(&b);
+    /// let using_method: &Complex = BorrowComplex::const_deref(&b);
     /// let using_operator: &Complex = &*b;
     /// let using_trait: &Complex = b.deref();
     /// assert_eq!(*using_method, (23.5, 12.25));

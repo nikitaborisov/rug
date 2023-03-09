@@ -101,7 +101,7 @@ impl<'a> BorrowFloat<'a> {
     ///
     /// let f = Float::with_val(53, 23.5);
     /// let b = f.as_neg();
-    /// let using_method: &Float = &BorrowFloat::const_deref(&b);
+    /// let using_method: &Float = BorrowFloat::const_deref(&b);
     /// let using_operator: &Float = &*b;
     /// let using_trait: &Float = b.deref();
     /// assert_eq!(*using_method, -23.5);

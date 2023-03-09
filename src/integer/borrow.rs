@@ -103,7 +103,7 @@ impl<'a> BorrowInteger<'a> {
     ///
     /// let i = Integer::from(23);
     /// let b = i.as_neg();
-    /// let using_method: &Integer = &BorrowInteger::const_deref(&b);
+    /// let using_method: &Integer = BorrowInteger::const_deref(&b);
     /// let using_operator: &Integer = &*b;
     /// let using_trait: &Integer = b.deref();
     /// assert_eq!(*using_method, -23);

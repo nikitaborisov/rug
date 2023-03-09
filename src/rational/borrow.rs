@@ -106,7 +106,7 @@ impl<'a> BorrowRational<'a> {
     ///
     /// let i = Rational::from((-5, 7));
     /// let b = i.as_recip();
-    /// let using_method: &Rational = &BorrowRational::const_deref(&b);
+    /// let using_method: &Rational = BorrowRational::const_deref(&b);
     /// let using_operator: &Rational = &*b;
     /// let using_trait: &Rational = b.deref();
     /// assert_eq!(*using_trait, (-7, 5));
