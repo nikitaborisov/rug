@@ -314,7 +314,7 @@ impl RandState<'_> {
     ///
     /// # Safety
     ///
-    ///   * The value must be initialized.
+    ///   * The value must be initialized as a valid [`randstate_t`].
     ///   * The [`randstate_t`] type can be considered as a kind of pointer, so
     ///     there can be multiple copies of it. Since this function takes over
     ///     ownership, no other copies of the passed value should exist.
@@ -709,7 +709,7 @@ impl ThreadRandState<'_> {
     ///
     /// # Safety
     ///
-    ///   * The value must be initialized.
+    ///   * The value must be initialized as a valid [`randstate_t`].
     ///   * The [`randstate_t`] type can be considered as a kind of pointer, so
     ///     there can be multiple copies of it. Since this function takes over
     ///     ownership, no other copies of the passed value should exist.

@@ -51,7 +51,7 @@ impl<'a> BorrowRational<'a> {
     ///
     /// # Safety
     ///
-    ///   * The value must be initialized.
+    ///   * The value must be initialized as a valid [`mpq_t`].
     ///   * The [`mpq_t`] type can be considered as a kind of pointer, so there
     ///     can be multiple copies of it. [`BorrowRational`] cannot mutate the
     ///     value, so there can be other copies, but none of them are allowed to

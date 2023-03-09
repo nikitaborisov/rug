@@ -193,7 +193,7 @@ impl Rational {
     ///     number, though it can be used to create a static [`Rational`]
     ///     number. This is because constant values are *copied* on use, leading
     ///     to undefined behavior when they are dropped.
-    ///   * The value must be initialized.
+    ///   * The value must be initialized as a valid [`mpq_t`].
     ///   * The [`mpq_t`] type can be considered as a kind of pointer, so there
     ///     can be multiple copies of it. Since this function takes over
     ///     ownership, no other copies of the passed value should exist.

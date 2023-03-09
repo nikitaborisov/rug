@@ -52,7 +52,7 @@ impl<'a> BorrowFloat<'a> {
     ///
     /// # Safety
     ///
-    ///   * The value must be initialized.
+    ///   * The value must be initialized as a valid [`mpfr_t`].
     ///   * The [`mpfr_t`] type can be considered as a kind of pointer, so there
     ///     can be multiple copies of it. [`BorrowFloat`] cannot mutate the
     ///     value, so there can be other copies, but none of them are allowed to
