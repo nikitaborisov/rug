@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.19.2 news (unreleased)
+### Version 1.19.2 news (2023-03-23)
 
   * Bug fix: a zero denominator could be left after catching a panic from
     <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]</code>

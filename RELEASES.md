@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.19.2 (unreleased)
+Version 1.19.2 (2023-03-23)
 ===========================
 
   * Bug fix: a zero denominator could be left after catching a panic from
