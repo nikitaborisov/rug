@@ -324,7 +324,7 @@ fn check_sum_dot_product() {
 }
 
 #[test]
-fn check_unwind_safety() {
+fn check_issue_47_unwind_safety() {
     let mut r = Rational::new();
     panic::catch_unwind(AssertUnwindSafe(|| {
         r.mutate_numer_denom(|num, den| {
@@ -336,4 +336,16 @@ fn check_unwind_safety() {
     .unwrap_err();
     assert_eq!(*r.numer(), 1);
     assert_eq!(*r.denom(), 2);
+}
+
+#[test]
+fn check_issue_49_unwind_safety() {
+    let mut r = Rational::new();
+    panic::catch_unwind(AssertUnwindSafe(|| {
+        r.mutate_numer_denom(|_, den| {
+            den.assign(0);
+        });
+    }))
+    .unwrap_err();
+    assert_ne!(*r.denom(), 0);
 }

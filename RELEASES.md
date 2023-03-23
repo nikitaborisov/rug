@@ -4,6 +4,13 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.19.2 (unreleased)
+===========================
+
+  * Bug fix: a zero denominator could be left after catching a panic from
+    <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]</code>
+    ([issue 49]).
+
 Version 1.19.1 (2023-02-14)
 ===========================
 
@@ -236,6 +243,7 @@ Version 1.19.0 (2023-01-06)
 [int-ie-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_even
 [int-io-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_odd
 [issue 47]: https://gitlab.com/tspiteri/rug/-/issues/47
+[issue 49]: https://gitlab.com/tspiteri/rug/-/issues/49
 [r-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html
 [r-az-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html#variant.AwayZero
 [rat-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html

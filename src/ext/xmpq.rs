@@ -358,7 +358,14 @@ pub fn write_num_den_canonicalize(dst: &mut MaybeUninit<Rational>, num: Integer,
 
 #[inline]
 pub fn canonicalize(r: &mut Rational) {
-    assert_ne!(r.denom().cmp0(), Ordering::Equal, "division by zero");
+    if r.denom().cmp0() == Ordering::Equal {
+        // Leave in canonical state before panic (issue 49).
+        unsafe {
+            let den = numref_denref(r).1;
+            xmpz::set_1(den);
+        }
+        panic!("division by zero");
+    }
     unsafe {
         gmp::mpq_canonicalize(r.as_raw_mut());
     }

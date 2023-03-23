@@ -28,6 +28,12 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.19.2 news (unreleased)
+
+  * Bug fix: a zero denominator could be left after catching a panic from
+    <code>[Rational][rat-1-19]::[mutate\_numer\_denom][rat-mnd-1-19]</code>
+    ([issue 49]).
+
 ### Version 1.19.1 news (2023-02-14)
 
   * Bug fix:
@@ -261,6 +267,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [int-ie-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_even
 [int-io-1-19]: https://docs.rs/rug/~1.19/rug/struct.Integer.html#method.is_odd
 [issue 47]: https://gitlab.com/tspiteri/rug/-/issues/47
+[issue 49]: https://gitlab.com/tspiteri/rug/-/issues/49
 [r-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html
 [r-az-1-19]: https://docs.rs/rug/~1.19/rug/float/enum.Round.html#variant.AwayZero
 [rat-1-19]: https://docs.rs/rug/~1.19/rug/struct.Rational.html
