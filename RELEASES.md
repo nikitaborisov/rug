@@ -4,6 +4,16 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.20.0 (unreleased)
+===========================
+
+  * The following associated constants were added to [`Integer`][int-1-20]:
+      * [`ONE`][int-o-1-20], [`NEG_ONE`][int-no-1-20]
+
+[int-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html
+[int-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.NEG_ONE
+[int-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.ONE
+
 Version 1.19.2 (2023-03-23)
 ===========================
 
