@@ -4445,6 +4445,65 @@ impl Integer {
         NextPrimeIncomplete { ref_self: self }
     }
 
+    /// Identifies previous prime number using a probabilistic algorithm; the
+    /// chance of a composite passing will be extremely small.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let i = Integer::from(800_000_000);
+    /// let prime = i.prev_prime();
+    /// assert_eq!(prime, 799_999_999);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn prev_prime(mut self) -> Self {
+        self.prev_prime_mut();
+        self
+    }
+
+    /// Identifies previous prime number using a probabilistic algorithm; the
+    /// chance of a composite passing will be extremely small.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let mut i = Integer::from(800_000_000);
+    /// i.prev_prime_mut();
+    /// assert_eq!(i, 799_999_999);
+    /// ```
+    #[inline]
+    pub fn prev_prime_mut(&mut self) {
+        xmpz::prevprime(self, ());
+    }
+
+    /// Identifies previous prime number using a probabilistic algorithm; the
+    /// chance of a composite passing will be extremely small.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Integer]</code>
+    ///   * <code>[From]\<Src> for [Integer]</code>
+    ///   * <code>[Complete]\<[Completed][Complete::Completed] = [Integer]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let i = Integer::from(800_000_000);
+    /// let r = i.prev_prime_ref();
+    /// let prime = Integer::from(r);
+    /// assert_eq!(prime, 799_999_999);
+    /// ```
+    ///
+    /// [icv]: crate#incomplete-computation-values
+    #[inline]
+    pub fn prev_prime_ref(&self) -> PrevPrimeIncomplete<'_> {
+        PrevPrimeIncomplete { ref_self: self }
+    }
+
     /// Finds the greatest common divisor.
     ///
     /// The result is always positive except when both inputs are zero.
@@ -6000,6 +6059,7 @@ ref_math_op1_2! { Integer; xmpz::rootrem; struct RootRemIncomplete { n: c_ulong 
 ref_math_op1! { Integer; xmpz::sqrt; struct SqrtIncomplete {} }
 ref_math_op1_2! { Integer; xmpz::sqrtrem; struct SqrtRemIncomplete {} }
 ref_math_op1! { Integer; xmpz::nextprime; struct NextPrimeIncomplete {} }
+ref_math_op1! { Integer; xmpz::prevprime; struct PrevPrimeIncomplete {} }
 ref_math_op2! { Integer; xmpz::gcd; struct GcdIncomplete { other } }
 ref_math_op1! { Integer; xmpz::gcd_ui; struct GcdUIncomplete { other: c_ulong } }
 

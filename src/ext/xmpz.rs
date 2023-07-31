@@ -596,6 +596,7 @@ unsafe_wrap! { fn pow_u32(op1: O; op2: u32) -> gmp::mpz_pow_ui }
 unsafe_wrap! { fn abs(op: O) -> gmp::mpz_abs }
 unsafe_wrap! { fn fdiv_r_2exp(op: O; n: bitcnt_t) -> gmp::mpz_fdiv_r_2exp }
 unsafe_wrap! { fn nextprime(op: O) -> gmp::mpz_nextprime }
+unsafe_wrap! { fn prevprime(op: O) -> gmp::mpz_prevprime }
 unsafe_wrap! { fn add_ui(op1: O; op2: c_ulong) -> gmp::mpz_add_ui }
 unsafe_wrap! { fn sub_ui(op1: O; op2: c_ulong) -> gmp::mpz_sub_ui }
 unsafe_wrap! { fn mul_ui(op1: O; op2: c_ulong) -> gmp::mpz_mul_ui }

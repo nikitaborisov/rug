@@ -8,6 +8,9 @@ Version 1.20.0 (unreleased)
 ===========================
 
   * The [gmp-mpfr-sys] dependency was updated to [version 1.6][sys-1-6].
+  * The following methods were added to [`Integer`][int-1-20]:
+      * [`prev_prime`][int-pp-1-20], [`prev_prime_mut`][int-ppm-1-20],
+        [`prev_prime_ref`][int-ppr-1-20]
   * The following associated constants were added to [`Integer`][int-1-20]:
       * [`ONE`][int-o-1-20], [`NEG_ONE`][int-no-1-20]
   * The following associated constants were added to [`Rational`][rat-1-20]:
@@ -16,6 +19,9 @@ Version 1.20.0 (unreleased)
 [int-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html
 [int-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.NEG_ONE
 [int-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.ONE
+[int-pp-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime
+[int-ppm-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime_mut
+[int-ppr-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime_ref
 [rat-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html
 [rat-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.NEG_ONE
 [rat-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.ONE
