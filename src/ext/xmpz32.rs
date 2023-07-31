@@ -279,13 +279,13 @@ pub fn fits_i32(op: &Integer) -> bool {
 
 #[inline]
 pub fn fits_u64(op: &Integer) -> bool {
-    matches!(op.inner().size, 0 | 1 | 2)
+    matches!(op.inner().size, 0..=2)
 }
 
 #[inline]
 pub fn fits_i64(op: &Integer) -> bool {
     match op.inner().size {
-        0 | 1 | -1 => true,
+        -1..=1 => true,
         2 => (unsafe { limb(op, 1) }) <= i32::MAX.wrapping_as::<u32>(),
         -2 => {
             (unsafe { limb(op, 1) }) < i32::MIN.wrapping_as::<u32>()
@@ -298,13 +298,13 @@ pub fn fits_i64(op: &Integer) -> bool {
 
 #[inline]
 pub fn fits_u128(op: &Integer) -> bool {
-    matches!(op.inner().size, 0 | 1 | 2 | 3 | 4)
+    matches!(op.inner().size, 0..=4)
 }
 
 #[inline]
 pub fn fits_i128(op: &Integer) -> bool {
     match op.inner().size {
-        0 | 1 | -1 | 2 | -2 | 3 | -3 => true,
+        -3..=3 => true,
         4 => (unsafe { limb(op, 3) }) <= i32::MAX.wrapping_as::<u32>(),
         -4 => {
             (unsafe { limb(op, 3) }) < i32::MIN.wrapping_as::<u32>()
