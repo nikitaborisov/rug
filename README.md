@@ -30,8 +30,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.20.0 news (unreleased)
 
-  * Bug fix: there was a violation of the Stacked Borrows rules when
-    dereferencing `Small*` types ([issue 52]).
   * The following associated constants were added to [`Integer`][int-1-20]:
       * [`ONE`][int-o-1-20], [`NEG_ONE`][int-no-1-20]
   * The following associated constants were added to [`Rational`][rat-1-20]:
@@ -40,7 +38,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [int-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html
 [int-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.NEG_ONE
 [int-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.ONE
-[issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
 [rat-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html
 [rat-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.NEG_ONE
 [rat-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.ONE
