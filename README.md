@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.20.1 news (unreleased)
+### Version 1.20.1 news (2023-08-03)
 
   * Bug fix: <code>[Float][flo-1-20]::[to_f32_round][flo-tfr-1-20]</code> was
     rounding some numbers in the subnormal range incorrectly ([issue 56]).
