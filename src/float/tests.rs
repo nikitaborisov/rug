@@ -496,3 +496,10 @@ fn check_sum_dot() {
     // -50 - -60 = 10
     assert_eq!(dot() - n, 10);
 }
+
+#[test]
+fn check_issue_56() {
+    let x = Float::with_val(21, 1111111) >> 154u32;
+    let rounded = x.to_f32_round(Round::Up);
+    assert!(rounded >= x);
+}

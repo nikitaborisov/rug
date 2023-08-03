@@ -370,6 +370,7 @@ unsafe_wrap0! { fn set_sj(src: intmax_t) -> mpfr::set_sj }
 unsafe_wrap0! { fn set_ui(src: c_ulong) -> mpfr::set_ui }
 unsafe_wrap0! { fn set_uj(src: uintmax_t) -> mpfr::set_uj }
 unsafe_wrap0! { fn set_f64(src: f64) -> mpfr::set_d }
+unsafe_wrap0! { fn set_f32(src: f32) -> mpfr::set_flt }
 unsafe_wrap0! { fn prec_round(prec: prec_t) -> mpfr::prec_round }
 unsafe_wrap! { fn remainder(x: O, y: P) -> mpfr::remainder }
 unsafe_wrap0! { fn ui_pow_ui(base: u32, exponent: u32) -> mpfr::ui_pow_ui }
@@ -593,11 +594,6 @@ pub fn set_q(dst: &mut Float, src: &Rational, rnd: Round) -> Ordering {
 }
 
 #[inline]
-pub fn set_f32(dst: &mut Float, src: f32, rnd: Round) -> Ordering {
-    set_f64(dst, src.into(), rnd)
-}
-
-#[inline]
 pub fn set_i128(rop: &mut Float, val: i128, rnd: Round) -> Ordering {
     let small = SmallFloat::from(val);
     set(rop, &*small, rnd)
@@ -643,15 +639,7 @@ pub const fn get_exp(op: &Float) -> exp_t {
 }
 
 pub fn get_f32(op: &Float, rnd: Round) -> f32 {
-    unsafe {
-        let mut limb: [limb_t; 1] = [0];
-        let mut single = MaybeUninit::<mpfr_t>::uninit();
-        custom_zero(single.as_mut_ptr(), limb.as_mut_ptr(), 24);
-        let mut single = single.assume_init();
-        mpfr::set(&mut single, op.as_raw(), raw_round(rnd));
-        let val = mpfr::get_d(&single, rnd_t::RNDZ);
-        val as f32
-    }
+    unsafe { mpfr::get_flt(op.as_raw(), raw_round(rnd)) }
 }
 
 #[inline]

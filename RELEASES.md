@@ -4,6 +4,12 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.20.1 (unreleased)
+===========================
+
+  * Bug fix: <code>[Float][flo-1-20]::[to_f32_round][flo-tfr-1-20]</code> was
+    rounding some numbers in the subnormal range incorrectly ([issue 56]).
+
 Version 1.20.0 (2023-07-31)
 ===========================
 
@@ -16,12 +22,15 @@ Version 1.20.0 (2023-07-31)
   * The following associated constants were added to [`Rational`][rat-1-20]:
       * [`ZERO`][rat-z-1-20], [`ONE`][rat-o-1-20], [`NEG_ONE`][rat-no-1-20]
 
+[flo-1-20]: https://docs.rs/rug/~1.20/rug/struct.Float.html
+[flo-tfr-1-20]: https://docs.rs/rug/~1.20/rug/struct.Float.html#method.to_f32_round
 [int-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html
 [int-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.NEG_ONE
 [int-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#associatedconstant.ONE
 [int-pp-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime
 [int-ppm-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime_mut
 [int-ppr-1-20]: https://docs.rs/rug/~1.20/rug/struct.Integer.html#method.prev_prime_ref
+[issue 56]: https://gitlab.com/tspiteri/rug/-/issues/56
 [rat-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html
 [rat-no-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.NEG_ONE
 [rat-o-1-20]: https://docs.rs/rug/~1.20/rug/struct.Rational.html#associatedconstant.ONE
