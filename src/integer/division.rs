@@ -21,7 +21,7 @@ use crate::ops::{
     DivRounding, DivRoundingAssign, DivRoundingFrom, RemRounding, RemRoundingAssign,
     RemRoundingFrom,
 };
-use crate::{Assign, Integer};
+use crate::{Assign, Complete, Integer};
 use az::{CheckedAs, CheckedCast};
 use core::ffi::{c_long, c_ulong};
 
@@ -249,6 +249,14 @@ macro_rules! div_op {
                 dst
             }
         }
+
+        impl Complete for $Incomplete<'_> {
+            type Completed = Integer;
+            #[inline]
+            fn complete(self) -> Integer {
+                Integer::from(self)
+            }
+        }
     };
 }
 
@@ -443,6 +451,14 @@ macro_rules! div_prim {
             }
         }
 
+        impl Complete for $Incomplete<'_> {
+            type Completed = Integer;
+            #[inline]
+            fn complete(self) -> Integer {
+                Integer::from(self)
+            }
+        }
+
         impl $Imp<Integer> for $T {
             type Output = Integer;
             #[inline]
@@ -603,6 +619,14 @@ macro_rules! div_prim {
                 let mut dst = Integer::new();
                 dst.assign(src);
                 dst
+            }
+        }
+
+        impl Complete for $FromIncomplete<'_> {
+            type Completed = Integer;
+            #[inline]
+            fn complete(self) -> Integer {
+                Integer::from(self)
             }
         }
     )* };
