@@ -28,6 +28,17 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.21.0 news (unreleased)
+
+  * [`Complete`][c-1-21] was implemented for incomplete values produced by
+    [`DivRounding`][dr-1-21] and [`RemRounding`][rr-1-21] implementations
+    ([merge request 4]).
+
+[c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
+[dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
+[merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
+[rr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.RemRounding.html
+
 ### Version 1.20.1 news (2023-08-03)
 
   * Bug fix: <code>[Float][flo-1-20]::[to_f32_round][flo-tfr-1-20]</code> was

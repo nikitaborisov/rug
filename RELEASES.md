@@ -4,6 +4,18 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.21.0 (unreleased)
+===========================
+
+  * [`Complete`][c-1-21] was implemented for incomplete values produced by
+    [`DivRounding`][dr-1-21] and [`RemRounding`][rr-1-21] implementations
+    ([merge request 4]).
+
+[c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
+[dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
+[merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
+[rr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.RemRounding.html
+
 Version 1.20.1 (2023-08-03)
 ===========================
 
