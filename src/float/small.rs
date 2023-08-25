@@ -21,7 +21,6 @@ use crate::misc::NegAbs;
 use crate::{Assign, Float};
 use az::{Az, UnwrappedCast, WrappingCast};
 use core::cell::UnsafeCell;
-use core::ffi::c_int;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -29,7 +28,7 @@ use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::limb_t;
 use gmp_mpfr_sys::mpfr;
-use gmp_mpfr_sys::mpfr::{exp_t, mpfr_t, prec_t};
+use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};
 
 const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
 type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
@@ -72,36 +71,21 @@ a *= &*b;
 assert_eq!(a, -15000);
 ```
 */
-#[derive(Clone)]
 pub struct SmallFloat {
-    inner: Mpfr,
+    inner: UnsafeCell<mpfr_t>,
     limbs: Limbs,
 }
 
-// Safety: Mpfr has a repr equivalent to mpfr_t. The difference in the repr(C)
-// types Mpfr and mpfr_t is that Mpfr uses UnsafeCell<NonNull<limb_t>> instead
-// of NonNull<limb_t>, but UnsafeCell is repr(transparent).
-#[repr(C)]
-pub struct Mpfr {
-    pub prec: prec_t,
-    pub sign: c_int,
-    pub exp: exp_t,
-    pub d: UnsafeCell<NonNull<limb_t>>,
-}
-
-impl Clone for Mpfr {
-    fn clone(&self) -> Mpfr {
-        Mpfr {
-            prec: self.prec,
-            sign: self.sign,
-            exp: self.exp,
-            d: UnsafeCell::new(unsafe { *self.d.get() }),
+impl Clone for SmallFloat {
+    fn clone(&self) -> SmallFloat {
+        SmallFloat {
+            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
+            limbs: self.limbs,
         }
     }
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
-static_assert_same_layout!(Mpfr, mpfr_t);
 
 // Safety: SmallFloat cannot be Sync because it contains an UnsafeCell
 // which is written to then read without further protection, so it
@@ -131,12 +115,12 @@ impl SmallFloat {
     #[inline]
     pub const fn new() -> Self {
         SmallFloat {
-            inner: Mpfr {
+            inner: UnsafeCell::new(mpfr_t {
                 prec: float::prec_min() as prec_t,
                 sign: 1,
                 exp: xmpfr::EXP_ZERO,
-                d: UnsafeCell::new(NonNull::dangling()),
-            },
+                d: NonNull::dangling(),
+            }),
             limbs: small_limbs![],
         }
     }
@@ -183,8 +167,8 @@ impl SmallFloat {
         let d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
         // Safety: self is not Sync, so we can write to d without causing a data race.
         unsafe {
-            if *self.inner.d.get() != d {
-                *self.inner.d.get() = d;
+            if (*self.inner.get().cast_const()).d != d {
+                (*self.inner.get()).d = d;
             }
         }
     }
@@ -216,7 +200,7 @@ impl Deref for SmallFloat {
 pub trait ToSmall: SealedToSmall {}
 
 pub trait SealedToSmall: Copy {
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs);
 }
 
 macro_rules! unsafe_signed {
@@ -224,7 +208,7 @@ macro_rules! unsafe_signed {
         impl ToSmall for $I {}
         impl SealedToSmall for $I {
             #[inline]
-            unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
+            unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let (neg, abs) = self.neg_abs();
                 unsafe{
                     abs.copy(inner, limbs);
@@ -242,12 +226,11 @@ macro_rules! unsafe_unsigned_32 {
         impl ToSmall for $U {}
         impl SealedToSmall for $U {
             #[inline]
-            unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-                let ptr = cast_ptr_mut!(inner, mpfr_t);
+            unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
                 if self == 0 {
                     unsafe {
-                        xmpfr::custom_zero(ptr, limbs_ptr, $bits);
+                        xmpfr::custom_zero(inner, limbs_ptr, $bits);
                     }
                 } else {
                     let leading = self.leading_zeros();
@@ -255,7 +238,7 @@ macro_rules! unsafe_unsigned_32 {
                     limbs[0] = MaybeUninit::new(limb_t::from(self) << limb_leading);
                     let exp = ($bits - leading).unwrapped_cast();
                     unsafe {
-                        xmpfr::custom_regular(ptr, limbs_ptr, exp, $bits);
+                        xmpfr::custom_regular(inner, limbs_ptr, exp, $bits);
                     }
                 }
             }
@@ -272,12 +255,11 @@ unsafe_unsigned_32! { u32, 32 }
 impl ToSmall for u64 {}
 impl SealedToSmall for u64 {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-        let ptr = cast_ptr_mut!(inner, mpfr_t);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
         if self == 0 {
             unsafe {
-                xmpfr::custom_zero(ptr, limbs_ptr, 64);
+                xmpfr::custom_zero(inner, limbs_ptr, 64);
             }
         } else {
             let leading = self.leading_zeros();
@@ -293,7 +275,7 @@ impl SealedToSmall for u64 {
             }
             let exp = (64 - leading).unwrapped_cast();
             unsafe {
-                xmpfr::custom_regular(ptr, limbs_ptr, exp, 64);
+                xmpfr::custom_regular(inner, limbs_ptr, exp, 64);
             }
         }
     }
@@ -302,12 +284,11 @@ impl SealedToSmall for u64 {
 impl ToSmall for u128 {}
 impl SealedToSmall for u128 {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-        let ptr = cast_ptr_mut!(inner, mpfr_t);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
         if self == 0 {
             unsafe {
-                xmpfr::custom_zero(ptr, limbs_ptr, 128);
+                xmpfr::custom_zero(inner, limbs_ptr, 128);
             }
         } else {
             let leading = self.leading_zeros();
@@ -326,7 +307,7 @@ impl SealedToSmall for u128 {
             }
             let exp = (128 - leading).unwrapped_cast();
             unsafe {
-                xmpfr::custom_regular(ptr, limbs_ptr, exp, 128);
+                xmpfr::custom_regular(inner, limbs_ptr, exp, 128);
             }
         }
     }
@@ -335,7 +316,7 @@ impl SealedToSmall for u128 {
 impl ToSmall for usize {}
 impl SealedToSmall for usize {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         #[cfg(target_pointer_width = "32")]
         {
             let val = self.az::<u32>();
@@ -356,14 +337,13 @@ impl SealedToSmall for usize {
 impl ToSmall for f32 {}
 impl SealedToSmall for f32 {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-        let ptr = cast_ptr_mut!(inner, mpfr_t);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
         let val = self.into();
         let rnd = raw_round(Round::Nearest);
         unsafe {
-            xmpfr::custom_zero(ptr, limbs_ptr, 24);
-            mpfr::set_d(ptr, val, rnd);
+            xmpfr::custom_zero(inner, limbs_ptr, 24);
+            mpfr::set_d(inner, val, rnd);
         }
         // retain sign in case of NaN
         if self.is_sign_negative() {
@@ -377,13 +357,12 @@ impl SealedToSmall for f32 {
 impl ToSmall for f64 {}
 impl SealedToSmall for f64 {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-        let ptr = cast_ptr_mut!(inner, mpfr_t);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
         let rnd = raw_round(Round::Nearest);
         unsafe {
-            xmpfr::custom_zero(ptr, limbs_ptr, 53);
-            mpfr::set_d(ptr, self, rnd);
+            xmpfr::custom_zero(inner, limbs_ptr, 53);
+            mpfr::set_d(inner, self, rnd);
         }
         // retain sign in case of NaN
         if self.is_sign_negative() {
@@ -397,12 +376,11 @@ impl SealedToSmall for f64 {
 impl ToSmall for Special {}
 impl SealedToSmall for Special {
     #[inline]
-    unsafe fn copy(self, inner: *mut Mpfr, limbs: &mut Limbs) {
-        let ptr = cast_ptr_mut!(inner, mpfr_t);
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
         let prec = float::prec_min().az();
         unsafe {
-            xmpfr::custom_special(ptr, limbs_ptr, self, prec);
+            xmpfr::custom_special(inner, limbs_ptr, self, prec);
         }
     }
 }
@@ -411,7 +389,7 @@ impl<T: ToSmall> Assign<T> for SmallFloat {
     #[inline]
     fn assign(&mut self, src: T) {
         unsafe {
-            src.copy(&mut self.inner, &mut self.limbs);
+            src.copy(self.inner.get_mut(), &mut self.limbs);
         }
     }
 }
@@ -419,17 +397,20 @@ impl<T: ToSmall> Assign<T> for SmallFloat {
 impl<T: ToSmall> From<T> for SmallFloat {
     #[inline]
     fn from(src: T) -> Self {
-        let mut inner = Mpfr {
+        let mut inner = mpfr_t {
             prec: 0,
             sign: 0,
             exp: 0,
-            d: UnsafeCell::new(NonNull::dangling()),
+            d: NonNull::dangling(),
         };
         let mut limbs = small_limbs![];
         unsafe {
             src.copy(&mut inner, &mut limbs);
         }
-        SmallFloat { inner, limbs }
+        SmallFloat {
+            inner: UnsafeCell::new(inner),
+            limbs,
+        }
     }
 }
 

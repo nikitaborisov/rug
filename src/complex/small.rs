@@ -16,7 +16,6 @@
 
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::small::Mpfr;
 use crate::float::ToSmall;
 use crate::{Assign, Complex};
 use core::cell::UnsafeCell;
@@ -71,12 +70,21 @@ assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
 */
-#[derive(Clone)]
 pub struct SmallComplex {
-    inner: Mpc,
+    inner: UnsafeCell<mpc_t>,
     // real part is first in limbs if inner.re.d <= inner.im.d
     first_limbs: Limbs,
     last_limbs: Limbs,
+}
+
+impl Clone for SmallComplex {
+    fn clone(&self) -> SmallComplex {
+        SmallComplex {
+            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
+            first_limbs: self.first_limbs,
+            last_limbs: self.last_limbs,
+        }
+    }
 }
 
 // Safety: SmallComplex cannot be Sync because it contains an
@@ -93,20 +101,6 @@ impl Default for SmallComplex {
     }
 }
 
-// Safety: Mpfr has a repr equivalent to mpfr_t, so Mpc has a repr equivalent to
-// mpc_t. The difference in the repr(C) types Mpfr and mpfr_t is that Mpfr uses
-// UnsafeCell<NonNull<limb_t>> instead of NonNull<limb_t>, but UnsafeCell is
-// repr(transparent). The difference in the repr(C) types Mpc and mpc_t is that
-// Mpc uses Mpfr instead of mpfr_t.
-#[derive(Clone)]
-#[repr(C)]
-struct Mpc {
-    re: Mpfr,
-    im: Mpfr,
-}
-
-static_assert_same_layout!(Mpc, mpc_t);
-
 impl SmallComplex {
     /// Creates a [`SmallComplex`] with value 0 and the [minimum possible
     /// precision][crate::float::prec_min].
@@ -122,20 +116,20 @@ impl SmallComplex {
     #[inline]
     pub const fn new() -> Self {
         SmallComplex {
-            inner: Mpc {
-                re: Mpfr {
+            inner: UnsafeCell::new(mpc_t {
+                re: mpfr_t {
                     prec: float::prec_min() as prec_t,
                     sign: 1,
                     exp: xmpfr::EXP_ZERO,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-                im: Mpfr {
+                im: mpfr_t {
                     prec: float::prec_min() as prec_t,
                     sign: 1,
                     exp: xmpfr::EXP_ZERO,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-            },
+            }),
             first_limbs: small_limbs![],
             last_limbs: small_limbs![],
         }
@@ -173,7 +167,8 @@ impl SmallComplex {
     #[inline]
     // Safety: self is not Sync, so reading d does not cause a data race.
     fn re_is_first(&self) -> bool {
-        unsafe { *self.inner.re.d.get() <= *self.inner.im.d.get() }
+        let ptr = self.inner.get().cast_const();
+        unsafe { (*ptr).re.d <= (*ptr).im.d }
     }
 
     // To be used when offsetting re and im in case the struct has
@@ -199,12 +194,12 @@ impl SmallComplex {
             (last, first)
         };
         // Safety: self is not Sync, so we can write to d without causing a data race.
+        let ptr = self.inner.get().cast_const();
         unsafe {
-            if *self.inner.re.d.get() != re_d {
-                *self.inner.re.d.get() = re_d;
-            }
-            if *self.inner.im.d.get() != im_d {
-                *self.inner.im.d.get() = im_d;
+            if (*ptr).re.d != re_d || (*ptr).im.d != im_d {
+                let ptr = self.inner.get();
+                (*ptr).re.d = re_d;
+                (*ptr).im.d = im_d;
             }
         }
     }
@@ -226,11 +221,11 @@ impl Deref for SmallComplex {
 impl<Re: ToSmall> Assign<Re> for SmallComplex {
     fn assign(&mut self, src: Re) {
         unsafe {
-            src.copy(&mut self.inner.re, &mut self.first_limbs);
+            src.copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
             xmpfr::custom_zero(
-                cast_ptr_mut!(&mut self.inner.im, mpfr_t),
+                &mut self.inner.get_mut().im,
                 cast_ptr_mut!(self.last_limbs.as_mut_ptr(), limb_t),
-                self.inner.re.prec,
+                self.inner.get_mut().re.prec,
             );
         }
     }
@@ -238,18 +233,18 @@ impl<Re: ToSmall> Assign<Re> for SmallComplex {
 
 impl<Re: ToSmall> From<Re> for SmallComplex {
     fn from(src: Re) -> Self {
-        let mut inner = Mpc {
-            re: Mpfr {
+        let mut inner = mpc_t {
+            re: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
-            im: Mpfr {
+            im: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
         };
         let mut re_limbs = small_limbs![];
@@ -257,7 +252,7 @@ impl<Re: ToSmall> From<Re> for SmallComplex {
         unsafe {
             src.copy(&mut inner.re, &mut re_limbs);
             xmpfr::custom_zero(
-                cast_ptr_mut!(&mut inner.im, mpfr_t),
+                &mut inner.im,
                 cast_ptr_mut!(im_limbs.as_mut_ptr(), limb_t),
                 inner.re.prec,
             );
@@ -265,13 +260,13 @@ impl<Re: ToSmall> From<Re> for SmallComplex {
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
             SmallComplex {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
             SmallComplex {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
             }
@@ -282,26 +277,28 @@ impl<Re: ToSmall> From<Re> for SmallComplex {
 impl<Re: ToSmall, Im: ToSmall> Assign<(Re, Im)> for SmallComplex {
     fn assign(&mut self, src: (Re, Im)) {
         unsafe {
-            src.0.copy(&mut self.inner.re, &mut self.first_limbs);
-            src.1.copy(&mut self.inner.im, &mut self.last_limbs);
+            src.0
+                .copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
+            src.1
+                .copy(&mut self.inner.get_mut().im, &mut self.last_limbs);
         }
     }
 }
 
 impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
     fn from(src: (Re, Im)) -> Self {
-        let mut inner = Mpc {
-            re: Mpfr {
+        let mut inner = mpc_t {
+            re: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
-            im: Mpfr {
+            im: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
         };
         let mut re_limbs = small_limbs![];
@@ -313,13 +310,13 @@ impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
             SmallComplex {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
             SmallComplex {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
             }

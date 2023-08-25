@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpq;
-use crate::integer::small::Mpz;
 use crate::integer::ToSmall;
 use crate::{Assign, Rational};
 use az::Cast;
@@ -26,7 +25,7 @@ use core::mem::MaybeUninit;
 use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
-use gmp_mpfr_sys::gmp::{limb_t, mpq_t};
+use gmp_mpfr_sys::gmp::{limb_t, mpq_t, mpz_t};
 
 const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
 type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
@@ -59,12 +58,21 @@ assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 */
-#[derive(Clone)]
 pub struct SmallRational {
-    inner: Mpq,
+    inner: UnsafeCell<mpq_t>,
     // numerator is first in limbs if inner.num.d <= inner.den.d
     first_limbs: Limbs,
     last_limbs: Limbs,
+}
+
+impl Clone for SmallRational {
+    fn clone(&self) -> SmallRational {
+        SmallRational {
+            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
+            first_limbs: self.first_limbs,
+            last_limbs: self.last_limbs,
+        }
+    }
 }
 
 // Safety: SmallRational cannot be Sync because it contains an
@@ -73,20 +81,6 @@ pub struct SmallRational {
 // be Send because if it is owned, no other reference can be used to
 // modify the UnsafeCell.
 unsafe impl Send for SmallRational {}
-
-// Safety: Mpz has a repr equivalent to mpz_t, so Mpq has a repr equivalent to
-// mpq_t. The difference in the repr(C) types Mpz and mpz_t is that Mpz uses
-// UnsafeCell<NonNull<limb_t>> instead of NonNull<limb_t>, but UnsafeCell is
-// repr(transparent). The difference in the repr(C) types Mpq and mpq_t is that
-// Mpq uses Mpz instead of mpz_t.
-#[derive(Clone)]
-#[repr(C)]
-struct Mpq {
-    num: Mpz,
-    den: Mpz,
-}
-
-static_assert_same_layout!(Mpq, mpq_t);
 
 impl Default for SmallRational {
     #[inline]
@@ -110,18 +104,18 @@ impl SmallRational {
     #[inline]
     pub const fn new() -> Self {
         SmallRational {
-            inner: Mpq {
-                num: Mpz {
+            inner: UnsafeCell::new(mpq_t {
+                num: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
                     size: 0,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-                den: Mpz {
+                den: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
                     size: 1,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-            },
+            }),
             first_limbs: small_limbs![0],
             last_limbs: small_limbs![1],
         }
@@ -196,18 +190,18 @@ impl SmallRational {
         den.copy(&mut den_size, &mut den_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
         SmallRational {
-            inner: Mpq {
-                num: Mpz {
+            inner: UnsafeCell::new(mpq_t {
+                num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-                den: Mpz {
+                den: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: den_size,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-            },
+            }),
             first_limbs: num_limbs,
             last_limbs: den_limbs,
         }
@@ -242,14 +236,15 @@ impl SmallRational {
         } else {
             (&mut self.last_limbs, &mut self.first_limbs)
         };
-        num.copy(&mut self.inner.num.size, num_limbs);
-        den.copy(&mut self.inner.den.size, den_limbs);
+        num.copy(&mut self.inner.get_mut().num.size, num_limbs);
+        den.copy(&mut self.inner.get_mut().den.size, den_limbs);
     }
 
     #[inline]
     // Safety: self is not Sync, so reading d does not cause a data race.
     fn num_is_first(&self) -> bool {
-        unsafe { *self.inner.num.d.get() <= *self.inner.den.d.get() }
+        let ptr = self.inner.get().cast_const();
+        unsafe { (*ptr).num.d <= (*ptr).den.d }
     }
 
     // To be used when offsetting num and den in case the struct has
@@ -276,12 +271,12 @@ impl SmallRational {
             (last, first)
         };
         // Safety: self is not Sync, so we can write to d without causing a data race.
+        let ptr = self.inner.get().cast_const();
         unsafe {
-            if *self.inner.num.d.get() != num_d {
-                *self.inner.num.d.get() = num_d;
-            }
-            if *self.inner.den.d.get() != den_d {
-                *self.inner.den.d.get() = den_d;
+            if (*ptr).num.d != num_d || (*ptr).den.d != den_d {
+                let ptr = self.inner.get();
+                (*ptr).num.d = num_d;
+                (*ptr).den.d = den_d;
             }
         }
     }
@@ -307,8 +302,8 @@ impl<Num: ToSmall> Assign<Num> for SmallRational {
         } else {
             (&mut self.last_limbs, &mut self.first_limbs)
         };
-        src.copy(&mut self.inner.num.size, num_limbs);
-        self.inner.den.size = 1;
+        src.copy(&mut self.inner.get_mut().num.size, num_limbs);
+        self.inner.get_mut().den.size = 1;
         den_limbs[0] = MaybeUninit::new(1);
     }
 }
@@ -320,18 +315,18 @@ impl<Num: ToSmall> From<Num> for SmallRational {
         src.copy(&mut num_size, &mut num_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
         SmallRational {
-            inner: Mpq {
-                num: Mpz {
+            inner: UnsafeCell::new(mpq_t {
+                num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-                den: Mpz {
+                den: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: 1,
-                    d: UnsafeCell::new(NonNull::dangling()),
+                    d: NonNull::dangling(),
                 },
-            },
+            }),
             first_limbs: num_limbs,
             last_limbs: small_limbs![1],
         }
@@ -347,8 +342,8 @@ impl<Num: ToSmall, Den: ToSmall> Assign<(Num, Den)> for SmallRational {
             } else {
                 (&mut self.last_limbs, &mut self.first_limbs)
             };
-            src.0.copy(&mut self.inner.num.size, num_limbs);
-            src.1.copy(&mut self.inner.den.size, den_limbs);
+            src.0.copy(&mut self.inner.get_mut().num.size, num_limbs);
+            src.1.copy(&mut self.inner.get_mut().den.size, den_limbs);
         }
         // Safety: canonicalization will never need to make a number larger.
         xmpq::canonicalize(unsafe { self.as_nonreallocating_rational() });
@@ -358,39 +353,37 @@ impl<Num: ToSmall, Den: ToSmall> Assign<(Num, Den)> for SmallRational {
 impl<Num: ToSmall, Den: ToSmall> From<(Num, Den)> for SmallRational {
     fn from(src: (Num, Den)) -> Self {
         assert!(!src.1.is_zero(), "division by zero");
-        let mut inner = Mpq {
-            num: Mpz {
+        let mut inner = mpq_t {
+            num: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
-            den: Mpz {
+            den: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
+                d: NonNull::dangling(),
             },
         };
         let mut num_limbs: Limbs = small_limbs![0];
         let mut den_limbs: Limbs = small_limbs![0];
         src.0.copy(&mut inner.num.size, &mut num_limbs);
         src.1.copy(&mut inner.den.size, &mut den_limbs);
-        inner.num.d =
-            UnsafeCell::new(NonNull::<[MaybeUninit<limb_t>]>::from(&mut num_limbs[..]).cast());
-        inner.den.d =
-            UnsafeCell::new(NonNull::<[MaybeUninit<limb_t>]>::from(&mut den_limbs[..]).cast());
+        inner.num.d = NonNull::<[MaybeUninit<limb_t>]>::from(&mut num_limbs[..]).cast();
+        inner.den.d = NonNull::<[MaybeUninit<limb_t>]>::from(&mut den_limbs[..]).cast();
         unsafe {
-            gmp::mpq_canonicalize(cast_ptr_mut!(&mut inner, mpq_t));
+            gmp::mpq_canonicalize(&mut inner);
         }
         // order of limbs is important as inner.num.d != inner.den.d
         if num_limbs.as_ptr() <= den_limbs.as_ptr() {
             SmallRational {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: num_limbs,
                 last_limbs: den_limbs,
             }
         } else {
             SmallRational {
-                inner,
+                inner: UnsafeCell::new(inner),
                 first_limbs: den_limbs,
                 last_limbs: num_limbs,
             }

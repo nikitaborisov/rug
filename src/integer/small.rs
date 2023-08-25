@@ -59,34 +59,21 @@ a.lcm_mut(&SmallInteger::from(30));
 assert_eq!(a, 1500);
 ```
 */
-#[derive(Clone)]
 pub struct SmallInteger {
-    inner: Mpz,
+    inner: UnsafeCell<mpz_t>,
     limbs: Limbs,
 }
 
-// Safety: Mpz has a repr equivalent to mpz_t. The difference in the repr(C)
-// types Mpz and mpz_t is that Mpz uses UnsafeCell<NonNull<limb_t>> instead of
-// NonNull<limb_t>, but UnsafeCell is repr(transparent).
-#[repr(C)]
-pub struct Mpz {
-    pub alloc: c_int,
-    pub size: c_int,
-    pub d: UnsafeCell<NonNull<limb_t>>,
-}
-
-impl Clone for Mpz {
-    fn clone(&self) -> Mpz {
-        Mpz {
-            alloc: self.alloc,
-            size: self.size,
-            d: UnsafeCell::new(unsafe { *self.d.get() }),
+impl Clone for SmallInteger {
+    fn clone(&self) -> SmallInteger {
+        SmallInteger {
+            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
+            limbs: self.limbs,
         }
     }
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
-static_assert_same_layout!(Mpz, mpz_t);
 
 // Safety: SmallInteger cannot be Sync because it contains an
 // UnsafeCell which is written to then read without further
@@ -116,11 +103,11 @@ impl SmallInteger {
     #[inline]
     pub const fn new() -> Self {
         SmallInteger {
-            inner: Mpz {
+            inner: UnsafeCell::new(mpz_t {
                 alloc: LIMBS_IN_SMALL as c_int,
                 size: 0,
-                d: UnsafeCell::new(NonNull::dangling()),
-            },
+                d: NonNull::dangling(),
+            }),
             limbs: small_limbs![0],
         }
     }
@@ -175,8 +162,8 @@ impl SmallInteger {
         let d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
         // Safety: self is not Sync, so we can write to d without causing a data race.
         unsafe {
-            if *self.inner.d.get() != d {
-                *self.inner.d.get() = d;
+            if (*self.inner.get().cast_const()).d != d {
+                (*self.inner.get()).d = d;
             }
         }
     }
@@ -370,7 +357,7 @@ impl SealedToSmall for usize {
 impl<T: ToSmall> Assign<T> for SmallInteger {
     #[inline]
     fn assign(&mut self, src: T) {
-        src.copy(&mut self.inner.size, &mut self.limbs);
+        src.copy(&mut self.inner.get_mut().size, &mut self.limbs);
     }
 }
 
@@ -381,11 +368,11 @@ impl<T: ToSmall> From<T> for SmallInteger {
         let mut limbs = small_limbs![0];
         src.copy(&mut size, &mut limbs);
         SmallInteger {
-            inner: Mpz {
+            inner: UnsafeCell::new(mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size,
-                d: UnsafeCell::new(NonNull::dangling()),
-            },
+                d: NonNull::dangling(),
+            }),
             limbs,
         }
     }
