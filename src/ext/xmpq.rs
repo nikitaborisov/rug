@@ -321,11 +321,35 @@ unsafe_wrap! { fn abs(op: O) -> gmp::mpq_abs }
 unsafe_wrap! { fn add(op1: O, op2: P) -> gmp::mpq_add }
 unsafe_wrap! { fn sub(op1: O, op2: P) -> gmp::mpq_sub }
 unsafe_wrap! { fn mul(op1: O, op2: P) -> gmp::mpq_mul }
-unsafe_wrap! { fn div(op1: O, op2: P) -> gmp::mpq_div }
 unsafe_wrap! { fn shl_u32(op1: O; op2: u32) -> gmp::mpq_mul_2exp }
 unsafe_wrap! { fn shr_u32(op1: O; op2: u32) -> gmp::mpq_div_2exp }
 unsafe_wrap! { fn shl_usize(op1: O; op2: usize) -> mpq_mul_2exp_usize }
 unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> mpq_div_2exp_usize }
+
+#[inline]
+fn sgn_or<O: OptRational>(op: O, or: &mut Rational) -> Ordering {
+    let q = op.mpq_or(or.as_raw_mut());
+    unsafe {
+        let z = gmp::mpq_numref_const(q);
+        gmp::mpz_sgn(z).cmp(&0)
+    }
+}
+
+#[inline]
+fn check_div0_or<O: OptRational>(divisor: O, or: &mut Rational) {
+    assert!(sgn_or(divisor, or) != Ordering::Equal, "division by zero");
+}
+
+#[inline]
+pub fn div<O: OptRational, P: OptRational>(rop: &mut Rational, op1: O, op2: P) {
+    check_div0_or(op2, rop);
+    let rop = rop.as_raw_mut();
+    let op1 = op1.mpq_or(rop);
+    let op2 = op2.mpq_or(rop);
+    unsafe {
+        gmp::mpq_div(rop, op1, op2);
+    }
+}
 
 // num and den must form a canonical pair
 #[inline]

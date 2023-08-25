@@ -30,13 +30,17 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.21.0 news (unreleased)
 
+  * Bug fix: panic instead of raising floating-point exception when dividing by
+    [`Rational`][rat-1-21] zero ([issue 53]).
   * [`Complete`][c-1-21] was implemented for incomplete values produced by
     [`DivRounding`][dr-1-21] and [`RemRounding`][rr-1-21] implementations
     ([merge request 4]).
 
 [c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
 [dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
+[issue 53]: https://gitlab.com/tspiteri/rug/-/issues/53
 [merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
+[rat-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html
 [rr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.RemRounding.html
 
 ### Version 1.20.1 news (2023-08-03)
