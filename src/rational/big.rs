@@ -1102,6 +1102,36 @@ impl Rational {
         matches!(self.cmp0(), Ordering::Equal)
     }
 
+    /// Returns [`true`] if the number is positive and [`false`] if the number
+    /// is zero or negative.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Rational;
+    /// assert!(Rational::from((1, 2)).is_positive());
+    /// assert!(!(Rational::from((-1, 2)).is_positive()));
+    /// ```
+    #[inline]
+    pub const fn is_positive(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Greater)
+    }
+
+    /// Returns [`true`] if the number is negative and [`false`] if the number
+    /// is zero or positive.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Rational;
+    /// assert!(Rational::from((-1, 2)).is_negative());
+    /// assert!(!(Rational::from((1, 2)).is_negative()));
+    /// ```
+    #[inline]
+    pub const fn is_negative(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Less)
+    }
+
     /// Returns the same result as
     /// <code>self.[cmp][Ord::cmp]\(\&0.[into][Into::into]\())</code>, but is
     /// faster.

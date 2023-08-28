@@ -2011,6 +2011,36 @@ impl Integer {
         matches!(self.cmp0(), Ordering::Equal)
     }
 
+    /// Returns [`true`] if the number is positive and [`false`] if the number
+    /// is zero or negative.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// assert!(Integer::from(10).is_positive());
+    /// assert!(!(Integer::from(-10).is_positive()));
+    /// ```
+    #[inline]
+    pub const fn is_positive(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Greater)
+    }
+
+    /// Returns [`true`] if the number is negative and [`false`] if the number
+    /// is zero or positive.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// assert!(Integer::from(-10).is_negative());
+    /// assert!(!(Integer::from(10).is_negative()));
+    /// ```
+    #[inline]
+    pub const fn is_negative(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Less)
+    }
+
     /// Returns [`true`] if the number is even.
     ///
     /// # Examples
