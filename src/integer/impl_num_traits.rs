@@ -35,7 +35,7 @@ impl Zero for Integer {
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.cmp0() == Ordering::Equal
+        self.is_zero()
     }
 
     #[inline]
@@ -297,7 +297,7 @@ impl NumInteger for Integer {
     #[inline]
     fn gcd_lcm(&self, other: &Self) -> (Self, Self) {
         let gcd = Integer::from(self.gcd_ref(other));
-        let lcm = if gcd.cmp0() == Ordering::Equal || other.cmp0() == Ordering::Equal {
+        let lcm = if gcd.is_zero() || other.is_zero() {
             Integer::new()
         } else {
             Integer::from(self.div_exact_ref(&gcd)) * other
@@ -317,7 +317,7 @@ impl NumInteger for Integer {
     #[inline]
     fn extended_gcd_lcm(&self, other: &Self) -> (ExtendedGcd<Self>, Self) {
         let gcdc = NumInteger::extended_gcd(self, other);
-        let lcm = if gcdc.gcd.cmp0() == Ordering::Equal || other.cmp0() == Ordering::Equal {
+        let lcm = if gcdc.gcd.is_zero() || other.is_zero() {
             Integer::new()
         } else {
             Integer::from(self.div_exact_ref(&gcdc.gcd)) * other
@@ -331,7 +331,7 @@ impl NumInteger for Integer {
     #[inline]
     fn next_multiple_of(&self, other: &Self) -> Self {
         let mut i = Integer::from(RemRounding::rem_floor(self, other));
-        if i.cmp0() == Ordering::Equal {
+        if i.is_zero() {
             i.assign(self);
             i
         } else {
@@ -341,7 +341,7 @@ impl NumInteger for Integer {
     #[inline]
     fn prev_multiple_of(&self, other: &Self) -> Self {
         let mut i = Integer::from(RemRounding::rem_floor(self, other));
-        if i.cmp0() == Ordering::Equal {
+        if i.is_zero() {
             i.assign(self);
             i
         } else {

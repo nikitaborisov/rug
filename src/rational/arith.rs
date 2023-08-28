@@ -368,7 +368,6 @@ fn rhs_has_more_alloc(lhs: &Rational, rhs: &Rational) -> bool {
 mod tests {
     use crate::ops::Pow;
     use crate::{Integer, Rational};
-    use core::cmp::Ordering;
 
     macro_rules! test_ref_op {
         ($first:expr, $second:expr) => {
@@ -471,7 +470,7 @@ mod tests {
                     test_numer_denom!(op + b.clone(), rat_op.clone() + b);
                     test_numer_denom!(op - b.clone(), rat_op.clone() - b);
                     test_numer_denom!(op * b.clone(), rat_op.clone() * b);
-                    if b.cmp0() != Ordering::Equal {
+                    if !b.is_zero() {
                         test_numer_denom!(op / b.clone(), rat_op.clone() / b);
                     }
                 }

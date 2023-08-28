@@ -18,7 +18,6 @@ use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;
-use core::cmp::Ordering;
 use num_traits_crate::cast::{FromPrimitive, ToPrimitive};
 use num_traits_crate::identities::{One, Zero};
 use num_traits_crate::ops::inv::Inv;
@@ -32,7 +31,7 @@ impl Zero for Rational {
 
     #[inline]
     fn is_zero(&self) -> bool {
-        self.cmp0() == Ordering::Equal
+        self.is_zero()
     }
 
     #[inline]

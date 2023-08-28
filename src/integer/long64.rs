@@ -21,7 +21,6 @@ use crate::misc::NegAbs;
 use crate::rand::MutRandState;
 use crate::{Assign, Complete, Integer};
 use az::{CheckedCast, UnwrappedCast};
-use core::cmp::Ordering;
 use core::ffi::c_ulong;
 use gmp_mpfr_sys::gmp::bitcnt_t;
 
@@ -1707,7 +1706,7 @@ impl From<GcdUIncomplete<'_>> for Option<u64> {
     #[inline]
     fn from(src: GcdUIncomplete) -> Self {
         let gcd = xmpz::gcd_opt_ui(None, src.ref_self, src.other.into());
-        if gcd == 0 && src.ref_self.cmp0() != Ordering::Equal {
+        if gcd == 0 && !src.ref_self.is_zero() {
             None
         } else {
             gcd.checked_cast()

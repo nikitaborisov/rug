@@ -1070,7 +1070,7 @@ impl Rational {
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
     pub const fn as_recip(&self) -> BorrowRational<'_> {
-        assert!(!matches!(self.cmp0(), Ordering::Equal), "division by zero");
+        assert!(!self.is_zero(), "division by zero");
         let mut raw = mpq_t {
             num: self.inner.den,
             den: self.inner.num,
@@ -2849,7 +2849,7 @@ where
                     return;
                 }
             }
-            if self.cmp0() == Ordering::Equal {
+            if self.is_zero() {
                 return;
             }
         }

@@ -1025,8 +1025,7 @@ impl Complex {
     /// ```
     #[inline]
     pub const fn eq0(&self) -> bool {
-        matches!(self.real().cmp0(), Some(Ordering::Equal))
-            && matches!(self.imag().cmp0(), Some(Ordering::Equal))
+        self.real().is_zero() && self.imag().is_zero()
     }
 
     /// Compares the absolute values of `self` and `other`.

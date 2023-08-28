@@ -583,7 +583,6 @@ fn rhs_has_more_alloc(lhs: &Integer, rhs: &Integer) -> bool {
 mod tests {
     use crate::ops::{AddFrom, Pow, SubFrom};
     use crate::Integer;
-    use core::cmp::Ordering;
     use core::ops::{AddAssign, SubAssign};
 
     macro_rules! test_op {
@@ -615,7 +614,7 @@ mod tests {
                 test_op!(l + r);
                 test_op!(l - r);
                 test_op!(l * r);
-                if r.cmp0() != Ordering::Equal {
+                if !r.is_zero() {
                     test_op!(l / r);
                 }
                 test_op!(l & r);
@@ -643,7 +642,7 @@ mod tests {
                     assert_eq!(op + b.clone(), iop.clone() + b);
                     assert_eq!(op - b.clone(), iop.clone() - b);
                     assert_eq!(op * b.clone(), iop.clone() * b);
-                    if b.cmp0() != Ordering::Equal {
+                    if !b.is_zero() {
                         assert_eq!(op / b.clone(), iop.clone() / b);
                         assert_eq!(op % b.clone(), iop.clone() % b);
                     }

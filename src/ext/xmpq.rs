@@ -365,7 +365,7 @@ pub unsafe fn write_num_den_unchecked(dst: &mut MaybeUninit<Rational>, num: Inte
 
 #[inline]
 pub fn write_num_den_canonicalize(dst: &mut MaybeUninit<Rational>, num: Integer, den: Integer) {
-    assert_ne!(den.cmp0(), Ordering::Equal, "division by zero");
+    assert!(!den.is_zero(), "division by zero");
     // Safety:
     //   * We can cast pointers to/from Rational/mpq_t as they are repr(transparent).
     //   * We can cast pointers to/from Integer/mpz_t as they are repr(transparent).
@@ -382,7 +382,7 @@ pub fn write_num_den_canonicalize(dst: &mut MaybeUninit<Rational>, num: Integer,
 
 #[inline]
 pub fn canonicalize(r: &mut Rational) {
-    if r.denom().cmp0() == Ordering::Equal {
+    if r.denom().is_zero() {
         // Leave in canonical state before panic (issue 49).
         unsafe {
             let den = numref_denref(r).1;
@@ -623,7 +623,7 @@ pub fn z_sub<O: OptRational>(rop: &mut Rational, lhs: &Integer, rhs: O) {
 }
 
 pub fn mul_z<O: OptRational>(rop: &mut Rational, lhs: O, rhs: &Integer) {
-    if rhs.cmp0() == Ordering::Equal {
+    if rhs.is_zero() {
         set_0(rop);
         return;
     }

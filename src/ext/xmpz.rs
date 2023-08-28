@@ -138,12 +138,15 @@ macro_rules! unsafe_wrap_p {
 
 #[inline]
 pub fn check_div0(divisor: &Integer) {
-    assert_ne!(divisor.cmp0(), Ordering::Equal, "division by zero");
+    assert!(!divisor.is_zero(), "division by zero");
 }
 
 #[inline]
 fn check_div0_or<O: OptInteger>(divisor: O, or: &mut Integer) {
-    assert_ne!(sgn_or(divisor, or), Ordering::Equal, "division by zero");
+    assert!(
+        !matches!(sgn_or(divisor, or), Ordering::Equal),
+        "division by zero"
+    );
 }
 
 #[inline]
@@ -1144,7 +1147,7 @@ pub fn round_away(rem: &Integer, divisor: &Integer) -> bool {
 
 #[inline]
 pub fn start_invert(op: &Integer, modulo: &Integer) -> Option<Integer> {
-    if modulo.cmp0() == Ordering::Equal {
+    if modulo.is_zero() {
         return None;
     }
     let (gcd, sinverse) = <(Integer, Integer)>::from(op.extended_gcd_ref(modulo));
@@ -1976,7 +1979,7 @@ pub fn ior_ui<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_ulong) {
         }
         Ordering::Less => {
             com(rop, op1);
-            if rop.cmp0() != Ordering::Equal {
+            if !rop.is_zero() {
                 unsafe {
                     *limb_mut(rop, 0) &= !lop2;
                     if rop.inner().size == 1 && limb(rop, 0) == 0 {
@@ -2006,7 +2009,7 @@ pub fn xor_ui<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_ulong) {
         }
         Ordering::Less => {
             com(rop, op1);
-            if rop.cmp0() == Ordering::Equal {
+            if rop.is_zero() {
                 if lop2 != 0 {
                     set_nonzero(rop, lop2);
                 }
@@ -2049,7 +2052,7 @@ pub fn and_si<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_long) {
                 set_limb(rop, cur_limb.wrapping_neg() & lop2);
             } else {
                 com(rop, op1);
-                if rop.cmp0() == Ordering::Equal {
+                if rop.is_zero() {
                     if !lop2 != 0 {
                         set_nonzero(rop, !lop2);
                     }
@@ -2085,7 +2088,7 @@ pub fn ior_si<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_long) {
         Ordering::Less => {
             if op2 >= 0 {
                 com(rop, op1);
-                if rop.cmp0() != Ordering::Equal {
+                if !rop.is_zero() {
                     unsafe {
                         *limb_mut(rop, 0) &= !lop2;
                         if rop.inner().size == 1 && limb(rop, 0) == 0 {
@@ -2130,7 +2133,7 @@ pub fn xor_si<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_long) {
         Ordering::Less => {
             com(rop, op1);
             if op2 >= 0 {
-                if rop.cmp0() == Ordering::Equal {
+                if rop.is_zero() {
                     if lop2 != 0 {
                         set_nonzero(rop, lop2);
                     }
@@ -2143,7 +2146,7 @@ pub fn xor_si<O: OptInteger>(rop: &mut Integer, op1: O, op2: c_long) {
                     }
                 }
                 com(rop, ());
-            } else if rop.cmp0() == Ordering::Equal {
+            } else if rop.is_zero() {
                 if !lop2 != 0 {
                     set_nonzero(rop, !lop2);
                 }

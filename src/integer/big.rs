@@ -3924,7 +3924,7 @@ impl Integer {
                 exponent,
                 modulo,
             })
-        } else if modulo.cmp0() != Ordering::Equal {
+        } else if !modulo.is_zero() {
             Some(PowModIncomplete {
                 ref_self: Some(self),
                 sinverse: None,
@@ -6040,7 +6040,7 @@ where
                     return;
                 }
             }
-            if self.cmp0() == Ordering::Equal {
+            if self.is_zero() {
                 return;
             }
         }
@@ -6178,7 +6178,7 @@ impl From<GcdUIncomplete<'_>> for Option<u32> {
     #[inline]
     fn from(src: GcdUIncomplete) -> Self {
         let gcd = xmpz::gcd_opt_ui(None, src.ref_self, src.other.into());
-        if gcd == 0 && src.ref_self.cmp0() != Ordering::Equal {
+        if gcd == 0 && !src.ref_self.is_zero() {
             None
         } else {
             gcd.checked_cast()
