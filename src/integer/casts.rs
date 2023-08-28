@@ -21,7 +21,6 @@ use crate::Integer;
 use az::{
     Az, Cast, CheckedCast, OverflowingCast, Round, SaturatingCast, UnwrappedCast, WrappingCast,
 };
-use core::cmp::Ordering;
 
 macro_rules! cast_int {
     ($Prim:ty, $fits:path, $get_abs:path) => {
@@ -73,7 +72,7 @@ macro_rules! cast_int {
             fn saturating_cast(self) -> $Prim {
                 if $fits(self) {
                     self.wrapping_cast()
-                } else if self.cmp0() == Ordering::Less {
+                } else if self.is_negative() {
                     <$Prim>::MIN
                 } else {
                     <$Prim>::MAX
@@ -90,7 +89,7 @@ macro_rules! cast_int {
             #[inline]
             fn wrapping_cast(self) -> $Prim {
                 let val = $get_abs(self);
-                if self.cmp0() == Ordering::Less {
+                if self.is_negative() {
                     val.wrapping_neg()
                 } else {
                     val

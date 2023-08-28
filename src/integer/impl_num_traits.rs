@@ -19,7 +19,6 @@ use crate::integer::ParseIntegerError;
 use crate::ops::{DivRounding, RemRounding};
 use crate::{Assign, Integer};
 use az::{CheckedCast, UnwrappedCast};
-use core::cmp::Ordering;
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
 use num_traits_crate::cast::{FromPrimitive, ToPrimitive};
 use num_traits_crate::identities::{One, Zero};
@@ -92,12 +91,12 @@ impl Signed for Integer {
 
     #[inline]
     fn is_positive(&self) -> bool {
-        self.cmp0() == Ordering::Greater
+        self.is_positive()
     }
 
     #[inline]
     fn is_negative(&self) -> bool {
-        self.cmp0() == Ordering::Less
+        self.is_negative()
     }
 }
 

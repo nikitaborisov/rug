@@ -204,7 +204,7 @@ int_rat! { fn round, round_int, |rop, num, den| {
     let mut rem = Integer::with_capacity(bits);
     xmpz::tdiv_qr(rop, &mut rem, num, den);
     if xmpz::round_away(&rem, den) {
-        if rem.cmp0() == Ordering::Less {
+        if rem.is_negative() {
             // negative number
             xmpz::sub_ui(rop, (), 1);
         } else {
@@ -284,7 +284,7 @@ pub fn round_fract<O: OptRational>(fract: &mut Rational, op: O) {
     xmpz::set(fract_den, op_den);
     xmpz::tdiv_r(fract_num, op_num, &*fract_den);
     if xmpz::round_away(fract_num, fract_den) {
-        if fract_num.cmp0() == Ordering::Less {
+        if fract_num.is_negative() {
             // negative number
             xmpz::add(fract_num, (), &*fract_den);
         } else {
@@ -304,7 +304,7 @@ pub fn round_fract_whole<O: OptRational>(fract: &mut Rational, round: &mut Integ
         gmp::mpz_tdiv_qr(round.as_raw_mut(), fract, op, fract_den.as_raw());
     }
     if xmpz::round_away(fract_num, fract_den) {
-        if fract_num.cmp0() == Ordering::Less {
+        if fract_num.is_negative() {
             // negative number
             xmpz::sub_ui(round, (), 1);
             xmpz::add(fract_num, (), &*fract_den);
@@ -683,7 +683,7 @@ pub fn div_z<O: OptRational>(rop: &mut Rational, lhs: O, rhs: &Integer) {
             *denom *= rhs;
         }
     }
-    if denom.cmp0() == Ordering::Less {
+    if denom.is_negative() {
         numer.neg_assign();
         denom.neg_assign();
     }
@@ -722,7 +722,7 @@ pub fn z_div<O: OptRational>(rop: &mut Rational, lhs: &Integer, rhs: O) {
             *numer *= lhs;
         }
     }
-    if denom.cmp0() == Ordering::Less {
+    if denom.is_negative() {
         numer.neg_assign();
         denom.neg_assign();
     }
@@ -881,7 +881,7 @@ pub fn ui_div<O: OptRational>(rop: &mut Rational, lhs: c_ulong, rhs: O) {
             *numer *= lhs;
         }
     }
-    if denom.cmp0() == Ordering::Less {
+    if denom.is_negative() {
         numer.neg_assign();
         denom.neg_assign();
     }

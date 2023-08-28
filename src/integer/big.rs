@@ -3943,7 +3943,7 @@ impl Integer {
         exponent: &'a Self,
         modulo: &'a Self,
     ) -> Option<PowModIncomplete<'a>> {
-        if exponent.cmp0() == Ordering::Less {
+        if exponent.is_negative() {
             let sinverse = match self.invert_ref(modulo) {
                 Some(InvertIncomplete { sinverse, .. }) => sinverse,
                 None => return None,
@@ -6145,11 +6145,11 @@ impl Assign<PowModIncomplete<'_>> for Integer {
     fn assign(&mut self, src: PowModIncomplete<'_>) {
         match (src.ref_self, src.sinverse) {
             (Some(base), None) => {
-                debug_assert_ne!(src.exponent.cmp0(), Ordering::Less);
+                debug_assert!(!src.exponent.is_negative());
                 xmpz::pow_mod(self, base, src.exponent, src.modulo);
             }
             (None, Some(sinverse)) => {
-                debug_assert_eq!(src.exponent.cmp0(), Ordering::Less);
+                debug_assert!(src.exponent.is_negative());
                 xmpz::pow_mod(self, &sinverse, src.exponent, src.modulo);
             }
             _ => unreachable!(),
@@ -6163,13 +6163,13 @@ impl From<PowModIncomplete<'_>> for Integer {
     fn from(src: PowModIncomplete<'_>) -> Self {
         match (src.ref_self, src.sinverse) {
             (Some(base), None) => {
-                debug_assert_ne!(src.exponent.cmp0(), Ordering::Less);
+                debug_assert!(!src.exponent.is_negative());
                 let mut dst = Integer::new();
                 xmpz::pow_mod(&mut dst, base, src.exponent, src.modulo);
                 dst
             }
             (None, Some(mut sinverse)) => {
-                debug_assert_eq!(src.exponent.cmp0(), Ordering::Less);
+                debug_assert!(src.exponent.is_negative());
                 xmpz::pow_mod(&mut sinverse, (), src.exponent, src.modulo);
                 sinverse
             }
@@ -6371,7 +6371,7 @@ pub(crate) fn req_chars(i: &Integer, radix: i32, extra: usize) -> usize {
     assert!((2..=36).contains(&radix), "radix out of range");
     let size = unsafe { gmp::mpz_sizeinbase(i.as_raw(), radix) };
     let size_extra = size.checked_add(extra).expect("overflow");
-    if i.cmp0() == Ordering::Less {
+    if i.is_negative() {
         size_extra.checked_add(1).expect("overflow")
     } else {
         size_extra

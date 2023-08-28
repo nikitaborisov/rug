@@ -412,7 +412,7 @@ pub fn rdiv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n
     check_div0(d);
     tdiv_qr(q, r, n, d);
     if round_away(r, d) {
-        if (r.cmp0() == Ordering::Less) == (d.cmp0() == Ordering::Less) {
+        if r.is_negative() == d.is_negative() {
             // positive q
             add_ui(q, (), 1);
             sub(r, (), d);
@@ -426,7 +426,7 @@ pub fn rdiv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n
 
 #[inline]
 pub fn ediv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n: O, d: P) {
-    if d.unwrap_or(r).cmp0() == Ordering::Less {
+    if d.unwrap_or(r).is_negative() {
         cdiv_qr(q, r, n, d)
     } else {
         fdiv_qr(q, r, n, d)
@@ -524,7 +524,7 @@ pub fn fdiv_r<O: OptInteger, P: OptInteger>(r: &mut Integer, n: O, d: P) {
 
 #[inline]
 pub fn ediv_q<O: OptInteger, P: OptInteger>(q: &mut Integer, n: O, d: P) {
-    if d.unwrap_or(q).cmp0() == Ordering::Less {
+    if d.unwrap_or(q).is_negative() {
         cdiv_q(q, n, d)
     } else {
         fdiv_q(q, n, d)
@@ -533,7 +533,7 @@ pub fn ediv_q<O: OptInteger, P: OptInteger>(q: &mut Integer, n: O, d: P) {
 
 #[inline]
 pub fn ediv_r<O: OptInteger, P: OptInteger>(r: &mut Integer, n: O, d: P) {
-    if d.unwrap_or(r).cmp0() == Ordering::Less {
+    if d.unwrap_or(r).is_negative() {
         cdiv_r(r, n, d)
     } else {
         fdiv_r(r, n, d)
@@ -1068,7 +1068,7 @@ pub fn significant_bits(op: &Integer) -> usize {
 
 pub fn signed_bits(op: &Integer) -> usize {
     let significant = significant_bits(op);
-    if op.cmp0() == Ordering::Less {
+    if op.is_negative() {
         let first_one =
             (unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) }).unwrapped_as::<usize>();
         if first_one == significant - 1 {
@@ -1079,7 +1079,7 @@ pub fn signed_bits(op: &Integer) -> usize {
 }
 
 pub fn power_of_two_p(op: &Integer) -> bool {
-    if op.cmp0() != Ordering::Greater {
+    if !op.is_positive() {
         return false;
     }
     let significant = significant_bits(op);
@@ -1160,8 +1160,8 @@ pub fn start_invert(op: &Integer, modulo: &Integer) -> Option<Integer> {
 
 #[inline]
 pub fn finish_invert<O: OptInteger>(rop: &mut Integer, s: O, modulo: &Integer) {
-    if s.unwrap_or(rop).cmp0() == Ordering::Less {
-        if modulo.cmp0() == Ordering::Less {
+    if s.unwrap_or(rop).is_negative() {
+        if modulo.is_negative() {
             sub(rop, s, modulo)
         } else {
             add(rop, s, modulo)
@@ -1173,7 +1173,7 @@ pub fn finish_invert<O: OptInteger>(rop: &mut Integer, s: O, modulo: &Integer) {
 
 #[inline]
 pub fn pow_mod<O: OptInteger>(rop: &mut Integer, base: O, exponent: &Integer, modulo: &Integer) {
-    if exponent.cmp0() == Ordering::Less {
+    if exponent.is_negative() {
         finish_invert(rop, base, modulo);
         let rop = rop.as_raw_mut();
         unsafe {
@@ -1691,7 +1691,7 @@ pub fn ui_fdiv_q<O: OptInteger>(q: &mut Integer, n: c_ulong, d: O) {
 
 #[inline]
 pub fn ui_ediv_q<O: OptInteger>(q: &mut Integer, n: c_ulong, d: O) {
-    if d.unwrap_or(q).cmp0() == Ordering::Less {
+    if d.unwrap_or(q).is_negative() {
         ui_cdiv_q(q, n, d);
     } else {
         ui_fdiv_q(q, n, d);
@@ -1761,7 +1761,7 @@ pub fn ui_fdiv_r<O: OptInteger>(r: &mut Integer, n: c_ulong, d: O) {
 
 #[inline]
 pub fn ui_ediv_r<O: OptInteger>(r: &mut Integer, n: c_ulong, d: O) {
-    if d.unwrap_or(r).cmp0() == Ordering::Less {
+    if d.unwrap_or(r).is_negative() {
         ui_cdiv_r(r, n, d);
     } else {
         ui_fdiv_r(r, n, d);
@@ -1859,7 +1859,7 @@ pub fn si_fdiv_q<O: OptInteger>(q: &mut Integer, n: c_long, d: O) {
 
 #[inline]
 pub fn si_ediv_q<O: OptInteger>(q: &mut Integer, n: c_long, d: O) {
-    if d.unwrap_or(q).cmp0() == Ordering::Less {
+    if d.unwrap_or(q).is_negative() {
         si_cdiv_q(q, n, d);
     } else {
         si_fdiv_q(q, n, d);
@@ -1945,7 +1945,7 @@ pub fn si_fdiv_r<O: OptInteger>(r: &mut Integer, n: c_long, d: O) {
 
 #[inline]
 pub fn si_ediv_r<O: OptInteger>(r: &mut Integer, n: c_long, d: O) {
-    if d.unwrap_or(r).cmp0() == Ordering::Less {
+    if d.unwrap_or(r).is_negative() {
         si_cdiv_r(r, n, d);
     } else {
         si_fdiv_r(r, n, d);
