@@ -30,6 +30,9 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.21.0 news (unreleased)
 
+  * The following methods were added to [`Integer`][int-1-21]:
+      * [`modulo`][int-m-1-21], [`modulo_mut`][int-mm-1-21],
+        [`modulo_from`][int-mf-1-21], [`modulo_ref`][int-mr-1-21]
   * Bug fix: panic instead of raising floating-point exception when dividing by
     [`Rational`][rat-1-21] zero ([issue 53]).
   * [`Complete`][c-1-21] was implemented for incomplete values produced by
@@ -38,6 +41,11 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 [c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
 [dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
+[int-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html
+[int-m-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo
+[int-mf-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_from
+[int-mm-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_mut
+[int-mr-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_ref
 [issue 53]: https://gitlab.com/tspiteri/rug/-/issues/53
 [merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
 [rat-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html

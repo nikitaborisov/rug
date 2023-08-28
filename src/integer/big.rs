@@ -2959,6 +2959,102 @@ impl Integer {
         NextPowerOfTwoIncomplete { ref_self: self }
     }
 
+    /// Finds the modulus, or the remainder of Euclidean division.
+    ///
+    /// The result is always zero or positive.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `divisor` is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let dividend = Integer::from(-1003);
+    /// let divisor = Integer::from(-10);
+    /// let modulus = dividend.modulo(&divisor);
+    /// assert_eq!(modulus, 7);
+    /// ```
+    #[inline]
+    #[doc(alias = "rem_euclid")]
+    pub fn modulo(mut self, divisor: &Self) -> Self {
+        self.modulo_mut(divisor);
+        self
+    }
+
+    /// Finds the modulus, or the remainder of Euclidean division.
+    ///
+    /// The result is always zero or positive.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `divisor` is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let mut m = Integer::from(-1003);
+    /// let divisor = Integer::from(-10);
+    /// m.modulo_mut(&divisor);
+    /// assert_eq!(m, 7);
+    /// ```
+    #[inline]
+    pub fn modulo_mut(&mut self, divisor: &Self) {
+        xmpz::modulo(self, (), divisor);
+    }
+
+    /// Finds the modulus, or the remainder of Euclidean division `dividend` /
+    /// `self`.
+    ///
+    /// The result is always zero or positive.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `self` is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let dividend = Integer::from(-1003);
+    /// let mut m = Integer::from(-10);
+    /// m.modulo_from(&dividend);
+    /// assert_eq!(m, 7);
+    /// ```
+    #[inline]
+    pub fn modulo_from(&mut self, dividend: &Self) {
+        xmpz::modulo(self, dividend, ());
+    }
+
+    /// Finds the modulus, or the remainder of Euclidean division.
+    ///
+    /// The result is always zero or positive.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Integer]</code>
+    ///   * <code>[From]\<Src> for [Integer]</code>
+    ///   * <code>[Complete]\<[Completed][Complete::Completed] = [Integer]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// let dividend = Integer::from(-1003);
+    /// let divisor = Integer::from(-10);
+    /// let r = dividend.modulo_ref(&divisor);
+    /// let modulus = Integer::from(r);
+    /// assert_eq!(modulus, 7);
+    /// ```
+    pub fn modulo_ref<'a>(&'a self, divisor: &'a Self) -> ModuloIncomplete<'_> {
+        ModuloIncomplete {
+            ref_self: self,
+            divisor,
+        }
+    }
+
     /// Performs a division producing both the quotient and remainder.
     ///
     /// The remainder has the same sign as the dividend.
@@ -5983,6 +6079,7 @@ where
 ref_math_op1! { Integer; xmpz::fdiv_r_2exp; struct KeepBitsIncomplete { n: bitcnt_t } }
 ref_math_op1! { Integer; xmpz::keep_signed_bits; struct KeepSignedBitsIncomplete { n: bitcnt_t } }
 ref_math_op1! { Integer; xmpz::next_pow_of_two; struct NextPowerOfTwoIncomplete {} }
+ref_math_op2! { Integer; xmpz::modulo; struct ModuloIncomplete { divisor } }
 ref_math_op2_2! { Integer; xmpz::tdiv_qr; struct DivRemIncomplete { divisor } }
 ref_math_op2_2! { Integer; xmpz::cdiv_qr; struct DivRemCeilIncomplete { divisor } }
 ref_math_op2_2! { Integer; xmpz::fdiv_qr; struct DivRemFloorIncomplete { divisor } }

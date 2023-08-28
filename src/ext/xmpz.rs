@@ -352,6 +352,17 @@ pub fn lcm<O: OptInteger>(rop: &mut Integer, op1: O, op2: &Integer) {
     }
 }
 
+#[inline]
+pub fn modulo<O: OptInteger, P: OptInteger>(r: &mut Integer, n: O, d: P) {
+    check_div0_or(d, r);
+    let r = r.as_raw_mut();
+    let n = n.mpz_or(r);
+    let d = d.mpz_or(r);
+    unsafe {
+        gmp::mpz_mod(r, n, d);
+    }
+}
+
 pub fn tdiv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n: O, d: P) {
     check_div0_or(d, r);
     let q = q.as_raw_mut();
