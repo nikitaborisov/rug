@@ -1997,6 +1997,20 @@ impl Integer {
         unsafe { BorrowRational::from_raw(raw_rational) }
     }
 
+    /// Returns [`true`] if the number is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Integer;
+    /// assert!(Integer::from(0).is_zero());
+    /// assert!(!(Integer::from(1).is_zero()));
+    /// ```
+    #[inline]
+    pub const fn is_zero(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Equal)
+    }
+
     /// Returns [`true`] if the number is even.
     ///
     /// # Examples

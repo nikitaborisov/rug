@@ -1088,6 +1088,20 @@ impl Rational {
         unsafe { BorrowRational::from_raw(raw) }
     }
 
+    /// Returns [`true`] if the number is zero.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Rational;
+    /// assert!(Rational::from(0).is_zero());
+    /// assert!(!(Rational::from((1, 2)).is_zero()));
+    /// ```
+    #[inline]
+    pub const fn is_zero(&self) -> bool {
+        matches!(self.cmp0(), Ordering::Equal)
+    }
+
     /// Returns the same result as
     /// <code>self.[cmp][Ord::cmp]\(\&0.[into][Into::into]\())</code>, but is
     /// faster.

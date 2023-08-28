@@ -8,8 +8,11 @@ Version 1.21.0 (unreleased)
 ===========================
 
   * The following methods were added to [`Integer`][int-1-21]:
+      * [`is_zero`][int-iz-1-21]
       * [`modulo`][int-m-1-21], [`modulo_mut`][int-mm-1-21],
         [`modulo_from`][int-mf-1-21], [`modulo_ref`][int-mr-1-21]
+  * The following methods were added to [`Rational`][rat-1-21]:
+      * [`is_zero`][rat-iz-1-21]
   * Bug fix: panic instead of raising floating-point exception when dividing by
     [`Rational`][rat-1-21] zero ([issue 53]).
   * [`Complete`][c-1-21] was implemented for incomplete values produced by
@@ -19,6 +22,7 @@ Version 1.21.0 (unreleased)
 [c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
 [dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
 [int-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html
+[int-iz-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.is_zero
 [int-m-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo
 [int-mf-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_from
 [int-mm-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_mut
@@ -26,6 +30,7 @@ Version 1.21.0 (unreleased)
 [issue 53]: https://gitlab.com/tspiteri/rug/-/issues/53
 [merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
 [rat-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html
+[rat-iz-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html#method.is_zero
 [rr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.RemRounding.html
 
 Version 1.20.1 (2023-08-03)
