@@ -52,6 +52,21 @@ assert_eq!(num, -4);
 assert_eq!(den, 5);
 ```
 
+When comparing `Rational` numbers, it is sometimes convenient to compare to a
+pair of primitive integers, like in the comparison to `Rational::from((-5, 4))`
+in the example above. `Rational::from((-5, 4))` requires memory allocation,
+which can be an expensive operation. To avoid this allocation, when both the
+numerator and denominator fit in a primitive integer, we can use
+[`SmallRational`] instead, which does not require heap memory allocation.
+
+```rust
+use rug::rational::SmallRational;
+use rug::Rational;
+let r = Rational::from((-12, 15));
+let recip = Rational::from(r.recip_ref());
+assert_eq!(recip, SmallRational::from((-5, 4)));
+```
+
 The `Rational` number type supports various functions. Most methods have three
 versions:
 
