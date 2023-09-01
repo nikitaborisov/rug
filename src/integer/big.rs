@@ -3092,6 +3092,8 @@ impl Integer {
     /// let modulus = Integer::from(r);
     /// assert_eq!(modulus, 7);
     /// ```
+    ///
+    /// [icv]: crate#incomplete-computation-values
     pub fn modulo_ref<'a>(&'a self, divisor: &'a Self) -> ModuloIncomplete<'_> {
         ModuloIncomplete {
             ref_self: self,
