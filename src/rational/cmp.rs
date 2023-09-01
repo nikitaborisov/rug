@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpq;
+use crate::rational::SmallRational;
 use crate::{Integer, Rational};
 use az::{UnwrappedAs, UnwrappedCast};
 use core::cmp::Ordering;
@@ -46,6 +47,34 @@ impl PartialEq<Integer> for Rational {
     #[inline]
     fn eq(&self, other: &Integer) -> bool {
         xmpq::cmp_z(self, other) == Ordering::Equal
+    }
+}
+
+impl PartialOrd<SmallRational> for Rational {
+    #[inline]
+    fn partial_cmp(&self, other: &SmallRational) -> Option<Ordering> {
+        self.partial_cmp(&**other)
+    }
+}
+
+impl PartialOrd<Rational> for SmallRational {
+    #[inline]
+    fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+        (**self).partial_cmp(other)
+    }
+}
+
+impl PartialEq<SmallRational> for Rational {
+    #[inline]
+    fn eq(&self, other: &SmallRational) -> bool {
+        self.eq(&**other)
+    }
+}
+
+impl PartialEq<Rational> for SmallRational {
+    #[inline]
+    fn eq(&self, other: &Rational) -> bool {
+        (**self).eq(other)
     }
 }
 
