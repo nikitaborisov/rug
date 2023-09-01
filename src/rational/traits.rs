@@ -270,17 +270,18 @@ unsafe impl Sync for Rational {}
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
+    use crate::rational::SmallRational;
     use crate::{Assign, Rational};
 
     #[test]
     fn check_assign() {
         let mut r = Rational::from((1, 2));
-        assert_eq!(r, (1, 2));
+        assert_eq!(r, SmallRational::from((1, 2)));
         let other = Rational::from((-2, 3));
         r.assign(&other);
-        assert_eq!(r, (-2, 3));
+        assert_eq!(r, SmallRational::from((-2, 3)));
         r.assign(-other);
-        assert_eq!(r, (2, 3));
+        assert_eq!(r, SmallRational::from((2, 3)));
         let another = Rational::from(&r);
         assert_eq!(another, r);
     }

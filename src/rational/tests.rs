@@ -35,22 +35,22 @@ fn check_fract_trunc() {
         let r = Rational::from((n, d));
 
         let (fract, trunc) = r.clone().fract_trunc(Integer::new());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(trunc, whole);
 
         let (fract, trunc) = <(Rational, Integer)>::from(r.fract_trunc_ref());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(trunc, whole);
 
         let sep_fract = Rational::from(r.rem_trunc_ref());
-        assert_eq!(sep_fract, (fract_n, d));
+        assert_eq!(sep_fract, SmallRational::from((fract_n, d)));
         let sep_trunc = Integer::from(r.trunc_ref());
         assert_eq!(sep_trunc, whole);
 
         let mut r = r;
         let mut trunc = Integer::new();
         r.fract_trunc_mut(&mut trunc);
-        assert_eq!(r, (fract_n, d));
+        assert_eq!(r, SmallRational::from((fract_n, d)));
         assert_eq!(trunc, whole);
     }
 }
@@ -70,22 +70,22 @@ fn check_fract_ceil() {
         let r = Rational::from((n, d));
 
         let (fract, ceil) = r.clone().fract_ceil(Integer::new());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(ceil, whole);
 
         let (fract, ceil) = <(Rational, Integer)>::from(r.fract_ceil_ref());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(ceil, whole);
 
         let sep_fract = Rational::from(r.rem_ceil_ref());
-        assert_eq!(sep_fract, (fract_n, d));
+        assert_eq!(sep_fract, SmallRational::from((fract_n, d)));
         let sep_ceil = Integer::from(r.ceil_ref());
         assert_eq!(sep_ceil, whole);
 
         let mut r = r;
         let mut ceil = Integer::new();
         r.fract_ceil_mut(&mut ceil);
-        assert_eq!(r, (fract_n, d));
+        assert_eq!(r, SmallRational::from((fract_n, d)));
         assert_eq!(ceil, whole);
     }
 }
@@ -105,22 +105,22 @@ fn check_fract_floor() {
         let r = Rational::from((n, d));
 
         let (fract, floor) = r.clone().fract_floor(Integer::new());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(floor, whole);
 
         let (fract, floor) = <(Rational, Integer)>::from(r.fract_floor_ref());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(floor, whole);
 
         let sep_fract = Rational::from(r.rem_floor_ref());
-        assert_eq!(sep_fract, (fract_n, d));
+        assert_eq!(sep_fract, SmallRational::from((fract_n, d)));
         let sep_floor = Integer::from(r.floor_ref());
         assert_eq!(sep_floor, whole);
 
         let mut r = r;
         let mut floor = Integer::new();
         r.fract_floor_mut(&mut floor);
-        assert_eq!(r, (fract_n, d));
+        assert_eq!(r, SmallRational::from((fract_n, d)));
         assert_eq!(floor, whole);
     }
 }
@@ -144,29 +144,32 @@ fn check_fract_round() {
         let r = Rational::from((n, d));
 
         let (fract, round) = r.clone().fract_round(Integer::new());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(round, whole);
 
         let (fract, round) = <(Rational, Integer)>::from(r.fract_round_ref());
-        assert_eq!(fract, (fract_n, d));
+        assert_eq!(fract, SmallRational::from((fract_n, d)));
         assert_eq!(round, whole);
 
         let sep_fract = Rational::from(r.rem_round_ref());
-        assert_eq!(sep_fract, (fract_n, d));
+        assert_eq!(sep_fract, SmallRational::from((fract_n, d)));
         let sep_round = Integer::from(r.round_ref());
         assert_eq!(sep_round, whole);
 
         let mut r = r;
         let mut round = Integer::new();
         r.fract_round_mut(&mut round);
-        assert_eq!(r, (fract_n, d));
+        assert_eq!(r, SmallRational::from((fract_n, d)));
         assert_eq!(round, whole);
     }
 }
 
 #[test]
 fn check_from_str() {
-    assert_eq!("-13/7".parse::<Rational>().unwrap(), (-13, 7));
+    assert_eq!(
+        "-13/7".parse::<Rational>().unwrap(),
+        SmallRational::from((-13, 7))
+    );
 
     let bad_strings = [
         ("_1", 10, "invalid digit found in string"),
@@ -281,46 +284,46 @@ fn check_sum_dot_product() {
     let mut n = Rational::new();
 
     n.assign(sum());
-    assert_eq!(n, (13, 6));
-    assert_eq!(Rational::from(sum()), (13, 6));
-    assert_eq!(sum().complete(), (13, 6));
+    assert_eq!(n, SmallRational::from((13, 6)));
+    assert_eq!(Rational::from(sum()), SmallRational::from((13, 6)));
+    assert_eq!(sum().complete(), SmallRational::from((13, 6)));
     n.assign(10);
     n += sum();
-    assert_eq!(n, (73, 6));
-    assert_eq!(n.clone() + sum(), (43, 3));
-    assert_eq!(sum() + n.clone(), (43, 3));
+    assert_eq!(n, SmallRational::from((73, 6)));
+    assert_eq!(n.clone() + sum(), SmallRational::from((43, 3)));
+    assert_eq!(sum() + n.clone(), SmallRational::from((43, 3)));
     n -= sum();
     assert_eq!(n, 10);
     n.sub_from(sum());
-    assert_eq!(n, (-47, 6));
+    assert_eq!(n, SmallRational::from((-47, 6)));
     assert_eq!(n.clone() - sum(), -10);
     assert_eq!(sum() - n.clone(), 10);
 
     n.assign(dot());
-    assert_eq!(n, (229, 36));
-    assert_eq!(Rational::from(dot()), (229, 36));
-    assert_eq!(dot().complete(), (229, 36));
+    assert_eq!(n, SmallRational::from((229, 36)));
+    assert_eq!(Rational::from(dot()), SmallRational::from((229, 36)));
+    assert_eq!(dot().complete(), SmallRational::from((229, 36)));
     n.assign(10);
     n += dot();
-    assert_eq!(n, (589, 36));
-    assert_eq!(n.clone() + dot(), (409, 18));
-    assert_eq!(dot() + n.clone(), (409, 18));
+    assert_eq!(n, SmallRational::from((589, 36)));
+    assert_eq!(n.clone() + dot(), SmallRational::from((409, 18)));
+    assert_eq!(dot() + n.clone(), SmallRational::from((409, 18)));
     n -= dot();
     assert_eq!(n, 10);
     n.sub_from(dot());
-    assert_eq!(n, (-131, 36));
+    assert_eq!(n, SmallRational::from((-131, 36)));
     assert_eq!(n.clone() - dot(), -10);
     assert_eq!(dot() - n.clone(), 10);
 
     n.assign(product());
-    assert_eq!(n, (-5, 6));
-    assert_eq!(Rational::from(product()), (-5, 6));
-    assert_eq!(product().complete(), (-5, 6));
+    assert_eq!(n, SmallRational::from((-5, 6)));
+    assert_eq!(Rational::from(product()), SmallRational::from((-5, 6)));
+    assert_eq!(product().complete(), SmallRational::from((-5, 6)));
     n.assign(10);
     n *= product();
-    assert_eq!(n, (-25, 3));
-    assert_eq!(n.clone() * product(), (125, 18));
-    assert_eq!(product() * n, (125, 18));
+    assert_eq!(n, SmallRational::from((-25, 3)));
+    assert_eq!(n.clone() * product(), SmallRational::from((125, 18)));
+    assert_eq!(product() * n, SmallRational::from((125, 18)));
 }
 
 #[test]

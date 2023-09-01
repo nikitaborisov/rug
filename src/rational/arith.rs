@@ -367,6 +367,7 @@ fn rhs_has_more_alloc(lhs: &Rational, rhs: &Rational) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::ops::Pow;
+    use crate::rational::SmallRational;
     use crate::{Integer, Rational};
 
     macro_rules! test_ref_op {
@@ -451,9 +452,12 @@ mod tests {
     fn check_neg_pow() {
         let a = Rational::from((-12, 7));
         let pow_pos = a.clone().pow(3i32);
-        assert_eq!(pow_pos, ((-12i32).pow(3), 7i32.pow(3u32)));
+        assert_eq!(
+            pow_pos,
+            SmallRational::from(((-12i32).pow(3), 7i32.pow(3u32)))
+        );
         let pow_neg = a.pow(-3i32);
-        assert_eq!(pow_neg, ((-7i32).pow(3), 12i32.pow(3)));
+        assert_eq!(pow_neg, SmallRational::from(((-7i32).pow(3), 12i32.pow(3))));
     }
 
     macro_rules! check_u_s {

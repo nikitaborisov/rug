@@ -147,6 +147,7 @@ impl Cast<Rational> for &'_ Integer {
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
+    use crate::rational::SmallRational;
     use crate::{Integer, Rational};
     use az::{
         Az, Cast, CheckedAs, CheckedCast, OverflowingAs, OverflowingCast, SaturatingAs,
@@ -224,9 +225,9 @@ mod tests {
         assert!(panic::catch_unwind(|| f32::NEG_INFINITY.unwrapped_as::<Rational>()).is_err());
         assert_eq!((-f32::MAX).az::<Rational>(), *f32_max.as_neg());
         assert_eq!((-2f32).az::<Rational>(), -2);
-        assert_eq!((-1.75f32).az::<Rational>(), (-7, 4));
+        assert_eq!((-1.75f32).az::<Rational>(), SmallRational::from((-7, 4)));
         assert_eq!((-1f32).az::<Rational>(), -1);
-        assert_eq!((-0.125f32).az::<Rational>(), (-1, 8));
+        assert_eq!((-0.125f32).az::<Rational>(), SmallRational::from((-1, 8)));
         assert_eq!(
             (-f32::MIN_POSITIVE).az::<Rational>(),
             *f32_min_pos_normal.as_neg()
@@ -237,9 +238,9 @@ mod tests {
         );
         assert_eq!(f32::from_bits(1).az::<Rational>(), f32_min_pos_subnormal);
         assert_eq!(f32::MIN_POSITIVE.az::<Rational>(), f32_min_pos_normal);
-        assert_eq!(0.125f32.az::<Rational>(), (1, 8));
+        assert_eq!(0.125f32.az::<Rational>(), SmallRational::from((1, 8)));
         assert_eq!(1f32.az::<Rational>(), 1);
-        assert_eq!(1.75f32.az::<Rational>(), (7, 4));
+        assert_eq!(1.75f32.az::<Rational>(), SmallRational::from((7, 4)));
         assert_eq!(2f32.az::<Rational>(), 2);
         assert_eq!(f32::MAX.az::<Rational>(), f32_max);
         assert_eq!(f32::INFINITY.checked_as::<Rational>(), None);
@@ -251,9 +252,9 @@ mod tests {
         assert!(panic::catch_unwind(|| f64::NEG_INFINITY.unwrapped_as::<Rational>()).is_err());
         assert_eq!((-f64::MAX).az::<Rational>(), *f64_max.as_neg());
         assert_eq!((-2f64).az::<Rational>(), -2);
-        assert_eq!((-1.75f64).az::<Rational>(), (-7, 4));
+        assert_eq!((-1.75f64).az::<Rational>(), SmallRational::from((-7, 4)));
         assert_eq!((-1f64).az::<Rational>(), -1);
-        assert_eq!((-0.125f64).az::<Rational>(), (-1, 8));
+        assert_eq!((-0.125f64).az::<Rational>(), SmallRational::from((-1, 8)));
         assert_eq!(
             (-f64::MIN_POSITIVE).az::<Rational>(),
             *f64_min_pos_normal.as_neg()
@@ -264,9 +265,9 @@ mod tests {
         );
         assert_eq!(f64::from_bits(1).az::<Rational>(), f64_min_pos_subnormal);
         assert_eq!(f64::MIN_POSITIVE.az::<Rational>(), f64_min_pos_normal);
-        assert_eq!(0.125f64.az::<Rational>(), (1, 8));
+        assert_eq!(0.125f64.az::<Rational>(), SmallRational::from((1, 8)));
         assert_eq!(1f64.az::<Rational>(), 1);
-        assert_eq!(1.75f64.az::<Rational>(), (7, 4));
+        assert_eq!(1.75f64.az::<Rational>(), SmallRational::from((7, 4)));
         assert_eq!(2f64.az::<Rational>(), 2);
         assert_eq!(f64::MAX.az::<Rational>(), f64_max);
         assert_eq!(f64::INFINITY.checked_as::<Rational>(), None);

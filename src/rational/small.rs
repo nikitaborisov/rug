@@ -421,16 +421,16 @@ mod tests {
     #[test]
     fn check_assign() {
         let mut r = SmallRational::from((1, 2));
-        assert_eq!(*r, (1, 2));
+        assert_eq!(*r, SmallRational::from((1, 2)));
         r.assign(3);
         assert_eq!(*r, 3);
         let other = SmallRational::from((4, 5));
         r.assign(&other);
-        assert_eq!(*r, (4, 5));
+        assert_eq!(*r, SmallRational::from((4, 5)));
         r.assign((6, 7));
-        assert_eq!(*r, (6, 7));
+        assert_eq!(*r, SmallRational::from((6, 7)));
         r.assign(other);
-        assert_eq!(*r, (4, 5));
+        assert_eq!(*r, SmallRational::from((4, 5)));
     }
 
     fn swapped_parts(small: &SmallRational) -> bool {
@@ -444,26 +444,26 @@ mod tests {
     #[test]
     fn check_swapped_parts() {
         let mut r = SmallRational::from((2, 3));
-        assert_eq!(*r, (2, 3));
+        assert_eq!(*r, SmallRational::from((2, 3)));
         assert_eq!(*r.clone(), *r);
         let mut orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r, (3, 2));
+        assert_eq!(*r, SmallRational::from((3, 2)));
         assert_eq!(*r.clone(), *r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         unsafe {
             r.assign_canonical(5, 7);
         }
-        assert_eq!(*r, (5, 7));
+        assert_eq!(*r, SmallRational::from((5, 7)));
         assert_eq!(*r.clone(), *r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r, (7, 5));
+        assert_eq!(*r, SmallRational::from((7, 5)));
         assert_eq!(*r.clone(), *r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
@@ -474,18 +474,18 @@ mod tests {
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r, (1, 2));
+        assert_eq!(*r, SmallRational::from((1, 2)));
         assert_eq!(*r.clone(), *r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         r.assign((3, -5));
-        assert_eq!(*r, (-3, 5));
+        assert_eq!(*r, SmallRational::from((-3, 5)));
         assert_eq!(*r.clone(), *r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r, (-5, 3));
+        assert_eq!(*r, SmallRational::from((-5, 3)));
         assert_eq!(*r.clone(), *r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
     }

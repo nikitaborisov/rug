@@ -192,6 +192,7 @@ cmp_f! { f32 f64 }
 
 #[cfg(test)]
 mod tests {
+    use crate::rational::SmallRational;
     use crate::tests::{I128, I32, I64, U128, U32, U64};
     use crate::Rational;
     use az::{Az, Cast};
@@ -248,19 +249,18 @@ mod tests {
 
     fn check_cmp_prim_tuple<N, D>(num: &[N], den: &[D], against: &[Rational])
     where
-        Rational: From<(N, D)> + PartialEq<(N, D)> + PartialOrd<(N, D)>,
         N: Copy,
         D: Copy + Eq,
-        (N, D): PartialEq<Rational> + PartialOrd<Rational>,
         u8: Cast<D>,
+        SmallRational: From<(N, D)>,
     {
         for n in num {
             for d in den {
                 if *d == 0.az() {
                     continue;
                 }
-                let op = (*n, *d);
-                let iop = Rational::from(op);
+                let op = SmallRational::from((*n, *d));
+                let iop = Rational::from(&*op);
                 for b in against {
                     assert_eq!(b.eq(&op), PartialEq::<Rational>::eq(b, &iop));
                     assert_eq!(op.eq(b), PartialEq::<Rational>::eq(&iop, b));
