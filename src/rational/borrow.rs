@@ -31,13 +31,13 @@ use gmp_mpfr_sys::gmp::mpq_t;
 /// # Examples
 ///
 /// ```rust
-/// use rug::rational::BorrowRational;
+/// use rug::rational::{BorrowRational, SmallRational};
 /// use rug::Rational;
 /// let r = Rational::from((42, 3));
 /// let neg: BorrowRational = r.as_neg();
 /// // r is still valid
-/// assert_eq!(r, (42, 3));
-/// assert_eq!(*neg, (-42, 3));
+/// assert_eq!(r, SmallRational::from((42, 3)));
+/// assert_eq!(*neg, SmallRational::from((-42, 3)));
 /// ```
 #[derive(Clone, Copy)]
 #[repr(transparent)]
@@ -101,7 +101,7 @@ impl<'a> BorrowRational<'a> {
     /// ```rust
     /// use core::ops::Deref;
     /// use core::ptr;
-    /// use rug::rational::BorrowRational;
+    /// use rug::rational::{BorrowRational, SmallRational};
     /// use rug::Rational;
     ///
     /// let i = Rational::from((-5, 7));
@@ -109,7 +109,7 @@ impl<'a> BorrowRational<'a> {
     /// let using_method: &Rational = BorrowRational::const_deref(&b);
     /// let using_operator: &Rational = &*b;
     /// let using_trait: &Rational = b.deref();
-    /// assert_eq!(*using_trait, (-7, 5));
+    /// assert_eq!(*using_trait, SmallRational::from((-7, 5)));
     /// assert!(ptr::eq(using_method, using_operator));
     /// assert!(ptr::eq(using_method, using_trait));
     /// ```

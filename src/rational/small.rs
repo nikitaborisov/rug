@@ -156,7 +156,7 @@ impl SmallRational {
     /// unsafe {
     ///     r.as_nonreallocating_rational().recip_mut();
     /// }
-    /// assert_eq!(*r, (-47, 15));
+    /// assert_eq!(*r, SmallRational::from((-47, 15)));
     /// assert_eq!(r.numer().capacity(), num_capacity);
     /// assert_eq!(r.denom().capacity(), den_capacity);
     /// ```

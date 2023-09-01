@@ -1970,12 +1970,12 @@ impl Integer {
     ///
     /// ```rust
     /// use rug::Integer;
-    /// let i = Integer::from(42);
+    /// let i = Integer::from(4);
     /// let r = i.as_rational();
-    /// assert_eq!(*r, (42, 1));
+    /// assert_eq!(*r, 4);
     /// // methods taking &self can be used on the returned object
     /// let recip_r = r.as_recip();
-    /// assert_eq!(*recip_r, (1, 42));
+    /// assert_eq!(*recip_r, 0.25);
     /// ```
     ///
     /// [Deref::Target]: core::ops::Deref::Target
