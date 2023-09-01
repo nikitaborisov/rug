@@ -28,6 +28,40 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.22.0 news (unreleased)
+
+  * Bug fix: implementations of [`PartialOrd`] and [`PartialEq`] between
+    [`Rational`][rat-1-22] numbers and tuples of two primitive integers were
+    breaking the transitivity property of the traits, so the implementations
+    were removed ([issue 58]). See the compatibility note below.
+  * Direct [`PartialOrd`] and [`PartialEq`] comparisons between
+    [`Rational`][rat-1-22] and [`SmallRational`][smr-1-22] are now implemented.
+  * [`SmallRational`][smr-1-22] can now be assigned or converted directly to
+    [`Rational`][rat-1-22] using [`Assign`][ass-1-22] and [`From`].
+  * [`Debug`] is now implemented for [`SmallRational`][smr-1-22].
+
+Compatibility note
+------------------
+
+The implementations of [`PartialOrd`] and [`PartialEq`] between
+[`Rational`][rat-1-22] numbers and tuples of two primitive integers were
+breaking the transitivity property of the two traits in question. Since the
+implementations necessarily break the trait guarantees, having the traits
+implemented is considered a bug (see [issue 58] for more details). These buggy
+implementations were removed. To fix code that used these comparisons without
+adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
+`rational == (1, 3)` can be replaced with
+`rational == SmallRational::from((1, 3))`.
+
+[`Debug`]: https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html
+[`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
+[`PartialEq`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html
+[`PartialOrd`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html
+[ass-1-22]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
+[issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
+[rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
+[smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
+
 ### Version 1.21.0 news (2023-08-28)
 
   * The following methods were added to [`Integer`][int-1-21]:

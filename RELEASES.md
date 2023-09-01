@@ -4,6 +4,37 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.22.0 (unreleased)
+===========================
+
+  * Bug fix: implementations of [`PartialOrd`] and [`PartialEq`] between
+    [`Rational`][rat-1-22] numbers and tuples of two primitive integers were
+    breaking the transitivity property of the traits, so the implementations
+    were removed ([issue 58]). See the compatibility note below.
+  * Direct [`PartialOrd`] and [`PartialEq`] comparisons between
+    [`Rational`][rat-1-22] and [`SmallRational`][smr-1-22] are now implemented.
+  * [`SmallRational`][smr-1-22] can now be assigned or converted directly to
+    [`Rational`][rat-1-22] using [`Assign`][ass-1-22] and [`From`].
+  * [`Debug`] is now implemented for [`SmallRational`][smr-1-22].
+
+Compatibility note
+------------------
+
+The implementations of [`PartialOrd`] and [`PartialEq`] between
+[`Rational`][rat-1-22] numbers and tuples of two primitive integers were
+breaking the transitivity property of the two traits in question. Since the
+implementations necessarily break the trait guarantees, having the traits
+implemented is considered a bug (see [issue 58] for more details). These buggy
+implementations were removed. To fix code that used these comparisons without
+adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
+`rational == (1, 3)` can be replaced with
+`rational == SmallRational::from((1, 3))`.
+
+[ass-1-22]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
+[issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
+[rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
+[smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
+
 Version 1.21.0 (2023-08-28)
 ===========================
 
@@ -1142,13 +1173,16 @@ Version 0.6.0 (2017-08-09)
 [`AsRef`]: https://doc.rust-lang.org/nightly/core/convert/trait.AsRef.html
 [`Clone`]: https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html
 [`Copy`]: https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html
+[`Debug`]: https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html
 [`Default`]: https://doc.rust-lang.org/nightly/core/default/trait.Default.html
 [`Eq`]: https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html
+[`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
 [`LowerExp`]: https://doc.rust-lang.org/nightly/core/fmt/trait.LowerExp.html
 [`MaybeUninit`]: https://doc.rust-lang.org/nightly/core/mem/union.MaybeUninit.html
 [`Neg`]: https://doc.rust-lang.org/nightly/core/ops/trait.Neg.html
 [`Option`]: https://doc.rust-lang.org/nightly/core/option/enum.Option.html
 [`PartialEq`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html
+[`PartialOrd`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html
 [`Product`]: https://doc.rust-lang.org/nightly/core/iter/trait.Product.html
 [`RemAssign`]: https://doc.rust-lang.org/nightly/core/ops/trait.RemAssign.html
 [`Rem`]: https://doc.rust-lang.org/nightly/core/ops/trait.Rem.html
@@ -1160,7 +1194,7 @@ Version 0.6.0 (2017-08-09)
 [`Shr`]: https://doc.rust-lang.org/nightly/core/ops/trait.Shr.html
 [`Sum`]: https://doc.rust-lang.org/nightly/core/iter/trait.Sum.html
 [`Sync`]: https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html
-[`TryFrom`]: https://doc.rust-lang.org/nightly/std/convert/trait.TryFrom.html
+[`TryFrom`]: https://doc.rust-lang.org/nightly/core/convert/trait.TryFrom.html
 [`UpperExp`]: https://doc.rust-lang.org/nightly/core/fmt/trait.UpperExp.html
 [`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
 [`deref`]: https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#tymethod.deref
