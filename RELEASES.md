@@ -54,9 +54,9 @@ adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
 [int-1-22]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
 [issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
 [rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
-[smc-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallComplex.html
-[smf-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallFloat.html
-[smi-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallInteger.html
+[smc-1-22]: https://docs.rs/rug/~1.22/rug/complex/struct.SmallComplex.html
+[smf-1-22]: https://docs.rs/rug/~1.22/rug/float/struct.SmallFloat.html
+[smi-1-22]: https://docs.rs/rug/~1.22/rug/integer/struct.SmallInteger.html
 [smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
 
 Version 1.21.0 (2023-08-28)

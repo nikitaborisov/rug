@@ -55,8 +55,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * For the [`Complex`][com-1-22] struct, the method [`eq0`][com-e-1-22] was
     renamed to [`is_zero`][com-iz-1-22]. The old method name is deprecated.
 
-Compatibility note
-------------------
+#### Compatibility note
 
 The implementations of [`PartialOrd`] and [`PartialEq`] between
 [`Rational`][rat-1-22] numbers and tuples of two primitive integers were
@@ -81,9 +80,9 @@ adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
 [int-1-22]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
 [issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
 [rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
-[smc-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallComplex.html
-[smf-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallFloat.html
-[smi-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallInteger.html
+[smc-1-22]: https://docs.rs/rug/~1.22/rug/complex/struct.SmallComplex.html
+[smf-1-22]: https://docs.rs/rug/~1.22/rug/float/struct.SmallFloat.html
+[smi-1-22]: https://docs.rs/rug/~1.22/rug/integer/struct.SmallInteger.html
 [smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
 
 ### Version 1.21.0 news (2023-08-28)
