@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpz;
+use crate::integer::SmallInteger;
 use crate::Integer;
 use az::UnwrappedAs;
 use core::cmp::Ordering;
@@ -39,6 +40,34 @@ impl PartialOrd for Integer {
     #[inline]
     fn partial_cmp(&self, other: &Integer) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl PartialOrd<SmallInteger> for Integer {
+    #[inline]
+    fn partial_cmp(&self, other: &SmallInteger) -> Option<Ordering> {
+        self.partial_cmp(&**other)
+    }
+}
+
+impl PartialOrd<Integer> for SmallInteger {
+    #[inline]
+    fn partial_cmp(&self, other: &Integer) -> Option<Ordering> {
+        (**self).partial_cmp(other)
+    }
+}
+
+impl PartialEq<SmallInteger> for Integer {
+    #[inline]
+    fn eq(&self, other: &SmallInteger) -> bool {
+        self.eq(&**other)
+    }
+}
+
+impl PartialEq<Integer> for SmallInteger {
+    #[inline]
+    fn eq(&self, other: &Integer) -> bool {
+        (**self).eq(other)
     }
 }
 
