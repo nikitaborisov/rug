@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::complex::SmallComplex;
 use crate::float::Special;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -25,6 +26,20 @@ impl PartialEq for Complex {
     #[inline]
     fn eq(&self, other: &Complex) -> bool {
         self.real().eq(other.real()) && self.imag().eq(other.imag())
+    }
+}
+
+impl PartialEq<SmallComplex> for Complex {
+    #[inline]
+    fn eq(&self, other: &SmallComplex) -> bool {
+        self.eq(&**other)
+    }
+}
+
+impl PartialEq<Complex> for SmallComplex {
+    #[inline]
+    fn eq(&self, other: &Complex) -> bool {
+        (**self).eq(other)
     }
 }
 
