@@ -34,11 +34,24 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
     [`Rational`][rat-1-22] numbers and tuples of two primitive integers were
     breaking the transitivity property of the traits, so the implementations
     were removed ([issue 58]). See the compatibility note below.
-  * Direct [`PartialOrd`] and [`PartialEq`] comparisons between
-    [`Rational`][rat-1-22] and [`SmallRational`][smr-1-22] are now implemented.
+  * Direct [`PartialOrd`] and [`PartialEq`] comparisons are now implemented
+      * between [`Integer`][int-1-22] and [`SmallInteger`][smi-1-22],
+      * between [`Rational`][rat-1-22] and [`SmallRational`][smr-1-22], and
+      * between [`Float`][flo-1-22] and [`SmallFloat`][smf-1-22].
+  * Direct [`PartialEq`] comparisons are now implemented between
+    [`Complex`][com-1-22] and [`SmallComplex`][smc-1-22].
+  * [`SmallInteger`][smi-1-22] can now be assigned or converted directly to
+    [`Integer`][int-1-22] using [`Assign`][ass-1-22] and [`From`].
   * [`SmallRational`][smr-1-22] can now be assigned or converted directly to
     [`Rational`][rat-1-22] using [`Assign`][ass-1-22] and [`From`].
-  * [`Debug`] is now implemented for [`SmallRational`][smr-1-22].
+  * [`SmallFloat`][smf-1-22] can now be assigned directly to [`Float`][flo-1-22]
+    using [`AssignRound`][assr-1-22] and [`Assign`][ass-1-22].
+  * [`SmallComplex`][smc-1-22] can now be assigned directly to
+    [`Complex`][com-1-22] using [`AssignRound`][assr-1-22] and
+    [`Assign`][ass-1-22].
+  * [`Debug`] is now implemented for [`SmallInteger`][smi-1-22],
+    [`SmallRational`][smr-1-22], [`SmallFloat`][smf-1-22] and
+    [`SmallComplex`][smc-1-22].
 
 Compatibility note
 ------------------
@@ -58,8 +71,15 @@ adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
 [`PartialEq`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html
 [`PartialOrd`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html
 [ass-1-22]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
+[assr-1-22]: https://docs.rs/rug/~1.22/rug/ops/trait.AssignRound.html
+[com-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html
+[flo-1-22]: https://docs.rs/rug/~1.22/rug/struct.Float.html
+[int-1-22]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
 [issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
 [rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
+[smc-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallComplex.html
+[smf-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallFloat.html
+[smi-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallInteger.html
 [smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
 
 ### Version 1.21.0 news (2023-08-28)
