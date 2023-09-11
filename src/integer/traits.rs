@@ -16,7 +16,7 @@
 
 use crate::ext::xmpz;
 use crate::integer::big;
-use crate::integer::{ParseIntegerError, TryFromIntegerError};
+use crate::integer::{ParseIntegerError, SmallInteger, TryFromIntegerError};
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
 use core::fmt::{
@@ -87,6 +87,34 @@ impl From<&Integer> for Integer {
     #[inline]
     fn from(val: &Integer) -> Self {
         val.clone()
+    }
+}
+
+impl Assign<SmallInteger> for Integer {
+    #[inline]
+    fn assign(&mut self, src: SmallInteger) {
+        self.assign(&*src);
+    }
+}
+
+impl Assign<&SmallInteger> for Integer {
+    #[inline]
+    fn assign(&mut self, src: &SmallInteger) {
+        self.assign(&**src);
+    }
+}
+
+impl From<SmallInteger> for Integer {
+    #[inline]
+    fn from(src: SmallInteger) -> Self {
+        Integer::from(&*src)
+    }
+}
+
+impl From<&SmallInteger> for Integer {
+    #[inline]
+    fn from(src: &SmallInteger) -> Self {
+        Integer::from(&**src)
     }
 }
 
