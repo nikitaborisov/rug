@@ -16,7 +16,7 @@
 
 use crate::complex::big;
 use crate::complex::big::Format;
-use crate::complex::OrdComplex;
+use crate::complex::{OrdComplex, SmallComplex};
 use crate::ext::xmpc;
 use crate::ext::xmpc::{Ordering2, Round2};
 use crate::float::big::ExpFormat;
@@ -218,6 +218,24 @@ impl AssignRound<&Complex> for Complex {
     #[inline]
     fn assign_round(&mut self, src: &Complex, round: Round2) -> Ordering2 {
         xmpc::set(self, src, round)
+    }
+}
+
+impl AssignRound<SmallComplex> for Complex {
+    type Round = Round2;
+    type Ordering = Ordering2;
+    #[inline]
+    fn assign_round(&mut self, src: SmallComplex, round: Round2) -> Ordering2 {
+        self.assign_round(&*src, round)
+    }
+}
+
+impl AssignRound<&SmallComplex> for Complex {
+    type Round = Round2;
+    type Ordering = Ordering2;
+    #[inline]
+    fn assign_round(&mut self, src: &SmallComplex, round: Round2) -> Ordering2 {
+        self.assign_round(&**src, round)
     }
 }
 
