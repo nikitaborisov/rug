@@ -17,7 +17,7 @@
 use crate::ext::xmpfr;
 use crate::float::big;
 use crate::float::big::{ExpFormat, Format};
-use crate::float::{Constant, OrdFloat, Round, Special};
+use crate::float::{Constant, OrdFloat, Round, SmallFloat, Special};
 use crate::ops::AssignRound;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -217,6 +217,24 @@ impl AssignRound<&Float> for Float {
     #[inline]
     fn assign_round(&mut self, src: &Float, round: Round) -> Ordering {
         xmpfr::set(self, src, round)
+    }
+}
+
+impl AssignRound<SmallFloat> for Float {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: SmallFloat, round: Round) -> Ordering {
+        self.assign_round(&*src, round)
+    }
+}
+
+impl AssignRound<&SmallFloat> for Float {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: &SmallFloat, round: Round) -> Ordering {
+        self.assign_round(&**src, round)
     }
 }
 
