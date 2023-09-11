@@ -882,7 +882,7 @@ mod tests {
             (0, 10, 0, 0),
             (0, -10, 0, 0),
         ];
-        for &(n, d, q, r) in ndqr.iter() {
+        for &(n, d, q, r) in &ndqr {
             assert_eq!(Integer::from(n) / d, q);
             assert_eq!(Integer::from(n).div_trunc(d), q);
             assert_eq!(Integer::from(n) % d, r);
@@ -918,7 +918,7 @@ mod tests {
             (0, 10, 0, 0),
             (0, -10, 0, 0),
         ];
-        for &(n, d, q, r) in ndqr.iter() {
+        for &(n, d, q, r) in &ndqr {
             assert_eq!(Integer::from(n).div_ceil(d), q);
             assert_eq!(Integer::from(n).rem_ceil(d), r);
             let qr = Integer::from(n).div_rem_ceil(Integer::from(d));
@@ -952,7 +952,7 @@ mod tests {
             (0, 10, 0, 0),
             (0, -10, 0, 0),
         ];
-        for &(n, d, q, r) in ndqr.iter() {
+        for &(n, d, q, r) in &ndqr {
             assert_eq!(Integer::from(n).div_floor(d), q);
             assert_eq!(Integer::from(n).rem_floor(d), r);
             let qr = Integer::from(n).div_rem_floor(Integer::from(d));
@@ -986,7 +986,7 @@ mod tests {
             (0, 10, 0, 0),
             (0, -10, 0, 0),
         ];
-        for &(n, d, q, r) in ndqr.iter() {
+        for &(n, d, q, r) in &ndqr {
             assert_eq!(Integer::from(n).div_euc(d), q);
             assert_eq!(Integer::from(n).rem_euc(d), r);
             let qr = Integer::from(n).div_rem_euc(Integer::from(d));

@@ -374,6 +374,7 @@ pub trait IntegerExt64: Sealed {
     /// let keep_8 = i.keep_bits_64(8);
     /// assert_eq!(keep_8, 0xff);
     /// ```
+    #[must_use]
     fn keep_bits_64(self, n: u64) -> Self;
 
     /// Keeps the <i>n</i> least significant bits only, producing a result that
@@ -438,6 +439,7 @@ pub trait IntegerExt64: Sealed {
     /// let j_keep_8 = j.keep_signed_bits_64(8);
     /// assert_eq!(j_keep_8, 15);
     /// ```
+    #[must_use]
     fn keep_signed_bits_64(self, n: u64) -> Self;
 
     /// Keeps the <i>n</i> least significant bits only, producing a negative
@@ -536,6 +538,7 @@ pub trait IntegerExt64: Sealed {
     /// let q = i.div_exact_u64(12345);
     /// assert_eq!(q, 54321);
     /// ```
+    #[must_use]
     fn div_exact_u64(self, divisor: u64) -> Self;
 
     /// Performs an exact division.
@@ -655,6 +658,7 @@ pub trait IntegerExt64: Sealed {
     /// let root = i.root_64(3);
     /// assert_eq!(root, 10);
     /// ```
+    #[must_use]
     fn root_64(self, n: u64) -> Self;
 
     /// Computes the <i>n</i>th root and truncates the result.
@@ -818,6 +822,7 @@ pub trait IntegerExt64: Sealed {
     /// let gcd3 = gcd2.gcd_u64(25);
     /// assert_eq!(gcd3, 5);
     /// ```
+    #[must_use]
     fn gcd_u64(self, other: u64) -> Self;
 
     /// Finds the greatest common divisor.
@@ -900,6 +905,7 @@ pub trait IntegerExt64: Sealed {
     /// let lcm2 = lcm1.lcm_u64(0);
     /// assert_eq!(lcm2, 0);
     /// ```
+    #[must_use]
     fn lcm_u64(self, other: u64) -> Self;
 
     /// Finds the least common multiple.
@@ -1129,6 +1135,7 @@ pub trait IntegerExt64: Sealed {
     /// let bin = i.binomial_64(2);
     /// assert_eq!(bin, 21);
     /// ```
+    #[must_use]
     fn binomial_64(self, k: u64) -> Self;
 
     /// Computes the binomial coefficient over <i>k</i>.
@@ -1446,7 +1453,7 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn keep_bits_64_mut(&mut self, n: u64) {
-        xmpz::fdiv_r_2exp(self, (), n.unwrapped_cast())
+        xmpz::fdiv_r_2exp(self, (), n.unwrapped_cast());
     }
 
     #[inline]
@@ -1758,7 +1765,7 @@ pub struct RandomBitsIncomplete<'a> {
 impl Assign<RandomBitsIncomplete<'_>> for Integer {
     #[inline]
     fn assign(&mut self, src: RandomBitsIncomplete) {
-        xmpz::urandomb(self, src.rng, src.bits)
+        xmpz::urandomb(self, src.rng, src.bits);
     }
 }
 

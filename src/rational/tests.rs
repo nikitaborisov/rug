@@ -31,7 +31,7 @@ fn check_fract_trunc() {
         (-3, 10, 0, -3),
         (0, 10, 0, 0),
     ];
-    for &(n, d, whole, fract_n) in ndwf.iter() {
+    for &(n, d, whole, fract_n) in &ndwf {
         let r = Rational::from((n, d));
 
         let (fract, trunc) = r.clone().fract_trunc(Integer::new());
@@ -66,7 +66,7 @@ fn check_fract_ceil() {
         (-3, 10, 0, -3),
         (0, 10, 0, 0),
     ];
-    for &(n, d, whole, fract_n) in ndwf.iter() {
+    for &(n, d, whole, fract_n) in &ndwf {
         let r = Rational::from((n, d));
 
         let (fract, ceil) = r.clone().fract_ceil(Integer::new());
@@ -101,7 +101,7 @@ fn check_fract_floor() {
         (-3, 10, -1, 7),
         (0, 10, 0, 0),
     ];
-    for &(n, d, whole, fract_n) in ndwf.iter() {
+    for &(n, d, whole, fract_n) in &ndwf {
         let r = Rational::from((n, d));
 
         let (fract, floor) = r.clone().fract_floor(Integer::new());
@@ -140,7 +140,7 @@ fn check_fract_round() {
         (-3, 10, 0, -3),
         (0, 10, 0, 0),
     ];
-    for &(n, d, whole, fract_n) in ndwf.iter() {
+    for &(n, d, whole, fract_n) in &ndwf {
         let r = Rational::from((n, d));
 
         let (fract, round) = r.clone().fract_round(Integer::new());
@@ -202,7 +202,7 @@ fn check_from_str() {
         ("Z0", 35, "invalid digit found in string"),
         ("z0", 35, "invalid digit found in string"),
     ];
-    for &(s, radix, msg) in bad_strings.iter() {
+    for &(s, radix, msg) in &bad_strings {
         match Rational::parse_radix(s, radix) {
             Ok(o) => panic!(
                 "\"{}\" (radix {}) parsed correctly as {}, expected: {}",
@@ -225,7 +225,7 @@ fn check_from_str() {
         ("-77/2", 8, -0o77, 2),
         ("Z/z0", 36, 1, 36),
     ];
-    for &(s, radix, n, d) in good_strings.iter() {
+    for &(s, radix, n, d) in &good_strings {
         match Rational::parse_radix(s, radix) {
             Ok(ok) => {
                 let r = Rational::from(ok);

@@ -212,7 +212,7 @@ where
         self.mutate_numer_denom(move |num, den| {
             num.assign(src.0);
             den.assign(src.1);
-        })
+        });
     }
 }
 

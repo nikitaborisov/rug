@@ -112,7 +112,7 @@ impl MulAdd for Integer {
 impl MulAddAssign for Integer {
     #[inline]
     fn mul_add_assign(&mut self, a: Integer, b: Integer) {
-        *self = &*self * &a + b
+        *self = &*self * &a + b;
     }
 }
 

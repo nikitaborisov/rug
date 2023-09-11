@@ -1871,8 +1871,7 @@ impl Float {
             let save_emax = mpfr::get_emax();
             if exp_max
                 .checked_cast()
-                .map(|x| mpfr::set_emax(x) != 0)
-                .unwrap_or(true)
+                .map_or(true, |x| mpfr::set_emax(x) != 0)
             {
                 mpfr::set_emin(save_emin);
                 return None;
@@ -11545,7 +11544,7 @@ pub(crate) fn append_to_string(s: &mut String, f: &Float, format: Format) {
         let bytes_before_point = digits_before_point + usize::from(added_sign);
         if bytes_before_point == c_len {
             // no point
-            vec.set_len(vec.len() + c_len)
+            vec.set_len(vec.len() + c_len);
         } else {
             let point_ptr = write_ptr.add(bytes_before_point);
             point_ptr.copy_to(point_ptr.offset(1), c_len - bytes_before_point);
@@ -11704,11 +11703,11 @@ fn parse(mut bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseFloatErro
         has_digits = true;
     }
     if !has_digits {
-        if exp {
-            return parse_error!(ParseErrorKind::ExpNoDigits);
+        return if exp {
+            parse_error!(ParseErrorKind::ExpNoDigits)
         } else {
-            return parse_error!(ParseErrorKind::NoDigits);
-        }
+            parse_error!(ParseErrorKind::NoDigits)
+        };
     }
     // we've only added checked bytes, so we know there are no nuls
     let c_string = unsafe { CString::from_vec_unchecked(v) };

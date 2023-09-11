@@ -429,40 +429,40 @@ pub fn set_0(rop: &mut Rational) {
 #[inline]
 pub fn shl_i32<O: OptRational>(rop: &mut Rational, op1: O, op2: i32) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shl_u32(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shr_u32(rop, op1, op2_abs);
+    } else {
+        shl_u32(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shr_i32<O: OptRational>(rop: &mut Rational, op1: O, op2: i32) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shr_u32(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shl_u32(rop, op1, op2_abs);
+    } else {
+        shr_u32(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shl_isize<O: OptRational>(rop: &mut Rational, op1: O, op2: isize) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shl_usize(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shr_usize(rop, op1, op2_abs);
+    } else {
+        shl_usize(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shr_isize<O: OptRational>(rop: &mut Rational, op1: O, op2: isize) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shr_usize(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shl_usize(rop, op1, op2_abs);
+    } else {
+        shr_usize(rop, op1, op2_abs);
     }
 }
 
@@ -635,22 +635,22 @@ pub fn mul_z<O: OptRational>(rop: &mut Rational, lhs: O, rhs: &Integer) {
         let (lhs_num, lhs_den) = lhs.unwrap_parts();
         // store gcd temporarily in numer
         numer.assign(lhs_den.gcd_ref(rhs));
-        if !xmpz::is_1(numer) {
+        if xmpz::is_1(numer) {
+            numer.assign(lhs_num * rhs);
+            denom.assign(lhs_den);
+        } else {
             denom.assign(lhs_den.div_exact_ref(numer));
             numer.div_exact_from(rhs);
             *numer *= lhs_num;
-        } else {
-            numer.assign(lhs_num * rhs);
-            denom.assign(lhs_den);
         }
     } else {
         let mut gcd = Integer::from(denom.gcd_ref(rhs));
-        if !xmpz::is_1(&gcd) {
+        if xmpz::is_1(&gcd) {
+            *numer *= rhs;
+        } else {
             denom.div_exact_mut(&gcd);
             gcd.div_exact_from(rhs);
             *numer *= gcd;
-        } else {
-            *numer *= rhs;
         }
     }
 }
@@ -665,22 +665,22 @@ pub fn div_z<O: OptRational>(rop: &mut Rational, lhs: O, rhs: &Integer) {
         let (lhs_num, lhs_den) = lhs.unwrap_parts();
         // store gcd temporarily in numer
         numer.assign(lhs_num.gcd_ref(rhs));
-        if !xmpz::is_1(numer) {
+        if xmpz::is_1(numer) {
+            numer.assign(lhs_num);
+            denom.assign(lhs_den * rhs);
+        } else {
             denom.assign(rhs.div_exact_ref(numer));
             *denom *= lhs_den;
             numer.div_exact_from(lhs_num);
-        } else {
-            numer.assign(lhs_num);
-            denom.assign(lhs_den * rhs);
         }
     } else {
         let mut gcd = Integer::from(numer.gcd_ref(rhs));
-        if !xmpz::is_1(&gcd) {
+        if xmpz::is_1(&gcd) {
+            *denom *= rhs;
+        } else {
             numer.div_exact_mut(&gcd);
             gcd.div_exact_from(rhs);
             *denom *= gcd;
-        } else {
-            *denom *= rhs;
         }
     }
     if denom.is_negative() {
@@ -703,23 +703,23 @@ pub fn z_div<O: OptRational>(rop: &mut Rational, lhs: &Integer, rhs: O) {
         let (rhs_num, rhs_den) = rhs.unwrap_parts();
         // store gcd temporarily in numer
         numer.assign(rhs_num.gcd_ref(lhs));
-        if !xmpz::is_1(numer) {
+        if xmpz::is_1(numer) {
+            numer.assign(lhs * rhs_den);
+            denom.assign(rhs_num);
+        } else {
             denom.assign(rhs_num.div_exact_ref(numer));
             numer.div_exact_from(lhs);
             *numer *= rhs_den;
-        } else {
-            numer.assign(lhs * rhs_den);
-            denom.assign(rhs_num);
         }
     } else {
         let mut gcd = Integer::from(numer.gcd_ref(lhs));
         mem::swap(numer, denom);
-        if !xmpz::is_1(&gcd) {
+        if xmpz::is_1(&gcd) {
+            *numer *= lhs;
+        } else {
             denom.div_exact_mut(&gcd);
             gcd.div_exact_from(lhs);
             *numer *= gcd;
-        } else {
-            *numer *= lhs;
         }
     }
     if denom.is_negative() {
@@ -801,20 +801,20 @@ pub fn mul_ui<O: OptRational>(rop: &mut Rational, lhs: O, rhs: c_ulong) {
     if O::IS_SOME {
         let (lhs_num, lhs_den) = lhs.unwrap_parts();
         let gcd = xmpz::gcd_opt_ui(None, lhs_den, rhs);
-        if gcd != 1 {
-            numer.assign(rhs / gcd * lhs_num);
-            xmpz::divexact_ui(denom, lhs_den, gcd);
-        } else {
+        if gcd == 1 {
             numer.assign(rhs * lhs_num);
             denom.assign(lhs_den);
+        } else {
+            numer.assign(rhs / gcd * lhs_num);
+            xmpz::divexact_ui(denom, lhs_den, gcd);
         }
     } else {
         let gcd = xmpz::gcd_opt_ui(None, &*denom, rhs);
-        if gcd != 1 {
+        if gcd == 1 {
+            *numer *= rhs;
+        } else {
             *numer *= rhs / gcd;
             xmpz::divexact_ui(denom, (), gcd);
-        } else {
-            *numer *= rhs;
         }
     }
 }
@@ -828,20 +828,20 @@ pub fn div_ui<O: OptRational>(rop: &mut Rational, lhs: O, rhs: c_ulong) {
     if O::IS_SOME {
         let (lhs_num, lhs_den) = lhs.unwrap_parts();
         let gcd = xmpz::gcd_opt_ui(None, lhs_num, rhs);
-        if gcd != 1 {
-            xmpz::divexact_ui(numer, lhs_num, gcd);
-            denom.assign(rhs / gcd * lhs_den);
-        } else {
+        if gcd == 1 {
             numer.assign(lhs_num);
             denom.assign(rhs * lhs_den);
+        } else {
+            xmpz::divexact_ui(numer, lhs_num, gcd);
+            denom.assign(rhs / gcd * lhs_den);
         }
     } else {
         let gcd = xmpz::gcd_opt_ui(None, &*numer, rhs);
-        if gcd != 1 {
+        if gcd == 1 {
+            *denom *= rhs;
+        } else {
             xmpz::divexact_ui(numer, (), gcd);
             *denom *= rhs / gcd;
-        } else {
-            *denom *= rhs;
         }
     }
     // since rhs is positive, denom is positive
@@ -864,21 +864,21 @@ pub fn ui_div<O: OptRational>(rop: &mut Rational, lhs: c_ulong, rhs: O) {
     if O::IS_SOME {
         let (rhs_num, rhs_den) = rhs.unwrap_parts();
         let gcd = xmpz::gcd_opt_ui(None, rhs_num, lhs);
-        if gcd != 1 {
-            numer.assign(lhs / gcd * rhs_den);
-            xmpz::divexact_ui(denom, rhs_num, gcd);
-        } else {
+        if gcd == 1 {
             numer.assign(lhs * rhs_den);
             denom.assign(rhs_num);
+        } else {
+            numer.assign(lhs / gcd * rhs_den);
+            xmpz::divexact_ui(denom, rhs_num, gcd);
         }
     } else {
         let gcd = xmpz::gcd_opt_ui(None, &*numer, lhs);
         mem::swap(numer, denom);
-        if gcd != 1 {
+        if gcd == 1 {
+            *numer *= lhs;
+        } else {
             *numer *= lhs / gcd;
             xmpz::divexact_ui(denom, (), gcd);
-        } else {
-            *numer *= lhs;
         }
     }
     if denom.is_negative() {

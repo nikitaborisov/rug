@@ -171,6 +171,7 @@ mod tests {
     use crate::float::{FreeCache, Special};
     use crate::Complex;
     use core::hash::{Hash, Hasher};
+    use core::ptr;
     use std::collections::hash_map::DefaultHasher;
 
     fn calculate_hash<T: Hash>(t: &T) -> u64 {
@@ -217,28 +218,28 @@ mod tests {
     fn check_refs() {
         let f = Complex::with_val(53, (23.5, 32.5));
         assert_eq!(
-            (&f as *const Complex).cast::<OrdComplex>(),
+            ptr::addr_of!(f).cast::<OrdComplex>(),
             f.as_ord() as *const OrdComplex
         );
         assert_eq!(
-            (&f as *const Complex).cast::<OrdComplex>(),
+            ptr::addr_of!(f).cast::<OrdComplex>(),
             AsRef::<OrdComplex>::as_ref(&f) as *const OrdComplex
         );
         let mut o = OrdComplex::from(f);
         assert_eq!(
-            (&o as *const OrdComplex).cast::<Complex>(),
+            ptr::addr_of!(o).cast::<Complex>(),
             o.as_complex() as *const Complex
         );
         assert_eq!(
-            (&o as *const OrdComplex).cast::<Complex>(),
+            ptr::addr_of!(o).cast::<Complex>(),
             AsRef::<Complex>::as_ref(&o) as *const Complex
         );
         assert_eq!(
-            (&mut o as *mut OrdComplex).cast::<Complex>(),
+            ptr::addr_of_mut!(o).cast::<Complex>(),
             o.as_complex_mut() as *mut Complex
         );
         assert_eq!(
-            (&mut o as *mut OrdComplex).cast::<Complex>(),
+            ptr::addr_of_mut!(o).cast::<Complex>(),
             AsMut::<Complex>::as_mut(&mut o) as *mut Complex
         );
     }

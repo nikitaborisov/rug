@@ -2605,14 +2605,11 @@ where
     I: Iterator<Item = &'a Self>,
 {
     fn assign(&mut self, mut src: SumIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first);
-            }
-            None => {
-                self.assign(0u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first);
+        } else {
+            self.assign(0u32);
+            return;
         }
         self.add_assign(src);
     }
@@ -2737,14 +2734,11 @@ where
     I: Iterator<Item = (&'a Rational, &'a Rational)>,
 {
     fn assign(&mut self, mut src: DotIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first.0 * first.1);
-            }
-            None => {
-                self.assign(0u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first.0 * first.1);
+        } else {
+            self.assign(0u32);
+            return;
         }
         self.add_assign(src);
     }
@@ -2875,14 +2869,11 @@ where
     I: Iterator<Item = &'a Self>,
 {
     fn assign(&mut self, mut src: ProductIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first);
-            }
-            None => {
-                self.assign(1u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first);
+        } else {
+            self.assign(1u32);
+            return;
         }
         self.mul_assign(src);
     }
@@ -2947,14 +2938,11 @@ where
             None => return,
         };
         loop {
-            match src.values.next() {
-                Some(next) => {
-                    self.assign(&other * next);
-                }
-                None => {
-                    self.assign(other);
-                    return;
-                }
+            if let Some(next) = src.values.next() {
+                self.assign(&other * next);
+            } else {
+                self.assign(other);
+                return;
             }
             match src.values.next() {
                 Some(next) => {

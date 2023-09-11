@@ -258,11 +258,11 @@ impl ToSmall for bool {}
 impl SealedToSmall for bool {
     #[inline]
     fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        if !self {
-            *size = 0;
-        } else {
+        if self {
             *size = 1;
             limbs[0] = MaybeUninit::new(1);
+        } else {
+            *size = 0;
         }
     }
 

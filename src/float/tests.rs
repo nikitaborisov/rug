@@ -105,7 +105,7 @@ fn check_from_str() {
         ("9", 9, "invalid digit found in string"),
         ("nan(20) x", 10, "invalid digit found in string"),
     ];
-    for &(s, radix, msg) in bad_strings.iter() {
+    for &(s, radix, msg) in &bad_strings {
         match Float::parse_radix(s, radix) {
             Ok(o) => panic!(
                 "\"{}\" (radix {}) parsed correctly as {}, expected: {}",
@@ -132,7 +132,7 @@ fn check_from_str() {
         (" + NaN (20 Number_Is) ", 10, Cmp::Nan(false)),
         (" - @nan@", 2, Cmp::Nan(true)),
     ];
-    for &(s, radix, f) in good_strings.iter() {
+    for &(s, radix, f) in &good_strings {
         match Float::parse_radix(s, radix) {
             Ok(ok) => assert_eq!(Float::with_val(53, ok), f),
             Err(err) => panic!("could not parse {s}: {err}"),
@@ -499,7 +499,7 @@ fn check_sum_dot() {
 
 #[test]
 fn check_issue_56() {
-    let x = Float::with_val(21, 1111111) >> 154u32;
+    let x = Float::with_val(21, 1_111_111) >> 154u32;
     let rounded = x.to_f32_round(Round::Up);
     assert!(rounded >= x);
 }

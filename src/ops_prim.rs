@@ -705,7 +705,7 @@ impl<'a> AddFrom<&'a str> for Cow<'a, str> {
     fn add_from(&mut self, lhs: &'a str) {
         if lhs.is_empty() {
         } else if self.is_empty() {
-            *self = Cow::Borrowed(lhs)
+            *self = Cow::Borrowed(lhs);
         } else {
             match *self {
                 Cow::Borrowed(rhs) => {

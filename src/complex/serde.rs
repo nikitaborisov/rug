@@ -65,9 +65,8 @@ fn de_data<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<((u32, u32), i32, String), D::Error> {
     let Data { prec, radix, value } = serdeize::deserialize("Complex", PrecReq::Two, deserializer)?;
-    let prec = match prec {
-        PrecVal::Two(two) => two,
-        _ => unreachable!(),
+    let PrecVal::Two(prec) = prec else {
+        unreachable!();
     };
     serdeize::check_range(
         "real precision",

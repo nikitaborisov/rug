@@ -206,7 +206,7 @@ fn check_from_str() {
         ("Z0", 35, "invalid digit found in string"),
         ("z0", 35, "invalid digit found in string"),
     ];
-    for &(s, radix, msg) in bad_strings.iter() {
+    for &(s, radix, msg) in &bad_strings {
         match Integer::parse_radix(s, radix) {
             Ok(o) => panic!(
                 "\"{s}\" (radix {radix}) parsed correctly as {}, expected: {msg}",
@@ -229,7 +229,7 @@ fn check_from_str() {
         ("z0", 36, 35 * 36),
         ("Z0", 36, 35 * 36),
     ];
-    for &(s, radix, i) in good_strings.iter() {
+    for &(s, radix, i) in &good_strings {
         match Integer::parse_radix(s, radix) {
             Ok(ok) => assert_eq!(Integer::from(ok), i),
             Err(err) => panic!("could not parse {s}: {err}"),

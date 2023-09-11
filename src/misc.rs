@@ -70,7 +70,9 @@ pub fn trunc_f64_to_f32(f: f64) -> f32 {
     //   * If x <= -24, then truncate at least 53 bits, but there are 52
     //     non-implicit bits, so return 0.
     //   * If -23 <= x <= -1, then truncate 53 - 24 - x bits.
-    if !f.is_nan() {
+    if f.is_nan() {
+        f as f32
+    } else {
         let u = f.to_bits();
         let biased_exp = (u >> 52).az::<u32>() & 0x7FF;
         let trunc_count = if biased_exp >= 1023 - 126 {
@@ -89,8 +91,6 @@ pub fn trunc_f64_to_f32(f: f64) -> f32 {
         let trunc_u = u & (!0 << trunc_count);
         let trunc_f = f64::from_bits(trunc_u);
         trunc_f as f32
-    } else {
-        f as f32
     }
 }
 

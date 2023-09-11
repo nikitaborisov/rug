@@ -198,6 +198,7 @@ mod tests {
     use crate::ops::NegAssign;
     use crate::{Assign, Float};
     use core::hash::{Hash, Hasher};
+    use core::ptr;
     use std::collections::hash_map::DefaultHasher;
 
     fn calculate_hash<T: Hash>(t: &T) -> u64 {
@@ -269,28 +270,28 @@ mod tests {
     fn check_refs() {
         let f = Float::with_val(53, 23.5);
         assert_eq!(
-            (&f as *const Float).cast::<OrdFloat>(),
+            ptr::addr_of!(f).cast::<OrdFloat>(),
             f.as_ord() as *const OrdFloat
         );
         assert_eq!(
-            (&f as *const Float).cast::<OrdFloat>(),
+            ptr::addr_of!(f).cast::<OrdFloat>(),
             AsRef::<OrdFloat>::as_ref(&f) as *const OrdFloat
         );
         let mut o = OrdFloat::from(f);
         assert_eq!(
-            (&o as *const OrdFloat).cast::<Float>(),
+            ptr::addr_of!(o).cast::<Float>(),
             o.as_float() as *const Float
         );
         assert_eq!(
-            (&o as *const OrdFloat).cast::<Float>(),
+            ptr::addr_of!(o).cast::<Float>(),
             AsRef::<Float>::as_ref(&o) as *const Float
         );
         assert_eq!(
-            (&mut o as *mut OrdFloat).cast::<Float>(),
+            ptr::addr_of_mut!(o).cast::<Float>(),
             o.as_float_mut() as *mut Float
         );
         assert_eq!(
-            (&mut o as *mut OrdFloat).cast::<Float>(),
+            ptr::addr_of_mut!(o).cast::<Float>(),
             AsMut::<Float>::as_mut(&mut o) as *mut Float
         );
     }

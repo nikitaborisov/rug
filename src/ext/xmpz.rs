@@ -427,9 +427,9 @@ pub fn rdiv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n
 #[inline]
 pub fn ediv_qr<O: OptInteger, P: OptInteger>(q: &mut Integer, r: &mut Integer, n: O, d: P) {
     if d.unwrap_or(r).is_negative() {
-        cdiv_qr(q, r, n, d)
+        cdiv_qr(q, r, n, d);
     } else {
-        fdiv_qr(q, r, n, d)
+        fdiv_qr(q, r, n, d);
     }
 }
 
@@ -449,7 +449,7 @@ pub fn gcdext<O: OptInteger, P: OptInteger>(
         gmp::mpz_gcdext(
             g,
             s,
-            t.map(Integer::as_raw_mut).unwrap_or_else(ptr::null_mut),
+            t.map_or_else(ptr::null_mut, Integer::as_raw_mut),
             op1,
             op2,
         );
@@ -525,18 +525,18 @@ pub fn fdiv_r<O: OptInteger, P: OptInteger>(r: &mut Integer, n: O, d: P) {
 #[inline]
 pub fn ediv_q<O: OptInteger, P: OptInteger>(q: &mut Integer, n: O, d: P) {
     if d.unwrap_or(q).is_negative() {
-        cdiv_q(q, n, d)
+        cdiv_q(q, n, d);
     } else {
-        fdiv_q(q, n, d)
+        fdiv_q(q, n, d);
     }
 }
 
 #[inline]
 pub fn ediv_r<O: OptInteger, P: OptInteger>(r: &mut Integer, n: O, d: P) {
     if d.unwrap_or(r).is_negative() {
-        cdiv_r(r, n, d)
+        cdiv_r(r, n, d);
     } else {
-        fdiv_r(r, n, d)
+        fdiv_r(r, n, d);
     }
 }
 
@@ -749,40 +749,40 @@ pub fn fdiv_ui(n: &Integer, d: c_ulong) -> c_ulong {
 #[inline]
 pub fn shl_i32<O: OptInteger>(rop: &mut Integer, op1: O, op2: i32) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shl_u32(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shr_u32(rop, op1, op2_abs);
+    } else {
+        shl_u32(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shr_i32<O: OptInteger>(rop: &mut Integer, op1: O, op2: i32) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shr_u32(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shl_u32(rop, op1, op2_abs);
+    } else {
+        shr_u32(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shl_isize<O: OptInteger>(rop: &mut Integer, op1: O, op2: isize) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shl_usize(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shr_usize(rop, op1, op2_abs);
+    } else {
+        shl_usize(rop, op1, op2_abs);
     }
 }
 
 #[inline]
 pub fn shr_isize<O: OptInteger>(rop: &mut Integer, op1: O, op2: isize) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        shr_usize(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         shl_usize(rop, op1, op2_abs);
+    } else {
+        shr_usize(rop, op1, op2_abs);
     }
 }
 
@@ -950,10 +950,10 @@ pub fn addmul_ui(rop: &mut Integer, op1: &Integer, op2: c_ulong) {
 #[inline]
 pub fn addmul_si(rop: &mut Integer, op1: &Integer, op2: c_long) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        addmul_ui(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         submul_ui(rop, op1, op2_abs);
+    } else {
+        addmul_ui(rop, op1, op2_abs);
     }
 }
 
@@ -987,10 +987,10 @@ pub fn mulsub_ui(rop: &mut Integer, op1: &Integer, op2: c_ulong) {
 #[inline]
 pub fn submul_si(rop: &mut Integer, op1: &Integer, op2: c_long) {
     let (op2_neg, op2_abs) = op2.neg_abs();
-    if !op2_neg {
-        submul_ui(rop, op1, op2_abs);
-    } else {
+    if op2_neg {
         addmul_ui(rop, op1, op2_abs);
+    } else {
+        submul_ui(rop, op1, op2_abs);
     }
 }
 
@@ -1162,12 +1162,12 @@ pub fn start_invert(op: &Integer, modulo: &Integer) -> Option<Integer> {
 pub fn finish_invert<O: OptInteger>(rop: &mut Integer, s: O, modulo: &Integer) {
     if s.unwrap_or(rop).is_negative() {
         if modulo.is_negative() {
-            sub(rop, s, modulo)
+            sub(rop, s, modulo);
         } else {
-            add(rop, s, modulo)
+            add(rop, s, modulo);
         }
     } else {
-        set(rop, s)
+        set(rop, s);
     }
 }
 
@@ -1464,14 +1464,14 @@ unsafe fn ui_fdiv_q_raw(q: *mut mpz_t, n: c_ulong, d: *const mpz_t) {
             // n / -abs_d -> -abs_q, +abs_r + if abs_r > 0 { -1, -abs_d }
             let abs_d = gmp::mpz_get_ui(d);
             let (mut abs_q, abs_r) = (n / abs_d, n % abs_d);
-            if !neg_d {
-                gmp::mpz_set_ui(q, abs_q);
-            } else {
+            if neg_d {
                 if abs_r > 0 {
                     abs_q += 1;
                 }
                 gmp::mpz_set_ui(q, abs_q);
                 gmp::mpz_neg(q, q);
+            } else {
+                gmp::mpz_set_ui(q, abs_q);
             }
         }
     }

@@ -2680,7 +2680,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn signum_mut(&mut self) {
-        xmpz::signum(self, ())
+        xmpz::signum(self, ());
     }
 
     /// Computes the signum.
@@ -2849,7 +2849,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn keep_bits_mut(&mut self, n: u32) {
-        xmpz::fdiv_r_2exp(self, (), n.into())
+        xmpz::fdiv_r_2exp(self, (), n.into());
     }
 
     /// Keeps the <i>n</i> least significant bits only, producing a result that
@@ -3021,6 +3021,7 @@ impl Integer {
     /// assert_eq!(modulus, 7);
     /// ```
     #[inline]
+    #[must_use]
     #[doc(alias = "rem_euclid")]
     pub fn modulo(mut self, divisor: &Self) -> Self {
         self.modulo_mut(divisor);
@@ -3896,9 +3897,8 @@ impl Integer {
     #[inline]
     #[allow(clippy::result_unit_err)]
     pub fn pow_mod_mut(&mut self, exponent: &Self, modulo: &Self) -> Result<(), ()> {
-        let sinverse = match self.pow_mod_ref(exponent, modulo) {
-            Some(PowModIncomplete { sinverse, .. }) => sinverse,
-            None => return Err(()),
+        let Some(PowModIncomplete { sinverse, .. }) = self.pow_mod_ref(exponent, modulo) else {
+            return Err(());
         };
         if let Some(sinverse) = &sinverse {
             xmpz::pow_mod(self, sinverse, exponent, modulo);
@@ -3946,9 +3946,8 @@ impl Integer {
         modulo: &'a Self,
     ) -> Option<PowModIncomplete<'a>> {
         if exponent.is_negative() {
-            let sinverse = match self.invert_ref(modulo) {
-                Some(InvertIncomplete { sinverse, .. }) => sinverse,
-                None => return None,
+            let Some(InvertIncomplete { sinverse, .. }) = self.invert_ref(modulo) else {
+                return None;
             };
             Some(PowModIncomplete {
                 ref_self: None,
@@ -5717,14 +5716,11 @@ where
     I: Iterator<Item = &'a Self>,
 {
     fn assign(&mut self, mut src: SumIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first);
-            }
-            None => {
-                self.assign(0u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first);
+        } else {
+            self.assign(0u32);
+            return;
         }
         self.add_assign(src);
     }
@@ -5849,14 +5845,11 @@ where
     I: Iterator<Item = (&'a Integer, &'a Integer)>,
 {
     fn assign(&mut self, mut src: DotIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first.0 * first.1);
-            }
-            None => {
-                self.assign(0u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first.0 * first.1);
+        } else {
+            self.assign(0u32);
+            return;
         }
         self.add_assign(src);
     }
@@ -5983,14 +5976,11 @@ where
     I: Iterator<Item = &'a Self>,
 {
     fn assign(&mut self, mut src: ProductIncomplete<'a, I>) {
-        match src.values.next() {
-            Some(first) => {
-                self.assign(first);
-            }
-            None => {
-                self.assign(1u32);
-                return;
-            }
+        if let Some(first) = src.values.next() {
+            self.assign(first);
+        } else {
+            self.assign(1u32);
+            return;
         }
         self.mul_assign(src);
     }
@@ -6055,14 +6045,11 @@ where
             None => return,
         };
         loop {
-            match src.values.next() {
-                Some(next) => {
-                    self.assign(&other * next);
-                }
-                None => {
-                    self.assign(other);
-                    return;
-                }
+            if let Some(next) = src.values.next() {
+                self.assign(&other * next);
+            } else {
+                self.assign(other);
+                return;
             }
             match src.values.next() {
                 Some(next) => {
@@ -6331,7 +6318,7 @@ pub struct RandomBitsIncomplete<'a> {
 impl Assign<RandomBitsIncomplete<'_>> for Integer {
     #[inline]
     fn assign(&mut self, src: RandomBitsIncomplete) {
-        xmpz::urandomb(self, src.rng, src.bits)
+        xmpz::urandomb(self, src.rng, src.bits);
     }
 }
 

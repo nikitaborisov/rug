@@ -82,7 +82,7 @@ fn check_from_str() {
         ),
         ("(8 )", 9, "string has no separator inside brackets"),
     ];
-    for &(s, radix, msg) in bad_strings.iter() {
+    for &(s, radix, msg) in &bad_strings {
         match Complex::parse_radix(s, radix) {
             Ok(o) => panic!(
                 "\"{}\" (radix {}) parsed correctly as {}, expected: {}",
@@ -106,7 +106,7 @@ fn check_from_str() {
             Cmp::Nan(false),
         ),
     ];
-    for &(s, radix, r, i) in good_strings.iter() {
+    for &(s, radix, r, i) in &good_strings {
         match Complex::parse_radix(s, radix) {
             Ok(ok) => {
                 let c = Complex::with_val(53, ok);

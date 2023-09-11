@@ -208,13 +208,13 @@ impl RandState<'_> {
     pub fn new_linear_congruential_size(size: u32) -> Option<RandState<'static>> {
         unsafe {
             let mut inner = MaybeUninit::uninit();
-            if gmp::randinit_lc_2exp_size(inner.as_mut_ptr(), size.into()) != 0 {
+            if gmp::randinit_lc_2exp_size(inner.as_mut_ptr(), size.into()) == 0 {
+                None
+            } else {
                 Some(RandState {
                     inner: inner.assume_init(),
                     phantom: PhantomData,
                 })
-            } else {
-                None
             }
         }
     }
