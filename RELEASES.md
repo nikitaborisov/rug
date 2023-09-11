@@ -29,6 +29,8 @@ Version 1.22.0 (unreleased)
   * [`Debug`] is now implemented for [`SmallInteger`][smi-1-22],
     [`SmallRational`][smr-1-22], [`SmallFloat`][smf-1-22] and
     [`SmallComplex`][smc-1-22].
+  * For the [`Complex`][com-1-22] struct, the method [`eq0`][com-e-1-22] was
+    renamed to [`is_zero`][com-iz-1-22]. The old method name is deprecated.
 
 Compatibility note
 ------------------
@@ -46,6 +48,8 @@ adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
 [ass-1-22]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
 [assr-1-22]: https://docs.rs/rug/~1.22/rug/ops/trait.AssignRound.html
 [com-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html
+[com-e-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html#method.eq0
+[com-iz-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html#method.is_zero
 [flo-1-22]: https://docs.rs/rug/~1.22/rug/struct.Float.html
 [int-1-22]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
 [issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58

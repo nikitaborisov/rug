@@ -1008,8 +1008,8 @@ impl Complex {
         unsafe { &*cast_ptr!(self, OrdComplex) }
     }
 
-    /// Returns the same result as <code>self.[eq][PartialEq::eq]\(\&0)</code>,
-    /// but is faster.
+    /// Returns [`true`] if both the real and imaginary parts are plus or minus
+    /// zero.
     ///
     /// # Examples
     ///
@@ -1017,14 +1017,14 @@ impl Complex {
     /// use rug::float::Special;
     /// use rug::{Assign, Complex};
     /// let mut c = Complex::with_val(53, (Special::NegZero, Special::Zero));
-    /// assert!(c.eq0());
+    /// assert!(c.is_zero());
     /// c += 5.2;
-    /// assert!(!c.eq0());
+    /// assert!(!c.is_zero());
     /// c.mut_real().assign(Special::Nan);
-    /// assert!(!c.eq0());
+    /// assert!(!c.is_zero());
     /// ```
     #[inline]
-    pub const fn eq0(&self) -> bool {
+    pub const fn is_zero(&self) -> bool {
         self.real().is_zero() && self.imag().is_zero()
     }
 
@@ -3709,6 +3709,13 @@ impl Complex {
     #[inline]
     pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete {
         RandomContIncomplete { rng }
+    }
+
+    /// This method has been renamed to [`is_zero`][Complex::is_zero].
+    #[deprecated(since = "1.22.0", note = "renamed to `is_zero`")]
+    #[inline]
+    pub const fn eq0(&self) -> bool {
+        self.is_zero()
     }
 }
 
