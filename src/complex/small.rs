@@ -19,6 +19,7 @@ use crate::float;
 use crate::float::ToSmall;
 use crate::{Assign, Complex};
 use core::cell::UnsafeCell;
+use core::fmt::Debug;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -98,6 +99,13 @@ impl Default for SmallComplex {
     #[inline]
     fn default() -> Self {
         SmallComplex::new()
+    }
+}
+
+impl Debug for SmallComplex {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&**self, f)
     }
 }
 

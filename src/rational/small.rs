@@ -93,7 +93,7 @@ impl Default for SmallRational {
 impl Debug for SmallRational {
     #[inline]
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        (**self).fmt(f)
+        Debug::fmt(&**self, f)
     }
 }
 

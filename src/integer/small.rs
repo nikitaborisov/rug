@@ -19,6 +19,7 @@ use crate::{Assign, Integer};
 use az::{Az, Cast, WrappingCast};
 use core::cell::UnsafeCell;
 use core::ffi::c_int;
+use core::fmt::Debug;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -86,6 +87,13 @@ impl Default for SmallInteger {
     #[inline]
     fn default() -> Self {
         SmallInteger::new()
+    }
+}
+
+impl Debug for SmallInteger {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&**self, f)
     }
 }
 

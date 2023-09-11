@@ -21,6 +21,7 @@ use crate::misc::NegAbs;
 use crate::{Assign, Float};
 use az::{Az, UnwrappedCast, WrappingCast};
 use core::cell::UnsafeCell;
+use core::fmt::Debug;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -97,6 +98,13 @@ impl Default for SmallFloat {
     #[inline]
     fn default() -> Self {
         SmallFloat::new()
+    }
+}
+
+impl Debug for SmallFloat {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        Debug::fmt(&**self, f)
     }
 }
 
