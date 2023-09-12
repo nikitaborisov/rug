@@ -168,7 +168,7 @@ impl SmallComplex {
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_complex(&mut self) -> &mut Complex {
         self.update_d();
-        let ptr = cast_ptr_mut!(&mut self.inner, Complex);
+        let ptr = cast_ptr_mut!(self.inner.get(), Complex);
         unsafe { &mut *ptr }
     }
 
@@ -218,7 +218,7 @@ impl Deref for SmallComplex {
     #[inline]
     fn deref(&self) -> &Complex {
         self.update_d();
-        let ptr = cast_ptr!(&self.inner, Complex);
+        let ptr = cast_ptr!(self.inner.get().cast_const(), Complex);
         // Safety: since we called update_d, the inner pointer is
         // pointing to the limbs and the complex number is in a
         // consistent state.

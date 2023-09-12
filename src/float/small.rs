@@ -157,7 +157,7 @@ impl SmallFloat {
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
         self.update_d();
-        let ptr = cast_ptr_mut!(&mut self.inner, Float);
+        let ptr = cast_ptr_mut!(self.inner.get(), Float);
         unsafe { &mut *ptr }
     }
 
@@ -187,7 +187,7 @@ impl Deref for SmallFloat {
     #[inline]
     fn deref(&self) -> &Float {
         self.update_d();
-        let ptr = cast_ptr!(&self.inner, Float);
+        let ptr = cast_ptr!(self.inner.get().cast_const(), Float);
         // Safety: since we called update_d, the inner pointer is
         // pointing to the limbs and the number is in a consistent
         // state.

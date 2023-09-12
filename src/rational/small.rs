@@ -167,7 +167,7 @@ impl SmallRational {
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_rational(&mut self) -> &mut Rational {
         self.update_d();
-        let ptr = cast_ptr_mut!(&mut self.inner, Rational);
+        let ptr = cast_ptr_mut!(self.inner.get(), Rational);
         unsafe { &mut *ptr }
     }
 
@@ -295,7 +295,7 @@ impl Deref for SmallRational {
     #[inline]
     fn deref(&self) -> &Rational {
         self.update_d();
-        let ptr = cast_ptr!(&self.inner, Rational);
+        let ptr = cast_ptr!(self.inner.get().cast_const(), Rational);
         // Safety: since we called update_d, the inner pointer is pointing
         // to the limbs and the rational number is in a consistent state.
         unsafe { &*ptr }

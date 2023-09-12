@@ -152,7 +152,7 @@ impl SmallInteger {
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_integer(&mut self) -> &mut Integer {
         self.update_d();
-        let ptr = cast_ptr_mut!(&mut self.inner, Integer);
+        let ptr = cast_ptr_mut!(self.inner.get(), Integer);
         unsafe { &mut *ptr }
     }
 
@@ -182,7 +182,7 @@ impl Deref for SmallInteger {
     #[inline]
     fn deref(&self) -> &Integer {
         self.update_d();
-        let ptr = cast_ptr!(&self.inner, Integer);
+        let ptr = cast_ptr!(self.inner.get().cast_const(), Integer);
         // Safety: since we called update_d, the inner pointer is pointing
         // to the limbs and the number is in a consistent  state.
         unsafe { &*ptr }
