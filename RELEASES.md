@@ -4,6 +4,15 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.23.0 (unreleased)
+===========================
+
+  * [`StackInteger`][sti-1-23] was added to replace
+    [`SmallInteger`][smi-1-23], which is now deprecated.
+
+[smi-1-23]: https://docs.rs/rug/~1.22/rug/integer/struct.SmallInteger.html
+[sti-1-23]: https://docs.rs/rug/~1.22/rug/integer/struct.StackInteger.html
+
 Version 1.22.0 (2023-09-11)
 ===========================
 
