@@ -42,7 +42,7 @@ If there are functions that take a [`u32`] or [`i32`] directly instead of an
 
 The [`borrow`] method returns a <code>[Ref]\<[Integer]></code>, which
 can be coerced to an [`Integer`], as it implements
-<code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
+<code>[Deref]\<[Target] = [Integer]></code>.
 
 # Examples
 
@@ -59,6 +59,10 @@ assert_eq!(a, 500);
 a.lcm_mut(&StackInteger::from(30).borrow());
 assert_eq!(a, 1500);
 ```
+
+[Deref]: core::ops::Deref
+[Target]: core::ops::Deref::Target
+[`borrow`]: StackInteger::borrow
 */
 #[derive(Clone)]
 pub struct StackInteger {
