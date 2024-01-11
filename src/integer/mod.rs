@@ -61,6 +61,7 @@ pub use crate::integer::big::{IsPrime, ParseIntegerError, UnsignedPrimitive};
 pub use crate::integer::borrow::BorrowInteger;
 #[cfg(all(target_pointer_width = "64", not(windows)))]
 pub use crate::integer::long64::IntegerExt64;
+#[allow(deprecated)]
 pub use crate::integer::small::{SmallInteger, ToSmall};
 pub use crate::integer::stack::{StackInteger, ToStack};
 

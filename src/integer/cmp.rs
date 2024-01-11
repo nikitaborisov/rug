@@ -15,7 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpz;
-use crate::integer::{SmallInteger, StackInteger};
+#[allow(deprecated)]
+use crate::integer::SmallInteger;
+use crate::integer::StackInteger;
 use crate::Integer;
 use az::UnwrappedAs;
 use core::cmp::Ordering;
@@ -71,6 +73,7 @@ impl PartialEq<Integer> for StackInteger {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<SmallInteger> for Integer {
     #[inline]
     fn partial_cmp(&self, other: &SmallInteger) -> Option<Ordering> {
@@ -78,6 +81,7 @@ impl PartialOrd<SmallInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<Integer> for SmallInteger {
     #[inline]
     fn partial_cmp(&self, other: &Integer) -> Option<Ordering> {
@@ -85,6 +89,7 @@ impl PartialOrd<Integer> for SmallInteger {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<SmallInteger> for Integer {
     #[inline]
     fn eq(&self, other: &SmallInteger) -> bool {
@@ -92,6 +97,7 @@ impl PartialEq<SmallInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<Integer> for SmallInteger {
     #[inline]
     fn eq(&self, other: &Integer) -> bool {

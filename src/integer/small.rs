@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#![allow(deprecated)]
+
 use crate::misc::NegAbs;
 use crate::{Assign, Integer};
 use az::{Az, Cast, WrappingCast};
@@ -47,6 +49,8 @@ The `SmallInteger` type can be coerced to an [`Integer`], as it implements
 # Examples
 
 ```rust
+#![allow(deprecated)]
+
 use rug::integer::SmallInteger;
 use rug::Integer;
 // `a` requires a heap allocation
@@ -60,6 +64,7 @@ a.lcm_mut(&SmallInteger::from(30));
 assert_eq!(a, 1500);
 ```
 */
+#[deprecated(since = "1.23.0", note = "use `StackInteger` instead")]
 pub struct SmallInteger {
     inner: UnsafeCell<mpz_t>,
     limbs: Limbs,
@@ -103,6 +108,8 @@ impl SmallInteger {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::integer::SmallInteger;
     /// let i = SmallInteger::new();
     /// // Borrow i as if it were Integer.
@@ -136,6 +143,8 @@ impl SmallInteger {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::integer::SmallInteger;
     /// use rug::Assign;
     /// let mut i = SmallInteger::from(1u64);
@@ -198,6 +207,7 @@ impl Deref for SmallInteger {
 /// This trait is sealed and cannot be implemented for more types; it is
 /// implemented for [`bool`] and the unsigned integer types [`u8`], [`u16`],
 /// [`u32`], [`u64`], [`u128`] and [`usize`].
+#[deprecated(since = "1.23.0", note = "use `StackInteger` and `ToStack` instead")]
 pub trait ToSmall: SealedToSmall {}
 
 pub trait SealedToSmall: Sized {

@@ -16,7 +16,9 @@
 
 use crate::ext::xmpz;
 use crate::integer::big;
-use crate::integer::{ParseIntegerError, SmallInteger, StackInteger, TryFromIntegerError};
+#[allow(deprecated)]
+use crate::integer::SmallInteger;
+use crate::integer::{ParseIntegerError, StackInteger, TryFromIntegerError};
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
 use core::fmt::{
@@ -118,6 +120,7 @@ impl From<&StackInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl Assign<SmallInteger> for Integer {
     #[inline]
     fn assign(&mut self, src: SmallInteger) {
@@ -125,6 +128,7 @@ impl Assign<SmallInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl Assign<&SmallInteger> for Integer {
     #[inline]
     fn assign(&mut self, src: &SmallInteger) {
@@ -132,6 +136,7 @@ impl Assign<&SmallInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl From<SmallInteger> for Integer {
     #[inline]
     fn from(src: SmallInteger) -> Self {
@@ -139,6 +144,7 @@ impl From<SmallInteger> for Integer {
     }
 }
 
+#[allow(deprecated)]
 impl From<&SmallInteger> for Integer {
     #[inline]
     fn from(src: &SmallInteger) -> Self {
