@@ -234,7 +234,7 @@ impl Integer {
     /// use rug::Integer;
     /// assert_eq!(*Integer::ONE, 1);
     /// ```
-    pub const ONE: &Integer = {
+    pub const ONE: &'static Integer = {
         const LIMBS: [limb_t; 1] = [1];
         const MPZ: mpz_t = unsafe { gmp::MPZ_ROINIT_N(LIMBS.as_ptr().cast_mut(), 1) };
         // Safety: MPZ will remain valid, and will not be changed.
@@ -250,7 +250,7 @@ impl Integer {
     /// use rug::Integer;
     /// assert_eq!(*Integer::NEG_ONE, -1);
     /// ```
-    pub const NEG_ONE: &Integer = {
+    pub const NEG_ONE: &'static Integer = {
         const LIMBS: [limb_t; 1] = [1];
         const MPZ: mpz_t = unsafe { gmp::MPZ_ROINIT_N(LIMBS.as_ptr().cast_mut(), -1) };
         // Safety: MPZ will remain valid, and will not be changed.

@@ -191,7 +191,7 @@ impl Rational {
     /// use rug::Rational;
     /// assert_eq!(*Rational::ZERO, 0);
     /// ```
-    pub const ZERO: &Rational = {
+    pub const ZERO: &'static Rational = {
         const DENOM_LIMBS: [limb_t; 1] = [1];
         const MPQ: mpq_t = mpq_t {
             num: xmpz::owned_init(),
@@ -210,7 +210,7 @@ impl Rational {
     /// use rug::Rational;
     /// assert_eq!(*Rational::ONE, 1);
     /// ```
-    pub const ONE: &Rational = {
+    pub const ONE: &'static Rational = {
         const NUMER_LIMBS: [limb_t; 1] = [1];
         const DENOM_LIMBS: [limb_t; 1] = [1];
         const MPQ: mpq_t = mpq_t {
@@ -230,7 +230,7 @@ impl Rational {
     /// use rug::Rational;
     /// assert_eq!(*Rational::NEG_ONE, -1);
     /// ```
-    pub const NEG_ONE: &Rational = {
+    pub const NEG_ONE: &'static Rational = {
         const NUMER_LIMBS: [limb_t; 1] = [1];
         const DENOM_LIMBS: [limb_t; 1] = [1];
         const MPQ: mpq_t = mpq_t {
