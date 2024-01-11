@@ -52,6 +52,7 @@ mod long64;
 #[cfg(feature = "serde")]
 mod serde;
 pub(crate) mod small;
+pub(crate) mod stack;
 #[cfg(test)]
 mod tests;
 mod traits;
@@ -61,6 +62,7 @@ pub use crate::integer::borrow::BorrowInteger;
 #[cfg(all(target_pointer_width = "64", not(windows)))]
 pub use crate::integer::long64::IntegerExt64;
 pub use crate::integer::small::{SmallInteger, ToSmall};
+pub use crate::integer::stack::{StackInteger, ToStack};
 
 use core::ffi::c_int;
 
