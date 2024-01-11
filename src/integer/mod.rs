@@ -25,14 +25,14 @@ the [`SmallInteger`] type.
 # Examples
 
 ```rust
-use rug::integer::SmallInteger;
+use rug::integer::StackInteger;
 use rug::Assign;
 use rug::Integer;
 let mut int = Integer::from(10);
 assert_eq!(int, 10);
-let small = SmallInteger::from(-15);
-// `small` behaves like an `Integer` in the following line:
-int.assign(small.abs_ref());
+let small = StackInteger::from(-15);
+// `small` can be borrowed like an `Integer` in the following line:
+int.assign(small.borrow().abs_ref());
 assert_eq!(int, 15);
 ```
 

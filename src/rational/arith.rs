@@ -17,7 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpq::OptRational;
 use crate::integer::arith::AsLong;
-use crate::integer::SmallInteger;
+use crate::integer::StackInteger;
 use crate::ops::{AddFrom, DivFrom, MulFrom, NegAssign, Pow, PowAssign, SubFrom};
 use crate::{Assign, Complete, Integer, Rational};
 use az::{CheckedAs, CheckedCast};
@@ -277,8 +277,8 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: SmallInteger = op2.into();
-                $deleg(rop, op1, &*small);
+                let small: StackInteger = op2.into();
+                $deleg(rop, op1, &*small.borrow());
             }
         }
     };
@@ -290,8 +290,8 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: SmallInteger = op1.into();
-                $deleg(rop, &*small, op2);
+                let small: StackInteger = op1.into();
+                $deleg(rop, &*small.borrow(), op2);
             }
         }
     };
@@ -299,7 +299,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<SmallInteger>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackInteger>,
 {
     forward! { fn add() -> xmpq::add_si, xmpq::add_z }
     forward! { fn sub() -> xmpq::sub_si, xmpq::sub_z }
@@ -311,7 +311,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<SmallInteger>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackInteger>,
 {
     forward! { fn add() -> xmpq::add_ui, xmpq::add_z }
     forward! { fn sub() -> xmpq::sub_ui, xmpq::sub_z }

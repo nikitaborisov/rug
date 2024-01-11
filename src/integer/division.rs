@@ -16,7 +16,7 @@
 
 use crate::ext::xmpz;
 use crate::ext::xmpz::OptInteger;
-use crate::integer::SmallInteger;
+use crate::integer::StackInteger;
 use crate::ops::{
     DivRounding, DivRoundingAssign, DivRoundingFrom, RemRounding, RemRoundingAssign,
     RemRoundingFrom,
@@ -723,8 +723,8 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: SmallInteger = op2.into();
-                $deleg(rop, op1, &*small);
+                let small: StackInteger = op2.into();
+                $deleg(rop, op1, &*small.borrow());
             }
         }
     };
@@ -736,8 +736,8 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: SmallInteger = op1.into();
-                $deleg(rop, &*small, op2);
+                let small: StackInteger = op1.into();
+                $deleg(rop, &*small.borrow(), op2);
             }
         }
     };
@@ -745,7 +745,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<SmallInteger>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackInteger>,
 {
     forward! { fn tdiv_q() -> xmpz::tdiv_q_si, xmpz::tdiv_q }
     forward! { fn cdiv_q() -> xmpz::cdiv_q_si, xmpz::cdiv_q }
@@ -767,7 +767,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<SmallInteger>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackInteger>,
 {
     forward! { fn tdiv_q() -> xmpz::tdiv_q_ui, xmpz::tdiv_q }
     forward! { fn cdiv_q() -> xmpz::cdiv_q_ui, xmpz::cdiv_q }
