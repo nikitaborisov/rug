@@ -72,6 +72,10 @@ pub struct StackInteger {
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
+// Safety: StackInteger cannot be Sync because it contains a RefCell.
+// But StackInteger can be Send, just like RefCell.
+unsafe impl Send for StackInteger {}
+
 impl Default for StackInteger {
     #[inline]
     fn default() -> Self {
@@ -136,8 +140,6 @@ impl StackInteger {
     /// assert_eq!(i.borrow().capacity(), capacity);
     /// ```
     #[inline]
-    // Safety: after calling update_d(), self.inner.d points to the
-    // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_integer(&mut self) -> &mut Integer {
         // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
         let inner = self.inner.get_mut();
