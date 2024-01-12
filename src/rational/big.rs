@@ -57,14 +57,14 @@ pair of primitive integers, like in the comparison to `Rational::from((-5, 4))`
 in the example above. `Rational::from((-5, 4))` requires memory allocation,
 which can be an expensive operation. To avoid this allocation, when both the
 numerator and denominator fit in a primitive integer, we can use
-[`SmallRational`] instead, which does not require heap memory allocation.
+[`StackRational`] instead, which does not require heap memory allocation.
 
 ```rust
-use rug::rational::SmallRational;
+use rug::rational::StackRational;
 use rug::Rational;
 let r = Rational::from((-12, 15));
 let recip = Rational::from(r.recip_ref());
-assert_eq!(recip, SmallRational::from((-5, 4)));
+assert_eq!(recip, StackRational::from((-5, 4)));
 ```
 
 The `Rational` number type supports various functions. Most methods have three
@@ -77,29 +77,29 @@ versions:
     `Rational` number.
 
 ```rust
-use rug::rational::SmallRational;
+use rug::rational::StackRational;
 use rug::Rational;
 
 // 1. consume the operand
 let a = Rational::from((-15, 2));
 let abs_a = a.abs();
-assert_eq!(abs_a, SmallRational::from((15, 2)));
+assert_eq!(abs_a, StackRational::from((15, 2)));
 
 // 2. mutate the operand
 let mut b = Rational::from((-17, 2));
 b.abs_mut();
-assert_eq!(b, SmallRational::from((17, 2)));
+assert_eq!(b, StackRational::from((17, 2)));
 
 // 3. borrow the operand
 let c = Rational::from((-19, 2));
 let r = c.abs_ref();
 let abs_c = Rational::from(r);
-assert_eq!(abs_c, SmallRational::from((19, 2)));
+assert_eq!(abs_c, StackRational::from((19, 2)));
 // c was not consumed
-assert_eq!(c, SmallRational::from((-19, 2)));
+assert_eq!(c, StackRational::from((-19, 2)));
 ```
 
-[`SmallRational`]: crate::rational::SmallRational
+[`StackRational`]: crate::rational::StackRational
 [icv]: crate#incomplete-computation-values
 */
 #[repr(transparent)]
@@ -283,7 +283,7 @@ impl Rational {
     /// ```rust
     /// use core::mem::MaybeUninit;
     /// use gmp_mpfr_sys::gmp;
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = unsafe {
     ///     let mut q = MaybeUninit::uninit();
@@ -294,7 +294,7 @@ impl Rational {
     ///     // q is initialized and unique
     ///     Rational::from_raw(q)
     /// };
-    /// assert_eq!(r, SmallRational::from((-145, 10)));
+    /// assert_eq!(r, StackRational::from((-145, 10)));
     /// // since r is a Rational now, deallocation is automatic
     /// ```
     ///
@@ -368,7 +368,7 @@ impl Rational {
     ///
     /// ```rust
     /// use gmp_mpfr_sys::gmp;
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-145, 10));
     /// let q_ptr = r.as_raw();
@@ -377,7 +377,7 @@ impl Rational {
     ///     assert_eq!(d, -14.5);
     /// }
     /// // r is still valid
-    /// assert_eq!(r, SmallRational::from((-145, 10)));
+    /// assert_eq!(r, StackRational::from((-145, 10)));
     /// ```
     #[inline]
     pub const fn as_raw(&self) -> *const mpq_t {
@@ -393,14 +393,14 @@ impl Rational {
     ///
     /// ```rust
     /// use gmp_mpfr_sys::gmp;
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::from((-145, 10));
     /// let q_ptr = r.as_raw_mut();
     /// unsafe {
     ///     gmp::mpq_inv(q_ptr, q_ptr);
     /// }
-    /// assert_eq!(r, SmallRational::from((-10, 145)));
+    /// assert_eq!(r, StackRational::from((-10, 145)));
     /// ```
     #[inline]
     pub fn as_raw_mut(&mut self) -> *mut mpq_t {
@@ -417,11 +417,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -17.125 can be stored exactly as f32
     /// let r = Rational::from_f32(-17.125).unwrap();
-    /// assert_eq!(r, SmallRational::from((-17125, 1000)));
+    /// assert_eq!(r, StackRational::from((-17125, 1000)));
     /// let inf = Rational::from_f32(f32::INFINITY);
     /// assert!(inf.is_none());
     /// ```
@@ -443,11 +443,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -17.125 can be stored exactly as f64
     /// let r = Rational::from_f64(-17.125).unwrap();
-    /// assert_eq!(r, SmallRational::from((-17125, 1000)));
+    /// assert_eq!(r, StackRational::from((-17125, 1000)));
     /// let inf = Rational::from_f64(f64::INFINITY);
     /// assert!(inf.is_none());
     /// ```
@@ -468,12 +468,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r1 = Rational::from_str_radix("ff/a", 16).unwrap();
-    /// assert_eq!(r1, SmallRational::from((255, 10)));
+    /// assert_eq!(r1, StackRational::from((255, 10)));
     /// let r2 = Rational::from_str_radix("+ff0/a0", 16).unwrap();
-    /// assert_eq!(r2, SmallRational::from((0xff0, 0xa0)));
+    /// assert_eq!(r2, StackRational::from((0xff0, 0xa0)));
     /// assert_eq!(*r2.numer(), 51);
     /// assert_eq!(*r2.denom(), 2);
     /// ```
@@ -503,16 +503,16 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     ///
     /// assert_eq!(
     ///     Rational::parse("-12/23").unwrap().complete(),
-    ///     SmallRational::from((-12, 23))
+    ///     StackRational::from((-12, 23))
     /// );
     /// assert_eq!(
     ///     Rational::parse("+ 12 / 23").unwrap().complete(),
-    ///     SmallRational::from((12, 23))
+    ///     StackRational::from((12, 23))
     /// );
     ///
     /// let invalid = Rational::parse("12/");
@@ -554,18 +554,18 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     ///
     /// let valid1 = Rational::parse_radix("12/23", 4);
     /// assert_eq!(
     ///     valid1.unwrap().complete(),
-    ///     SmallRational::from((2 + 4 * 1, 3 + 4 * 2))
+    ///     StackRational::from((2 + 4 * 1, 3 + 4 * 2))
     /// );
     /// let valid2 = Rational::parse_radix("12 / yz", 36);
     /// assert_eq!(
     ///     valid2.unwrap().complete(),
-    ///     SmallRational::from((2 + 36 * 1, 35 + 36 * 34))
+    ///     StackRational::from((2 + 36 * 1, 35 + 36 * 34))
     /// );
     ///
     /// let invalid = Rational::parse_radix("12/23", 3);
@@ -575,7 +575,7 @@ impl Rational {
     /// If parsing is done externally, low-level code can be used.
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     ///
     /// let num_bytes = &[1, 2];
@@ -589,7 +589,7 @@ impl Rational {
     ///     den.assign_bytes_radix_unchecked(den_bytes, radix, false);
     /// });
     /// // -12/23
-    /// assert_eq!(r, SmallRational::from((-12, 23)));
+    /// assert_eq!(r, StackRational::from((-12, 23)));
     /// ```
     ///
     /// [`mutate_numer_denom`]: Rational::mutate_numer_denom
@@ -613,13 +613,13 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let min = Rational::from_f32(f32::MIN).unwrap();
-    /// let minus_small = min - &*SmallRational::from((7, 2));
+    /// let minus_small = min - &*StackRational::from((7, 2)).borrow();
     /// // minus_small is truncated to f32::MIN
     /// assert_eq!(minus_small.to_f32(), f32::MIN);
-    /// let times_three_two = minus_small * &*SmallRational::from((3, 2));
+    /// let times_three_two = minus_small * &*StackRational::from((3, 2)).borrow();
     /// // times_three_two is too small
     /// assert_eq!(times_three_two.to_f32(), f32::NEG_INFINITY);
     /// ```
@@ -640,7 +640,7 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     ///
     /// // An `f64` has 53 bits of precision.
@@ -657,10 +657,10 @@ impl Rational {
     /// assert_eq!(j.to_f64(), trunc as f64 / den as f64);
     ///
     /// let max = Rational::from_f64(f64::MAX).unwrap();
-    /// let plus_small = max + &*SmallRational::from((7, 2));
+    /// let plus_small = max + &*StackRational::from((7, 2)).borrow();
     /// // plus_small is truncated to f64::MAX
     /// assert_eq!(plus_small.to_f64(), f64::MAX);
-    /// let times_three_two = plus_small * &*SmallRational::from((3, 2));
+    /// let times_three_two = plus_small * &*StackRational::from((3, 2)).borrow();
     /// // times_three_two is too large
     /// assert_eq!(times_three_two.to_f64(), f64::INFINITY);
     /// ```
@@ -702,15 +702,15 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::new();
     /// let ret = r.assign_f32(12.75);
     /// assert!(ret.is_ok());
-    /// assert_eq!(r, SmallRational::from((1275, 100)));
+    /// assert_eq!(r, StackRational::from((1275, 100)));
     /// let ret = r.assign_f32(f32::NAN);
     /// assert!(ret.is_err());
-    /// assert_eq!(r, SmallRational::from((1275, 100)));
+    /// assert_eq!(r, StackRational::from((1275, 100)));
     /// ```
     #[inline]
     #[allow(clippy::result_unit_err)]
@@ -724,15 +724,15 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::new();
     /// let ret = r.assign_f64(12.75);
     /// assert!(ret.is_ok());
-    /// assert_eq!(r, SmallRational::from((1275, 100)));
+    /// assert_eq!(r, StackRational::from((1275, 100)));
     /// let ret = r.assign_f64(1.0 / 0.0);
     /// assert!(ret.is_err());
-    /// assert_eq!(r, SmallRational::from((1275, 100)));
+    /// assert_eq!(r, StackRational::from((1275, 100)));
     /// ```
     #[inline]
     #[allow(clippy::result_unit_err)]
@@ -768,12 +768,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     ///
     /// // -3/5 is in canonical form
     /// let r = unsafe { Rational::from_canonical(-3, 5) };
-    /// assert_eq!(r, SmallRational::from((-3, 5)));
+    /// assert_eq!(r, StackRational::from((-3, 5)));
     /// ```
     ///
     /// [`denom`]: `Rational::denom`
@@ -814,7 +814,7 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     ///
     /// let mut r = Rational::new();
@@ -822,7 +822,7 @@ impl Rational {
     /// unsafe {
     ///     r.assign_canonical(-3, 5);
     /// }
-    /// assert_eq!(r, SmallRational::from((-3, 5)));
+    /// assert_eq!(r, StackRational::from((-3, 5)));
     /// ```
     ///
     /// [`denom`]: `Rational::denom`
@@ -956,7 +956,7 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     ///
     /// let mut r = Rational::from((3, 5));
@@ -966,7 +966,7 @@ impl Rational {
     ///     // are relatively prime, r remains in canonical form.
     ///     *num += &*den;
     /// }
-    /// assert_eq!(r, SmallRational::from((8, 5)));
+    /// assert_eq!(r, StackRational::from((8, 5)));
     /// ```
     ///
     /// This method can also be used to group some operations before
@@ -1030,14 +1030,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((7, 11));
     /// let neg_r = r.as_neg();
-    /// assert_eq!(*neg_r, SmallRational::from((-7, 11)));
+    /// assert_eq!(*neg_r, StackRational::from((-7, 11)));
     /// // methods taking &self can be used on the returned object
     /// let reneg_r = neg_r.as_neg();
-    /// assert_eq!(*reneg_r, SmallRational::from((7, 11)));
+    /// assert_eq!(*reneg_r, StackRational::from((7, 11)));
     /// assert_eq!(*reneg_r, r);
     /// ```
     ///
@@ -1064,14 +1064,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-7, 11));
     /// let abs_r = r.as_abs();
-    /// assert_eq!(*abs_r, SmallRational::from((7, 11)));
+    /// assert_eq!(*abs_r, StackRational::from((7, 11)));
     /// // methods taking &self can be used on the returned object
     /// let reabs_r = abs_r.as_abs();
-    /// assert_eq!(*reabs_r, SmallRational::from((7, 11)));
+    /// assert_eq!(*reabs_r, StackRational::from((7, 11)));
     /// assert_eq!(*reabs_r, *abs_r);
     /// ```
     ///
@@ -1102,14 +1102,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-7, 11));
     /// let recip_r = r.as_recip();
-    /// assert_eq!(*recip_r, SmallRational::from((-11, 7)));
+    /// assert_eq!(*recip_r, StackRational::from((-11, 7)));
     /// // methods taking &self can be used on the returned object
     /// let rerecip_r = recip_r.as_recip();
-    /// assert_eq!(*rerecip_r, SmallRational::from((-7, 11)));
+    /// assert_eq!(*rerecip_r, StackRational::from((-7, 11)));
     /// assert_eq!(*rerecip_r, r);
     /// ```
     ///
@@ -1245,7 +1245,7 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     ///
     /// let values = [
@@ -1255,7 +1255,7 @@ impl Rational {
     /// ];
     ///
     /// let sum = Rational::sum(values.iter()).complete();
-    /// let expected = SmallRational::from((5 * 7 - 100_000 * 2 - 4 * 14, 14));
+    /// let expected = StackRational::from((5 * 7 - 100_000 * 2 - 4 * 14, 14));
     /// assert_eq!(sum, expected);
     /// ```
     ///
@@ -1286,14 +1286,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     ///
     /// let a = [Rational::from((270, 7)), Rational::from((-11, 10))];
     /// let b = [Rational::from(7), Rational::from((1, 2))];
     ///
     /// let dot = Rational::dot(a.iter().zip(b.iter())).complete();
-    /// let expected = SmallRational::from((270 * 20 - 11, 20));
+    /// let expected = StackRational::from((270 * 20 - 11, 20));
     /// assert_eq!(dot, expected);
     /// ```
     ///
@@ -1320,7 +1320,7 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     ///
     /// let values = [
@@ -1330,7 +1330,7 @@ impl Rational {
     /// ];
     ///
     /// let product = Rational::product(values.iter()).complete();
-    /// let expected = SmallRational::from((5 * -100_000 * -4, 2 * 7));
+    /// let expected = StackRational::from((5 * -100_000 * -4, 2 * 7));
     /// assert_eq!(product, expected);
     /// ```
     ///
@@ -1348,11 +1348,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-100, 17));
     /// let abs = r.abs();
-    /// assert_eq!(abs, SmallRational::from((100, 17)));
+    /// assert_eq!(abs, StackRational::from((100, 17)));
     /// ```
     #[inline]
     #[must_use]
@@ -1366,11 +1366,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::from((-100, 17));
     /// r.abs_mut();
-    /// assert_eq!(r, SmallRational::from((100, 17)));
+    /// assert_eq!(r, StackRational::from((100, 17)));
     /// ```
     #[inline]
     pub fn abs_mut(&mut self) {
@@ -1388,11 +1388,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// let r = Rational::from((-100, 17));
     /// let abs = r.abs_ref().complete();
-    /// assert_eq!(abs, SmallRational::from((100, 17)));
+    /// assert_eq!(abs, StackRational::from((100, 17)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -1480,16 +1480,18 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
-    /// let min = SmallRational::from((-3, 2));
-    /// let max = SmallRational::from((3, 2));
+    /// let min = StackRational::from((-3, 2));
+    /// let max = StackRational::from((3, 2));
+    /// let min_borrow = min.borrow();
+    /// let max_borrow = max.borrow();
     /// let too_small = Rational::from((-5, 2));
-    /// let clamped1 = too_small.clamp(&min, &max);
-    /// assert_eq!(clamped1, SmallRational::from((-3, 2)));
+    /// let clamped1 = too_small.clamp(&*min_borrow, &*max_borrow);
+    /// assert_eq!(clamped1, StackRational::from((-3, 2)));
     /// let in_range = Rational::from((1, 2));
-    /// let clamped2 = in_range.clamp(&min, &max);
-    /// assert_eq!(clamped2, SmallRational::from((1, 2)));
+    /// let clamped2 = in_range.clamp(&*min_borrow, &*max_borrow);
+    /// assert_eq!(clamped2, StackRational::from((1, 2)));
     /// ```
     #[inline]
     #[must_use]
@@ -1510,16 +1512,18 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
-    /// let min = SmallRational::from((-3, 2));
-    /// let max = SmallRational::from((3, 2));
+    /// let min = StackRational::from((-3, 2));
+    /// let max = StackRational::from((3, 2));
+    /// let min_borrow = min.borrow();
+    /// let max_borrow = max.borrow();
     /// let mut too_small = Rational::from((-5, 2));
-    /// too_small.clamp_mut(&min, &max);
-    /// assert_eq!(too_small, SmallRational::from((-3, 2)));
+    /// too_small.clamp_mut(&*min_borrow, &*max_borrow);
+    /// assert_eq!(too_small, StackRational::from((-3, 2)));
     /// let mut in_range = Rational::from((1, 2));
-    /// in_range.clamp_mut(&min, &max);
-    /// assert_eq!(in_range, SmallRational::from((1, 2)));
+    /// in_range.clamp_mut(&*min_borrow, &*max_borrow);
+    /// assert_eq!(in_range, StackRational::from((1, 2)));
     /// ```
     pub fn clamp_mut<Min, Max>(&mut self, min: &Min, max: &Max)
     where
@@ -1549,16 +1553,18 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Complete, Rational};
-    /// let min = SmallRational::from((-3, 2));
-    /// let max = SmallRational::from((3, 2));
+    /// let min = StackRational::from((-3, 2));
+    /// let max = StackRational::from((3, 2));
+    /// let min_borrow = min.borrow();
+    /// let max_borrow = max.borrow();
     /// let too_small = Rational::from((-5, 2));
-    /// let mut clamped = too_small.clamp_ref(&min, &max).complete();
-    /// assert_eq!(clamped, SmallRational::from((-3, 2)));
+    /// let mut clamped = too_small.clamp_ref(&*min_borrow, &*max_borrow).complete();
+    /// assert_eq!(clamped, StackRational::from((-3, 2)));
     /// let in_range = Rational::from((1, 2));
-    /// clamped.assign(in_range.clamp_ref(&min, &max));
-    /// assert_eq!(clamped, SmallRational::from((1, 2)));
+    /// clamped.assign(in_range.clamp_ref(&*min_borrow, &*max_borrow));
+    /// assert_eq!(clamped, StackRational::from((1, 2)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -1587,11 +1593,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-100, 17));
     /// let recip = r.recip();
-    /// assert_eq!(recip, SmallRational::from((-17, 100)));
+    /// assert_eq!(recip, StackRational::from((-17, 100)));
     /// ```
     #[inline]
     #[must_use]
@@ -1613,11 +1619,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::from((-100, 17));
     /// r.recip_mut();
-    /// assert_eq!(r, SmallRational::from((-17, 100)));
+    /// assert_eq!(r, StackRational::from((-17, 100)));
     /// ```
     #[inline]
     pub fn recip_mut(&mut self) {
@@ -1635,10 +1641,10 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// let r = Rational::from((-100, 17));
-    /// assert_eq!(r.recip_ref().complete(), SmallRational::from((-17, 100)));
+    /// assert_eq!(r.recip_ref().complete(), StackRational::from((-17, 100)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -1725,12 +1731,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -100/17 = -5 - 15/17
     /// let r = Rational::from((-100, 17));
     /// let rem = r.rem_trunc();
-    /// assert_eq!(rem, SmallRational::from((-15, 17)));
+    /// assert_eq!(rem, StackRational::from((-15, 17)));
     /// ```
     #[inline]
     #[must_use]
@@ -1744,12 +1750,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -100/17 = -5 - 15/17
     /// let mut r = Rational::from((-100, 17));
     /// r.rem_trunc_mut();
-    /// assert_eq!(r, SmallRational::from((-15, 17)));
+    /// assert_eq!(r, StackRational::from((-15, 17)));
     /// ```
     #[inline]
     pub fn rem_trunc_mut(&mut self) {
@@ -1767,11 +1773,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// // -100/17 = -5 - 15/17
     /// let r = Rational::from((-100, 17));
-    /// assert_eq!(r.rem_trunc_ref().complete(), SmallRational::from((-15, 17)));
+    /// assert_eq!(r.rem_trunc_ref().complete(), StackRational::from((-15, 17)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -1787,12 +1793,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -100/17 = -5 - 15/17
     /// let r = Rational::from((-100, 17));
     /// let (fract, trunc) = r.fract_trunc(Integer::new());
-    /// assert_eq!(fract, SmallRational::from((-15, 17)));
+    /// assert_eq!(fract, StackRational::from((-15, 17)));
     /// assert_eq!(trunc, -5);
     /// ```
     #[inline]
@@ -1808,13 +1814,13 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -100/17 = -5 - 15/17
     /// let mut r = Rational::from((-100, 17));
     /// let mut whole = Integer::new();
     /// r.fract_trunc_mut(&mut whole);
-    /// assert_eq!(r, SmallRational::from((-15, 17)));
+    /// assert_eq!(r, StackRational::from((-15, 17)));
     /// assert_eq!(whole, -5);
     /// ```
     #[inline]
@@ -1834,14 +1840,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Integer, Rational};
     /// // -100/17 = -5 - 15/17
     /// let r = Rational::from((-100, 17));
     /// let r_ref = r.fract_trunc_ref();
     /// let (mut fract, mut trunc) = (Rational::new(), Integer::new());
     /// (&mut fract, &mut trunc).assign(r_ref);
-    /// assert_eq!(fract, SmallRational::from((-15, 17)));
+    /// assert_eq!(fract, StackRational::from((-15, 17)));
     /// assert_eq!(trunc, -5);
     /// ```
     ///
@@ -1929,12 +1935,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // 100/17 = 6 - 2/17
     /// let r = Rational::from((100, 17));
     /// let rem = r.rem_ceil();
-    /// assert_eq!(rem, SmallRational::from((-2, 17)));
+    /// assert_eq!(rem, StackRational::from((-2, 17)));
     /// ```
     #[inline]
     #[must_use]
@@ -1948,12 +1954,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // 100/17 = 6 - 2/17
     /// let mut r = Rational::from((100, 17));
     /// r.rem_ceil_mut();
-    /// assert_eq!(r, SmallRational::from((-2, 17)));
+    /// assert_eq!(r, StackRational::from((-2, 17)));
     /// ```
     #[inline]
     pub fn rem_ceil_mut(&mut self) {
@@ -1971,11 +1977,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// // 100/17 = 6 - 2/17
     /// let r = Rational::from((100, 17));
-    /// assert_eq!(r.rem_ceil_ref().complete(), SmallRational::from((-2, 17)));
+    /// assert_eq!(r.rem_ceil_ref().complete(), StackRational::from((-2, 17)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -1993,12 +1999,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // 100/17 = 6 - 2/17
     /// let r = Rational::from((100, 17));
     /// let (fract, ceil) = r.fract_ceil(Integer::new());
-    /// assert_eq!(fract, SmallRational::from((-2, 17)));
+    /// assert_eq!(fract, StackRational::from((-2, 17)));
     /// assert_eq!(ceil, 6);
     /// ```
     #[inline]
@@ -2016,13 +2022,13 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // 100/17 = 6 - 2/17
     /// let mut r = Rational::from((100, 17));
     /// let mut ceil = Integer::new();
     /// r.fract_ceil_mut(&mut ceil);
-    /// assert_eq!(r, SmallRational::from((-2, 17)));
+    /// assert_eq!(r, StackRational::from((-2, 17)));
     /// assert_eq!(ceil, 6);
     /// ```
     #[inline]
@@ -2044,14 +2050,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Integer, Rational};
     /// // 100/17 = 6 - 2/17
     /// let r = Rational::from((100, 17));
     /// let r_ref = r.fract_ceil_ref();
     /// let (mut fract, mut ceil) = (Rational::new(), Integer::new());
     /// (&mut fract, &mut ceil).assign(r_ref);
-    /// assert_eq!(fract, SmallRational::from((-2, 17)));
+    /// assert_eq!(fract, StackRational::from((-2, 17)));
     /// assert_eq!(ceil, 6);
     /// ```
     ///
@@ -2137,12 +2143,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -100/17 = -6 + 2/17
     /// let r = Rational::from((-100, 17));
     /// let rem = r.rem_floor();
-    /// assert_eq!(rem, SmallRational::from((2, 17)));
+    /// assert_eq!(rem, StackRational::from((2, 17)));
     /// ```
     #[inline]
     #[must_use]
@@ -2156,12 +2162,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -100/17 = -6 + 2/17
     /// let mut r = Rational::from((-100, 17));
     /// r.rem_floor_mut();
-    /// assert_eq!(r, SmallRational::from((2, 17)));
+    /// assert_eq!(r, StackRational::from((2, 17)));
     /// ```
     #[inline]
     pub fn rem_floor_mut(&mut self) {
@@ -2179,11 +2185,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// // -100/17 = -6 + 2/17
     /// let r = Rational::from((-100, 17));
-    /// assert_eq!(r.rem_floor_ref().complete(), SmallRational::from((2, 17)));
+    /// assert_eq!(r.rem_floor_ref().complete(), StackRational::from((2, 17)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -2201,12 +2207,12 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -100/17 = -6 + 2/17
     /// let r = Rational::from((-100, 17));
     /// let (fract, floor) = r.fract_floor(Integer::new());
-    /// assert_eq!(fract, SmallRational::from((2, 17)));
+    /// assert_eq!(fract, StackRational::from((2, 17)));
     /// assert_eq!(floor, -6);
     /// ```
     #[inline]
@@ -2224,13 +2230,13 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -100/17 = -6 + 2/17
     /// let mut r = Rational::from((-100, 17));
     /// let mut floor = Integer::new();
     /// r.fract_floor_mut(&mut floor);
-    /// assert_eq!(r, SmallRational::from((2, 17)));
+    /// assert_eq!(r, StackRational::from((2, 17)));
     /// assert_eq!(floor, -6);
     /// ```
     #[inline]
@@ -2252,14 +2258,14 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Integer, Rational};
     /// // -100/17 = -6 + 2/17
     /// let r = Rational::from((-100, 17));
     /// let r_ref = r.fract_floor_ref();
     /// let (mut fract, mut floor) = (Rational::new(), Integer::new());
     /// (&mut fract, &mut floor).assign(r_ref);
-    /// assert_eq!(fract, SmallRational::from((2, 17)));
+    /// assert_eq!(fract, StackRational::from((2, 17)));
     /// assert_eq!(floor, -6);
     /// ```
     ///
@@ -2356,16 +2362,16 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let r1 = Rational::from((-35, 10));
     /// let rem1 = r1.rem_round();
-    /// assert_eq!(rem1, SmallRational::from((1, 2)));
+    /// assert_eq!(rem1, StackRational::from((1, 2)));
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let r2 = Rational::from((37, 10));
     /// let rem2 = r2.rem_round();
-    /// assert_eq!(rem2, SmallRational::from((-3, 10)));
+    /// assert_eq!(rem2, StackRational::from((-3, 10)));
     /// ```
     #[inline]
     #[must_use]
@@ -2379,16 +2385,16 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let mut r1 = Rational::from((-35, 10));
     /// r1.rem_round_mut();
-    /// assert_eq!(r1, SmallRational::from((1, 2)));
+    /// assert_eq!(r1, StackRational::from((1, 2)));
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let mut r2 = Rational::from((37, 10));
     /// r2.rem_round_mut();
-    /// assert_eq!(r2, SmallRational::from((-3, 10)));
+    /// assert_eq!(r2, StackRational::from((-3, 10)));
     /// ```
     #[inline]
     pub fn rem_round_mut(&mut self) {
@@ -2406,16 +2412,16 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Complete, Rational};
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let r1 = Rational::from((-35, 10));
     /// let mut rem = r1.rem_round_ref().complete();
-    /// assert_eq!(rem, SmallRational::from((1, 2)));
+    /// assert_eq!(rem, StackRational::from((1, 2)));
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let r2 = Rational::from((37, 10));
     /// rem.assign(r2.rem_round_ref());
-    /// assert_eq!(rem, SmallRational::from((-3, 10)));
+    /// assert_eq!(rem, StackRational::from((-3, 10)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
@@ -2435,17 +2441,17 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let r1 = Rational::from((-35, 10));
     /// let (fract1, round1) = r1.fract_round(Integer::new());
-    /// assert_eq!(fract1, SmallRational::from((1, 2)));
+    /// assert_eq!(fract1, StackRational::from((1, 2)));
     /// assert_eq!(round1, -4);
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let r2 = Rational::from((37, 10));
     /// let (fract2, round2) = r2.fract_round(Integer::new());
-    /// assert_eq!(fract2, SmallRational::from((-3, 10)));
+    /// assert_eq!(fract2, StackRational::from((-3, 10)));
     /// assert_eq!(round2, 4);
     /// ```
     #[inline]
@@ -2465,19 +2471,19 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Integer, Rational};
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let mut r1 = Rational::from((-35, 10));
     /// let mut round1 = Integer::new();
     /// r1.fract_round_mut(&mut round1);
-    /// assert_eq!(r1, SmallRational::from((1, 2)));
+    /// assert_eq!(r1, StackRational::from((1, 2)));
     /// assert_eq!(round1, -4);
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let mut r2 = Rational::from((37, 10));
     /// let mut round2 = Integer::new();
     /// r2.fract_round_mut(&mut round2);
-    /// assert_eq!(r2, SmallRational::from((-3, 10)));
+    /// assert_eq!(r2, StackRational::from((-3, 10)));
     /// assert_eq!(round2, 4);
     /// ```
     #[inline]
@@ -2501,21 +2507,21 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Assign, Integer, Rational};
     /// // -3.5 = -4 + 0.5 = -4 + 1/2
     /// let r1 = Rational::from((-35, 10));
     /// let r_ref1 = r1.fract_round_ref();
     /// let (mut fract1, mut round1) = (Rational::new(), Integer::new());
     /// (&mut fract1, &mut round1).assign(r_ref1);
-    /// assert_eq!(fract1, SmallRational::from((1, 2)));
+    /// assert_eq!(fract1, StackRational::from((1, 2)));
     /// assert_eq!(round1, -4);
     /// // 3.7 = 4 - 0.3 = 4 - 3/10
     /// let r2 = Rational::from((37, 10));
     /// let r_ref2 = r2.fract_round_ref();
     /// let (mut fract2, mut round2) = (Rational::new(), Integer::new());
     /// (&mut fract2, &mut round2).assign(r_ref2);
-    /// assert_eq!(fract2, SmallRational::from((-3, 10)));
+    /// assert_eq!(fract2, StackRational::from((-3, 10)));
     /// assert_eq!(round2, 4);
     /// ```
     ///
@@ -2533,11 +2539,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let r = Rational::from((-13, 2));
     /// let square = r.square();
-    /// assert_eq!(square, SmallRational::from((169, 4)));
+    /// assert_eq!(square, StackRational::from((169, 4)));
     /// ```
     #[inline]
     #[must_use]
@@ -2555,11 +2561,11 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::Rational;
     /// let mut r = Rational::from((-13, 2));
     /// r.square_mut();
-    /// assert_eq!(r, SmallRational::from((169, 4)));
+    /// assert_eq!(r, StackRational::from((169, 4)));
     /// ```
     #[inline]
     pub fn square_mut(&mut self) {
@@ -2579,10 +2585,10 @@ impl Rational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::SmallRational;
+    /// use rug::rational::StackRational;
     /// use rug::{Complete, Rational};
     /// let r = Rational::from((-13, 2));
-    /// assert_eq!(r.square_ref().complete(), SmallRational::from((169, 4)));
+    /// assert_eq!(r.square_ref().complete(), StackRational::from((169, 4)));
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values

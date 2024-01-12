@@ -221,7 +221,7 @@ cmp_f! { f32 f64 }
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::SmallRational;
+    use crate::rational::StackRational;
     use crate::tests::{I128, I32, I64, U128, U32, U64};
     use crate::Rational;
     use az::{Az, Cast};
@@ -281,15 +281,15 @@ mod tests {
         N: Copy,
         D: Copy + Eq,
         u8: Cast<D>,
-        SmallRational: From<(N, D)>,
+        StackRational: From<(N, D)>,
     {
         for n in num {
             for d in den {
                 if *d == 0.az() {
                     continue;
                 }
-                let op = SmallRational::from((*n, *d));
-                let iop = Rational::from(&*op);
+                let op = StackRational::from((*n, *d));
+                let iop = Rational::from(&*op.borrow());
                 for b in against {
                     assert_eq!(b.eq(&op), PartialEq::<Rational>::eq(b, &iop));
                     assert_eq!(op.eq(b), PartialEq::<Rational>::eq(&iop, b));

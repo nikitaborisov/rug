@@ -17,7 +17,9 @@
 use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::rational::big;
-use crate::rational::{ParseRationalError, SmallRational, StackRational, TryFromFloatError};
+#[allow(deprecated)]
+use crate::rational::SmallRational;
+use crate::rational::{ParseRationalError, StackRational, TryFromFloatError};
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;
 use core::fmt::{
@@ -171,6 +173,7 @@ impl From<&StackRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl Assign<SmallRational> for Rational {
     #[inline]
     fn assign(&mut self, src: SmallRational) {
@@ -178,6 +181,7 @@ impl Assign<SmallRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl Assign<&SmallRational> for Rational {
     #[inline]
     fn assign(&mut self, src: &SmallRational) {
@@ -185,6 +189,7 @@ impl Assign<&SmallRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl From<SmallRational> for Rational {
     #[inline]
     fn from(src: SmallRational) -> Self {
@@ -192,6 +197,7 @@ impl From<SmallRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl From<&SmallRational> for Rational {
     #[inline]
     fn from(src: &SmallRational) -> Self {
@@ -326,18 +332,18 @@ unsafe impl Sync for Rational {}
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
-    use crate::rational::SmallRational;
+    use crate::rational::StackRational;
     use crate::{Assign, Rational};
 
     #[test]
     fn check_assign() {
         let mut r = Rational::from((1, 2));
-        assert_eq!(r, SmallRational::from((1, 2)));
+        assert_eq!(r, StackRational::from((1, 2)));
         let other = Rational::from((-2, 3));
         r.assign(&other);
-        assert_eq!(r, SmallRational::from((-2, 3)));
+        assert_eq!(r, StackRational::from((-2, 3)));
         r.assign(-other);
-        assert_eq!(r, SmallRational::from((2, 3)));
+        assert_eq!(r, StackRational::from((2, 3)));
         let another = Rational::from(&r);
         assert_eq!(another, r);
     }
