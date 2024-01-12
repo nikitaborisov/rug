@@ -182,8 +182,11 @@ impl StackInteger {
 
     /// Borrows the integer.
     ///
-    /// The borrow lasts until the returned [`Ref`] exits scope.
-    /// Multiple borrows can be taken at the same time.
+    /// The returned object implements
+    /// <code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
+    ///
+    /// The borrow lasts until the returned object exits scope. Multiple borrows
+    /// can be taken at the same time.
     ///
     /// # Examples
     ///
