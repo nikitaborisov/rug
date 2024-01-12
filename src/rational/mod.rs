@@ -38,6 +38,7 @@ mod traits;
 
 pub use crate::rational::big::ParseRationalError;
 pub use crate::rational::borrow::BorrowRational;
+#[allow(deprecated)]
 pub use crate::rational::small::SmallRational;
 pub use crate::rational::stack::StackRational;
 use core::fmt::{Display, Formatter, Result as FmtResult};

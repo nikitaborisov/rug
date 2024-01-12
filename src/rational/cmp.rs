@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpq;
+#[allow(deprecated)]
 use crate::rational::SmallRational;
 use crate::rational::StackRational;
 use crate::{Integer, Rational};
@@ -79,6 +80,7 @@ impl PartialEq<Rational> for StackRational {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<SmallRational> for Rational {
     #[inline]
     fn partial_cmp(&self, other: &SmallRational) -> Option<Ordering> {
@@ -86,6 +88,7 @@ impl PartialOrd<SmallRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<Rational> for SmallRational {
     #[inline]
     fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
@@ -93,6 +96,7 @@ impl PartialOrd<Rational> for SmallRational {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<SmallRational> for Rational {
     #[inline]
     fn eq(&self, other: &SmallRational) -> bool {
@@ -100,6 +104,7 @@ impl PartialEq<SmallRational> for Rational {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<Rational> for SmallRational {
     #[inline]
     fn eq(&self, other: &Rational) -> bool {

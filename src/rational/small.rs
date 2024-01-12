@@ -50,6 +50,8 @@ The `SmallRational` type can be coerced to a [`Rational`], as it implements
 # Examples
 
 ```rust
+#![allow(deprecated)]
+
 use rug::rational::SmallRational;
 use rug::Rational;
 // `a` requires a heap allocation
@@ -61,6 +63,7 @@ assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 */
+#[deprecated(since = "1.23.0", note = "use `StackRational` instead")]
 pub struct SmallRational {
     inner: UnsafeCell<mpq_t>,
     // numerator is first in limbs if inner.num.d <= inner.den.d
@@ -105,6 +108,8 @@ impl SmallRational {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::rational::SmallRational;
     /// let r = SmallRational::new();
     /// // Use r as if it were Rational.
@@ -150,6 +155,8 @@ impl SmallRational {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::rational::SmallRational;
     /// let mut r = SmallRational::from((-15i32, 47i32));
     /// let num_capacity = r.numer().capacity();
@@ -184,6 +191,8 @@ impl SmallRational {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::rational::SmallRational;
     /// let from_unsafe = unsafe { SmallRational::from_canonical(-13, 10) };
     /// // from_safe is canonicalized to the same form as from_unsafe
@@ -228,6 +237,8 @@ impl SmallRational {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::rational::SmallRational;
     /// use rug::Assign;
     /// let mut a = SmallRational::new();
