@@ -208,7 +208,11 @@ impl StackInteger {
                 // Keep in mind that StackInteger is !Sync.
             }
         }
-        // There cannot be a mutable borrow anywhere else, so this should never fail.
+        // There cannot be a mutable borrow anywhere else, so
+        // self.inner.borrow() cannot fail owing to self.inner being borrowed
+        // mutably. It can still fail if the reference count overflows, but that
+        // is an extreme case of more than isize::MAX borrows, so there is no
+        // need to document the panic.
         Ref::map(self.inner.borrow(), |inner| {
             let ptr = cast_ptr!(inner, Integer);
             // Safety: since inner.d points to limbs, it is in a consistent state.
