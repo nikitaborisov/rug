@@ -17,7 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::rational::big;
-use crate::rational::{ParseRationalError, SmallRational, TryFromFloatError};
+use crate::rational::{ParseRationalError, SmallRational, StackRational, TryFromFloatError};
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;
 use core::fmt::{
@@ -140,6 +140,34 @@ impl From<&Rational> for Rational {
             xmpq::init_set(dst.as_mut_ptr(), src);
             dst.assume_init()
         }
+    }
+}
+
+impl Assign<StackRational> for Rational {
+    #[inline]
+    fn assign(&mut self, src: StackRational) {
+        self.assign(&*src.borrow());
+    }
+}
+
+impl Assign<&StackRational> for Rational {
+    #[inline]
+    fn assign(&mut self, src: &StackRational) {
+        self.assign(&*src.borrow());
+    }
+}
+
+impl From<StackRational> for Rational {
+    #[inline]
+    fn from(src: StackRational) -> Self {
+        Rational::from(&*src.borrow())
+    }
+}
+
+impl From<&StackRational> for Rational {
+    #[inline]
+    fn from(src: &StackRational) -> Self {
+        Rational::from(&*src.borrow())
     }
 }
 

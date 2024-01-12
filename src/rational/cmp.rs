@@ -16,6 +16,7 @@
 
 use crate::ext::xmpq;
 use crate::rational::SmallRational;
+use crate::rational::StackRational;
 use crate::{Integer, Rational};
 use az::{UnwrappedAs, UnwrappedCast};
 use core::cmp::Ordering;
@@ -47,6 +48,34 @@ impl PartialEq<Integer> for Rational {
     #[inline]
     fn eq(&self, other: &Integer) -> bool {
         xmpq::cmp_z(self, other) == Ordering::Equal
+    }
+}
+
+impl PartialOrd<StackRational> for Rational {
+    #[inline]
+    fn partial_cmp(&self, other: &StackRational) -> Option<Ordering> {
+        self.partial_cmp(&*other.borrow())
+    }
+}
+
+impl PartialOrd<Rational> for StackRational {
+    #[inline]
+    fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
+        (*self.borrow()).partial_cmp(other)
+    }
+}
+
+impl PartialEq<StackRational> for Rational {
+    #[inline]
+    fn eq(&self, other: &StackRational) -> bool {
+        self.eq(&*other.borrow())
+    }
+}
+
+impl PartialEq<Rational> for StackRational {
+    #[inline]
+    fn eq(&self, other: &Rational) -> bool {
+        (*self.borrow()).eq(other)
     }
 }
 
