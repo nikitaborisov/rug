@@ -7,11 +7,14 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.23.0 (unreleased)
 ===========================
 
-  * [`StackInteger`][sti-1-23] was added to replace
-    [`SmallInteger`][smi-1-23], which is now deprecated.
+  * [`StackInteger`][sti-1-23] and [`StackRational`][str-1-23] were added to
+    replace [`SmallInteger`][smi-1-23] and [`SmallRational`][smr-1-23], which
+    are now deprecated.
 
 [smi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
+[smr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
 [sti-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.StackInteger.html
+[str-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.StackRational.html
 
 Version 1.22.0 (2023-09-11)
 ===========================
