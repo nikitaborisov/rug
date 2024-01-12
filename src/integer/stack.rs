@@ -22,6 +22,7 @@ use core::ffi::c_int;
 use core::fmt::Debug;
 use core::mem;
 use core::mem::MaybeUninit;
+use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::{limb_t, mpz_t};
@@ -40,9 +41,9 @@ If there are functions that take a [`u32`] or [`i32`] directly instead of an
 `StackInteger`; the functions would still need to check for the size of an
 [`Integer`] obtained using `StackInteger`.
 
-The [`borrow`] method returns a <code>[Ref]\<[Integer]></code>, which
-can be coerced to an [`Integer`], as it implements
-<code>[Deref]\<[Target] = [Integer]></code>.
+The [`borrow`][Self::borrow] method returns an object that can be
+coerced to an [`Integer`], as it implements
+<code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
 
 # Examples
 
@@ -60,9 +61,7 @@ a.lcm_mut(&StackInteger::from(30).borrow());
 assert_eq!(a, 1500);
 ```
 
-[Deref]: core::ops::Deref
 [Target]: core::ops::Deref::Target
-[`borrow`]: StackInteger::borrow
 */
 #[derive(Clone)]
 pub struct StackInteger {
@@ -166,7 +165,7 @@ impl StackInteger {
     /// assert_eq!(Integer::from(abs_ref), 13);
     /// ```
     #[inline]
-    pub fn borrow(&self) -> Ref<'_, Integer> {
+    pub fn borrow(&self) -> impl Deref<Target = Integer> + '_ {
         // Make sure d is pointing to limbs.
         match self.inner.try_borrow_mut() {
             Ok(mut inner) => {
