@@ -31,6 +31,7 @@ mod impl_num_traits;
 #[cfg(feature = "serde")]
 mod serde;
 mod small;
+mod stack;
 #[cfg(test)]
 mod tests;
 mod traits;
@@ -38,6 +39,7 @@ mod traits;
 pub use crate::rational::big::ParseRationalError;
 pub use crate::rational::borrow::BorrowRational;
 pub use crate::rational::small::SmallRational;
+pub use crate::rational::stack::StackRational;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use std::error::Error;
 
