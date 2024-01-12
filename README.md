@@ -33,8 +33,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * [`StackInteger`][sti-1-23] was added to replace
     [`SmallInteger`][smi-1-23], which is now deprecated.
 
-[smi-1-23]: https://docs.rs/rug/~1.22/rug/integer/struct.SmallInteger.html
-[sti-1-23]: https://docs.rs/rug/~1.22/rug/integer/struct.StackInteger.html
+[smi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
+[sti-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.StackInteger.html
 
 ### Version 1.22.0 news (2023-09-11)
 
