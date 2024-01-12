@@ -19,7 +19,9 @@ use crate::{Assign, Integer};
 use az::{Az, Cast, WrappingCast};
 use core::cell::{Ref, RefCell};
 use core::ffi::c_int;
-use core::fmt::Debug;
+use core::fmt::{
+    Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
+};
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -82,10 +84,39 @@ impl Default for StackInteger {
     }
 }
 
+impl Display for StackInteger {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        Display::fmt(&*self.borrow(), f)
+    }
+}
+
 impl Debug for StackInteger {
-    #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&*self.borrow(), f)
+    }
+}
+
+impl Binary for StackInteger {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        Binary::fmt(&*self.borrow(), f)
+    }
+}
+
+impl Octal for StackInteger {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        Octal::fmt(&*self.borrow(), f)
+    }
+}
+
+impl LowerHex for StackInteger {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        LowerHex::fmt(&*self.borrow(), f)
+    }
+}
+
+impl UpperHex for StackInteger {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        UpperHex::fmt(&*self.borrow(), f)
     }
 }
 
