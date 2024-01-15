@@ -17,7 +17,9 @@
 use crate::ext::xmpfr;
 use crate::float::big;
 use crate::float::big::{ExpFormat, Format};
-use crate::float::{Constant, OrdFloat, Round, SmallFloat, Special, StackFloat};
+#[allow(deprecated)]
+use crate::float::SmallFloat;
+use crate::float::{Constant, OrdFloat, Round, Special, StackFloat};
 use crate::ops::AssignRound;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -238,6 +240,7 @@ impl AssignRound<&StackFloat> for Float {
     }
 }
 
+#[allow(deprecated)]
 impl AssignRound<SmallFloat> for Float {
     type Round = Round;
     type Ordering = Ordering;
@@ -247,6 +250,7 @@ impl AssignRound<SmallFloat> for Float {
     }
 }
 
+#[allow(deprecated)]
 impl AssignRound<&SmallFloat> for Float {
     type Round = Round;
     type Ordering = Ordering;

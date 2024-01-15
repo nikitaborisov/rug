@@ -16,7 +16,9 @@
 
 use crate::ext::xmpfr;
 use crate::float::big::{IExpIncomplete, UExpIncomplete};
-use crate::float::{SmallFloat, Special, StackFloat};
+#[allow(deprecated)]
+use crate::float::SmallFloat;
+use crate::float::{Special, StackFloat};
 use crate::Float;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -91,6 +93,7 @@ impl PartialEq<Float> for StackFloat {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<SmallFloat> for Float {
     #[inline]
     fn partial_cmp(&self, other: &SmallFloat) -> Option<Ordering> {
@@ -98,6 +101,7 @@ impl PartialOrd<SmallFloat> for Float {
     }
 }
 
+#[allow(deprecated)]
 impl PartialOrd<Float> for SmallFloat {
     #[inline]
     fn partial_cmp(&self, other: &Float) -> Option<Ordering> {
@@ -105,6 +109,7 @@ impl PartialOrd<Float> for SmallFloat {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<SmallFloat> for Float {
     #[inline]
     fn eq(&self, other: &SmallFloat) -> bool {
@@ -112,6 +117,7 @@ impl PartialEq<SmallFloat> for Float {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<Float> for SmallFloat {
     #[inline]
     fn eq(&self, other: &Float) -> bool {

@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#![allow(deprecated)]
+
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::raw_round;
 use crate::float::{self, Round, Special};
@@ -59,6 +61,8 @@ The `SmallFloat` type can be coerced to a [`Float`], as it implements
 # Examples
 
 ```rust
+#![allow(deprecated)]
+
 use rug::float::SmallFloat;
 use rug::Float;
 // `a` requires a heap allocation, has 53-bit precision
@@ -72,6 +76,7 @@ a *= &*b;
 assert_eq!(a, -15000);
 ```
 */
+#[deprecated(since = "1.23.0", note = "use `StackFloat` instead")]
 pub struct SmallFloat {
     inner: UnsafeCell<mpfr_t>,
     limbs: Limbs,
@@ -115,6 +120,8 @@ impl SmallFloat {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::float::SmallFloat;
     /// let f = SmallFloat::new();
     /// // Borrow f as if it were Float.
@@ -144,6 +151,8 @@ impl SmallFloat {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::float::SmallFloat;
     /// let mut f = SmallFloat::from(1.0f32);
     /// // addition does not change the precision
@@ -205,6 +214,7 @@ impl Deref for SmallFloat {
 /// implemented for the integer types [`i8`], [`i16`], [`i32`], [`i64`],
 /// [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`] and
 /// [`usize`], and for the floating-point types [`f32`] and [`f64`].
+#[deprecated(since = "1.23.0", note = "use `StackFloat` and `ToStack` instead")]
 pub trait ToSmall: SealedToSmall {}
 
 pub trait SealedToSmall: Copy {
@@ -433,67 +443,6 @@ impl Assign for SmallFloat {
     #[inline]
     fn assign(&mut self, other: Self) {
         drop(mem::replace(self, other));
-    }
-}
-
-#[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u8(small: &SmallFloat) -> u8 {
-    debug_assert!(small.prec() >= 8);
-    debug_assert!(small.is_normal());
-    (unsafe { small.limbs[0].assume_init() } >> (gmp::LIMB_BITS - 8)).wrapping_cast()
-}
-
-#[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u16(small: &SmallFloat) -> u16 {
-    debug_assert!(small.prec() >= 16);
-    debug_assert!(small.is_normal());
-    (unsafe { small.limbs[0].assume_init() } >> (gmp::LIMB_BITS - 16)).wrapping_cast()
-}
-
-#[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u32(small: &SmallFloat) -> u32 {
-    debug_assert!(small.prec() >= 32);
-    debug_assert!(small.is_normal());
-    #[cfg(gmp_limb_bits_32)]
-    {
-        unsafe { small.limbs[0].assume_init() }
-    }
-    #[cfg(gmp_limb_bits_64)]
-    {
-        (unsafe { small.limbs[0].assume_init() } >> 32).wrapping_cast()
-    }
-}
-
-#[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u64(small: &SmallFloat) -> u64 {
-    debug_assert!(small.prec() >= 64);
-    debug_assert!(small.is_normal());
-    #[cfg(gmp_limb_bits_32)]
-    {
-        u64::from(unsafe { small.limbs[0].assume_init() })
-            | (u64::from(unsafe { small.limbs[1].assume_init() }) << 32)
-    }
-    #[cfg(gmp_limb_bits_64)]
-    {
-        unsafe { small.limbs[0].assume_init() }
-    }
-}
-
-#[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u128(small: &SmallFloat) -> u128 {
-    debug_assert!(small.prec() >= 128);
-    debug_assert!(small.is_normal());
-    #[cfg(gmp_limb_bits_32)]
-    {
-        u128::from(unsafe { small.limbs[0].assume_init() })
-            | (u128::from(unsafe { small.limbs[1].assume_init() }) << 32)
-            | (u128::from(unsafe { small.limbs[2].assume_init() }) << 64)
-            | (u128::from(unsafe { small.limbs[3].assume_init() }) << 96)
-    }
-    #[cfg(gmp_limb_bits_64)]
-    {
-        u128::from(unsafe { small.limbs[0].assume_init() })
-            | (u128::from(unsafe { small.limbs[1].assume_init() }) << 64)
     }
 }
 

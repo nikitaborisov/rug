@@ -40,6 +40,7 @@ mod traits;
 pub use crate::float::big::ParseFloatError;
 pub use crate::float::borrow::BorrowFloat;
 pub use crate::float::ord::OrdFloat;
+#[allow(deprecated)]
 pub use crate::float::small::{SmallFloat, ToSmall};
 pub use crate::float::stack::{StackFloat, ToStack};
 use az::SaturatingCast;
