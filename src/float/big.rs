@@ -22,7 +22,7 @@ use crate::float;
 use crate::float::arith::{
     AddMulIncomplete, MulAddMulIncomplete, MulSubMulIncomplete, SubMulFromIncomplete,
 };
-use crate::float::{BorrowFloat, OrdFloat, Round, StackFloat, Special};
+use crate::float::{BorrowFloat, OrdFloat, Round, Special, StackFloat};
 #[cfg(feature = "integer")]
 use crate::integer::BorrowInteger;
 use crate::misc;
