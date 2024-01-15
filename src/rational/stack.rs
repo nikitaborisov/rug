@@ -48,7 +48,7 @@ canonicalized.
 
 The [`borrow`][Self::borrow] method returns an object that can be coerced to a
 [`Rational`], as it implements
-<code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
+<code>[Deref]\<[Target][Deref::Target] = [Rational]></code>.
 
 # Examples
 
@@ -74,8 +74,8 @@ pub struct StackRational {
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
-// Safety: StackInteger cannot be Sync because it contains a RefCell.
-// But StackInteger can be Send, just like RefCell.
+// Safety: StackRational cannot be Sync because it contains a RefCell.
+// But StackRational can be Send, just like RefCell.
 unsafe impl Send for StackRational {}
 
 impl Default for StackRational {
