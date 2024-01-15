@@ -16,7 +16,7 @@
 
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::OptFloat;
-use crate::float::{Round, SmallFloat};
+use crate::float::{Round, StackFloat};
 use crate::ops::{
     AddAssignRound, AddFrom, AddFromRound, AssignRound, CompleteRound, DivAssignRound, DivFrom,
     DivFromRound, MulAssignRound, MulFrom, MulFromRound, NegAssign, Pow, PowAssign, PowAssignRound,
@@ -512,16 +512,18 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_cast() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: SmallFloat = op2.into();
-                $deleg(rop, op1, &*small, rnd)
+                let small: StackFloat = op2.into();
+                let b = small.borrow();
+                $deleg(rop, op1, &*b, rnd)
             }
         }
     };
     (fn $fn:ident() -> $deleg:path) => {
         #[inline]
         fn $fn<O: OptFloat>(rop: &mut Float, op1: O, op2: Self, rnd: Round) -> Ordering {
-            let small: SmallFloat = op2.into();
-            $deleg(rop, op1, &*small, rnd)
+            let small: StackFloat = op2.into();
+            let b = small.borrow();
+            $deleg(rop, op1, &*b, rnd)
         }
     };
 }
@@ -532,23 +534,25 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_cast() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: SmallFloat = op1.into();
-                $deleg(rop, &*small, op2, rnd)
+                let small: StackFloat = op1.into();
+                let b = small.borrow();
+                $deleg(rop, &*b, op2, rnd)
             }
         }
     };
     (fn $fn:ident() -> $deleg:path) => {
         #[inline]
         fn $fn<O: OptFloat>(rop: &mut Float, op1: Self, op2: O, rnd: Round) -> Ordering {
-            let small: SmallFloat = op1.into();
-            $deleg(rop, &*small, op2, rnd)
+            let small: StackFloat = op1.into();
+            let b = small.borrow();
+            $deleg(rop, &*b, op2, rnd)
         }
     };
 }
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<SmallFloat>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackFloat>,
 {
     forward! { fn add() -> xmpfr::add_si, xmpfr::add }
     forward! { fn sub() -> xmpfr::sub_si, xmpfr::sub }
@@ -564,7 +568,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<SmallFloat>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackFloat>,
 {
     forward! { fn add() -> xmpfr::add_ui, xmpfr::add }
     forward! { fn sub() -> xmpfr::sub_ui, xmpfr::sub }
@@ -580,7 +584,7 @@ where
 
 impl<T> PrimOps<f64> for T
 where
-    T: AsLong<Long = f64> + CheckedCast<f64> + Into<SmallFloat>,
+    T: AsLong<Long = f64> + CheckedCast<f64> + Into<StackFloat>,
 {
     forward! { fn add() -> xmpfr::add_d, xmpfr::add }
     forward! { fn sub() -> xmpfr::sub_d, xmpfr::sub }

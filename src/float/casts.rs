@@ -15,8 +15,8 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpfr;
-use crate::float::small;
-use crate::float::{Round, SmallFloat};
+use crate::float::stack;
+use crate::float::{Round, StackFloat};
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
@@ -103,7 +103,7 @@ macro_rules! cast_int {
                 }
 
                 const ZERO: $Prim = 0;
-                let mut small = SmallFloat::from(ZERO);
+                let mut small = StackFloat::from(ZERO);
                 // Safety: assigning a value will not change the precision,
                 // so there is no reallocation.
                 unsafe {
@@ -111,18 +111,19 @@ macro_rules! cast_int {
                         .as_nonreallocating_float()
                         .assign(self.round_even_ref());
                 }
+                let bor = &*small.borrow();
                 // We already checked for NaN, so we can use mpfr::sgn.
-                debug_assert!(!small.is_nan());
-                let cmp0 = xmpfr::sgn_not_nan(&*small);
+                debug_assert!(!bor.is_nan());
+                let cmp0 = xmpfr::sgn_not_nan(bor);
                 match cmp0 {
-                    Ordering::Less => match small.get_exp() {
+                    Ordering::Less => match bor.get_exp() {
                         None => None,
                         Some(exp) if exp > $nbits => None,
                         Some(exp) => {
                             // Safety:
                             //  1. small is normal, so we can get the number.
                             //  2. Since it is a normal integer, exp > 0
-                            debug_assert!(small.is_normal());
+                            debug_assert!(bor.is_normal());
                             let abs = unsafe { $unchecked_get(&small) >> ($nbits - exp) };
                             if abs > <$Prim>::MIN.wrapping_as::<$U>() {
                                 None
@@ -132,14 +133,14 @@ macro_rules! cast_int {
                         }
                     },
                     Ordering::Equal => Some(0),
-                    Ordering::Greater => match small.get_exp() {
+                    Ordering::Greater => match bor.get_exp() {
                         None => None,
                         Some(exp) if exp >= $nbits => None,
                         Some(exp) => {
                             // Safety:
                             //  1. small is normal, so we can get the number.
                             //  2. Since it is a normal integer, exp > 0
-                            debug_assert!(small.is_normal());
+                            debug_assert!(bor.is_normal());
                             let abs = unsafe { $unchecked_get(&small) >> ($nbits - exp) };
                             // We have already checked that exp < $nbits, so
                             // the value fits.
@@ -163,7 +164,7 @@ macro_rules! cast_uint {
                 }
 
                 const ZERO: $Prim = 0;
-                let mut small = SmallFloat::from(ZERO);
+                let mut small = StackFloat::from(ZERO);
                 // Safety: assigning a value will not change the precision,
                 // so there is no reallocation.
                 unsafe {
@@ -171,20 +172,21 @@ macro_rules! cast_uint {
                         .as_nonreallocating_float()
                         .assign(self.round_even_ref());
                 }
+                let bor = &*small.borrow();
                 // We already checked for NaN, so we can use mpfr::sgn.
-                debug_assert!(!small.is_nan());
-                let cmp0 = xmpfr::sgn_not_nan(&*small);
+                debug_assert!(!bor.is_nan());
+                let cmp0 = xmpfr::sgn_not_nan(bor);
                 match cmp0 {
                     Ordering::Less => None,
                     Ordering::Equal => Some(0),
-                    Ordering::Greater => match small.get_exp() {
+                    Ordering::Greater => match bor.get_exp() {
                         None => None,
                         Some(exp) if exp > $nbits => None,
                         Some(exp) => {
                             // Safety:
                             //  1. small is normal, so we can get the number.
                             //  2. Since it is a normal integer, exp > 0
-                            debug_assert!(small.is_normal());
+                            debug_assert!(bor.is_normal());
                             Some(unsafe { $unchecked_get(&small) >> ($nbits - exp) })
                         }
                     },
@@ -194,11 +196,11 @@ macro_rules! cast_uint {
     };
 }
 
-cast_int! { i8, u8, 8, small::unchecked_get_unshifted_u8 }
-cast_int! { i16, u16, 16, small::unchecked_get_unshifted_u16 }
-cast_int! { i32, u32, 32, small::unchecked_get_unshifted_u32 }
-cast_int! { i64, u64, 64, small::unchecked_get_unshifted_u64 }
-cast_int! { i128, u128, 128, small::unchecked_get_unshifted_u128 }
+cast_int! { i8, u8, 8, stack::unchecked_get_unshifted_u8 }
+cast_int! { i16, u16, 16, stack::unchecked_get_unshifted_u16 }
+cast_int! { i32, u32, 32, stack::unchecked_get_unshifted_u32 }
+cast_int! { i64, u64, 64, stack::unchecked_get_unshifted_u64 }
+cast_int! { i128, u128, 128, stack::unchecked_get_unshifted_u128 }
 
 cast_int_uint_common! { isize }
 
@@ -216,11 +218,11 @@ impl CheckedCast<isize> for &'_ Float {
     }
 }
 
-cast_uint! { u8, 8, small::unchecked_get_unshifted_u8 }
-cast_uint! { u16, 16, small::unchecked_get_unshifted_u16 }
-cast_uint! { u32, 32, small::unchecked_get_unshifted_u32 }
-cast_uint! { u64, 64, small::unchecked_get_unshifted_u64 }
-cast_uint! { u128, 128, small::unchecked_get_unshifted_u128 }
+cast_uint! { u8, 8, stack::unchecked_get_unshifted_u8 }
+cast_uint! { u16, 16, stack::unchecked_get_unshifted_u16 }
+cast_uint! { u32, 32, stack::unchecked_get_unshifted_u32 }
+cast_uint! { u64, 64, stack::unchecked_get_unshifted_u64 }
+cast_uint! { u128, 128, stack::unchecked_get_unshifted_u128 }
 
 cast_int_uint_common! { usize }
 

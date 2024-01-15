@@ -16,7 +16,7 @@
 
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::ToSmall;
+use crate::float::ToStack;
 use crate::{Assign, Complex};
 use core::cell::UnsafeCell;
 use core::fmt::Debug;
@@ -226,7 +226,7 @@ impl Deref for SmallComplex {
     }
 }
 
-impl<Re: ToSmall> Assign<Re> for SmallComplex {
+impl<Re: ToStack> Assign<Re> for SmallComplex {
     fn assign(&mut self, src: Re) {
         unsafe {
             src.copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
@@ -239,7 +239,7 @@ impl<Re: ToSmall> Assign<Re> for SmallComplex {
     }
 }
 
-impl<Re: ToSmall> From<Re> for SmallComplex {
+impl<Re: ToStack> From<Re> for SmallComplex {
     fn from(src: Re) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {
@@ -282,7 +282,7 @@ impl<Re: ToSmall> From<Re> for SmallComplex {
     }
 }
 
-impl<Re: ToSmall, Im: ToSmall> Assign<(Re, Im)> for SmallComplex {
+impl<Re: ToStack, Im: ToStack> Assign<(Re, Im)> for SmallComplex {
     fn assign(&mut self, src: (Re, Im)) {
         unsafe {
             src.0
@@ -293,7 +293,7 @@ impl<Re: ToSmall, Im: ToSmall> Assign<(Re, Im)> for SmallComplex {
     }
 }
 
-impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
+impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for SmallComplex {
     fn from(src: (Re, Im)) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {

@@ -17,7 +17,7 @@
 use crate::complex::SmallComplex;
 use crate::ext::xmpc;
 use crate::ext::xmpc::{OptComplex, Ordering2, Round2, NEAREST2};
-use crate::float::SmallFloat;
+use crate::float::StackFloat;
 use crate::ops::{
     AddAssignRound, AddFrom, AddFromRound, AssignRound, CompleteRound, DivAssignRound, DivFrom,
     DivFromRound, MulAssignRound, MulFrom, MulFromRound, NegAssign, Pow, PowAssign, PowAssignRound,
@@ -526,8 +526,9 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: SmallFloat = op2.into();
-                $deleg(rop, op1, &*small, rnd)
+                let small: StackFloat = op2.into();
+                let b = small.borrow();
+                $deleg(rop, op1, &*b, rnd)
             }
         }
     };
@@ -539,8 +540,9 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: SmallFloat = op1.into();
-                $deleg(rop, &*small, op2, rnd)
+                let small: StackFloat = op1.into();
+                let b = small.borrow();
+                $deleg(rop, &*b, op2, rnd)
             }
         }
     };
@@ -548,7 +550,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<SmallFloat> + Into<SmallComplex>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackFloat> + Into<SmallComplex>,
 {
     forward! { fn add() -> xmpc::add_si, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_si, xmpc::sub_fr }
@@ -559,8 +561,9 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: SmallFloat = op2.into();
-        xmpc::pow_fr(rop, op1, &small, rnd)
+        let small: StackFloat = op2.into();
+        let b = small.borrow();
+        xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
@@ -572,7 +575,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<SmallFloat> + Into<SmallComplex>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackFloat> + Into<SmallComplex>,
 {
     forward! { fn add() -> xmpc::add_ui, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_ui, xmpc::sub_fr }
@@ -583,8 +586,9 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: SmallFloat = op2.into();
-        xmpc::pow_fr(rop, op1, &small, rnd)
+        let small: StackFloat = op2.into();
+        let b = small.borrow();
+        xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
@@ -596,7 +600,7 @@ where
 
 impl<T> PrimOps<f64> for T
 where
-    T: AsLong<Long = f64> + CheckedCast<f64> + Into<SmallFloat> + Into<SmallComplex>,
+    T: AsLong<Long = f64> + CheckedCast<f64> + Into<StackFloat> + Into<SmallComplex>,
 {
     forward! { fn add() -> xmpc::add_d, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_d, xmpc::sub_fr }
@@ -607,8 +611,9 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: SmallFloat = op2.into();
-        xmpc::pow_fr(rop, op1, &small, rnd)
+        let small: StackFloat = op2.into();
+        let b = small.borrow();
+        xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
