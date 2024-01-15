@@ -188,8 +188,6 @@ impl StackFloat {
     /// assert_eq!(*f.borrow(), 3.0);
     /// ```
     #[inline]
-    // Safety: after calling update_d(), self.inner.d points to the
-    // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
         // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
         let inner = self.inner.get_mut();
