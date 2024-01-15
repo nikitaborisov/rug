@@ -31,6 +31,7 @@ mod ord;
 #[cfg(feature = "serde")]
 mod serde;
 mod small;
+mod stack;
 #[cfg(test)]
 mod tests;
 mod traits;
@@ -39,6 +40,7 @@ pub use crate::complex::big::ParseComplexError;
 pub use crate::complex::borrow::BorrowComplex;
 pub use crate::complex::ord::OrdComplex;
 pub use crate::complex::small::SmallComplex;
+pub use crate::complex::stack::StackComplex;
 
 /**
 The `Prec` trait is used to specify the precision of the real and imaginary
