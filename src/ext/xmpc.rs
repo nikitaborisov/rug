@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::SmallComplex;
+use crate::complex::StackComplex;
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::{ordering1, raw_round, OptFloat, EXP_ZERO};
 use crate::float::Round;
@@ -473,8 +473,9 @@ macro_rules! div_reverse {
     (fn $name:ident($T:ty) -> $func:path) => {
         #[inline]
         pub fn $name<O: OptComplex>(rop: &mut Complex, op1: $T, op2: O, rnd: Round2) -> Ordering2 {
-            let op1 = SmallComplex::from(op1);
-            div(rop, &*op1, op2, rnd)
+            let op1 = StackComplex::from(op1);
+            let b = op1.borrow();
+            div(rop, &*b, op2, rnd)
         }
     };
 }

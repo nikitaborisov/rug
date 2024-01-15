@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::SmallComplex;
+use crate::complex::StackComplex;
 use crate::ext::xmpc;
 use crate::ext::xmpc::{OptComplex, Ordering2, Round2, NEAREST2};
 use crate::float::StackFloat;
@@ -550,7 +550,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackFloat> + Into<SmallComplex>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackFloat> + Into<StackComplex>,
 {
     forward! { fn add() -> xmpc::add_si, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_si, xmpc::sub_fr }
@@ -568,14 +568,15 @@ where
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: SmallComplex = op1.into();
-        xmpc::pow(rop, &*small, op2, rnd)
+        let small: StackComplex = op1.into();
+        let b = small.borrow();
+        xmpc::pow(rop, &*b, op2, rnd)
     }
 }
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackFloat> + Into<SmallComplex>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackFloat> + Into<StackComplex>,
 {
     forward! { fn add() -> xmpc::add_ui, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_ui, xmpc::sub_fr }
@@ -593,14 +594,15 @@ where
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: SmallComplex = op1.into();
-        xmpc::pow(rop, &*small, op2, rnd)
+        let small: StackComplex = op1.into();
+        let b = small.borrow();
+        xmpc::pow(rop, &*b, op2, rnd)
     }
 }
 
 impl<T> PrimOps<f64> for T
 where
-    T: AsLong<Long = f64> + CheckedCast<f64> + Into<StackFloat> + Into<SmallComplex>,
+    T: AsLong<Long = f64> + CheckedCast<f64> + Into<StackFloat> + Into<StackComplex>,
 {
     forward! { fn add() -> xmpc::add_d, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_d, xmpc::sub_fr }
@@ -618,8 +620,9 @@ where
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: SmallComplex = op1.into();
-        xmpc::pow(rop, &*small, op2, rnd)
+        let small: StackComplex = op1.into();
+        let b = small.borrow();
+        xmpc::pow(rop, &*b, op2, rnd)
     }
 }
 
