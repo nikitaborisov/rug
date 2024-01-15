@@ -43,8 +43,8 @@ If there are functions that take a [`u32`] or [`i32`] directly instead of an
 `StackInteger`; the functions would still need to check for the size of an
 [`Integer`] obtained using `StackInteger`.
 
-The [`borrow`][Self::borrow] method returns an object that can be
-coerced to an [`Integer`], as it implements
+The [`borrow`][Self::borrow] method returns an object that can be coerced to an
+[`Integer`], as it implements
 <code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
 
 # Examples
@@ -62,8 +62,6 @@ assert_eq!(a, 500);
 a.lcm_mut(&StackInteger::from(30).borrow());
 assert_eq!(a, 1500);
 ```
-
-[Target]: core::ops::Deref::Target
 */
 #[derive(Clone)]
 pub struct StackInteger {
@@ -128,6 +126,7 @@ impl StackInteger {
     /// ```rust
     /// use rug::integer::StackInteger;
     /// let i = StackInteger::new();
+    /// // Borrow i as if it were Integer.
     /// assert_eq!(*i.borrow(), 0);
     /// ```
     #[inline]
