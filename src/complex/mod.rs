@@ -39,6 +39,7 @@ mod traits;
 pub use crate::complex::big::ParseComplexError;
 pub use crate::complex::borrow::BorrowComplex;
 pub use crate::complex::ord::OrdComplex;
+#[allow(deprecated)]
 pub use crate::complex::small::SmallComplex;
 pub use crate::complex::stack::StackComplex;
 

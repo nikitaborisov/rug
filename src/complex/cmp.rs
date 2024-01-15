@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[allow(deprecated)]
 use crate::complex::SmallComplex;
 use crate::complex::StackComplex;
 use crate::float::Special;
@@ -44,6 +45,7 @@ impl PartialEq<Complex> for StackComplex {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<SmallComplex> for Complex {
     #[inline]
     fn eq(&self, other: &SmallComplex) -> bool {
@@ -51,6 +53,7 @@ impl PartialEq<SmallComplex> for Complex {
     }
 }
 
+#[allow(deprecated)]
 impl PartialEq<Complex> for SmallComplex {
     #[inline]
     fn eq(&self, other: &Complex) -> bool {

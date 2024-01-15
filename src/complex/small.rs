@@ -14,6 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#![allow(deprecated)]
+
 use crate::ext::xmpfr;
 use crate::float;
 use crate::float::ToStack;
@@ -60,6 +62,8 @@ The `SmallComplex` type can be coerced to a [`Complex`], as it implements
 # Examples
 
 ```rust
+#![allow(deprecated)]
+
 use rug::complex::SmallComplex;
 use rug::Complex;
 // `a` requires a heap allocation
@@ -71,6 +75,7 @@ assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
 */
+#[deprecated(since = "1.23.0", note = "use `StackComplex` instead")]
 pub struct SmallComplex {
     inner: UnsafeCell<mpc_t>,
     // real part is first in limbs if inner.re.d <= inner.im.d
@@ -116,6 +121,8 @@ impl SmallComplex {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::complex::SmallComplex;
     /// let c = SmallComplex::new();
     /// // Borrow c as if it were Complex.
@@ -155,6 +162,8 @@ impl SmallComplex {
     /// # Examples
     ///
     /// ```rust
+    /// #![allow(deprecated)]
+    ///
     /// use rug::complex::SmallComplex;
     /// let mut c = SmallComplex::from((1.0f32, 3.0f32));
     /// // rotation does not change the precision
