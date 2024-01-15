@@ -32,6 +32,7 @@ mod ord;
 #[cfg(feature = "serde")]
 mod serde;
 pub(crate) mod small;
+pub(crate) mod stack;
 #[cfg(test)]
 pub(crate) mod tests;
 mod traits;
@@ -40,6 +41,7 @@ pub use crate::float::big::ParseFloatError;
 pub use crate::float::borrow::BorrowFloat;
 pub use crate::float::ord::OrdFloat;
 pub use crate::float::small::{SmallFloat, ToSmall};
+pub use crate::float::stack::{StackFloat, ToStack};
 use az::SaturatingCast;
 use gmp_mpfr_sys::mpfr;
 use gmp_mpfr_sys::mpfr::prec_t;
