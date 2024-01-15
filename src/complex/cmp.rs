@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::complex::SmallComplex;
+use crate::complex::StackComplex;
 use crate::float::Special;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -26,6 +27,20 @@ impl PartialEq for Complex {
     #[inline]
     fn eq(&self, other: &Complex) -> bool {
         self.real().eq(other.real()) && self.imag().eq(other.imag())
+    }
+}
+
+impl PartialEq<StackComplex> for Complex {
+    #[inline]
+    fn eq(&self, other: &StackComplex) -> bool {
+        self.eq(&*other.borrow())
+    }
+}
+
+impl PartialEq<Complex> for StackComplex {
+    #[inline]
+    fn eq(&self, other: &Complex) -> bool {
+        (*self.borrow()).eq(other)
     }
 }
 
