@@ -14,7 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::float::{Round, Special, StackFloat};
+use crate::float::{MiniFloat, Round, Special};
 use crate::misc::NegAbs;
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
@@ -595,14 +595,14 @@ pub fn set_q(dst: &mut Float, src: &Rational, rnd: Round) -> Ordering {
 
 #[inline]
 pub fn set_i128(rop: &mut Float, val: i128, rnd: Round) -> Ordering {
-    let small = StackFloat::from(val);
+    let small = MiniFloat::from(val);
     let b = small.borrow();
     set(rop, &*b, rnd)
 }
 
 #[inline]
 pub fn set_u128(rop: &mut Float, val: u128, rnd: Round) -> Ordering {
-    let small = StackFloat::from(val);
+    let small = MiniFloat::from(val);
     let b = small.borrow();
     set(rop, &*b, rnd)
 }
@@ -704,7 +704,7 @@ pub fn cmp_i64(op1: &Float, op2: i64) -> Ordering {
     if let Some(op2) = op2.checked_as() {
         ordering1(unsafe { mpfr::cmp_si(op1.as_raw(), op2) })
     } else {
-        let small = StackFloat::from(op2);
+        let small = MiniFloat::from(op2);
         let b = small.borrow();
         ordering1(unsafe { mpfr::cmp(op1.as_raw(), b.as_raw()) })
     }
@@ -715,7 +715,7 @@ pub fn cmp_u64(op1: &Float, op2: u64) -> Ordering {
     if let Some(op2) = op2.checked_as() {
         ordering1(unsafe { mpfr::cmp_ui(op1.as_raw(), op2) })
     } else {
-        let small = StackFloat::from(op2);
+        let small = MiniFloat::from(op2);
         let b = small.borrow();
         ordering1(unsafe { mpfr::cmp(op1.as_raw(), b.as_raw()) })
     }
@@ -723,14 +723,14 @@ pub fn cmp_u64(op1: &Float, op2: u64) -> Ordering {
 
 #[inline]
 pub fn cmp_i128(op1: &Float, op2: i128) -> Ordering {
-    let small = StackFloat::from(op2);
+    let small = MiniFloat::from(op2);
     let b = small.borrow();
     ordering1(unsafe { mpfr::cmp(op1.as_raw(), b.as_raw()) })
 }
 
 #[inline]
 pub fn cmp_u128(op1: &Float, op2: u128) -> Ordering {
-    let small = StackFloat::from(op2);
+    let small = MiniFloat::from(op2);
     let b = small.borrow();
     ordering1(unsafe { mpfr::cmp(op1.as_raw(), b.as_raw()) })
 }

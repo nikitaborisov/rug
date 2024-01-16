@@ -17,7 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpq::OptRational;
 use crate::integer::arith::AsLong;
-use crate::integer::StackInteger;
+use crate::integer::MiniInteger;
 use crate::ops::{AddFrom, DivFrom, MulFrom, NegAssign, Pow, PowAssign, SubFrom};
 use crate::{Assign, Complete, Integer, Rational};
 use az::{CheckedAs, CheckedCast};
@@ -277,7 +277,7 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: StackInteger = op2.into();
+                let small: MiniInteger = op2.into();
                 $deleg(rop, op1, &*small.borrow());
             }
         }
@@ -290,7 +290,7 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: StackInteger = op1.into();
+                let small: MiniInteger = op1.into();
                 $deleg(rop, &*small.borrow(), op2);
             }
         }
@@ -299,7 +299,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackInteger>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<MiniInteger>,
 {
     forward! { fn add() -> xmpq::add_si, xmpq::add_z }
     forward! { fn sub() -> xmpq::sub_si, xmpq::sub_z }
@@ -311,7 +311,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackInteger>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<MiniInteger>,
 {
     forward! { fn add() -> xmpq::add_ui, xmpq::add_z }
     forward! { fn sub() -> xmpq::sub_ui, xmpq::sub_z }
@@ -367,7 +367,7 @@ fn rhs_has_more_alloc(lhs: &Rational, rhs: &Rational) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::ops::Pow;
-    use crate::rational::StackRational;
+    use crate::rational::MiniRational;
     use crate::{Integer, Rational};
 
     macro_rules! test_ref_op {
@@ -454,10 +454,10 @@ mod tests {
         let pow_pos = a.clone().pow(3i32);
         assert_eq!(
             pow_pos,
-            StackRational::from(((-12i32).pow(3), 7i32.pow(3u32)))
+            MiniRational::from(((-12i32).pow(3), 7i32.pow(3u32)))
         );
         let pow_neg = a.pow(-3i32);
-        assert_eq!(pow_neg, StackRational::from(((-7i32).pow(3), 12i32.pow(3))));
+        assert_eq!(pow_neg, MiniRational::from(((-7i32).pow(3), 12i32.pow(3))));
     }
 
     macro_rules! check_u_s {

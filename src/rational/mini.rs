@@ -17,7 +17,7 @@
 #![allow(deprecated)]
 
 use crate::ext::xmpq;
-use crate::integer::ToStack;
+use crate::integer::ToMini;
 use crate::rational::BorrowRational;
 use crate::{Assign, Rational};
 use az::Cast;
@@ -42,7 +42,7 @@ This can be useful when you have a numerator and denominator that are primitive
 integer-types such as [`i64`] or [`u8`], and you need a reference to a
 [`Rational`].
 
-Although no allocation is required, setting the value of a `StackRational` does
+Although no allocation is required, setting the value of a `MiniRational` does
 require some computation, as the numerator and denominator need to be
 canonicalized.
 
@@ -53,19 +53,19 @@ The [`borrow`][Self::borrow] method returns an object that can be coerced to a
 # Examples
 
 ```rust
-use rug::rational::StackRational;
+use rug::rational::MiniRational;
 use rug::Rational;
 // `a` requires a heap allocation
 let mut a = Rational::from((100, 13));
 // `b` can reside on the stack
-let b = StackRational::from((-100, 21));
+let b = MiniRational::from((-100, 21));
 a /= &*b.borrow();
 assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 */
 #[derive(Clone, Copy)]
-pub struct StackRational {
+pub struct MiniRational {
     inner: mpq_t,
     // numerator is first in limbs if inner.num.d <= inner.den.d
     first_limbs: Limbs,
@@ -75,60 +75,60 @@ pub struct StackRational {
 static_assert!(mem::size_of::<Limbs>() == 16);
 
 // SAFETY: mpq_t is thread safe as guaranteed by the GMP library.
-unsafe impl Send for StackRational {}
-unsafe impl Sync for StackRational {}
+unsafe impl Send for MiniRational {}
+unsafe impl Sync for MiniRational {}
 
-impl Default for StackRational {
+impl Default for MiniRational {
     #[inline]
     fn default() -> Self {
-        StackRational::new()
+        MiniRational::new()
     }
 }
 
-impl Display for StackRational {
+impl Display for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Display::fmt(&*self.borrow(), f)
     }
 }
 
-impl Debug for StackRational {
+impl Debug for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&*self.borrow(), f)
     }
 }
 
-impl Binary for StackRational {
+impl Binary for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Binary::fmt(&*self.borrow(), f)
     }
 }
 
-impl Octal for StackRational {
+impl Octal for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Octal::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerHex for StackRational {
+impl LowerHex for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperHex for StackRational {
+impl UpperHex for MiniRational {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl StackRational {
-    /// Creates a [`StackRational`] with value 0.
+impl MiniRational {
+    /// Creates a [`MiniRational`] with value 0.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::StackRational;
-    /// let r = StackRational::new();
+    /// use rug::rational::MiniRational;
+    /// let r = MiniRational::new();
     /// let b = r.borrow();
     /// // Use b as if it were Rational.
     /// assert_eq!(*b.numer(), 0);
@@ -136,7 +136,7 @@ impl StackRational {
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        StackRational {
+        MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
@@ -173,8 +173,8 @@ impl StackRational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::StackRational;
-    /// let mut r = StackRational::from((-15i32, 47i32));
+    /// use rug::rational::MiniRational;
+    /// let mut r = MiniRational::from((-15i32, 47i32));
     /// let (num_capacity, den_capacity) = {
     ///     let b = r.borrow();
     ///     (b.numer().capacity(), b.denom().capacity())
@@ -184,7 +184,7 @@ impl StackRational {
     ///     r.as_nonreallocating_rational().recip_mut();
     /// }
     /// let after = r.borrow();
-    /// assert_eq!(*after, StackRational::from((-47, 15)));
+    /// assert_eq!(*after, MiniRational::from((-47, 15)));
     /// assert_eq!(after.numer().capacity(), num_capacity);
     /// assert_eq!(after.denom().capacity(), den_capacity);
     /// ```
@@ -219,9 +219,9 @@ impl StackRational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::StackRational;
+    /// use rug::rational::MiniRational;
     /// use rug::Rational;
-    /// let r = StackRational::from((-13i32, 5i32));
+    /// let r = MiniRational::from((-13i32, 5i32));
     /// let b = r.borrow();
     /// let abs_ref = Rational::from(b.abs_ref());
     /// assert_eq!(*abs_ref.numer(), 13);
@@ -255,7 +255,7 @@ impl StackRational {
         }
     }
 
-    /// Creates a [`StackRational`] from a numerator and denominator, assuming
+    /// Creates a [`MiniRational`] from a numerator and denominator, assuming
     /// they are in canonical form.
     ///
     /// # Safety
@@ -266,16 +266,16 @@ impl StackRational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::StackRational;
-    /// let from_unsafe = unsafe { StackRational::from_canonical(-13, 10) };
+    /// use rug::rational::MiniRational;
+    /// let from_unsafe = unsafe { MiniRational::from_canonical(-13, 10) };
     /// // from_safe is canonicalized to the same form as from_unsafe
-    /// let from_safe = StackRational::from((130, -100));
+    /// let from_safe = MiniRational::from((130, -100));
     /// let unsafe_borrow = from_unsafe.borrow();
     /// let safe_borrow = from_safe.borrow();
     /// assert_eq!(unsafe_borrow.numer(), safe_borrow.numer());
     /// assert_eq!(unsafe_borrow.denom(), safe_borrow.denom());
     /// ```
-    pub unsafe fn from_canonical<Num: ToStack, Den: ToStack>(num: Num, den: Den) -> Self {
+    pub unsafe fn from_canonical<Num: ToMini, Den: ToMini>(num: Num, den: Den) -> Self {
         let mut num_size = 0;
         let mut den_size = 0;
         let mut num_limbs: Limbs = small_limbs![0];
@@ -283,7 +283,7 @@ impl StackRational {
         num.copy(&mut num_size, &mut num_limbs);
         den.copy(&mut den_size, &mut den_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
-        StackRational {
+        MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
@@ -301,7 +301,7 @@ impl StackRational {
         }
     }
 
-    /// Assigns a numerator and denominator to a [`StackRational`], assuming
+    /// Assigns a numerator and denominator to a [`MiniRational`], assuming
     /// they are in canonical form.
     ///
     /// # Safety
@@ -312,21 +312,21 @@ impl StackRational {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::rational::StackRational;
+    /// use rug::rational::MiniRational;
     /// use rug::Assign;
-    /// let mut a = StackRational::new();
+    /// let mut a = MiniRational::new();
     /// unsafe {
     ///     a.assign_canonical(-13, 10);
     /// }
     /// // b is canonicalized to the same form as a
-    /// let mut b = StackRational::new();
+    /// let mut b = MiniRational::new();
     /// b.assign((130, -100));
     /// let a_borrow = a.borrow();
     /// let b_borrow = b.borrow();
     /// assert_eq!(a_borrow.numer(), b_borrow.numer());
     /// assert_eq!(a_borrow.denom(), b_borrow.denom());
     /// ```
-    pub unsafe fn assign_canonical<Num: ToStack, Den: ToStack>(&mut self, num: Num, den: Den) {
+    pub unsafe fn assign_canonical<Num: ToMini, Den: ToMini>(&mut self, num: Num, den: Den) {
         let (num_limbs, den_limbs) = if self.num_is_first() {
             (&mut self.first_limbs, &mut self.last_limbs)
         } else {
@@ -342,7 +342,7 @@ impl StackRational {
     }
 }
 
-impl<Num: ToStack> Assign<Num> for StackRational {
+impl<Num: ToMini> Assign<Num> for MiniRational {
     #[inline]
     fn assign(&mut self, src: Num) {
         let (num_limbs, den_limbs) = if self.num_is_first() {
@@ -356,13 +356,13 @@ impl<Num: ToStack> Assign<Num> for StackRational {
     }
 }
 
-impl<Num: ToStack> From<Num> for StackRational {
+impl<Num: ToMini> From<Num> for MiniRational {
     fn from(src: Num) -> Self {
         let mut num_size = 0;
         let mut num_limbs = small_limbs![0];
         src.copy(&mut num_size, &mut num_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
-        StackRational {
+        MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
@@ -381,7 +381,7 @@ impl<Num: ToStack> From<Num> for StackRational {
     }
 }
 
-impl<Num: ToStack, Den: ToStack> Assign<(Num, Den)> for StackRational {
+impl<Num: ToMini, Den: ToMini> Assign<(Num, Den)> for MiniRational {
     fn assign(&mut self, src: (Num, Den)) {
         assert!(!src.1.is_zero(), "division by zero");
         {
@@ -398,7 +398,7 @@ impl<Num: ToStack, Den: ToStack> Assign<(Num, Den)> for StackRational {
     }
 }
 
-impl<Num: ToStack, Den: ToStack> From<(Num, Den)> for StackRational {
+impl<Num: ToMini, Den: ToMini> From<(Num, Den)> for MiniRational {
     fn from(src: (Num, Den)) -> Self {
         assert!(!src.1.is_zero(), "division by zero");
         let mut inner = mpq_t {
@@ -424,13 +424,13 @@ impl<Num: ToStack, Den: ToStack> From<(Num, Den)> for StackRational {
         }
         // order of limbs is important as inner.num.d != inner.den.d
         if num_limbs.as_ptr() <= den_limbs.as_ptr() {
-            StackRational {
+            MiniRational {
                 inner,
                 first_limbs: num_limbs,
                 last_limbs: den_limbs,
             }
         } else {
-            StackRational {
+            MiniRational {
                 inner,
                 first_limbs: den_limbs,
                 last_limbs: num_limbs,
@@ -439,14 +439,14 @@ impl<Num: ToStack, Den: ToStack> From<(Num, Den)> for StackRational {
     }
 }
 
-impl Assign<&Self> for StackRational {
+impl Assign<&Self> for MiniRational {
     #[inline]
     fn assign(&mut self, other: &Self) {
         self.clone_from(other);
     }
 }
 
-impl Assign for StackRational {
+impl Assign for MiniRational {
     #[inline]
     fn assign(&mut self, other: Self) {
         *self = other;
@@ -455,25 +455,25 @@ impl Assign for StackRational {
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::StackRational;
+    use crate::rational::MiniRational;
     use crate::Assign;
 
     #[test]
     fn check_assign() {
-        let mut r = StackRational::from((1, 2));
-        assert_eq!(*r.borrow(), StackRational::from((1, 2)));
+        let mut r = MiniRational::from((1, 2));
+        assert_eq!(*r.borrow(), MiniRational::from((1, 2)));
         r.assign(3);
         assert_eq!(*r.borrow(), 3);
-        let other = StackRational::from((4, 5));
+        let other = MiniRational::from((4, 5));
         r.assign(&other);
-        assert_eq!(*r.borrow(), StackRational::from((4, 5)));
+        assert_eq!(*r.borrow(), MiniRational::from((4, 5)));
         r.assign((6, 7));
-        assert_eq!(*r.borrow(), StackRational::from((6, 7)));
+        assert_eq!(*r.borrow(), MiniRational::from((6, 7)));
         r.assign(other);
-        assert_eq!(*r.borrow(), StackRational::from((4, 5)));
+        assert_eq!(*r.borrow(), MiniRational::from((4, 5)));
     }
 
-    fn swapped_parts(small: &StackRational) -> bool {
+    fn swapped_parts(small: &MiniRational) -> bool {
         unsafe {
             let borrow = small.borrow();
             let num = (*borrow.numer().as_raw()).d;
@@ -484,27 +484,27 @@ mod tests {
 
     #[test]
     fn check_swapped_parts() {
-        let mut r = StackRational::from((2, 3));
-        assert_eq!(*r.borrow(), StackRational::from((2, 3)));
+        let mut r = MiniRational::from((2, 3));
+        assert_eq!(*r.borrow(), MiniRational::from((2, 3)));
         assert_eq!(*r.clone().borrow(), r);
         let mut orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), StackRational::from((3, 2)));
+        assert_eq!(*r.borrow(), MiniRational::from((3, 2)));
         assert_eq!(*r.clone().borrow(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         unsafe {
             r.assign_canonical(5, 7);
         }
-        assert_eq!(*r.borrow(), StackRational::from((5, 7)));
+        assert_eq!(*r.borrow(), MiniRational::from((5, 7)));
         assert_eq!(*r.clone().borrow(), r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), StackRational::from((7, 5)));
+        assert_eq!(*r.borrow(), MiniRational::from((7, 5)));
         assert_eq!(*r.clone().borrow(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
@@ -515,18 +515,18 @@ mod tests {
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), StackRational::from((1, 2)));
+        assert_eq!(*r.borrow(), MiniRational::from((1, 2)));
         assert_eq!(*r.clone().borrow(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         r.assign((3, -5));
-        assert_eq!(*r.borrow(), StackRational::from((-3, 5)));
+        assert_eq!(*r.borrow(), MiniRational::from((-3, 5)));
         assert_eq!(*r.clone().borrow(), r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), StackRational::from((-5, 3)));
+        assert_eq!(*r.borrow(), MiniRational::from((-5, 3)));
         assert_eq!(*r.clone().borrow(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
     }

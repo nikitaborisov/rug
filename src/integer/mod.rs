@@ -20,17 +20,17 @@ Arbitrary-precision integers.
 This module provides support for arbitrary-precision integers of type
 [`Integer`]. Instances of [`Integer`] always have a heap allocation for the bit
 data; if you want a temporary small integer without heap allocation, you can use
-the [`StackInteger`] type.
+the [`MiniInteger`] type.
 
 # Examples
 
 ```rust
-use rug::integer::StackInteger;
+use rug::integer::MiniInteger;
 use rug::Assign;
 use rug::Integer;
 let mut int = Integer::from(10);
 assert_eq!(int, 10);
-let small = StackInteger::from(-15);
+let small = MiniInteger::from(-15);
 // `small` can be borrowed like an `Integer` in the following line:
 int.assign(small.borrow().abs_ref());
 assert_eq!(int, 15);
@@ -49,10 +49,10 @@ mod division;
 mod impl_num_traits;
 #[cfg(all(target_pointer_width = "64", not(windows)))]
 mod long64;
+pub(crate) mod mini;
 #[cfg(feature = "serde")]
 mod serde;
 pub(crate) mod small;
-pub(crate) mod stack;
 #[cfg(test)]
 mod tests;
 mod traits;
@@ -61,9 +61,9 @@ pub use crate::integer::big::{IsPrime, ParseIntegerError, UnsignedPrimitive};
 pub use crate::integer::borrow::BorrowInteger;
 #[cfg(all(target_pointer_width = "64", not(windows)))]
 pub use crate::integer::long64::IntegerExt64;
+pub use crate::integer::mini::{MiniInteger, ToMini};
 #[allow(deprecated)]
 pub use crate::integer::small::{SmallInteger, ToSmall};
-pub use crate::integer::stack::{StackInteger, ToStack};
 
 use core::ffi::c_int;
 

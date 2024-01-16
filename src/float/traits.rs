@@ -19,7 +19,7 @@ use crate::float::big;
 use crate::float::big::{ExpFormat, Format};
 #[allow(deprecated)]
 use crate::float::SmallFloat;
-use crate::float::{Constant, OrdFloat, Round, Special, StackFloat};
+use crate::float::{Constant, MiniFloat, OrdFloat, Round, Special};
 use crate::ops::AssignRound;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -222,20 +222,20 @@ impl AssignRound<&Float> for Float {
     }
 }
 
-impl AssignRound<StackFloat> for Float {
+impl AssignRound<MiniFloat> for Float {
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn assign_round(&mut self, src: StackFloat, round: Round) -> Ordering {
+    fn assign_round(&mut self, src: MiniFloat, round: Round) -> Ordering {
         self.assign_round(&*src.borrow(), round)
     }
 }
 
-impl AssignRound<&StackFloat> for Float {
+impl AssignRound<&MiniFloat> for Float {
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn assign_round(&mut self, src: &StackFloat, round: Round) -> Ordering {
+    fn assign_round(&mut self, src: &MiniFloat, round: Round) -> Ordering {
         self.assign_round(&*src.borrow(), round)
     }
 }

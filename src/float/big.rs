@@ -22,7 +22,7 @@ use crate::float;
 use crate::float::arith::{
     AddMulIncomplete, MulAddMulIncomplete, MulSubMulIncomplete, SubMulFromIncomplete,
 };
-use crate::float::{BorrowFloat, OrdFloat, Round, Special, StackFloat};
+use crate::float::{BorrowFloat, MiniFloat, OrdFloat, Round, Special};
 #[cfg(feature = "integer")]
 use crate::integer::BorrowInteger;
 use crate::misc;
@@ -1074,7 +1074,7 @@ impl Float {
     /// ```
     #[inline]
     pub fn to_f32_exp_round(&self, round: Round) -> (f32, i32) {
-        let mut sf = StackFloat::from(0.0f32);
+        let mut sf = MiniFloat::from(0.0f32);
         assert_eq!(sf.borrow().prec(), 24);
         // Safety: xmpfr::set will not change precision of sf, so we
         // can use the unsafe as_nonreallocating_float function.

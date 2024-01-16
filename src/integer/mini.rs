@@ -40,8 +40,8 @@ This can be useful when you have a primitive integer type such as [`u64`] or
 
 If there are functions that take a [`u32`] or [`i32`] directly instead of an
 [`Integer`] reference, using them can still be faster than using a
-`StackInteger`; the functions would still need to check for the size of an
-[`Integer`] obtained using `StackInteger`.
+`MiniInteger`; the functions would still need to check for the size of an
+[`Integer`] obtained using `MiniInteger`.
 
 The [`borrow`][Self::borrow] method returns an object that can be coerced to an
 [`Integer`], as it implements
@@ -50,21 +50,21 @@ The [`borrow`][Self::borrow] method returns an object that can be coerced to an
 # Examples
 
 ```rust
-use rug::integer::StackInteger;
+use rug::integer::MiniInteger;
 use rug::Integer;
 // `a` requires a heap allocation
 let mut a = Integer::from(250);
 // `b` can reside on the stack
-let b = StackInteger::from(-100);
+let b = MiniInteger::from(-100);
 a.lcm_mut(&b.borrow());
 assert_eq!(a, 500);
 // another computation:
-a.lcm_mut(&StackInteger::from(30).borrow());
+a.lcm_mut(&MiniInteger::from(30).borrow());
 assert_eq!(a, 1500);
 ```
 */
 #[derive(Clone, Copy)]
-pub struct StackInteger {
+pub struct MiniInteger {
     inner: mpz_t,
     limbs: Limbs,
 }
@@ -72,66 +72,66 @@ pub struct StackInteger {
 static_assert!(mem::size_of::<Limbs>() == 16);
 
 // SAFETY: mpz_t is thread safe as guaranteed by the GMP library.
-unsafe impl Send for StackInteger {}
-unsafe impl Sync for StackInteger {}
+unsafe impl Send for MiniInteger {}
+unsafe impl Sync for MiniInteger {}
 
-impl Default for StackInteger {
+impl Default for MiniInteger {
     #[inline]
     fn default() -> Self {
-        StackInteger::new()
+        MiniInteger::new()
     }
 }
 
-impl Display for StackInteger {
+impl Display for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Display::fmt(&*self.borrow(), f)
     }
 }
 
-impl Debug for StackInteger {
+impl Debug for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&*self.borrow(), f)
     }
 }
 
-impl Binary for StackInteger {
+impl Binary for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Binary::fmt(&*self.borrow(), f)
     }
 }
 
-impl Octal for StackInteger {
+impl Octal for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Octal::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerHex for StackInteger {
+impl LowerHex for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperHex for StackInteger {
+impl UpperHex for MiniInteger {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl StackInteger {
-    /// Creates a [`StackInteger`] with value 0.
+impl MiniInteger {
+    /// Creates a [`MiniInteger`] with value 0.
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use rug::integer::StackInteger;
-    /// let i = StackInteger::new();
+    /// use rug::integer::MiniInteger;
+    /// let i = MiniInteger::new();
     /// // Borrow i as if it were Integer.
     /// assert_eq!(*i.borrow(), 0);
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        StackInteger {
+        MiniInteger {
             inner: mpz_t {
                 alloc: LIMBS_IN_SMALL as c_int,
                 size: 0,
@@ -157,9 +157,9 @@ impl StackInteger {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::integer::StackInteger;
+    /// use rug::integer::MiniInteger;
     /// use rug::Assign;
-    /// let mut i = StackInteger::from(1u64);
+    /// let mut i = MiniInteger::from(1u64);
     /// let capacity = i.borrow().capacity();
     /// // another u64 will not require a reallocation
     /// unsafe {
@@ -188,9 +188,9 @@ impl StackInteger {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::integer::StackInteger;
+    /// use rug::integer::MiniInteger;
     /// use rug::Integer;
-    /// let i = StackInteger::from(-13i32);
+    /// let i = MiniInteger::from(-13i32);
     /// let b = i.borrow();
     /// let abs_ref = b.abs_ref();
     /// assert_eq!(Integer::from(abs_ref), 13);
@@ -210,18 +210,18 @@ impl StackInteger {
     }
 }
 
-/// Types implementing this trait can be converted to [`StackInteger`].
+/// Types implementing this trait can be converted to [`MiniInteger`].
 ///
-/// The following are implemented when `T` implements `ToStack`:
-///   * <code>[Assign][`Assign`]\<T> for [StackInteger][`StackInteger`]</code>
-///   * <code>[From][`From`]\<T> for [StackInteger][`StackInteger`]</code>
+/// The following are implemented when `T` implements `ToMini`:
+///   * <code>[Assign][`Assign`]\<T> for [MiniInteger][`MiniInteger`]</code>
+///   * <code>[From][`From`]\<T> for [MiniInteger][`MiniInteger`]</code>
 ///
 /// This trait is sealed and cannot be implemented for more types; it is
 /// implemented for [`bool`] and the unsigned integer types [`u8`], [`u16`],
 /// [`u32`], [`u64`], [`u128`] and [`usize`].
-pub trait ToStack: SealedToStack {}
+pub trait ToMini: SealedToMini {}
 
-pub trait SealedToStack: Sized {
+pub trait SealedToMini: Sized {
     fn copy(self, size: &mut c_int, limbs: &mut Limbs);
     fn is_zero(&self) -> bool;
 }
@@ -237,8 +237,8 @@ macro_rules! is_zero {
 
 macro_rules! signed {
     ($($I:ty)*) => { $(
-        impl ToStack for $I {}
-        impl SealedToStack for $I {
+        impl ToMini for $I {}
+        impl SealedToMini for $I {
             #[inline]
             fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
                 let (neg, abs) = self.neg_abs();
@@ -255,8 +255,8 @@ macro_rules! signed {
 
 macro_rules! one_limb {
     ($($U:ty)*) => { $(
-        impl ToStack for $U {}
-        impl SealedToStack for $U {
+        impl ToMini for $U {}
+        impl SealedToMini for $U {
             #[inline]
             fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
                 if self == 0 {
@@ -274,9 +274,9 @@ macro_rules! one_limb {
 
 signed! { i8 i16 i32 i64 i128 isize }
 
-impl ToStack for bool {}
+impl ToMini for bool {}
 
-impl SealedToStack for bool {
+impl SealedToMini for bool {
     #[inline]
     fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
         if self {
@@ -299,9 +299,9 @@ one_limb! { u8 u16 u32 }
 one_limb! { u64 }
 
 #[cfg(gmp_limb_bits_32)]
-impl ToStack for u64 {}
+impl ToMini for u64 {}
 #[cfg(gmp_limb_bits_32)]
-impl SealedToStack for u64 {
+impl SealedToMini for u64 {
     #[inline]
     fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
         if self == 0 {
@@ -319,9 +319,9 @@ impl SealedToStack for u64 {
     is_zero! {}
 }
 
-impl ToStack for u128 {}
+impl ToMini for u128 {}
 
-impl SealedToStack for u128 {
+impl SealedToMini for u128 {
     #[cfg(gmp_limb_bits_64)]
     #[inline]
     fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
@@ -366,8 +366,8 @@ impl SealedToStack for u128 {
     is_zero! {}
 }
 
-impl ToStack for usize {}
-impl SealedToStack for usize {
+impl ToMini for usize {}
+impl SealedToMini for usize {
     #[cfg(target_pointer_width = "32")]
     #[inline]
     fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
@@ -383,20 +383,20 @@ impl SealedToStack for usize {
     is_zero! {}
 }
 
-impl<T: ToStack> Assign<T> for StackInteger {
+impl<T: ToMini> Assign<T> for MiniInteger {
     #[inline]
     fn assign(&mut self, src: T) {
         src.copy(&mut self.inner.size, &mut self.limbs);
     }
 }
 
-impl<T: ToStack> From<T> for StackInteger {
+impl<T: ToMini> From<T> for MiniInteger {
     #[inline]
     fn from(src: T) -> Self {
         let mut size = 0;
         let mut limbs = small_limbs![0];
         src.copy(&mut size, &mut limbs);
-        StackInteger {
+        MiniInteger {
             inner: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size,
@@ -407,14 +407,14 @@ impl<T: ToStack> From<T> for StackInteger {
     }
 }
 
-impl Assign<&Self> for StackInteger {
+impl Assign<&Self> for MiniInteger {
     #[inline]
     fn assign(&mut self, other: &Self) {
         self.clone_from(other);
     }
 }
 
-impl Assign for StackInteger {
+impl Assign for MiniInteger {
     #[inline]
     fn assign(&mut self, other: Self) {
         *self = other;
@@ -423,14 +423,14 @@ impl Assign for StackInteger {
 
 #[cfg(test)]
 mod tests {
-    use crate::integer::StackInteger;
+    use crate::integer::MiniInteger;
     use crate::Assign;
 
     #[test]
     fn check_assign() {
-        let mut i = StackInteger::from(-1i32);
+        let mut i = MiniInteger::from(-1i32);
         assert_eq!(*i.borrow(), -1);
-        let other = StackInteger::from(2i32);
+        let other = MiniInteger::from(2i32);
         i.assign(&other);
         assert_eq!(*i.borrow(), 2);
         i.assign(6u8);

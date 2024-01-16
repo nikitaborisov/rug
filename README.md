@@ -30,21 +30,21 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.23.0 news (unreleased)
 
-  * [`StackInteger`][sti-1-23], [`StackRational`][str-1-23],
-    [`StackFloat`][stf-1-23] and [`StackComplex`][stc-1-23] were added to
-    replace [`SmallInteger`][smi-1-23], [`SmallRational`][smr-1-23],
+  * [`MiniInteger`][mi-1-23], [`MiniRational`][mr-1-23], [`MiniFloat`][mf-1-23]
+    and [`MiniComplex`][mc-1-23] were added to replace
+    [`SmallInteger`][smi-1-23], [`SmallRational`][smr-1-23],
     [`SmallFloat`][smf-1-23] and [`SmallComplex`][smc-1-23], which are now
     deprecated ([issue 52]).
 
 [issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
+[mc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
+[mf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
+[mi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
+[mr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
 [smc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
 [smf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
 [smi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
 [smr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
-[stc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.StackComplex.html
-[stf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.StackFloat.html
-[sti-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.StackInteger.html
-[str-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.StackRational.html
 
 ### Version 1.22.0 news (2023-09-11)
 

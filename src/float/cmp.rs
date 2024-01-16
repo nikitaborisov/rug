@@ -18,7 +18,7 @@ use crate::ext::xmpfr;
 use crate::float::big::{IExpIncomplete, UExpIncomplete};
 #[allow(deprecated)]
 use crate::float::SmallFloat;
-use crate::float::{Special, StackFloat};
+use crate::float::{MiniFloat, Special};
 use crate::Float;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -65,28 +65,28 @@ impl PartialOrd for Float {
     }
 }
 
-impl PartialOrd<StackFloat> for Float {
+impl PartialOrd<MiniFloat> for Float {
     #[inline]
-    fn partial_cmp(&self, other: &StackFloat) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &MiniFloat) -> Option<Ordering> {
         self.partial_cmp(&*other.borrow())
     }
 }
 
-impl PartialOrd<Float> for StackFloat {
+impl PartialOrd<Float> for MiniFloat {
     #[inline]
     fn partial_cmp(&self, other: &Float) -> Option<Ordering> {
         (*self.borrow()).partial_cmp(other)
     }
 }
 
-impl PartialEq<StackFloat> for Float {
+impl PartialEq<MiniFloat> for Float {
     #[inline]
-    fn eq(&self, other: &StackFloat) -> bool {
+    fn eq(&self, other: &MiniFloat) -> bool {
         self.eq(&*other.borrow())
     }
 }
 
-impl PartialEq<Float> for StackFloat {
+impl PartialEq<Float> for MiniFloat {
     #[inline]
     fn eq(&self, other: &Float) -> bool {
         (*self.borrow()).eq(other)

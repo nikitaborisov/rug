@@ -17,7 +17,7 @@
 use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::ToStack;
+use crate::float::ToMini;
 use crate::{Assign, Complex};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -41,7 +41,7 @@ A small complex number that does not require any memory allocation.
 This can be useful when you have real and imaginary numbers that are primitive
 integers or floats and you need a reference to a [`Complex`].
 
-The `StackComplex` will have a precision according to the types of the
+The `MiniComplex` will have a precision according to the types of the
 primitives used to set its real and imaginary parts. Note that if different
 types are used to set the parts, the parts can have different precisions.
 
@@ -64,19 +64,19 @@ The [`borrow`][Self::borrow] method returns an object that can be coerced to a
 # Examples
 
 ```rust
-use rug::complex::StackComplex;
+use rug::complex::MiniComplex;
 use rug::Complex;
 // `a` requires a heap allocation
 let mut a = Complex::with_val(53, (1, 2));
 // `b` can reside on the stack
-let b = StackComplex::from((-10f64, -20.5f64));
+let b = MiniComplex::from((-10f64, -20.5f64));
 a += &*b.borrow();
 assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
 */
 #[derive(Clone, Copy)]
-pub struct StackComplex {
+pub struct MiniComplex {
     inner: mpc_t,
     // real part is first in limbs if inner.re.d <= inner.im.d
     first_limbs: Limbs,
@@ -86,79 +86,79 @@ pub struct StackComplex {
 static_assert!(mem::size_of::<Limbs>() == 16);
 
 // SAFETY: mpc_t is thread safe as guaranteed by the MPC library.
-unsafe impl Send for StackComplex {}
-unsafe impl Sync for StackComplex {}
+unsafe impl Send for MiniComplex {}
+unsafe impl Sync for MiniComplex {}
 
-impl Default for StackComplex {
+impl Default for MiniComplex {
     #[inline]
     fn default() -> Self {
-        StackComplex::new()
+        MiniComplex::new()
     }
 }
 
-impl Display for StackComplex {
+impl Display for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Display::fmt(&*self.borrow(), f)
     }
 }
 
-impl Debug for StackComplex {
+impl Debug for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerExp for StackComplex {
+impl LowerExp for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerExp::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperExp for StackComplex {
+impl UpperExp for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperExp::fmt(&*self.borrow(), f)
     }
 }
 
-impl Binary for StackComplex {
+impl Binary for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Binary::fmt(&*self.borrow(), f)
     }
 }
 
-impl Octal for StackComplex {
+impl Octal for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Octal::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerHex for StackComplex {
+impl LowerHex for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperHex for StackComplex {
+impl UpperHex for MiniComplex {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl StackComplex {
-    /// Creates a [`StackComplex`] with value 0 and the [minimum possible
+impl MiniComplex {
+    /// Creates a [`MiniComplex`] with value 0 and the [minimum possible
     /// precision][crate::float::prec_min].
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use rug::complex::StackComplex;
-    /// let c = StackComplex::new();
+    /// use rug::complex::MiniComplex;
+    /// let c = MiniComplex::new();
     /// // Borrow c as if it were Complex.
     /// assert_eq!(*c.borrow(), 0);
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        StackComplex {
+        MiniComplex {
             inner: mpc_t {
                 re: mpfr_t {
                     prec: float::prec_min() as prec_t,
@@ -190,8 +190,8 @@ impl StackComplex {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::complex::StackComplex;
-    /// let mut c = StackComplex::from((1.0f32, 3.0f32));
+    /// use rug::complex::MiniComplex;
+    /// let mut c = MiniComplex::from((1.0f32, 3.0f32));
     /// // rotation does not change the precision
     /// unsafe {
     ///     c.as_nonreallocating_complex().mul_i_mut(false);
@@ -227,9 +227,9 @@ impl StackComplex {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::complex::StackComplex;
+    /// use rug::complex::MiniComplex;
     /// use rug::Complex;
-    /// let c = StackComplex::from((-13f64, 5.5f64));
+    /// let c = MiniComplex::from((-13f64, 5.5f64));
     /// let b = c.borrow();
     /// let conj = Complex::with_val(53, b.conj_ref());
     /// assert_eq!(*conj.real(), -13);
@@ -271,7 +271,7 @@ impl StackComplex {
     }
 }
 
-impl<Re: ToStack> Assign<Re> for StackComplex {
+impl<Re: ToMini> Assign<Re> for MiniComplex {
     fn assign(&mut self, src: Re) {
         unsafe {
             src.copy(&mut self.inner.re, &mut self.first_limbs);
@@ -284,7 +284,7 @@ impl<Re: ToStack> Assign<Re> for StackComplex {
     }
 }
 
-impl<Re: ToStack> From<Re> for StackComplex {
+impl<Re: ToMini> From<Re> for MiniComplex {
     fn from(src: Re) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {
@@ -312,13 +312,13 @@ impl<Re: ToStack> From<Re> for StackComplex {
         }
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            StackComplex {
+            MiniComplex {
                 inner,
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
-            StackComplex {
+            MiniComplex {
                 inner,
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
@@ -327,18 +327,16 @@ impl<Re: ToStack> From<Re> for StackComplex {
     }
 }
 
-impl<Re: ToStack, Im: ToStack> Assign<(Re, Im)> for StackComplex {
+impl<Re: ToMini, Im: ToMini> Assign<(Re, Im)> for MiniComplex {
     fn assign(&mut self, src: (Re, Im)) {
         unsafe {
-            src.0
-                .copy(&mut self.inner.re, &mut self.first_limbs);
-            src.1
-                .copy(&mut self.inner.im, &mut self.last_limbs);
+            src.0.copy(&mut self.inner.re, &mut self.first_limbs);
+            src.1.copy(&mut self.inner.im, &mut self.last_limbs);
         }
     }
 }
 
-impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for StackComplex {
+impl<Re: ToMini, Im: ToMini> From<(Re, Im)> for MiniComplex {
     fn from(src: (Re, Im)) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {
@@ -362,13 +360,13 @@ impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for StackComplex {
         }
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            StackComplex {
+            MiniComplex {
                 inner,
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
-            StackComplex {
+            MiniComplex {
                 inner,
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
@@ -377,14 +375,14 @@ impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for StackComplex {
     }
 }
 
-impl Assign<&Self> for StackComplex {
+impl Assign<&Self> for MiniComplex {
     #[inline]
     fn assign(&mut self, other: &Self) {
         self.clone_from(other);
     }
 }
 
-impl Assign for StackComplex {
+impl Assign for MiniComplex {
     #[inline]
     fn assign(&mut self, other: Self) {
         *self = other;
@@ -393,18 +391,18 @@ impl Assign for StackComplex {
 
 #[cfg(test)]
 mod tests {
-    use crate::complex::StackComplex;
+    use crate::complex::MiniComplex;
     use crate::float;
     use crate::float::FreeCache;
     use crate::Assign;
 
     #[test]
     fn check_assign() {
-        let mut c = StackComplex::from((1.0, 2.0));
+        let mut c = MiniComplex::from((1.0, 2.0));
         assert_eq!(*c.borrow(), (1.0, 2.0));
         c.assign(3.0);
         assert_eq!(*c.borrow(), (3.0, 0.0));
-        let other = StackComplex::from((4.0, 5.0));
+        let other = MiniComplex::from((4.0, 5.0));
         c.assign(&other);
         assert_eq!(*c.borrow(), (4.0, 5.0));
         c.assign((6.0, 7.0));
@@ -415,7 +413,7 @@ mod tests {
         float::free_cache(FreeCache::All);
     }
 
-    fn swapped_parts(small: &StackComplex) -> bool {
+    fn swapped_parts(small: &MiniComplex) -> bool {
         unsafe {
             let borrow = small.borrow();
             let re = (*borrow.real().as_raw()).d;
@@ -426,7 +424,7 @@ mod tests {
 
     #[test]
     fn check_swapped_parts() {
-        let mut c = StackComplex::from((1, 2));
+        let mut c = MiniComplex::from((1, 2));
         assert_eq!(*c.borrow(), (1, 2));
         assert_eq!(*c.clone().borrow(), c);
         let mut orig_swapped_parts = swapped_parts(&c);

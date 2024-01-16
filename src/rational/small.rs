@@ -63,7 +63,7 @@ assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 */
-#[deprecated(since = "1.23.0", note = "use `StackRational` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniRational` instead")]
 pub struct SmallRational {
     inner: UnsafeCell<mpq_t>,
     // numerator is first in limbs if inner.num.d <= inner.den.d

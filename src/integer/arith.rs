@@ -16,7 +16,7 @@
 
 use crate::ext::xmpz;
 use crate::ext::xmpz::OptInteger;
-use crate::integer::StackInteger;
+use crate::integer::MiniInteger;
 use crate::ops::{
     AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, MulFrom, NegAssign, NotAssign, Pow,
     PowAssign, RemFrom, SubFrom,
@@ -428,7 +428,7 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: StackInteger = op2.into();
+                let small: MiniInteger = op2.into();
                 $deleg(rop, op1, &*small.borrow());
             }
         }
@@ -441,7 +441,7 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: StackInteger = op1.into();
+                let small: MiniInteger = op1.into();
                 $deleg(rop, &*small.borrow(), op2);
             }
         }
@@ -450,7 +450,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackInteger>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<MiniInteger>,
 {
     forward! { fn add() -> xmpz::add_si, xmpz::add }
     forward! { fn sub() -> xmpz::sub_si, xmpz::sub }
@@ -469,7 +469,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::addmul_si(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::addmul(rop, op1, &small.borrow());
         }
     }
@@ -479,7 +479,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::submul_si(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::submul(rop, op1, &small.borrow());
         }
     }
@@ -489,7 +489,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::mulsub_si(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::mulsub(rop, op1, &small.borrow());
         }
     }
@@ -497,7 +497,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackInteger>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<MiniInteger>,
 {
     forward! { fn add() -> xmpz::add_ui, xmpz::add }
     forward! { fn sub() -> xmpz::sub_ui, xmpz::sub }
@@ -516,7 +516,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::addmul_ui(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::addmul(rop, op1, &small.borrow());
         }
     }
@@ -526,7 +526,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::submul_ui(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::submul(rop, op1, &small.borrow());
         }
     }
@@ -536,7 +536,7 @@ where
         if let Some(op2) = op2.checked_as() {
             xmpz::mulsub_ui(rop, op1, op2);
         } else {
-            let small: StackInteger = op2.into();
+            let small: MiniInteger = op2.into();
             xmpz::mulsub(rop, op1, &small.borrow());
         }
     }

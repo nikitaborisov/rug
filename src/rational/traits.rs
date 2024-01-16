@@ -19,7 +19,7 @@ use crate::ext::xmpz;
 use crate::rational::big;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
-use crate::rational::{ParseRationalError, StackRational, TryFromFloatError};
+use crate::rational::{MiniRational, ParseRationalError, TryFromFloatError};
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;
 use core::fmt::{
@@ -145,30 +145,30 @@ impl From<&Rational> for Rational {
     }
 }
 
-impl Assign<StackRational> for Rational {
+impl Assign<MiniRational> for Rational {
     #[inline]
-    fn assign(&mut self, src: StackRational) {
+    fn assign(&mut self, src: MiniRational) {
         self.assign(&*src.borrow());
     }
 }
 
-impl Assign<&StackRational> for Rational {
+impl Assign<&MiniRational> for Rational {
     #[inline]
-    fn assign(&mut self, src: &StackRational) {
+    fn assign(&mut self, src: &MiniRational) {
         self.assign(&*src.borrow());
     }
 }
 
-impl From<StackRational> for Rational {
+impl From<MiniRational> for Rational {
     #[inline]
-    fn from(src: StackRational) -> Self {
+    fn from(src: MiniRational) -> Self {
         Rational::from(&*src.borrow())
     }
 }
 
-impl From<&StackRational> for Rational {
+impl From<&MiniRational> for Rational {
     #[inline]
-    fn from(src: &StackRational) -> Self {
+    fn from(src: &MiniRational) -> Self {
         Rational::from(&*src.borrow())
     }
 }
@@ -332,18 +332,18 @@ unsafe impl Sync for Rational {}
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
-    use crate::rational::StackRational;
+    use crate::rational::MiniRational;
     use crate::{Assign, Rational};
 
     #[test]
     fn check_assign() {
         let mut r = Rational::from((1, 2));
-        assert_eq!(r, StackRational::from((1, 2)));
+        assert_eq!(r, MiniRational::from((1, 2)));
         let other = Rational::from((-2, 3));
         r.assign(&other);
-        assert_eq!(r, StackRational::from((-2, 3)));
+        assert_eq!(r, MiniRational::from((-2, 3)));
         r.assign(-other);
-        assert_eq!(r, StackRational::from((2, 3)));
+        assert_eq!(r, MiniRational::from((2, 3)));
         let another = Rational::from(&r);
         assert_eq!(another, r);
     }

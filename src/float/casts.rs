@@ -15,8 +15,8 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpfr;
-use crate::float::stack;
-use crate::float::{Round, StackFloat};
+use crate::float::mini;
+use crate::float::{MiniFloat, Round};
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
@@ -103,7 +103,7 @@ macro_rules! cast_int {
                 }
 
                 const ZERO: $Prim = 0;
-                let mut small = StackFloat::from(ZERO);
+                let mut small = MiniFloat::from(ZERO);
                 // Safety: assigning a value will not change the precision,
                 // so there is no reallocation.
                 unsafe {
@@ -164,7 +164,7 @@ macro_rules! cast_uint {
                 }
 
                 const ZERO: $Prim = 0;
-                let mut small = StackFloat::from(ZERO);
+                let mut small = MiniFloat::from(ZERO);
                 // Safety: assigning a value will not change the precision,
                 // so there is no reallocation.
                 unsafe {
@@ -196,11 +196,11 @@ macro_rules! cast_uint {
     };
 }
 
-cast_int! { i8, u8, 8, stack::unchecked_get_unshifted_u8 }
-cast_int! { i16, u16, 16, stack::unchecked_get_unshifted_u16 }
-cast_int! { i32, u32, 32, stack::unchecked_get_unshifted_u32 }
-cast_int! { i64, u64, 64, stack::unchecked_get_unshifted_u64 }
-cast_int! { i128, u128, 128, stack::unchecked_get_unshifted_u128 }
+cast_int! { i8, u8, 8, mini::unchecked_get_unshifted_u8 }
+cast_int! { i16, u16, 16, mini::unchecked_get_unshifted_u16 }
+cast_int! { i32, u32, 32, mini::unchecked_get_unshifted_u32 }
+cast_int! { i64, u64, 64, mini::unchecked_get_unshifted_u64 }
+cast_int! { i128, u128, 128, mini::unchecked_get_unshifted_u128 }
 
 cast_int_uint_common! { isize }
 
@@ -218,11 +218,11 @@ impl CheckedCast<isize> for &'_ Float {
     }
 }
 
-cast_uint! { u8, 8, stack::unchecked_get_unshifted_u8 }
-cast_uint! { u16, 16, stack::unchecked_get_unshifted_u16 }
-cast_uint! { u32, 32, stack::unchecked_get_unshifted_u32 }
-cast_uint! { u64, 64, stack::unchecked_get_unshifted_u64 }
-cast_uint! { u128, 128, stack::unchecked_get_unshifted_u128 }
+cast_uint! { u8, 8, mini::unchecked_get_unshifted_u8 }
+cast_uint! { u16, 16, mini::unchecked_get_unshifted_u16 }
+cast_uint! { u32, 32, mini::unchecked_get_unshifted_u32 }
+cast_uint! { u64, 64, mini::unchecked_get_unshifted_u64 }
+cast_uint! { u128, 128, mini::unchecked_get_unshifted_u128 }
 
 cast_int_uint_common! { usize }
 

@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::StackComplex;
+use crate::complex::MiniComplex;
 use crate::ext::xmpc;
 use crate::ext::xmpc::{OptComplex, Ordering2, Round2, NEAREST2};
-use crate::float::StackFloat;
+use crate::float::MiniFloat;
 use crate::ops::{
     AddAssignRound, AddFrom, AddFromRound, AssignRound, CompleteRound, DivAssignRound, DivFrom,
     DivFromRound, MulAssignRound, MulFrom, MulFromRound, NegAssign, Pow, PowAssign, PowAssignRound,
@@ -526,7 +526,7 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: StackFloat = op2.into();
+                let small: MiniFloat = op2.into();
                 let b = small.borrow();
                 $deleg(rop, op1, &*b, rnd)
             }
@@ -540,7 +540,7 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: StackFloat = op1.into();
+                let small: MiniFloat = op1.into();
                 let b = small.borrow();
                 $deleg(rop, &*b, op2, rnd)
             }
@@ -550,7 +550,7 @@ macro_rules! reverse {
 
 impl<T> PrimOps<c_long> for T
 where
-    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<StackFloat> + Into<StackComplex>,
+    T: AsLong<Long = c_long> + CheckedCast<c_long> + Into<MiniFloat> + Into<MiniComplex>,
 {
     forward! { fn add() -> xmpc::add_si, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_si, xmpc::sub_fr }
@@ -561,14 +561,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: StackFloat = op2.into();
+        let small: MiniFloat = op2.into();
         let b = small.borrow();
         xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: StackComplex = op1.into();
+        let small: MiniComplex = op1.into();
         let b = small.borrow();
         xmpc::pow(rop, &*b, op2, rnd)
     }
@@ -576,7 +576,7 @@ where
 
 impl<T> PrimOps<c_ulong> for T
 where
-    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<StackFloat> + Into<StackComplex>,
+    T: AsLong<Long = c_ulong> + CheckedCast<c_ulong> + Into<MiniFloat> + Into<MiniComplex>,
 {
     forward! { fn add() -> xmpc::add_ui, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_ui, xmpc::sub_fr }
@@ -587,14 +587,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: StackFloat = op2.into();
+        let small: MiniFloat = op2.into();
         let b = small.borrow();
         xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: StackComplex = op1.into();
+        let small: MiniComplex = op1.into();
         let b = small.borrow();
         xmpc::pow(rop, &*b, op2, rnd)
     }
@@ -602,7 +602,7 @@ where
 
 impl<T> PrimOps<f64> for T
 where
-    T: AsLong<Long = f64> + CheckedCast<f64> + Into<StackFloat> + Into<StackComplex>,
+    T: AsLong<Long = f64> + CheckedCast<f64> + Into<MiniFloat> + Into<MiniComplex>,
 {
     forward! { fn add() -> xmpc::add_d, xmpc::add_fr }
     forward! { fn sub() -> xmpc::sub_d, xmpc::sub_fr }
@@ -613,14 +613,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: StackFloat = op2.into();
+        let small: MiniFloat = op2.into();
         let b = small.borrow();
         xmpc::pow_fr(rop, op1, &b, rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: StackComplex = op1.into();
+        let small: MiniComplex = op1.into();
         let b = small.borrow();
         xmpc::pow(rop, &*b, op2, rnd)
     }

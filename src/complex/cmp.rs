@@ -14,9 +14,9 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::complex::MiniComplex;
 #[allow(deprecated)]
 use crate::complex::SmallComplex;
-use crate::complex::StackComplex;
 use crate::float::Special;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -31,14 +31,14 @@ impl PartialEq for Complex {
     }
 }
 
-impl PartialEq<StackComplex> for Complex {
+impl PartialEq<MiniComplex> for Complex {
     #[inline]
-    fn eq(&self, other: &StackComplex) -> bool {
+    fn eq(&self, other: &MiniComplex) -> bool {
         self.eq(&*other.borrow())
     }
 }
 
-impl PartialEq<Complex> for StackComplex {
+impl PartialEq<Complex> for MiniComplex {
     #[inline]
     fn eq(&self, other: &Complex) -> bool {
         (*self.borrow()).eq(other)

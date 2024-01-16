@@ -18,7 +18,7 @@ use crate::ext::xmpz;
 use crate::integer::big;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
-use crate::integer::{ParseIntegerError, StackInteger, TryFromIntegerError};
+use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
 use core::fmt::{
@@ -92,30 +92,30 @@ impl From<&Integer> for Integer {
     }
 }
 
-impl Assign<StackInteger> for Integer {
+impl Assign<MiniInteger> for Integer {
     #[inline]
-    fn assign(&mut self, src: StackInteger) {
+    fn assign(&mut self, src: MiniInteger) {
         self.assign(&*src.borrow());
     }
 }
 
-impl Assign<&StackInteger> for Integer {
+impl Assign<&MiniInteger> for Integer {
     #[inline]
-    fn assign(&mut self, src: &StackInteger) {
+    fn assign(&mut self, src: &MiniInteger) {
         self.assign(&*src.borrow());
     }
 }
 
-impl From<StackInteger> for Integer {
+impl From<MiniInteger> for Integer {
     #[inline]
-    fn from(src: StackInteger) -> Self {
+    fn from(src: MiniInteger) -> Self {
         Integer::from(&*src.borrow())
     }
 }
 
-impl From<&StackInteger> for Integer {
+impl From<&MiniInteger> for Integer {
     #[inline]
-    fn from(src: &StackInteger) -> Self {
+    fn from(src: &MiniInteger) -> Self {
         Integer::from(&*src.borrow())
     }
 }

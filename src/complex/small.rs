@@ -18,7 +18,7 @@
 
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::ToStack;
+use crate::float::ToMini;
 use crate::{Assign, Complex};
 use core::cell::UnsafeCell;
 use core::fmt::Debug;
@@ -75,7 +75,7 @@ assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
 */
-#[deprecated(since = "1.23.0", note = "use `StackComplex` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniComplex` instead")]
 pub struct SmallComplex {
     inner: UnsafeCell<mpc_t>,
     // real part is first in limbs if inner.re.d <= inner.im.d
@@ -235,7 +235,7 @@ impl Deref for SmallComplex {
     }
 }
 
-impl<Re: ToStack> Assign<Re> for SmallComplex {
+impl<Re: ToMini> Assign<Re> for SmallComplex {
     fn assign(&mut self, src: Re) {
         unsafe {
             src.copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
@@ -248,7 +248,7 @@ impl<Re: ToStack> Assign<Re> for SmallComplex {
     }
 }
 
-impl<Re: ToStack> From<Re> for SmallComplex {
+impl<Re: ToMini> From<Re> for SmallComplex {
     fn from(src: Re) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {
@@ -291,7 +291,7 @@ impl<Re: ToStack> From<Re> for SmallComplex {
     }
 }
 
-impl<Re: ToStack, Im: ToStack> Assign<(Re, Im)> for SmallComplex {
+impl<Re: ToMini, Im: ToMini> Assign<(Re, Im)> for SmallComplex {
     fn assign(&mut self, src: (Re, Im)) {
         unsafe {
             src.0
@@ -302,7 +302,7 @@ impl<Re: ToStack, Im: ToStack> Assign<(Re, Im)> for SmallComplex {
     }
 }
 
-impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for SmallComplex {
+impl<Re: ToMini, Im: ToMini> From<(Re, Im)> for SmallComplex {
     fn from(src: (Re, Im)) -> Self {
         let mut inner = mpc_t {
             re: mpfr_t {

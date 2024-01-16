@@ -41,19 +41,19 @@ type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
 A small float that does not require any memory allocation.
 
 This can be useful when you have a primitive number type but need a reference to
-a [`Float`]. The `StackFloat` will have a precision according to the type of the
+a [`Float`]. The `MiniFloat` will have a precision according to the type of the
 primitive used to set its value.
 
-  * [`i8`], [`u8`]: the `StackFloat` will have eight bits of precision.
-  * [`i16`], [`u16`]: the `StackFloat` will have 16 bits of precision.
-  * [`i32`], [`u32`]: the `StackFloat` will have 32 bits of precision.
-  * [`i64`], [`u64`]: the `StackFloat` will have 64 bits of precision.
-  * [`i128`], [`u128`]: the `StackFloat` will have 128 bits of precision.
-  * [`isize`], [`usize`]: the `StackFloat` will have 32 or 64 bits of precision,
+  * [`i8`], [`u8`]: the `MiniFloat` will have eight bits of precision.
+  * [`i16`], [`u16`]: the `MiniFloat` will have 16 bits of precision.
+  * [`i32`], [`u32`]: the `MiniFloat` will have 32 bits of precision.
+  * [`i64`], [`u64`]: the `MiniFloat` will have 64 bits of precision.
+  * [`i128`], [`u128`]: the `MiniFloat` will have 128 bits of precision.
+  * [`isize`], [`usize`]: the `MiniFloat` will have 32 or 64 bits of precision,
     depending on the platform.
-  * [`f32`]: the `StackFloat` will have 24 bits of precision.
-  * [`f64`]: the `StackFloat` will have 53 bits of precision.
-  * [`Special`]: the `StackFloat` will have the [minimum possible
+  * [`f32`]: the `MiniFloat` will have 24 bits of precision.
+  * [`f64`]: the `MiniFloat` will have 53 bits of precision.
+  * [`Special`]: the `MiniFloat` will have the [minimum possible
     precision][crate::float::prec_min].
 
 The [`borrow`][Self::borrow] method returns an object that can be coerced to a
@@ -63,12 +63,12 @@ The [`borrow`][Self::borrow] method returns an object that can be coerced to a
 # Examples
 
 ```rust
-use rug::float::StackFloat;
+use rug::float::MiniFloat;
 use rug::Float;
 // `a` requires a heap allocation, has 53-bit precision
 let mut a = Float::with_val(53, 250);
 // `b` can reside on the stack
-let b = StackFloat::from(-100f64);
+let b = MiniFloat::from(-100f64);
 a += &*b.borrow();
 assert_eq!(a, 150);
 // another computation:
@@ -77,7 +77,7 @@ assert_eq!(a, -15000);
 ```
 */
 #[derive(Clone, Copy)]
-pub struct StackFloat {
+pub struct MiniFloat {
     inner: mpfr_t,
     limbs: Limbs,
 }
@@ -85,79 +85,79 @@ pub struct StackFloat {
 static_assert!(mem::size_of::<Limbs>() == 16);
 
 // SAFETY: mpfr_t is thread safe as guaranteed by the MPFR library.
-unsafe impl Send for StackFloat {}
-unsafe impl Sync for StackFloat {}
+unsafe impl Send for MiniFloat {}
+unsafe impl Sync for MiniFloat {}
 
-impl Default for StackFloat {
+impl Default for MiniFloat {
     #[inline]
     fn default() -> Self {
-        StackFloat::new()
+        MiniFloat::new()
     }
 }
 
-impl Display for StackFloat {
+impl Display for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Display::fmt(&*self.borrow(), f)
     }
 }
 
-impl Debug for StackFloat {
+impl Debug for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerExp for StackFloat {
+impl LowerExp for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerExp::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperExp for StackFloat {
+impl UpperExp for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperExp::fmt(&*self.borrow(), f)
     }
 }
 
-impl Binary for StackFloat {
+impl Binary for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Binary::fmt(&*self.borrow(), f)
     }
 }
 
-impl Octal for StackFloat {
+impl Octal for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Octal::fmt(&*self.borrow(), f)
     }
 }
 
-impl LowerHex for StackFloat {
+impl LowerHex for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         LowerHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl UpperHex for StackFloat {
+impl UpperHex for MiniFloat {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         UpperHex::fmt(&*self.borrow(), f)
     }
 }
 
-impl StackFloat {
-    /// Creates a [`StackFloat`] with value 0 and the [minimum possible
+impl MiniFloat {
+    /// Creates a [`MiniFloat`] with value 0 and the [minimum possible
     /// precision][crate::float::prec_min].
     ///
     /// # Examples
     ///
     /// ```rust
-    /// use rug::float::StackFloat;
-    /// let f = StackFloat::new();
+    /// use rug::float::MiniFloat;
+    /// let f = MiniFloat::new();
     /// // Borrow f as if it were Float.
     /// assert_eq!(*f.borrow(), 0);
     /// ```
     #[inline]
     pub const fn new() -> Self {
-        StackFloat {
+        MiniFloat {
             inner: mpfr_t {
                 prec: float::prec_min() as prec_t,
                 sign: 1,
@@ -179,8 +179,8 @@ impl StackFloat {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::float::StackFloat;
-    /// let mut f = StackFloat::from(1.0f32);
+    /// use rug::float::MiniFloat;
+    /// let mut f = MiniFloat::from(1.0f32);
     /// // addition does not change the precision
     /// unsafe {
     ///     *f.as_nonreallocating_float() += 2.0;
@@ -207,9 +207,9 @@ impl StackFloat {
     /// # Examples
     ///
     /// ```rust
-    /// use rug::float::StackFloat;
+    /// use rug::float::MiniFloat;
     /// use rug::Float;
-    /// let f = StackFloat::from(-13i32);
+    /// let f = MiniFloat::from(-13i32);
     /// let b = f.borrow();
     /// let abs_ref = b.abs_ref();
     /// assert_eq!(Float::with_val(53, abs_ref), 13);
@@ -230,26 +230,26 @@ impl StackFloat {
     }
 }
 
-/// Types implementing this trait can be converted to [`StackFloat`].
+/// Types implementing this trait can be converted to [`MiniFloat`].
 ///
-/// The following are implemented when `T` implements `ToStack`:
-///   * <code>[Assign]\<T> for [StackFloat]</code>
-///   * <code>[From]\<T> for [StackFloat]</code>
+/// The following are implemented when `T` implements `ToMini`:
+///   * <code>[Assign]\<T> for [MiniFloat]</code>
+///   * <code>[From]\<T> for [MiniFloat]</code>
 ///
 /// This trait is sealed and cannot be implemented for more types; it is
 /// implemented for the integer types [`i8`], [`i16`], [`i32`], [`i64`],
 /// [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`] and
 /// [`usize`], and for the floating-point types [`f32`] and [`f64`].
-pub trait ToStack: SealedToStack {}
+pub trait ToMini: SealedToMini {}
 
-pub trait SealedToStack: Copy {
+pub trait SealedToMini: Copy {
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs);
 }
 
 macro_rules! unsafe_signed {
     ($($I:ty)*) => { $(
-        impl ToStack for $I {}
-        impl SealedToStack for $I {
+        impl ToMini for $I {}
+        impl SealedToMini for $I {
             #[inline]
             unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let (neg, abs) = self.neg_abs();
@@ -266,8 +266,8 @@ macro_rules! unsafe_signed {
 
 macro_rules! unsafe_unsigned_32 {
     ($U:ty, $bits:expr) => {
-        impl ToStack for $U {}
-        impl SealedToStack for $U {
+        impl ToMini for $U {}
+        impl SealedToMini for $U {
             #[inline]
             unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -295,8 +295,8 @@ unsafe_unsigned_32! { u8, 8 }
 unsafe_unsigned_32! { u16, 16 }
 unsafe_unsigned_32! { u32, 32 }
 
-impl ToStack for u64 {}
-impl SealedToStack for u64 {
+impl ToMini for u64 {}
+impl SealedToMini for u64 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -324,8 +324,8 @@ impl SealedToStack for u64 {
     }
 }
 
-impl ToStack for u128 {}
-impl SealedToStack for u128 {
+impl ToMini for u128 {}
+impl SealedToMini for u128 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -356,8 +356,8 @@ impl SealedToStack for u128 {
     }
 }
 
-impl ToStack for usize {}
-impl SealedToStack for usize {
+impl ToMini for usize {}
+impl SealedToMini for usize {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         #[cfg(target_pointer_width = "32")]
@@ -377,8 +377,8 @@ impl SealedToStack for usize {
     }
 }
 
-impl ToStack for f32 {}
-impl SealedToStack for f32 {
+impl ToMini for f32 {}
+impl SealedToMini for f32 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -397,8 +397,8 @@ impl SealedToStack for f32 {
     }
 }
 
-impl ToStack for f64 {}
-impl SealedToStack for f64 {
+impl ToMini for f64 {}
+impl SealedToMini for f64 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -416,8 +416,8 @@ impl SealedToStack for f64 {
     }
 }
 
-impl ToStack for Special {}
-impl SealedToStack for Special {
+impl ToMini for Special {}
+impl SealedToMini for Special {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
         let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
@@ -428,7 +428,7 @@ impl SealedToStack for Special {
     }
 }
 
-impl<T: ToStack> Assign<T> for StackFloat {
+impl<T: ToMini> Assign<T> for MiniFloat {
     #[inline]
     fn assign(&mut self, src: T) {
         unsafe {
@@ -437,7 +437,7 @@ impl<T: ToStack> Assign<T> for StackFloat {
     }
 }
 
-impl<T: ToStack> From<T> for StackFloat {
+impl<T: ToMini> From<T> for MiniFloat {
     #[inline]
     fn from(src: T) -> Self {
         let mut inner = mpfr_t {
@@ -450,18 +450,18 @@ impl<T: ToStack> From<T> for StackFloat {
         unsafe {
             src.copy(&mut inner, &mut limbs);
         }
-        StackFloat { inner, limbs }
+        MiniFloat { inner, limbs }
     }
 }
 
-impl Assign<&Self> for StackFloat {
+impl Assign<&Self> for MiniFloat {
     #[inline]
     fn assign(&mut self, other: &Self) {
         self.clone_from(other);
     }
 }
 
-impl Assign for StackFloat {
+impl Assign for MiniFloat {
     #[inline]
     fn assign(&mut self, other: Self) {
         *self = other;
@@ -469,21 +469,21 @@ impl Assign for StackFloat {
 }
 
 #[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u8(small: &StackFloat) -> u8 {
+pub(crate) unsafe fn unchecked_get_unshifted_u8(small: &MiniFloat) -> u8 {
     debug_assert!(small.borrow().prec() >= 8);
     debug_assert!(small.borrow().is_normal());
     (unsafe { small.limbs[0].assume_init() } >> (gmp::LIMB_BITS - 8)).wrapping_cast()
 }
 
 #[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u16(small: &StackFloat) -> u16 {
+pub(crate) unsafe fn unchecked_get_unshifted_u16(small: &MiniFloat) -> u16 {
     debug_assert!(small.borrow().prec() >= 16);
     debug_assert!(small.borrow().is_normal());
     (unsafe { small.limbs[0].assume_init() } >> (gmp::LIMB_BITS - 16)).wrapping_cast()
 }
 
 #[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u32(small: &StackFloat) -> u32 {
+pub(crate) unsafe fn unchecked_get_unshifted_u32(small: &MiniFloat) -> u32 {
     debug_assert!(small.borrow().prec() >= 32);
     debug_assert!(small.borrow().is_normal());
     #[cfg(gmp_limb_bits_32)]
@@ -497,7 +497,7 @@ pub(crate) unsafe fn unchecked_get_unshifted_u32(small: &StackFloat) -> u32 {
 }
 
 #[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u64(small: &StackFloat) -> u64 {
+pub(crate) unsafe fn unchecked_get_unshifted_u64(small: &MiniFloat) -> u64 {
     debug_assert!(small.borrow().prec() >= 64);
     debug_assert!(small.borrow().is_normal());
     #[cfg(gmp_limb_bits_32)]
@@ -512,7 +512,7 @@ pub(crate) unsafe fn unchecked_get_unshifted_u64(small: &StackFloat) -> u64 {
 }
 
 #[inline]
-pub(crate) unsafe fn unchecked_get_unshifted_u128(small: &StackFloat) -> u128 {
+pub(crate) unsafe fn unchecked_get_unshifted_u128(small: &MiniFloat) -> u128 {
     debug_assert!(small.borrow().prec() >= 128);
     debug_assert!(small.borrow().is_normal());
     #[cfg(gmp_limb_bits_32)]
@@ -533,16 +533,16 @@ pub(crate) unsafe fn unchecked_get_unshifted_u128(small: &StackFloat) -> u128 {
 #[allow(clippy::float_cmp)]
 mod tests {
     use crate::float;
-    use crate::float::{FreeCache, Special, StackFloat};
+    use crate::float::{FreeCache, MiniFloat, Special};
     use crate::Assign;
 
     #[test]
     fn check_assign() {
-        let mut f = StackFloat::from(-1.0f32);
+        let mut f = MiniFloat::from(-1.0f32);
         assert_eq!(*f.borrow(), -1.0);
         f.assign(-2.0f64);
         assert_eq!(*f.borrow(), -2.0);
-        let other = StackFloat::from(4u8);
+        let other = MiniFloat::from(4u8);
         f.assign(&other);
         assert_eq!(*f.borrow(), 4);
         f.assign(5i8);

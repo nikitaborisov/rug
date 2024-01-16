@@ -76,7 +76,7 @@ a *= &*b;
 assert_eq!(a, -15000);
 ```
 */
-#[deprecated(since = "1.23.0", note = "use `StackFloat` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniFloat` instead")]
 pub struct SmallFloat {
     inner: UnsafeCell<mpfr_t>,
     limbs: Limbs,
@@ -214,7 +214,7 @@ impl Deref for SmallFloat {
 /// implemented for the integer types [`i8`], [`i16`], [`i32`], [`i64`],
 /// [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`] and
 /// [`usize`], and for the floating-point types [`f32`] and [`f64`].
-#[deprecated(since = "1.23.0", note = "use `StackFloat` and `ToStack` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniFloat` and `ToMini` instead")]
 pub trait ToSmall: SealedToSmall {}
 
 pub trait SealedToSmall: Copy {

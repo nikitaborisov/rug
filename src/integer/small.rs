@@ -64,7 +64,7 @@ a.lcm_mut(&SmallInteger::from(30));
 assert_eq!(a, 1500);
 ```
 */
-#[deprecated(since = "1.23.0", note = "use `StackInteger` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniInteger` instead")]
 pub struct SmallInteger {
     inner: UnsafeCell<mpz_t>,
     limbs: Limbs,
@@ -207,7 +207,7 @@ impl Deref for SmallInteger {
 /// This trait is sealed and cannot be implemented for more types; it is
 /// implemented for [`bool`] and the unsigned integer types [`u8`], [`u16`],
 /// [`u32`], [`u64`], [`u128`] and [`usize`].
-#[deprecated(since = "1.23.0", note = "use `StackInteger` and `ToStack` instead")]
+#[deprecated(since = "1.23.0", note = "use `MiniInteger` and `ToMini` instead")]
 pub trait ToSmall: SealedToSmall {}
 
 pub trait SealedToSmall: Sized {

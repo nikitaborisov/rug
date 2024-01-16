@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpq;
+use crate::rational::MiniRational;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
-use crate::rational::StackRational;
 use crate::{Integer, Rational};
 use az::{UnwrappedAs, UnwrappedCast};
 use core::cmp::Ordering;
@@ -52,28 +52,28 @@ impl PartialEq<Integer> for Rational {
     }
 }
 
-impl PartialOrd<StackRational> for Rational {
+impl PartialOrd<MiniRational> for Rational {
     #[inline]
-    fn partial_cmp(&self, other: &StackRational) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &MiniRational) -> Option<Ordering> {
         self.partial_cmp(&*other.borrow())
     }
 }
 
-impl PartialOrd<Rational> for StackRational {
+impl PartialOrd<Rational> for MiniRational {
     #[inline]
     fn partial_cmp(&self, other: &Rational) -> Option<Ordering> {
         (*self.borrow()).partial_cmp(other)
     }
 }
 
-impl PartialEq<StackRational> for Rational {
+impl PartialEq<MiniRational> for Rational {
     #[inline]
-    fn eq(&self, other: &StackRational) -> bool {
+    fn eq(&self, other: &MiniRational) -> bool {
         self.eq(&*other.borrow())
     }
 }
 
-impl PartialEq<Rational> for StackRational {
+impl PartialEq<Rational> for MiniRational {
     #[inline]
     fn eq(&self, other: &Rational) -> bool {
         (*self.borrow()).eq(other)
@@ -226,7 +226,7 @@ cmp_f! { f32 f64 }
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::StackRational;
+    use crate::rational::MiniRational;
     use crate::tests::{I128, I32, I64, U128, U32, U64};
     use crate::Rational;
     use az::{Az, Cast};
@@ -286,14 +286,14 @@ mod tests {
         N: Copy,
         D: Copy + Eq,
         u8: Cast<D>,
-        StackRational: From<(N, D)>,
+        MiniRational: From<(N, D)>,
     {
         for n in num {
             for d in den {
                 if *d == 0.az() {
                     continue;
                 }
-                let op = StackRational::from((*n, *d));
+                let op = MiniRational::from((*n, *d));
                 let iop = Rational::from(&*op.borrow());
                 for b in against {
                     assert_eq!(b.eq(&op), PartialEq::<Rational>::eq(b, &iop));
