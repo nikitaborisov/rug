@@ -34,12 +34,25 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
     and [`MiniComplex`][mc-1-23] were added to replace
     [`SmallInteger`][smi-1-23], [`SmallRational`][smr-1-23],
     [`SmallFloat`][smf-1-23] and [`SmallComplex`][smc-1-23], which are now
-    deprecated ([issue 52]).
+    deprecated.
+      * The new structs do *not* implement [`Deref`] directly, as this causes
+        issues with the current Rust memory models ([issue 52]).
+      * Borrowing requires the use of the [`borrow`][mi-b-1-23] methods, which
+        return an object that implements [`Deref`].
+      * The new [`borrow_excl`][mi-be-1-23] methods were also added; they
+        require exclusive access in order to save on some housekeeping and to
+        return references directly without the need of [`Deref`].
+      * The new structs implement [`Copy`] and [`Sync`].
 
+[`Copy`]: https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html
+[`Deref`]: https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html
+[`Sync`]: https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html
 [issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
 [mc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
 [mi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
+[mi-b-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
+[mi-be-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow_excl
 [mr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
 [smc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
 [smf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
