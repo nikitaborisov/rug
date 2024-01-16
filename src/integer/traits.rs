@@ -94,8 +94,8 @@ impl From<&Integer> for Integer {
 
 impl Assign<MiniInteger> for Integer {
     #[inline]
-    fn assign(&mut self, src: MiniInteger) {
-        self.assign(&*src.borrow());
+    fn assign(&mut self, mut src: MiniInteger) {
+        self.assign(src.borrow_excl());
     }
 }
 
@@ -108,8 +108,8 @@ impl Assign<&MiniInteger> for Integer {
 
 impl From<MiniInteger> for Integer {
     #[inline]
-    fn from(src: MiniInteger) -> Self {
-        Integer::from(&*src.borrow())
+    fn from(mut src: MiniInteger) -> Self {
+        Integer::from(src.borrow_excl())
     }
 }
 

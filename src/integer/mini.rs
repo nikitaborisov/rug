@@ -453,37 +453,37 @@ mod tests {
     #[test]
     fn check_assign() {
         let mut i = MiniInteger::from(-1i32);
-        assert_eq!(*i.borrow(), -1);
+        assert_eq!(*i.borrow_excl(), -1);
         let other = MiniInteger::from(2i32);
         i.assign(&other);
-        assert_eq!(*i.borrow(), 2);
+        assert_eq!(*i.borrow_excl(), 2);
         i.assign(6u8);
-        assert_eq!(*i.borrow(), 6);
+        assert_eq!(*i.borrow_excl(), 6);
         i.assign(-6i8);
-        assert_eq!(*i.borrow(), -6);
+        assert_eq!(*i.borrow_excl(), -6);
         i.assign(other);
-        assert_eq!(*i.borrow(), 2);
+        assert_eq!(*i.borrow_excl(), 2);
         i.assign(6u16);
-        assert_eq!(*i.borrow(), 6);
+        assert_eq!(*i.borrow_excl(), 6);
         i.assign(-6i16);
-        assert_eq!(*i.borrow(), -6);
+        assert_eq!(*i.borrow_excl(), -6);
         i.assign(6u32);
-        assert_eq!(*i.borrow(), 6);
+        assert_eq!(*i.borrow_excl(), 6);
         i.assign(-6i32);
-        assert_eq!(*i.borrow(), -6);
+        assert_eq!(*i.borrow_excl(), -6);
         i.assign(0xf_0000_0006u64);
-        assert_eq!(*i.borrow(), 0xf_0000_0006u64);
+        assert_eq!(*i.borrow_excl(), 0xf_0000_0006u64);
         i.assign(-0xf_0000_0006i64);
-        assert_eq!(*i.borrow(), -0xf_0000_0006i64);
+        assert_eq!(*i.borrow_excl(), -0xf_0000_0006i64);
         i.assign(6u128 << 64 | 7u128);
-        assert_eq!(*i.borrow(), 6u128 << 64 | 7u128);
+        assert_eq!(*i.borrow_excl(), 6u128 << 64 | 7u128);
         i.assign(-6i128 << 64 | 7i128);
-        assert_eq!(*i.borrow(), -6i128 << 64 | 7i128);
+        assert_eq!(*i.borrow_excl(), -6i128 << 64 | 7i128);
         i.assign(6usize);
-        assert_eq!(*i.borrow(), 6);
+        assert_eq!(*i.borrow_excl(), 6);
         i.assign(-6isize);
-        assert_eq!(*i.borrow(), -6);
+        assert_eq!(*i.borrow_excl(), -6);
         i.assign(0u32);
-        assert_eq!(*i.borrow(), 0);
+        assert_eq!(*i.borrow_excl(), 0);
     }
 }

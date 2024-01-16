@@ -538,9 +538,8 @@ pub fn cmp_u64(op1: &Rational, n2: u64, d2: u64) -> Ordering {
             return ord(unsafe { gmp::mpq_cmp_ui(op1.as_raw(), n2, d2) });
         }
     }
-    let small = MiniRational::from((n2, d2));
-    let b = small.borrow();
-    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), b.as_raw()) })
+    let mut small = MiniRational::from((n2, d2));
+    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), small.borrow_excl().as_raw()) })
 }
 
 #[inline]
@@ -550,9 +549,8 @@ pub fn cmp_i64(op1: &Rational, n2: i64, d2: u64) -> Ordering {
             return ord(unsafe { gmp::mpq_cmp_si(op1.as_raw(), n2, d2) });
         }
     }
-    let small = MiniRational::from((n2, d2));
-    let b = small.borrow();
-    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), b.as_raw()) })
+    let mut small = MiniRational::from((n2, d2));
+    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), small.borrow_excl().as_raw()) })
 }
 
 #[inline]
@@ -562,9 +560,8 @@ pub fn cmp_u128(op1: &Rational, n2: u128, d2: u128) -> Ordering {
             return ord(unsafe { gmp::mpq_cmp_ui(op1.as_raw(), n2, d2) });
         }
     }
-    let small = MiniRational::from((n2, d2));
-    let b = small.borrow();
-    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), b.as_raw()) })
+    let mut small = MiniRational::from((n2, d2));
+    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), small.borrow_excl().as_raw()) })
 }
 
 #[inline]
@@ -574,9 +571,8 @@ pub fn cmp_i128(op1: &Rational, n2: i128, d2: u128) -> Ordering {
             return ord(unsafe { gmp::mpq_cmp_si(op1.as_raw(), n2, d2) });
         }
     }
-    let small = MiniRational::from((n2, d2));
-    let b = small.borrow();
-    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), b.as_raw()) })
+    let mut small = MiniRational::from((n2, d2));
+    ord(unsafe { gmp::mpq_cmp(op1.as_raw(), small.borrow_excl().as_raw()) })
 }
 
 pub fn cmp_finite_d(op1: &Rational, op2: f64) -> Ordering {

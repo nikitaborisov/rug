@@ -147,8 +147,8 @@ impl From<&Rational> for Rational {
 
 impl Assign<MiniRational> for Rational {
     #[inline]
-    fn assign(&mut self, src: MiniRational) {
-        self.assign(&*src.borrow());
+    fn assign(&mut self, mut src: MiniRational) {
+        self.assign(src.borrow_excl());
     }
 }
 
@@ -161,8 +161,8 @@ impl Assign<&MiniRational> for Rational {
 
 impl From<MiniRational> for Rational {
     #[inline]
-    fn from(src: MiniRational) -> Self {
-        Rational::from(&*src.borrow())
+    fn from(mut src: MiniRational) -> Self {
+        Rational::from(src.borrow_excl())
     }
 }
 

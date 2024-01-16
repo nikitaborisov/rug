@@ -226,8 +226,8 @@ impl AssignRound<MiniFloat> for Float {
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn assign_round(&mut self, src: MiniFloat, round: Round) -> Ordering {
-        self.assign_round(&*src.borrow(), round)
+    fn assign_round(&mut self, mut src: MiniFloat, round: Round) -> Ordering {
+        self.assign_round(src.borrow_excl(), round)
     }
 }
 

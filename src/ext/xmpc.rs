@@ -473,9 +473,8 @@ macro_rules! div_reverse {
     (fn $name:ident($T:ty) -> $func:path) => {
         #[inline]
         pub fn $name<O: OptComplex>(rop: &mut Complex, op1: $T, op2: O, rnd: Round2) -> Ordering2 {
-            let op1 = MiniComplex::from(op1);
-            let b = op1.borrow();
-            div(rop, &*b, op2, rnd)
+            let mut op1 = MiniComplex::from(op1);
+            div(rop, op1.borrow_excl(), op2, rnd)
         }
     };
 }

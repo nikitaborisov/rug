@@ -111,7 +111,7 @@ macro_rules! cast_int {
                         .as_nonreallocating_float()
                         .assign(self.round_even_ref());
                 }
-                let bor = &*small.borrow();
+                let bor = small.borrow_excl();
                 // We already checked for NaN, so we can use mpfr::sgn.
                 debug_assert!(!bor.is_nan());
                 let cmp0 = xmpfr::sgn_not_nan(bor);
@@ -172,7 +172,7 @@ macro_rules! cast_uint {
                         .as_nonreallocating_float()
                         .assign(self.round_even_ref());
                 }
-                let bor = &*small.borrow();
+                let bor = small.borrow_excl();
                 // We already checked for NaN, so we can use mpfr::sgn.
                 debug_assert!(!bor.is_nan());
                 let cmp0 = xmpfr::sgn_not_nan(bor);

@@ -526,9 +526,8 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: MiniFloat = op2.into();
-                let b = small.borrow();
-                $deleg(rop, op1, &*b, rnd)
+                let mut small: MiniFloat = op2.into();
+                $deleg(rop, op1, small.borrow_excl(), rnd)
             }
         }
     };
@@ -540,9 +539,8 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: MiniFloat = op1.into();
-                let b = small.borrow();
-                $deleg(rop, &*b, op2, rnd)
+                let mut small: MiniFloat = op1.into();
+                $deleg(rop, small.borrow_excl(), op2, rnd)
             }
         }
     };
@@ -561,16 +559,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: MiniFloat = op2.into();
-        let b = small.borrow();
-        xmpc::pow_fr(rop, op1, &b, rnd)
+        let mut small: MiniFloat = op2.into();
+        xmpc::pow_fr(rop, op1, small.borrow_excl(), rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: MiniComplex = op1.into();
-        let b = small.borrow();
-        xmpc::pow(rop, &*b, op2, rnd)
+        let mut small: MiniComplex = op1.into();
+        xmpc::pow(rop, small.borrow_excl(), op2, rnd)
     }
 }
 
@@ -587,16 +583,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: MiniFloat = op2.into();
-        let b = small.borrow();
-        xmpc::pow_fr(rop, op1, &b, rnd)
+        let mut small: MiniFloat = op2.into();
+        xmpc::pow_fr(rop, op1, small.borrow_excl(), rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: MiniComplex = op1.into();
-        let b = small.borrow();
-        xmpc::pow(rop, &*b, op2, rnd)
+        let mut small: MiniComplex = op1.into();
+        xmpc::pow(rop, small.borrow_excl(), op2, rnd)
     }
 }
 
@@ -613,16 +607,14 @@ where
 
     #[inline]
     fn pow<O: OptComplex>(rop: &mut Complex, op1: O, op2: Self, rnd: Round2) -> Ordering2 {
-        let small: MiniFloat = op2.into();
-        let b = small.borrow();
-        xmpc::pow_fr(rop, op1, &b, rnd)
+        let mut small: MiniFloat = op2.into();
+        xmpc::pow_fr(rop, op1, small.borrow_excl(), rnd)
     }
 
     #[inline]
     fn pow_from<O: OptComplex>(rop: &mut Complex, op1: Self, op2: O, rnd: Round2) -> Ordering2 {
-        let small: MiniComplex = op1.into();
-        let b = small.borrow();
-        xmpc::pow(rop, &*b, op2, rnd)
+        let mut small: MiniComplex = op1.into();
+        xmpc::pow(rop, small.borrow_excl(), op2, rnd)
     }
 }
 

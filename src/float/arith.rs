@@ -512,18 +512,16 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_cast() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: MiniFloat = op2.into();
-                let b = small.borrow();
-                $deleg(rop, op1, &*b, rnd)
+                let mut small: MiniFloat = op2.into();
+                $deleg(rop, op1, small.borrow_excl(), rnd)
             }
         }
     };
     (fn $fn:ident() -> $deleg:path) => {
         #[inline]
         fn $fn<O: OptFloat>(rop: &mut Float, op1: O, op2: Self, rnd: Round) -> Ordering {
-            let small: MiniFloat = op2.into();
-            let b = small.borrow();
-            $deleg(rop, op1, &*b, rnd)
+            let mut small: MiniFloat = op2.into();
+            $deleg(rop, op1, small.borrow_excl(), rnd)
         }
     };
 }
@@ -534,18 +532,16 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_cast() {
                 $deleg_long(rop, op1, op2, rnd)
             } else {
-                let small: MiniFloat = op1.into();
-                let b = small.borrow();
-                $deleg(rop, &*b, op2, rnd)
+                let mut small: MiniFloat = op1.into();
+                $deleg(rop, small.borrow_excl(), op2, rnd)
             }
         }
     };
     (fn $fn:ident() -> $deleg:path) => {
         #[inline]
         fn $fn<O: OptFloat>(rop: &mut Float, op1: Self, op2: O, rnd: Round) -> Ordering {
-            let small: MiniFloat = op1.into();
-            let b = small.borrow();
-            $deleg(rop, &*b, op2, rnd)
+            let mut small: MiniFloat = op1.into();
+            $deleg(rop, small.borrow_excl(), op2, rnd)
         }
     };
 }

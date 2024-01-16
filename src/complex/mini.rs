@@ -424,16 +424,16 @@ mod tests {
     #[test]
     fn check_assign() {
         let mut c = MiniComplex::from((1.0, 2.0));
-        assert_eq!(*c.borrow(), (1.0, 2.0));
+        assert_eq!(*c.borrow_excl(), (1.0, 2.0));
         c.assign(3.0);
-        assert_eq!(*c.borrow(), (3.0, 0.0));
+        assert_eq!(*c.borrow_excl(), (3.0, 0.0));
         let other = MiniComplex::from((4.0, 5.0));
         c.assign(&other);
-        assert_eq!(*c.borrow(), (4.0, 5.0));
+        assert_eq!(*c.borrow_excl(), (4.0, 5.0));
         c.assign((6.0, 7.0));
-        assert_eq!(*c.borrow(), (6.0, 7.0));
+        assert_eq!(*c.borrow_excl(), (6.0, 7.0));
         c.assign(other);
-        assert_eq!(*c.borrow(), (4.0, 5.0));
+        assert_eq!(*c.borrow_excl(), (4.0, 5.0));
 
         float::free_cache(FreeCache::All);
     }
@@ -450,36 +450,36 @@ mod tests {
     #[test]
     fn check_swapped_parts() {
         let mut c = MiniComplex::from((1, 2));
-        assert_eq!(*c.borrow(), (1, 2));
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), (1, 2));
+        assert_eq!(*c.clone().borrow_excl(), c);
         let mut orig_swapped_parts = swapped_parts(&c);
         unsafe {
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
-        assert_eq!(*c.borrow(), (-2, 1));
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), (-2, 1));
+        assert_eq!(*c.clone().borrow_excl(), c);
         assert!(swapped_parts(&c) != orig_swapped_parts);
 
         c.assign(12);
-        assert_eq!(*c.borrow(), 12);
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), 12);
+        assert_eq!(*c.clone().borrow_excl(), c);
         orig_swapped_parts = swapped_parts(&c);
         unsafe {
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
-        assert_eq!(*c.borrow(), (0, 12));
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), (0, 12));
+        assert_eq!(*c.clone().borrow_excl(), c);
         assert!(swapped_parts(&c) != orig_swapped_parts);
 
         c.assign((4, 5));
-        assert_eq!(*c.borrow(), (4, 5));
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), (4, 5));
+        assert_eq!(*c.clone().borrow_excl(), c);
         orig_swapped_parts = swapped_parts(&c);
         unsafe {
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
-        assert_eq!(*c.borrow(), (-5, 4));
-        assert_eq!(*c.clone().borrow(), c);
+        assert_eq!(*c.borrow_excl(), (-5, 4));
+        assert_eq!(*c.clone().borrow_excl(), c);
         assert!(swapped_parts(&c) != orig_swapped_parts);
     }
 }

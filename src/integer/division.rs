@@ -723,8 +723,8 @@ macro_rules! forward {
             if let Some(op2) = op2.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: MiniInteger = op2.into();
-                $deleg(rop, op1, &*small.borrow());
+                let mut small: MiniInteger = op2.into();
+                $deleg(rop, op1, small.borrow_excl());
             }
         }
     };
@@ -736,8 +736,8 @@ macro_rules! reverse {
             if let Some(op1) = op1.checked_as() {
                 $deleg_long(rop, op1, op2);
             } else {
-                let small: MiniInteger = op1.into();
-                $deleg(rop, &*small.borrow(), op2);
+                let mut small: MiniInteger = op1.into();
+                $deleg(rop, small.borrow_excl(), op2);
             }
         }
     };

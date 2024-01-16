@@ -1075,13 +1075,13 @@ impl Float {
     #[inline]
     pub fn to_f32_exp_round(&self, round: Round) -> (f32, i32) {
         let mut sf = MiniFloat::from(0.0f32);
-        assert_eq!(sf.borrow().prec(), 24);
+        assert_eq!(sf.borrow_excl().prec(), 24);
         // Safety: xmpfr::set will not change precision of sf, so we
         // can use the unsafe as_nonreallocating_float function.
         unsafe {
             xmpfr::set(sf.as_nonreallocating_float(), self, round);
         }
-        let (f, exp) = xmpfr::get_f64_2exp(&sf.borrow(), Round::Zero);
+        let (f, exp) = xmpfr::get_f64_2exp(sf.borrow_excl(), Round::Zero);
         (f as f32, exp.unwrapped_cast())
     }
 

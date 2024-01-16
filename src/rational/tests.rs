@@ -257,7 +257,7 @@ fn check_formatting() {
     assert_eq!(format!("{r:08X}"), "-0000B/F");
     assert_eq!(format!("{r:#08x}"), "-0x00b/f");
     assert_eq!(format!("{r:#8X}"), "  -0xB/F");
-    let i = r * &*MiniRational::from(15).borrow();
+    let i = r * MiniRational::from(15).borrow_excl();
     assert_eq!(format!("{i}"), "-11");
     assert_eq!(format!("{i:?}"), "-11");
     assert_eq!(format!("{i:b}"), "-1011");

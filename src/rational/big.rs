@@ -616,10 +616,10 @@ impl Rational {
     /// use rug::rational::MiniRational;
     /// use rug::Rational;
     /// let min = Rational::from_f32(f32::MIN).unwrap();
-    /// let minus_small = min - &*MiniRational::from((7, 2)).borrow();
+    /// let minus_small = min - MiniRational::from((7, 2)).borrow_excl();
     /// // minus_small is truncated to f32::MIN
     /// assert_eq!(minus_small.to_f32(), f32::MIN);
-    /// let times_three_two = minus_small * &*MiniRational::from((3, 2)).borrow();
+    /// let times_three_two = minus_small * MiniRational::from((3, 2)).borrow_excl();
     /// // times_three_two is too small
     /// assert_eq!(times_three_two.to_f32(), f32::NEG_INFINITY);
     /// ```
@@ -657,10 +657,10 @@ impl Rational {
     /// assert_eq!(j.to_f64(), trunc as f64 / den as f64);
     ///
     /// let max = Rational::from_f64(f64::MAX).unwrap();
-    /// let plus_small = max + &*MiniRational::from((7, 2)).borrow();
+    /// let plus_small = max + MiniRational::from((7, 2)).borrow_excl();
     /// // plus_small is truncated to f64::MAX
     /// assert_eq!(plus_small.to_f64(), f64::MAX);
-    /// let times_three_two = plus_small * &*MiniRational::from((3, 2)).borrow();
+    /// let times_three_two = plus_small * MiniRational::from((3, 2)).borrow_excl();
     /// // times_three_two is too large
     /// assert_eq!(times_three_two.to_f64(), f64::INFINITY);
     /// ```
@@ -1484,13 +1484,13 @@ impl Rational {
     /// use rug::Rational;
     /// let min = MiniRational::from((-3, 2));
     /// let max = MiniRational::from((3, 2));
-    /// let min_borrow = min.borrow();
-    /// let max_borrow = max.borrow();
+    /// let min_borrow = &*min.borrow();
+    /// let max_borrow = &*max.borrow();
     /// let too_small = Rational::from((-5, 2));
-    /// let clamped1 = too_small.clamp(&*min_borrow, &*max_borrow);
+    /// let clamped1 = too_small.clamp(min_borrow, max_borrow);
     /// assert_eq!(clamped1, MiniRational::from((-3, 2)));
     /// let in_range = Rational::from((1, 2));
-    /// let clamped2 = in_range.clamp(&*min_borrow, &*max_borrow);
+    /// let clamped2 = in_range.clamp(min_borrow, max_borrow);
     /// assert_eq!(clamped2, MiniRational::from((1, 2)));
     /// ```
     #[inline]
@@ -1516,13 +1516,13 @@ impl Rational {
     /// use rug::Rational;
     /// let min = MiniRational::from((-3, 2));
     /// let max = MiniRational::from((3, 2));
-    /// let min_borrow = min.borrow();
-    /// let max_borrow = max.borrow();
+    /// let min_borrow = &*min.borrow();
+    /// let max_borrow = &*max.borrow();
     /// let mut too_small = Rational::from((-5, 2));
-    /// too_small.clamp_mut(&*min_borrow, &*max_borrow);
+    /// too_small.clamp_mut(min_borrow, max_borrow);
     /// assert_eq!(too_small, MiniRational::from((-3, 2)));
     /// let mut in_range = Rational::from((1, 2));
-    /// in_range.clamp_mut(&*min_borrow, &*max_borrow);
+    /// in_range.clamp_mut(min_borrow, max_borrow);
     /// assert_eq!(in_range, MiniRational::from((1, 2)));
     /// ```
     pub fn clamp_mut<Min, Max>(&mut self, min: &Min, max: &Max)
@@ -1557,13 +1557,13 @@ impl Rational {
     /// use rug::{Assign, Complete, Rational};
     /// let min = MiniRational::from((-3, 2));
     /// let max = MiniRational::from((3, 2));
-    /// let min_borrow = min.borrow();
-    /// let max_borrow = max.borrow();
+    /// let min_borrow = &*min.borrow();
+    /// let max_borrow = &*max.borrow();
     /// let too_small = Rational::from((-5, 2));
-    /// let mut clamped = too_small.clamp_ref(&*min_borrow, &*max_borrow).complete();
+    /// let mut clamped = too_small.clamp_ref(min_borrow, max_borrow).complete();
     /// assert_eq!(clamped, MiniRational::from((-3, 2)));
     /// let in_range = Rational::from((1, 2));
-    /// clamped.assign(in_range.clamp_ref(&*min_borrow, &*max_borrow));
+    /// clamped.assign(in_range.clamp_ref(min_borrow, max_borrow));
     /// assert_eq!(clamped, MiniRational::from((1, 2)));
     /// ```
     ///

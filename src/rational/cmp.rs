@@ -293,8 +293,8 @@ mod tests {
                 if *d == 0.az() {
                     continue;
                 }
-                let op = MiniRational::from((*n, *d));
-                let iop = Rational::from(&*op.borrow());
+                let mut op = MiniRational::from((*n, *d));
+                let iop = Rational::from(op.borrow_excl());
                 for b in against {
                     assert_eq!(b.eq(&op), PartialEq::<Rational>::eq(b, &iop));
                     assert_eq!(op.eq(b), PartialEq::<Rational>::eq(&iop, b));

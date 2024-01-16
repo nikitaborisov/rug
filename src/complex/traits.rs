@@ -227,8 +227,8 @@ impl AssignRound<MiniComplex> for Complex {
     type Round = Round2;
     type Ordering = Ordering2;
     #[inline]
-    fn assign_round(&mut self, src: MiniComplex, round: Round2) -> Ordering2 {
-        self.assign_round(&*src.borrow(), round)
+    fn assign_round(&mut self, mut src: MiniComplex, round: Round2) -> Ordering2 {
+        self.assign_round(src.borrow_excl(), round)
     }
 }
 

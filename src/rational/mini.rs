@@ -486,16 +486,16 @@ mod tests {
     #[test]
     fn check_assign() {
         let mut r = MiniRational::from((1, 2));
-        assert_eq!(*r.borrow(), MiniRational::from((1, 2)));
+        assert_eq!(*r.borrow_excl(), MiniRational::from((1, 2)));
         r.assign(3);
-        assert_eq!(*r.borrow(), 3);
+        assert_eq!(*r.borrow_excl(), 3);
         let other = MiniRational::from((4, 5));
         r.assign(&other);
-        assert_eq!(*r.borrow(), MiniRational::from((4, 5)));
+        assert_eq!(*r.borrow_excl(), MiniRational::from((4, 5)));
         r.assign((6, 7));
-        assert_eq!(*r.borrow(), MiniRational::from((6, 7)));
+        assert_eq!(*r.borrow_excl(), MiniRational::from((6, 7)));
         r.assign(other);
-        assert_eq!(*r.borrow(), MiniRational::from((4, 5)));
+        assert_eq!(*r.borrow_excl(), MiniRational::from((4, 5)));
     }
 
     fn swapped_parts(small: &MiniRational) -> bool {
@@ -510,49 +510,49 @@ mod tests {
     #[test]
     fn check_swapped_parts() {
         let mut r = MiniRational::from((2, 3));
-        assert_eq!(*r.borrow(), MiniRational::from((2, 3)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((2, 3)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         let mut orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), MiniRational::from((3, 2)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((3, 2)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         unsafe {
             r.assign_canonical(5, 7);
         }
-        assert_eq!(*r.borrow(), MiniRational::from((5, 7)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((5, 7)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), MiniRational::from((7, 5)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((7, 5)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         r.assign(2);
-        assert_eq!(*r.borrow(), 2);
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), 2);
+        assert_eq!(*r.clone().borrow_excl(), r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), MiniRational::from((1, 2)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((1, 2)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
 
         r.assign((3, -5));
-        assert_eq!(*r.borrow(), MiniRational::from((-3, 5)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((-3, 5)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         orig_swapped_parts = swapped_parts(&r);
         unsafe {
             r.as_nonreallocating_rational().recip_mut();
         }
-        assert_eq!(*r.borrow(), MiniRational::from((-5, 3)));
-        assert_eq!(*r.clone().borrow(), r);
+        assert_eq!(*r.borrow_excl(), MiniRational::from((-5, 3)));
+        assert_eq!(*r.clone().borrow_excl(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
     }
 }
