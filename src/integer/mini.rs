@@ -208,6 +208,30 @@ impl MiniInteger {
             })
         }
     }
+
+    /// Borrows the integer exclusively.
+    ///
+    /// This is similar to the [`borrow`][Self::borrow] method, but it requires
+    /// exclusive access to the underlying [`MiniInteger`]; the returned
+    /// reference can however be shared. The exclusive access is required to
+    /// reduce the amount of housekeeping necessary, providing a more efficient
+    /// operation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::MiniInteger;
+    /// use rug::Integer;
+    /// let mut i = MiniInteger::from(-13i32);
+    /// let b = i.borrow_excl();
+    /// let abs_ref = b.abs_ref();
+    /// assert_eq!(Integer::from(abs_ref), 13);
+    /// ```
+    #[inline]
+    pub fn borrow_excl(&mut self) -> &Integer {
+        // SAFETY: since the return is a const reference, there will be no reallocation
+        unsafe { &*self.as_nonreallocating_integer() }
+    }
 }
 
 /// Types implementing this trait can be converted to [`MiniInteger`].

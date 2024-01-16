@@ -255,6 +255,31 @@ impl MiniRational {
         }
     }
 
+    /// Borrows the rational number exclusively.
+    ///
+    /// This is similar to the [`borrow`][Self::borrow] method, but it requires
+    /// exclusive access to the underlying [`MiniRational`]; the returned
+    /// reference can however be shared. The exclusive access is required to
+    /// reduce the amount of housekeeping necessary, providing a more efficient
+    /// operation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::rational::MiniRational;
+    /// use rug::Rational;
+    /// let mut r = MiniRational::from((-13i32, 5i32));
+    /// let b = r.borrow_excl();
+    /// let abs_ref = Rational::from(b.abs_ref());
+    /// assert_eq!(*abs_ref.numer(), 13);
+    /// assert_eq!(*abs_ref.denom(), 5);
+    /// ```
+    #[inline]
+    pub fn borrow_excl(&mut self) -> &Rational {
+        // SAFETY: since the return is a const reference, there will be no reallocation
+        unsafe { &*self.as_nonreallocating_rational() }
+    }
+
     /// Creates a [`MiniRational`] from a numerator and denominator, assuming
     /// they are in canonical form.
     ///

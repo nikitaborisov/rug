@@ -265,6 +265,31 @@ impl MiniComplex {
         }
     }
 
+    /// Borrows the complex number exclusively.
+    ///
+    /// This is similar to the [`borrow`][Self::borrow] method, but it requires
+    /// exclusive access to the underlying [`MiniComplex`]; the returned
+    /// reference can however be shared. The exclusive access is required to
+    /// reduce the amount of housekeeping necessary, providing a more efficient
+    /// operation.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::complex::MiniComplex;
+    /// use rug::Complex;
+    /// let mut c = MiniComplex::from((-13f64, 5.5f64));
+    /// let b = c.borrow_excl();
+    /// let conj = Complex::with_val(53, b.conj_ref());
+    /// assert_eq!(*conj.real(), -13);
+    /// assert_eq!(*conj.imag(), -5.5);
+    /// ```
+    #[inline]
+    pub fn borrow_excl(&mut self) -> &Complex {
+        // SAFETY: since the return is a const reference, there will be no reallocation
+        unsafe { &*self.as_nonreallocating_complex() }
+    }
+
     #[inline]
     fn re_is_first(&self) -> bool {
         self.inner.re.d <= self.inner.im.d
