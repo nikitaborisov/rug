@@ -18,9 +18,9 @@
 
 use crate::ext::xmpq;
 use crate::integer::ToStack;
+use crate::rational::BorrowRational;
 use crate::{Assign, Rational};
 use az::Cast;
-use core::cell::{Ref, RefCell};
 use core::ffi::c_int;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
@@ -64,9 +64,9 @@ assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 */
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct StackRational {
-    inner: RefCell<mpq_t>,
+    inner: mpq_t,
     // numerator is first in limbs if inner.num.d <= inner.den.d
     first_limbs: Limbs,
     last_limbs: Limbs,
@@ -74,9 +74,9 @@ pub struct StackRational {
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
-// Safety: StackRational cannot be Sync because it contains a RefCell.
-// But StackRational can be Send, just like RefCell.
+// SAFETY: mpq_t is thread safe as guaranteed by the GMP library.
 unsafe impl Send for StackRational {}
+unsafe impl Sync for StackRational {}
 
 impl Default for StackRational {
     #[inline]
@@ -137,7 +137,7 @@ impl StackRational {
     #[inline]
     pub const fn new() -> Self {
         StackRational {
-            inner: RefCell::new(mpq_t {
+            inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
                     size: 0,
@@ -148,7 +148,7 @@ impl StackRational {
                     size: 1,
                     d: NonNull::dangling(),
                 },
-            }),
+            },
             first_limbs: small_limbs![0],
             last_limbs: small_limbs![1],
         }
@@ -192,20 +192,19 @@ impl StackRational {
     /// [`recip_mut`]: `Rational::recip_mut`
     #[inline]
     pub unsafe fn as_nonreallocating_rational(&mut self) -> &mut Rational {
-        let num_is_first = self.num_is_first();
-        // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
-        let inner = self.inner.get_mut();
         // Update num.d and den.d to point to limbs.
         let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
         let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
-        (inner.num.d, inner.den.d) = if num_is_first {
+        let (num_d, den_d) = if self.num_is_first() {
             (first, last)
         } else {
             (last, first)
         };
-        let ptr = cast_ptr_mut!(inner, Rational);
-        // Safety: since inner.num.d and inner.den.d point to the limbs,
-        // it is in a consistent state.
+        self.inner.num.d = num_d;
+        self.inner.den.d = den_d;
+        let ptr = cast_ptr_mut!(&mut self.inner, Rational);
+        // SAFETY: since inner.num.d and inner.den.d point to the limbs, it is
+        // in a consistent state.
         unsafe { &mut *ptr }
     }
 
@@ -230,35 +229,30 @@ impl StackRational {
     /// ```
     #[inline]
     pub fn borrow(&self) -> impl Deref<Target = Rational> + '_ {
-        let num_is_first = self.num_is_first();
-        // Make sure num.d and den.d are pointing to limbs.
-        match self.inner.try_borrow_mut() {
-            Ok(mut inner) => {
-                // Update num.d and den.d to point to limbs.
-                let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
-                let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
-                (inner.num.d, inner.den.d) = if num_is_first {
-                    (first, last)
-                } else {
-                    (last, first)
-                };
-            }
-            Err(_) => {
-                // Since there is another borrow, d must have already been updated.
-                // Keep in mind that StackRational is !Sync.
-            }
+        let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
+        let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
+        let (num_d, den_d) = if self.num_is_first() {
+            (first, last)
+        } else {
+            (last, first)
+        };
+        // SAFETY: Since num_d and den_d point to the limbs, the mpq_t is in a
+        // consistent state. Also, the lifetime of the BorrowRational is the
+        // lifetime of self, which covers the limbs.
+        unsafe {
+            BorrowRational::from_raw(mpq_t {
+                num: mpz_t {
+                    alloc: self.inner.num.alloc,
+                    size: self.inner.num.size,
+                    d: num_d,
+                },
+                den: mpz_t {
+                    alloc: self.inner.den.alloc,
+                    size: self.inner.den.size,
+                    d: den_d,
+                },
+            })
         }
-        // There cannot be a mutable borrow anywhere else, so
-        // self.inner.borrow() cannot fail owing to self.inner being borrowed
-        // mutably. It can still fail if the reference count overflows, but that
-        // is an extreme case of more than isize::MAX borrows, so there is no
-        // need to document the panic.
-        Ref::map(self.inner.borrow(), |inner| {
-            let ptr = cast_ptr!(inner, Rational);
-            // Safety: since inner.num.d and inner.den.d point to limbs, it is
-            // in a consistent state.
-            unsafe { &*ptr }
-        })
     }
 
     /// Creates a [`StackRational`] from a numerator and denominator, assuming
@@ -290,7 +284,7 @@ impl StackRational {
         den.copy(&mut den_size, &mut den_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
         StackRational {
-            inner: RefCell::new(mpq_t {
+            inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
@@ -301,7 +295,7 @@ impl StackRational {
                     size: den_size,
                     d: NonNull::dangling(),
                 },
-            }),
+            },
             first_limbs: num_limbs,
             last_limbs: den_limbs,
         }
@@ -338,21 +332,13 @@ impl StackRational {
         } else {
             (&mut self.last_limbs, &mut self.first_limbs)
         };
-        num.copy(&mut self.inner.get_mut().num.size, num_limbs);
-        den.copy(&mut self.inner.get_mut().den.size, den_limbs);
+        num.copy(&mut self.inner.num.size, num_limbs);
+        den.copy(&mut self.inner.den.size, den_limbs);
     }
 
     #[inline]
-    // Safety: self is not Sync, so reading d does not cause a data race.
     fn num_is_first(&self) -> bool {
-        // Safety: the reference is only used within the match, and no mutable
-        // borrowing takes place.
-        unsafe {
-            match self.inner.try_borrow_unguarded() {
-                Ok(q) => q.num.d <= q.den.d,
-                Err(_) => unreachable!(),
-            }
-        }
+        self.inner.num.d <= self.inner.den.d
     }
 }
 
@@ -364,8 +350,8 @@ impl<Num: ToStack> Assign<Num> for StackRational {
         } else {
             (&mut self.last_limbs, &mut self.first_limbs)
         };
-        src.copy(&mut self.inner.get_mut().num.size, num_limbs);
-        self.inner.get_mut().den.size = 1;
+        src.copy(&mut self.inner.num.size, num_limbs);
+        self.inner.den.size = 1;
         den_limbs[0] = MaybeUninit::new(1);
     }
 }
@@ -377,7 +363,7 @@ impl<Num: ToStack> From<Num> for StackRational {
         src.copy(&mut num_size, &mut num_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
         StackRational {
-            inner: RefCell::new(mpq_t {
+            inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
@@ -388,7 +374,7 @@ impl<Num: ToStack> From<Num> for StackRational {
                     size: 1,
                     d: NonNull::dangling(),
                 },
-            }),
+            },
             first_limbs: num_limbs,
             last_limbs: small_limbs![1],
         }
@@ -404,10 +390,10 @@ impl<Num: ToStack, Den: ToStack> Assign<(Num, Den)> for StackRational {
             } else {
                 (&mut self.last_limbs, &mut self.first_limbs)
             };
-            src.0.copy(&mut self.inner.get_mut().num.size, num_limbs);
-            src.1.copy(&mut self.inner.get_mut().den.size, den_limbs);
+            src.0.copy(&mut self.inner.num.size, num_limbs);
+            src.1.copy(&mut self.inner.den.size, den_limbs);
         }
-        // Safety: canonicalization will never need to make a number larger.
+        // SAFETY: canonicalization will never need to make a number larger.
         xmpq::canonicalize(unsafe { self.as_nonreallocating_rational() });
     }
 }
@@ -439,13 +425,13 @@ impl<Num: ToStack, Den: ToStack> From<(Num, Den)> for StackRational {
         // order of limbs is important as inner.num.d != inner.den.d
         if num_limbs.as_ptr() <= den_limbs.as_ptr() {
             StackRational {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: num_limbs,
                 last_limbs: den_limbs,
             }
         } else {
             StackRational {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: den_limbs,
                 last_limbs: num_limbs,
             }
@@ -463,7 +449,7 @@ impl Assign<&Self> for StackRational {
 impl Assign for StackRational {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 

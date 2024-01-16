@@ -14,11 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
 use crate::float;
 use crate::float::ToStack;
 use crate::{Assign, Complex};
-use core::cell::{Ref, RefCell};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
     UpperHex,
@@ -75,9 +75,9 @@ assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
 */
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct StackComplex {
-    inner: RefCell<mpc_t>,
+    inner: mpc_t,
     // real part is first in limbs if inner.re.d <= inner.im.d
     first_limbs: Limbs,
     last_limbs: Limbs,
@@ -85,9 +85,9 @@ pub struct StackComplex {
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
-// Safety: StackComplex cannot be Sync because it contains a RefCell.
-// But StackComplex can be Send, just like RefCell.
+// SAFETY: mpc_t is thread safe as guaranteed by the MPC library.
 unsafe impl Send for StackComplex {}
+unsafe impl Sync for StackComplex {}
 
 impl Default for StackComplex {
     #[inline]
@@ -159,7 +159,7 @@ impl StackComplex {
     #[inline]
     pub const fn new() -> Self {
         StackComplex {
-            inner: RefCell::new(mpc_t {
+            inner: mpc_t {
                 re: mpfr_t {
                     prec: float::prec_min() as prec_t,
                     sign: 1,
@@ -172,7 +172,7 @@ impl StackComplex {
                     exp: xmpfr::EXP_ZERO,
                     d: NonNull::dangling(),
                 },
-            }),
+            },
             first_limbs: small_limbs![],
             last_limbs: small_limbs![],
         }
@@ -200,20 +200,19 @@ impl StackComplex {
     /// ```
     #[inline]
     pub unsafe fn as_nonreallocating_complex(&mut self) -> &mut Complex {
-        let re_is_first = self.re_is_first();
-        // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
-        let inner = self.inner.get_mut();
         // Update re.d and im.d to point to limbs.
         let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
         let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
-        (inner.re.d, inner.im.d) = if re_is_first {
+        let (re_d, im_d) = if self.re_is_first() {
             (first, last)
         } else {
             (last, first)
         };
-        let ptr = cast_ptr_mut!(inner, Complex);
-        // Safety: since inner.re.d and inner.im.d point to the limbs,
-        // it is in a consistent state.
+        self.inner.re.d = re_d;
+        self.inner.im.d = im_d;
+        let ptr = cast_ptr_mut!(&mut self.inner, Complex);
+        // SAFETY: since inner.re.d and inner.im.d point to the limbs, it is
+        // in a consistent state.
         unsafe { &mut *ptr }
     }
 
@@ -238,58 +237,48 @@ impl StackComplex {
     /// ```
     #[inline]
     pub fn borrow(&self) -> impl Deref<Target = Complex> + '_ {
-        let re_is_first = self.re_is_first();
-        // Make sure re.d and im.d are pointing to limbs.
-        match self.inner.try_borrow_mut() {
-            Ok(mut inner) => {
-                // Update re.d and im.d to point to limbs.
-                let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
-                let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
-                (inner.re.d, inner.im.d) = if re_is_first {
-                    (first, last)
-                } else {
-                    (last, first)
-                };
-            }
-            Err(_) => {
-                // Since there is another borrow, d must have already been updated.
-                // Keep in mind that StackRational is !Sync.
-            }
+        let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
+        let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
+        let (re_d, im_d) = if self.re_is_first() {
+            (first, last)
+        } else {
+            (last, first)
+        };
+        // SAFETY: Since re_d and im_d point to the limbs, the mpc_t is in a
+        // consistent state. Also, the lifetime of the BorrowComplex is the
+        // lifetime of self, which covers the limbs.
+        unsafe {
+            BorrowComplex::from_raw(mpc_t {
+                re: mpfr_t {
+                    prec: self.inner.re.prec,
+                    sign: self.inner.re.sign,
+                    exp: self.inner.re.exp,
+                    d: re_d,
+                },
+                im: mpfr_t {
+                    prec: self.inner.im.prec,
+                    sign: self.inner.im.sign,
+                    exp: self.inner.im.exp,
+                    d: im_d,
+                },
+            })
         }
-        // There cannot be a mutable borrow anywhere else, so
-        // self.inner.borrow() cannot fail owing to self.inner being borrowed
-        // mutably. It can still fail if the reference count overflows, but that
-        // is an extreme case of more than isize::MAX borrows, so there is no
-        // need to document the panic.
-        Ref::map(self.inner.borrow(), |inner| {
-            let ptr = cast_ptr!(inner, Complex);
-            // Safety: since inner.num.d and inner.den.d point to limbs, it is
-            // in a consistent state.
-            unsafe { &*ptr }
-        })
     }
 
     #[inline]
     fn re_is_first(&self) -> bool {
-        // Safety: the reference is only used within the match, and no mutable
-        // borrowing takes place.
-        unsafe {
-            match self.inner.try_borrow_unguarded() {
-                Ok(q) => q.re.d <= q.im.d,
-                Err(_) => unreachable!(),
-            }
-        }
+        self.inner.re.d <= self.inner.im.d
     }
 }
 
 impl<Re: ToStack> Assign<Re> for StackComplex {
     fn assign(&mut self, src: Re) {
         unsafe {
-            src.copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
+            src.copy(&mut self.inner.re, &mut self.first_limbs);
             xmpfr::custom_zero(
-                &mut self.inner.get_mut().im,
+                &mut self.inner.im,
                 cast_ptr_mut!(self.last_limbs.as_mut_ptr(), limb_t),
-                self.inner.get_mut().re.prec,
+                self.inner.re.prec,
             );
         }
     }
@@ -324,13 +313,13 @@ impl<Re: ToStack> From<Re> for StackComplex {
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
             StackComplex {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
             StackComplex {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
             }
@@ -342,9 +331,9 @@ impl<Re: ToStack, Im: ToStack> Assign<(Re, Im)> for StackComplex {
     fn assign(&mut self, src: (Re, Im)) {
         unsafe {
             src.0
-                .copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
+                .copy(&mut self.inner.re, &mut self.first_limbs);
             src.1
-                .copy(&mut self.inner.get_mut().im, &mut self.last_limbs);
+                .copy(&mut self.inner.im, &mut self.last_limbs);
         }
     }
 }
@@ -374,13 +363,13 @@ impl<Re: ToStack, Im: ToStack> From<(Re, Im)> for StackComplex {
         // order of limbs is important as inner.num.d != inner.den.d
         if re_limbs.as_ptr() <= im_limbs.as_ptr() {
             StackComplex {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: re_limbs,
                 last_limbs: im_limbs,
             }
         } else {
             StackComplex {
-                inner: RefCell::new(inner),
+                inner,
                 first_limbs: im_limbs,
                 last_limbs: re_limbs,
             }
@@ -398,7 +387,7 @@ impl Assign<&Self> for StackComplex {
 impl Assign for StackComplex {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 

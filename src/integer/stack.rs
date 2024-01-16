@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::integer::BorrowInteger;
 use crate::misc::NegAbs;
 use crate::{Assign, Integer};
 use az::{Az, Cast, WrappingCast};
-use core::cell::{Ref, RefCell};
 use core::ffi::c_int;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
@@ -63,17 +63,17 @@ a.lcm_mut(&StackInteger::from(30).borrow());
 assert_eq!(a, 1500);
 ```
 */
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct StackInteger {
-    inner: RefCell<mpz_t>,
+    inner: mpz_t,
     limbs: Limbs,
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
-// Safety: StackInteger cannot be Sync because it contains a RefCell.
-// But StackInteger can be Send, just like RefCell.
+// SAFETY: mpz_t is thread safe as guaranteed by the GMP library.
 unsafe impl Send for StackInteger {}
+unsafe impl Sync for StackInteger {}
 
 impl Default for StackInteger {
     #[inline]
@@ -132,11 +132,11 @@ impl StackInteger {
     #[inline]
     pub const fn new() -> Self {
         StackInteger {
-            inner: RefCell::new(mpz_t {
+            inner: mpz_t {
                 alloc: LIMBS_IN_SMALL as c_int,
                 size: 0,
                 d: NonNull::dangling(),
-            }),
+            },
             limbs: small_limbs![0],
         }
     }
@@ -170,12 +170,10 @@ impl StackInteger {
     /// ```
     #[inline]
     pub unsafe fn as_nonreallocating_integer(&mut self) -> &mut Integer {
-        // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
-        let inner = self.inner.get_mut();
         // Update d to point to limbs.
-        inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        let ptr = cast_ptr_mut!(inner, Integer);
-        // Safety: since inner.d points to the limbs, it is in a consistent state.
+        self.inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
+        let ptr = cast_ptr_mut!(&mut self.inner, Integer);
+        // SAFETY: since inner.d points to the limbs, it is in a consistent state.
         unsafe { &mut *ptr }
     }
 
@@ -199,27 +197,16 @@ impl StackInteger {
     /// ```
     #[inline]
     pub fn borrow(&self) -> impl Deref<Target = Integer> + '_ {
-        // Make sure d is pointing to limbs.
-        match self.inner.try_borrow_mut() {
-            Ok(mut inner) => {
-                // Update d to point to limbs.
-                inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-            }
-            Err(_) => {
-                // Since there is another borrow, d must have already been updated.
-                // Keep in mind that StackInteger is !Sync.
-            }
+        // SAFETY: Since d points to the limbs, the mpz_t is in a consistent
+        // state. Also, the lifetime of the BorrowInteger is the lifetime of
+        // self, which covers the limbs.
+        unsafe {
+            BorrowInteger::from_raw(mpz_t {
+                alloc: self.inner.alloc,
+                size: self.inner.size,
+                d: NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast(),
+            })
         }
-        // There cannot be a mutable borrow anywhere else, so
-        // self.inner.borrow() cannot fail owing to self.inner being borrowed
-        // mutably. It can still fail if the reference count overflows, but that
-        // is an extreme case of more than isize::MAX borrows, so there is no
-        // need to document the panic.
-        Ref::map(self.inner.borrow(), |inner| {
-            let ptr = cast_ptr!(inner, Integer);
-            // Safety: since inner.d points to limbs, it is in a consistent state.
-            unsafe { &*ptr }
-        })
     }
 }
 
@@ -399,7 +386,7 @@ impl SealedToStack for usize {
 impl<T: ToStack> Assign<T> for StackInteger {
     #[inline]
     fn assign(&mut self, src: T) {
-        src.copy(&mut self.inner.get_mut().size, &mut self.limbs);
+        src.copy(&mut self.inner.size, &mut self.limbs);
     }
 }
 
@@ -410,11 +397,11 @@ impl<T: ToStack> From<T> for StackInteger {
         let mut limbs = small_limbs![0];
         src.copy(&mut size, &mut limbs);
         StackInteger {
-            inner: RefCell::new(mpz_t {
+            inner: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size,
                 d: NonNull::dangling(),
-            }),
+            },
             limbs,
         }
     }
@@ -430,7 +417,7 @@ impl Assign<&Self> for StackInteger {
 impl Assign for StackInteger {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 

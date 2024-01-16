@@ -16,11 +16,11 @@
 
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::raw_round;
+use crate::float::BorrowFloat;
 use crate::float::{self, Round, Special};
 use crate::misc::NegAbs;
 use crate::{Assign, Float};
 use az::{Az, UnwrappedCast, WrappingCast};
-use core::cell::{Ref, RefCell};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
     UpperHex,
@@ -76,17 +76,17 @@ a *= &*b.borrow();
 assert_eq!(a, -15000);
 ```
 */
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct StackFloat {
-    inner: RefCell<mpfr_t>,
+    inner: mpfr_t,
     limbs: Limbs,
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
 
-// Safety: StackFloat cannot be Sync because it contains a RefCell.
-// But StackFloat can be Send, just like RefCell.
+// SAFETY: mpfr_t is thread safe as guaranteed by the MPFR library.
 unsafe impl Send for StackFloat {}
+unsafe impl Sync for StackFloat {}
 
 impl Default for StackFloat {
     #[inline]
@@ -158,12 +158,12 @@ impl StackFloat {
     #[inline]
     pub const fn new() -> Self {
         StackFloat {
-            inner: RefCell::new(mpfr_t {
+            inner: mpfr_t {
                 prec: float::prec_min() as prec_t,
                 sign: 1,
                 exp: xmpfr::EXP_ZERO,
                 d: NonNull::dangling(),
-            }),
+            },
             limbs: small_limbs![],
         }
     }
@@ -189,12 +189,10 @@ impl StackFloat {
     /// ```
     #[inline]
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
-        // Since we borrow self mutably, it is statically guaranteed that no borrows exist.
-        let inner = self.inner.get_mut();
         // Update d to point to limbs.
-        inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        let ptr = cast_ptr_mut!(inner, Float);
-        // Safety: since inner.d points to the limbs, it is in a consistent state.
+        self.inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
+        let ptr = cast_ptr_mut!(&mut self.inner, Float);
+        // SAFETY: since inner.d points to the limbs, it is in a consistent state.
         unsafe { &mut *ptr }
     }
 
@@ -218,27 +216,17 @@ impl StackFloat {
     /// ```
     #[inline]
     pub fn borrow(&self) -> impl Deref<Target = Float> + '_ {
-        // Make sure d is pointing to limbs.
-        match self.inner.try_borrow_mut() {
-            Ok(mut inner) => {
-                // Update d to point to limbs.
-                inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-            }
-            Err(_) => {
-                // Since there is another borrow, d must have already been updated.
-                // Keep in mind that StackInteger is !Sync.
-            }
+        // SAFETY: Since d points to the limbs, the mpfr_t is in a consistent
+        // state. Also, the lifetime of the BorrowFloat is the lifetime of self,
+        // which covers the limbs.
+        unsafe {
+            BorrowFloat::from_raw(mpfr_t {
+                prec: self.inner.prec,
+                sign: self.inner.sign,
+                exp: self.inner.exp,
+                d: NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast(),
+            })
         }
-        // There cannot be a mutable borrow anywhere else, so
-        // self.inner.borrow() cannot fail owing to self.inner being borrowed
-        // mutably. It can still fail if the reference count overflows, but that
-        // is an extreme case of more than isize::MAX borrows, so there is no
-        // need to document the panic.
-        Ref::map(self.inner.borrow(), |inner| {
-            let ptr = cast_ptr!(inner, Float);
-            // Safety: since inner.d points to limbs, it is in a consistent state.
-            unsafe { &*ptr }
-        })
     }
 }
 
@@ -444,7 +432,7 @@ impl<T: ToStack> Assign<T> for StackFloat {
     #[inline]
     fn assign(&mut self, src: T) {
         unsafe {
-            src.copy(self.inner.get_mut(), &mut self.limbs);
+            src.copy(&mut self.inner, &mut self.limbs);
         }
     }
 }
@@ -462,10 +450,7 @@ impl<T: ToStack> From<T> for StackFloat {
         unsafe {
             src.copy(&mut inner, &mut limbs);
         }
-        StackFloat {
-            inner: RefCell::new(inner),
-            limbs,
-        }
+        StackFloat { inner, limbs }
     }
 }
 
@@ -479,7 +464,7 @@ impl Assign<&Self> for StackFloat {
 impl Assign for StackFloat {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 
