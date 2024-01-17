@@ -557,7 +557,7 @@ pub(crate) unsafe fn unchecked_get_unshifted_u128(small: &MiniFloat) -> u128 {
 mod tests {
     use crate::float;
     use crate::float::{FreeCache, MiniFloat, Special};
-    use crate::Assign;
+    use crate::{Assign, Float};
 
     #[test]
     fn check_assign() {
@@ -606,5 +606,21 @@ mod tests {
         assert!(f.borrow_excl().is_nan());
 
         float::free_cache(FreeCache::All);
+    }
+
+    #[test]
+    fn check_traits() {
+        assert!(MiniFloat::default().borrow_excl().is_zero());
+
+        let mini = MiniFloat::from(-5.2f64);
+        let check = Float::with_val(53, -5.2f64);
+        assert_eq!(format!("{mini}"), format!("{check}"));
+        assert_eq!(format!("{mini:?}"), format!("{check:?}"));
+        assert_eq!(format!("{mini:e}"), format!("{check:e}"));
+        assert_eq!(format!("{mini:E}"), format!("{check:E}"));
+        assert_eq!(format!("{mini:b}"), format!("{check:b}"));
+        assert_eq!(format!("{mini:o}"), format!("{check:o}"));
+        assert_eq!(format!("{mini:x}"), format!("{check:x}"));
+        assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
 }

@@ -448,7 +448,7 @@ impl Assign for MiniInteger {
 #[cfg(test)]
 mod tests {
     use crate::integer::MiniInteger;
-    use crate::Assign;
+    use crate::{Assign, Integer};
 
     #[test]
     fn check_assign() {
@@ -485,5 +485,19 @@ mod tests {
         assert_eq!(*i.borrow_excl(), -6);
         i.assign(0u32);
         assert_eq!(*i.borrow_excl(), 0);
+    }
+
+    #[test]
+    fn check_traits() {
+        assert!(MiniInteger::default().borrow_excl().is_zero());
+
+        let mini = MiniInteger::from(-5);
+        let check = Integer::from(-5);
+        assert_eq!(format!("{mini}"), format!("{check}"));
+        assert_eq!(format!("{mini:?}"), format!("{check:?}"));
+        assert_eq!(format!("{mini:b}"), format!("{check:b}"));
+        assert_eq!(format!("{mini:o}"), format!("{check:o}"));
+        assert_eq!(format!("{mini:x}"), format!("{check:x}"));
+        assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
 }

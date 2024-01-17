@@ -419,7 +419,7 @@ mod tests {
     use crate::complex::MiniComplex;
     use crate::float;
     use crate::float::FreeCache;
-    use crate::Assign;
+    use crate::{Assign, Complex};
 
     #[test]
     fn check_assign() {
@@ -481,5 +481,21 @@ mod tests {
         assert_eq!(*c.borrow_excl(), (-5, 4));
         assert_eq!(*c.clone().borrow_excl(), c);
         assert!(swapped_parts(&c) != orig_swapped_parts);
+    }
+
+    #[test]
+    fn check_traits() {
+        assert!(MiniComplex::default().borrow_excl().is_zero());
+
+        let mini = MiniComplex::from((-5.2f64, 4u128));
+        let check = Complex::with_val((53, 128), (-5.2f64, 4u128));
+        assert_eq!(format!("{mini}"), format!("{check}"));
+        assert_eq!(format!("{mini:?}"), format!("{check:?}"));
+        assert_eq!(format!("{mini:e}"), format!("{check:e}"));
+        assert_eq!(format!("{mini:E}"), format!("{check:E}"));
+        assert_eq!(format!("{mini:b}"), format!("{check:b}"));
+        assert_eq!(format!("{mini:o}"), format!("{check:o}"));
+        assert_eq!(format!("{mini:x}"), format!("{check:x}"));
+        assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
 }

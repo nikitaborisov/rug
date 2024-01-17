@@ -481,7 +481,7 @@ impl Assign for MiniRational {
 #[cfg(test)]
 mod tests {
     use crate::rational::MiniRational;
-    use crate::Assign;
+    use crate::{Assign, Rational};
 
     #[test]
     fn check_assign() {
@@ -554,5 +554,19 @@ mod tests {
         assert_eq!(*r.borrow_excl(), MiniRational::from((-5, 3)));
         assert_eq!(*r.clone().borrow_excl(), r);
         assert!(swapped_parts(&r) != orig_swapped_parts);
+    }
+
+    #[test]
+    fn check_traits() {
+        assert!(MiniRational::default().borrow_excl().is_zero());
+
+        let mini = MiniRational::from((14, -10));
+        let check = Rational::from((14, -10));
+        assert_eq!(format!("{mini}"), format!("{check}"));
+        assert_eq!(format!("{mini:?}"), format!("{check:?}"));
+        assert_eq!(format!("{mini:b}"), format!("{check:b}"));
+        assert_eq!(format!("{mini:o}"), format!("{check:o}"));
+        assert_eq!(format!("{mini:x}"), format!("{check:x}"));
+        assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
 }
