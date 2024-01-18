@@ -28,6 +28,21 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.24.0 news (unreleased)
+
+  * The following methods were added to [`MiniInteger`][mi-1-24]:
+      * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
+        [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
+        [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
+
+[mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
+[mi-u128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u128
+[mi-u16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u16
+[mi-u32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u32
+[mi-u64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u64
+[mi-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u8
+[mi-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_usize
+
 ### Version 1.23.0 news (2024-01-18)
 
   * [`MiniInteger`][mi-1-23], [`MiniRational`][mr-1-23], [`MiniFloat`][mf-1-23]
