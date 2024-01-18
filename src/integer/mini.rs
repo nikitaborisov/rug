@@ -138,7 +138,7 @@ impl MiniInteger {
                 size: 0,
                 d: NonNull::dangling(),
             },
-            limbs: small_limbs![0],
+            limbs: small_limbs![],
         }
     }
 
@@ -420,7 +420,7 @@ impl<T: ToMini> From<T> for MiniInteger {
     #[inline]
     fn from(src: T) -> Self {
         let mut size = 0;
-        let mut limbs = small_limbs![0];
+        let mut limbs = small_limbs![];
         src.copy(&mut size, &mut limbs);
         MiniInteger {
             inner: mpz_t {
