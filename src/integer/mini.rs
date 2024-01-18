@@ -159,10 +159,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const TWO: MiniInteger = MiniInteger::const_from_i8(2i8);
-    /// const TWO_BORROW: BorrowInteger = TWO.borrow();
-    /// const TWO_REF: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
-    /// assert_eq!(*TWO_REF, 2);
+    /// const TWO_MINI: MiniInteger = MiniInteger::const_from_i8(2i8);
+    /// const TWO_BORROW: BorrowInteger = TWO_MINI.borrow();
+    /// const TWO: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
     /// ```
     #[inline]
     pub const fn const_from_i8(val: i8) -> Self {
@@ -194,10 +194,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const KIBI: MiniInteger = MiniInteger::const_from_i16(1i16 << 10);
-    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
-    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
-    /// assert_eq!(*KIBI_REF, 1i16 << 10);
+    /// const KIBI_MINI: MiniInteger = MiniInteger::const_from_i16(1i16 << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI_MINI.borrow();
+    /// const KIBI: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1i16 << 10);
     /// ```
     #[inline]
     pub const fn const_from_i16(val: i16) -> Self {
@@ -229,10 +229,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const MEBI: MiniInteger = MiniInteger::const_from_i32(1i32 << 20);
-    /// const MEBI_BORROW: BorrowInteger = MEBI.borrow();
-    /// const MEBI_REF: &Integer = BorrowInteger::const_deref(&MEBI_BORROW);
-    /// assert_eq!(*MEBI_REF, 1i32 << 20);
+    /// const MEBI_MINI: MiniInteger = MiniInteger::const_from_i32(1i32 << 20);
+    /// const MEBI_BORROW: BorrowInteger = MEBI_MINI.borrow();
+    /// const MEBI: &Integer = BorrowInteger::const_deref(&MEBI_BORROW);
+    /// assert_eq!(*MEBI, 1i32 << 20);
     /// ```
     #[inline]
     pub const fn const_from_i32(val: i32) -> Self {
@@ -264,10 +264,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const TEBI: MiniInteger = MiniInteger::const_from_i64(1i64 << 40);
-    /// const TEBI_BORROW: BorrowInteger = TEBI.borrow();
-    /// const TEBI_REF: &Integer = BorrowInteger::const_deref(&TEBI_BORROW);
-    /// assert_eq!(*TEBI_REF, 1i64 << 40);
+    /// const TEBI_MINI: MiniInteger = MiniInteger::const_from_i64(1i64 << 40);
+    /// const TEBI_BORROW: BorrowInteger = TEBI_MINI.borrow();
+    /// const TEBI: &Integer = BorrowInteger::const_deref(&TEBI_BORROW);
+    /// assert_eq!(*TEBI, 1i64 << 40);
     /// ```
     #[inline]
     pub const fn const_from_i64(val: i64) -> Self {
@@ -299,10 +299,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const YOBI: MiniInteger = MiniInteger::const_from_i128(1i128 << 80);
-    /// const YOBI_BORROW: BorrowInteger = YOBI.borrow();
-    /// const YOBI_REF: &Integer = BorrowInteger::const_deref(&YOBI_BORROW);
-    /// assert_eq!(*YOBI_REF, 1i128 << 80);
+    /// const YOBI_MINI: MiniInteger = MiniInteger::const_from_i128(1i128 << 80);
+    /// const YOBI_BORROW: BorrowInteger = YOBI_MINI.borrow();
+    /// const YOBI: &Integer = BorrowInteger::const_deref(&YOBI_BORROW);
+    /// assert_eq!(*YOBI, 1i128 << 80);
     /// ```
     #[inline]
     pub const fn const_from_i128(val: i128) -> Self {
@@ -334,10 +334,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const KIBI: MiniInteger = MiniInteger::const_from_isize(1isize << 10);
-    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
-    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
-    /// assert_eq!(*KIBI_REF, 1isize << 10);
+    /// const KIBI_MINI: MiniInteger = MiniInteger::const_from_isize(1isize << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI_MINI.borrow();
+    /// const KIBI: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1isize << 10);
     /// ```
     #[inline]
     pub const fn const_from_isize(val: isize) -> Self {
@@ -369,10 +369,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const TWO: MiniInteger = MiniInteger::const_from_u8(2u8);
-    /// const TWO_BORROW: BorrowInteger = TWO.borrow();
-    /// const TWO_REF: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
-    /// assert_eq!(*TWO_REF, 2);
+    /// const TWO_MINI: MiniInteger = MiniInteger::const_from_u8(2u8);
+    /// const TWO_BORROW: BorrowInteger = TWO_MINI.borrow();
+    /// const TWO: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
     /// ```
     #[inline]
     pub const fn const_from_u8(val: u8) -> Self {
@@ -404,10 +404,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const KIBI: MiniInteger = MiniInteger::const_from_u16(1u16 << 10);
-    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
-    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
-    /// assert_eq!(*KIBI_REF, 1u16 << 10);
+    /// const KIBI_MINI: MiniInteger = MiniInteger::const_from_u16(1u16 << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI_MINI.borrow();
+    /// const KIBI: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1u16 << 10);
     /// ```
     #[inline]
     pub const fn const_from_u16(val: u16) -> Self {
@@ -439,10 +439,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const MEBI: MiniInteger = MiniInteger::const_from_u32(1u32 << 20);
-    /// const MEBI_BORROW: BorrowInteger = MEBI.borrow();
-    /// const MEBI_REF: &Integer = BorrowInteger::const_deref(&MEBI_BORROW);
-    /// assert_eq!(*MEBI_REF, 1u32 << 20);
+    /// const MEBI_MINI: MiniInteger = MiniInteger::const_from_u32(1u32 << 20);
+    /// const MEBI_BORROW: BorrowInteger = MEBI_MINI.borrow();
+    /// const MEBI: &Integer = BorrowInteger::const_deref(&MEBI_BORROW);
+    /// assert_eq!(*MEBI, 1u32 << 20);
     /// ```
     #[inline]
     pub const fn const_from_u32(val: u32) -> Self {
@@ -474,10 +474,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const TEBI: MiniInteger = MiniInteger::const_from_u64(1u64 << 40);
-    /// const TEBI_BORROW: BorrowInteger = TEBI.borrow();
-    /// const TEBI_REF: &Integer = BorrowInteger::const_deref(&TEBI_BORROW);
-    /// assert_eq!(*TEBI_REF, 1u64 << 40);
+    /// const TEBI_MINI: MiniInteger = MiniInteger::const_from_u64(1u64 << 40);
+    /// const TEBI_BORROW: BorrowInteger = TEBI_MINI.borrow();
+    /// const TEBI: &Integer = BorrowInteger::const_deref(&TEBI_BORROW);
+    /// assert_eq!(*TEBI, 1u64 << 40);
     /// ```
     #[inline]
     pub const fn const_from_u64(val: u64) -> Self {
@@ -509,10 +509,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const YOBI: MiniInteger = MiniInteger::const_from_u128(1u128 << 80);
-    /// const YOBI_BORROW: BorrowInteger = YOBI.borrow();
-    /// const YOBI_REF: &Integer = BorrowInteger::const_deref(&YOBI_BORROW);
-    /// assert_eq!(*YOBI_REF, 1u128 << 80);
+    /// const YOBI_MINI: MiniInteger = MiniInteger::const_from_u128(1u128 << 80);
+    /// const YOBI_BORROW: BorrowInteger = YOBI_MINI.borrow();
+    /// const YOBI: &Integer = BorrowInteger::const_deref(&YOBI_BORROW);
+    /// assert_eq!(*YOBI, 1u128 << 80);
     /// ```
     #[inline]
     pub const fn const_from_u128(val: u128) -> Self {
@@ -544,10 +544,10 @@ impl MiniInteger {
     /// use rug::integer::{BorrowInteger, MiniInteger};
     /// use rug::Integer;
     ///
-    /// const KIBI: MiniInteger = MiniInteger::const_from_usize(1usize << 10);
-    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
-    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
-    /// assert_eq!(*KIBI_REF, 1usize << 10);
+    /// const KIBI_MINI: MiniInteger = MiniInteger::const_from_usize(1usize << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI_MINI.borrow();
+    /// const KIBI: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1usize << 10);
     /// ```
     #[inline]
     pub const fn const_from_usize(val: usize) -> Self {

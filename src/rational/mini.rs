@@ -175,14 +175,14 @@ impl MiniRational {
     /// use rug::Rational;
     ///
     /// const TWO_INT: MiniInteger = MiniInteger::const_from_i8(2i8);
-    /// const TWO: MiniRational = MiniRational::const_from_integer(TWO_INT);
-    /// const TWO_BORROW: BorrowRational = TWO.borrow();
-    /// const TWO_REF: &Rational = BorrowRational::const_deref(&TWO_BORROW);
-    /// assert_eq!(*TWO_REF, 2);
+    /// const TWO_MINI: MiniRational = MiniRational::const_from_integer(TWO_INT);
+    /// const TWO_BORROW: BorrowRational = TWO_MINI.borrow();
+    /// const TWO: &Rational = BorrowRational::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
     ///
-    /// const HALF_BORROW: BorrowRational = TWO_REF.as_recip();
-    /// const HALF_REF: &Rational = BorrowRational::const_deref(&HALF_BORROW);
-    /// assert_eq!(*HALF_REF, MiniRational::from((1, 2)));
+    /// const HALF_BORROW: BorrowRational = TWO.as_recip();
+    /// const HALF: &Rational = BorrowRational::const_deref(&HALF_BORROW);
+    /// assert_eq!(*HALF, MiniRational::from((1, 2)));
     /// ```
     #[inline]
     pub const fn const_from_integer(val: MiniInteger) -> Self {
