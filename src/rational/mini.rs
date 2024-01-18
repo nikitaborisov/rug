@@ -27,6 +27,7 @@ use core::fmt::{
 };
 use core::mem;
 use core::mem::MaybeUninit;
+#[allow(unused_imports)]
 use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
@@ -229,13 +230,13 @@ impl MiniRational {
     /// assert_eq!(*abs_ref.denom(), 5);
     /// ```
     #[inline]
-    pub fn borrow(&self) -> impl Deref<Target = Rational> + '_ {
-        let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
-        let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
+    pub const fn borrow(&self) -> BorrowRational {
+        let first_d: *const Limbs = &self.first_limbs;
+        let last_d: *const Limbs = &self.last_limbs;
         let (num_d, den_d) = if self.num_is_first() {
-            (first, last)
+            (first_d, last_d)
         } else {
-            (last, first)
+            (last_d, first_d)
         };
         // SAFETY: Since num_d and den_d point to the limbs, the mpq_t is in a
         // consistent state. Also, the lifetime of the BorrowRational is the
