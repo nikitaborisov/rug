@@ -423,6 +423,25 @@ impl MiniRational {
     }
 }
 
+impl Assign<MiniInteger> for MiniRational {
+    #[inline]
+    fn assign(&mut self, src: MiniInteger) {
+        // make num is first
+        self.inner.den.d = self.inner.num.d;
+        self.inner.num.size = src.inner.size;
+        self.first_limbs = src.limbs;
+        self.inner.den.size = 1;
+        self.last_limbs[0] = MaybeUninit::new(1);
+    }
+}
+
+impl From<MiniInteger> for MiniRational {
+    #[inline]
+    fn from(src: MiniInteger) -> Self {
+        MiniRational::const_from_integer(src)
+    }
+}
+
 impl<Num: ToMini> Assign<Num> for MiniRational {
     #[inline]
     fn assign(&mut self, src: Num) {

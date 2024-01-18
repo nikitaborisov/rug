@@ -15,11 +15,13 @@ Version 1.24.0 (unreleased)
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
   * [`MiniRational`][mr-1-24] now implements
-    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>.
+    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code> and
+    <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>.
   * The
     <code>[MiniRational][mr-1-24]::[const\_from\_integer][mr-cfi-1-24]</code>
     method was added.
 
+[ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
 [mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
 [mi-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i16
