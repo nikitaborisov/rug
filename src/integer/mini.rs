@@ -24,6 +24,7 @@ use core::fmt::{
 };
 use core::mem;
 use core::mem::MaybeUninit;
+#[allow(unused_imports)]
 use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
@@ -196,15 +197,16 @@ impl MiniInteger {
     /// assert_eq!(Integer::from(abs_ref), 13);
     /// ```
     #[inline]
-    pub fn borrow(&self) -> impl Deref<Target = Integer> + '_ {
+    pub const fn borrow(&self) -> BorrowInteger {
         // SAFETY: Since d points to the limbs, the mpz_t is in a consistent
         // state. Also, the lifetime of the BorrowInteger is the lifetime of
         // self, which covers the limbs.
+        let d: *const Limbs = &self.limbs;
         unsafe {
             BorrowInteger::from_raw(mpz_t {
                 alloc: self.inner.alloc,
                 size: self.inner.size,
-                d: NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast(),
+                d: NonNull::new_unchecked(d.cast_mut().cast()),
             })
         }
     }
