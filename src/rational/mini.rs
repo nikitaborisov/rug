@@ -136,17 +136,18 @@ impl MiniRational {
     /// ```
     #[inline]
     pub const fn new() -> Self {
+        let d = NonNull::dangling();
         MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
                     size: 0,
-                    d: NonNull::dangling(),
+                    d,
                 },
                 den: mpz_t {
                     alloc: LIMBS_IN_SMALL as c_int,
                     size: 1,
-                    d: NonNull::dangling(),
+                    d,
                 },
             },
             first_limbs: small_limbs![0],
@@ -244,12 +245,12 @@ impl MiniRational {
                 num: mpz_t {
                     alloc: self.inner.num.alloc,
                     size: self.inner.num.size,
-                    d: num_d,
+                    d: NonNull::new_unchecked(num_d.cast_mut().cast()),
                 },
                 den: mpz_t {
                     alloc: self.inner.den.alloc,
                     size: self.inner.den.size,
-                    d: den_d,
+                    d: NonNull::new_unchecked(den_d.cast_mut().cast()),
                 },
             })
         }
@@ -308,17 +309,18 @@ impl MiniRational {
         num.copy(&mut num_size, &mut num_limbs);
         den.copy(&mut den_size, &mut den_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
+        let d = NonNull::dangling();
         MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
-                    d: NonNull::dangling(),
+                    d,
                 },
                 den: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: den_size,
-                    d: NonNull::dangling(),
+                    d,
                 },
             },
             first_limbs: num_limbs,
@@ -362,8 +364,12 @@ impl MiniRational {
     }
 
     #[inline]
-    fn num_is_first(&self) -> bool {
-        self.inner.num.d <= self.inner.den.d
+    const fn num_is_first(&self) -> bool {
+        // SAFETY: num.d and den.d were created either from the same dangling
+        // pointer, or from fields in the same struct
+        let num_ptr = self.inner.num.d.as_ptr();
+        let den_ptr = self.inner.den.d.as_ptr();
+        unsafe { num_ptr.offset_from(den_ptr) <= 0 }
     }
 }
 
@@ -387,17 +393,18 @@ impl<Num: ToMini> From<Num> for MiniRational {
         let mut num_limbs = small_limbs![0];
         src.copy(&mut num_size, &mut num_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
+        let d = NonNull::dangling();
         MiniRational {
             inner: mpq_t {
                 num: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: num_size,
-                    d: NonNull::dangling(),
+                    d,
                 },
                 den: mpz_t {
                     alloc: LIMBS_IN_SMALL.cast(),
                     size: 1,
-                    d: NonNull::dangling(),
+                    d,
                 },
             },
             first_limbs: num_limbs,
@@ -426,16 +433,17 @@ impl<Num: ToMini, Den: ToMini> Assign<(Num, Den)> for MiniRational {
 impl<Num: ToMini, Den: ToMini> From<(Num, Den)> for MiniRational {
     fn from(src: (Num, Den)) -> Self {
         assert!(!src.1.is_zero(), "division by zero");
+        let d = NonNull::dangling();
         let mut inner = mpq_t {
             num: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size: 0,
-                d: NonNull::dangling(),
+                d,
             },
             den: mpz_t {
                 alloc: LIMBS_IN_SMALL.cast(),
                 size: 0,
-                d: NonNull::dangling(),
+                d,
             },
         };
         let mut num_limbs: Limbs = small_limbs![0];
