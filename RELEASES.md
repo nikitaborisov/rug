@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.23.0 (unreleased)
+Version 1.23.0 (2024-01-18)
 ===========================
 
   * [`MiniInteger`][mi-1-23], [`MiniRational`][mr-1-23], [`MiniFloat`][mf-1-23]
@@ -22,16 +22,16 @@ Version 1.23.0 (unreleased)
       * The new structs implement [`Copy`] and [`Sync`].
 
 [issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
-[mc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
-[mf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
-[mi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
-[mi-b-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
-[mi-be-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow_excl
-[mr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
-[smc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
-[smf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
-[smi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
-[smr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
+[mc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.MiniComplex.html
+[mf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.MiniFloat.html
+[mi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html
+[mi-b-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow
+[mi-be-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow_excl
+[mr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.MiniRational.html
+[smc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.SmallComplex.html
+[smf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.SmallFloat.html
+[smi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.SmallInteger.html
+[smr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.SmallRational.html
 
 Version 1.22.0 (2023-09-11)
 ===========================

@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.23.0 news (unreleased)
+### Version 1.23.0 news (2024-01-18)
 
   * [`MiniInteger`][mi-1-23], [`MiniRational`][mr-1-23], [`MiniFloat`][mf-1-23]
     and [`MiniComplex`][mc-1-23] were added to replace
@@ -48,107 +48,16 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [`Deref`]: https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html
 [`Sync`]: https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html
 [issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
-[mc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
-[mf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
-[mi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
-[mi-b-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
-[mi-be-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow_excl
-[mr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
-[smc-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
-[smf-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
-[smi-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
-[smr-1-23]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
-
-### Version 1.22.0 news (2023-09-11)
-
-  * Bug fix: implementations of [`PartialOrd`] and [`PartialEq`] between
-    [`Rational`][rat-1-22] numbers and tuples of two primitive integers were
-    breaking the transitivity property of the traits, so the implementations
-    were removed ([issue 58]). See the compatibility note below.
-  * Direct [`PartialOrd`] and [`PartialEq`] comparisons are now implemented
-      * between [`Integer`][int-1-22] and [`SmallInteger`][smi-1-22],
-      * between [`Rational`][rat-1-22] and [`SmallRational`][smr-1-22], and
-      * between [`Float`][flo-1-22] and [`SmallFloat`][smf-1-22].
-  * Direct [`PartialEq`] comparisons are now implemented between
-    [`Complex`][com-1-22] and [`SmallComplex`][smc-1-22].
-  * [`SmallInteger`][smi-1-22] can now be assigned or converted directly to
-    [`Integer`][int-1-22] using [`Assign`][ass-1-22] and [`From`].
-  * [`SmallRational`][smr-1-22] can now be assigned or converted directly to
-    [`Rational`][rat-1-22] using [`Assign`][ass-1-22] and [`From`].
-  * [`SmallFloat`][smf-1-22] can now be assigned directly to [`Float`][flo-1-22]
-    using [`AssignRound`][assr-1-22] and [`Assign`][ass-1-22].
-  * [`SmallComplex`][smc-1-22] can now be assigned directly to
-    [`Complex`][com-1-22] using [`AssignRound`][assr-1-22] and
-    [`Assign`][ass-1-22].
-  * [`Debug`] is now implemented for [`SmallInteger`][smi-1-22],
-    [`SmallRational`][smr-1-22], [`SmallFloat`][smf-1-22] and
-    [`SmallComplex`][smc-1-22].
-  * For the [`Complex`][com-1-22] struct, the method [`eq0`][com-e-1-22] was
-    renamed to [`is_zero`][com-iz-1-22]. The old method name is deprecated.
-
-#### Compatibility note
-
-The implementations of [`PartialOrd`] and [`PartialEq`] between
-[`Rational`][rat-1-22] numbers and tuples of two primitive integers were
-breaking the transitivity property of the two traits in question. Since the
-implementations necessarily break the trait guarantees, having the traits
-implemented is considered a bug (see [issue 58] for more details). These buggy
-implementations were removed. To fix code that used these comparisons without
-adding extra allocations, [`SmallRational`][smr-1-22] can be used. For example
-`rational == (1, 3)` can be replaced with
-`rational == SmallRational::from((1, 3))`.
-
-[`Debug`]: https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html
-[`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
-[`PartialEq`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html
-[`PartialOrd`]: https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html
-[ass-1-22]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
-[assr-1-22]: https://docs.rs/rug/~1.22/rug/ops/trait.AssignRound.html
-[com-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html
-[com-e-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html#method.eq0
-[com-iz-1-22]: https://docs.rs/rug/~1.22/rug/struct.Complex.html#method.is_zero
-[flo-1-22]: https://docs.rs/rug/~1.22/rug/struct.Float.html
-[int-1-22]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
-[issue 58]: https://gitlab.com/tspiteri/rug/-/issues/58
-[rat-1-22]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
-[smc-1-22]: https://docs.rs/rug/~1.22/rug/complex/struct.SmallComplex.html
-[smf-1-22]: https://docs.rs/rug/~1.22/rug/float/struct.SmallFloat.html
-[smi-1-22]: https://docs.rs/rug/~1.22/rug/integer/struct.SmallInteger.html
-[smr-1-22]: https://docs.rs/rug/~1.22/rug/rational/struct.SmallRational.html
-
-### Version 1.21.0 news (2023-08-28)
-
-  * The following methods were added to [`Integer`][int-1-21]:
-      * [`is_zero`][int-iz-1-21], [`is_positive`][int-ip-1-21],
-        [`is_negative`][int-in-1-21]
-      * [`modulo`][int-m-1-21], [`modulo_mut`][int-mm-1-21],
-        [`modulo_from`][int-mf-1-21], [`modulo_ref`][int-mr-1-21]
-  * The following methods were added to [`Rational`][rat-1-21]:
-      * [`is_zero`][rat-iz-1-21], [`is_positive`][rat-ip-1-21],
-        [`is_negative`][rat-in-1-21]
-  * Bug fix: panic instead of raising floating-point exception when dividing by
-    [`Rational`][rat-1-21] zero ([issue 53]).
-  * [`Complete`][c-1-21] was implemented for incomplete values produced by
-    [`DivRounding`][dr-1-21] and [`RemRounding`][rr-1-21] implementations
-    ([merge request 4]).
-
-[c-1-21]: https://docs.rs/rug/~1.21/rug/trait.Complete.html
-[dr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.DivRounding.html
-[int-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html
-[int-in-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.is_negative
-[int-ip-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.is_positive
-[int-iz-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.is_zero
-[int-m-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo
-[int-mf-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_from
-[int-mm-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_mut
-[int-mr-1-21]: https://docs.rs/rug/~1.21/rug/struct.Integer.html#method.modulo_ref
-[issue 53]: https://gitlab.com/tspiteri/rug/-/issues/53
-[merge request 4]: https://gitlab.com/tspiteri/rug/-/merge_requests/4
-[rat-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html
-[rat-in-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html#method.is_negative
-[rat-ip-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html#method.is_positive
-[rat-iz-1-21]: https://docs.rs/rug/~1.21/rug/struct.Rational.html#method.is_zero
-[rr-1-21]: https://docs.rs/rug/~1.21/rug/ops/trait.RemRounding.html
+[mc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.MiniComplex.html
+[mf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.MiniFloat.html
+[mi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html
+[mi-b-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow
+[mi-be-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow_excl
+[mr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.MiniRational.html
+[smc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.SmallComplex.html
+[smf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.SmallFloat.html
+[smi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.SmallInteger.html
+[smr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.SmallRational.html
 
 ### Other releases
 
@@ -240,7 +149,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.22"
+rug = "1.23"
 ```
 
 Rug requires rustc version 1.65.0 or later.
@@ -273,7 +182,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.22"
+version = "1.23"
 default-features = false
 features = ["integer", "float", "rand"]
 ```
@@ -294,7 +203,7 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate].
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.22/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.23/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
@@ -304,20 +213,20 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.22/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.22/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.22/rug/struct.Complex.html
-[`Float`]: https://docs.rs/rug/~1.22/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.22/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.22/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.22/rug/struct.Rational.html
-[`new`]: https://docs.rs/rug/~1.22/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.22/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.22/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.22/rug/struct.Integer.html#method.parse
+[`Assign::assign`]: https://docs.rs/rug/~1.23/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.23/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.23/rug/struct.Complex.html
+[`Float`]: https://docs.rs/rug/~1.23/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.23/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.23/rug/struct.Rational.html
+[`new`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.23/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.22/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.22/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.23/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.23/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
