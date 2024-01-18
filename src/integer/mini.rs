@@ -280,8 +280,9 @@ macro_rules! signed {
 }
 
 macro_rules! one_limb {
-    ($($U:ty)*) => { $(
+    ($U:ty, $fn:ident) => {
         impl ToMini for $U {}
+
         impl SealedToMini for $U {
             #[inline]
             fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
@@ -295,7 +296,16 @@ macro_rules! one_limb {
 
             is_zero! {}
         }
-    )* };
+
+        #[inline]
+        const fn $fn(val: $U) -> (i32, Limbs) {
+            if val == 0 {
+                (0, small_limbs![])
+            } else {
+                (1, small_limbs![val as limb_t])
+            }
+        }
+    };
 }
 
 signed! { i8 i16 i32 i64 i128 isize }
@@ -319,13 +329,16 @@ impl SealedToMini for bool {
     }
 }
 
-one_limb! { u8 u16 u32 }
+one_limb! { u8, from_u8 }
+one_limb! { u16, from_u16 }
+one_limb! { u32, from_u32 }
 
 #[cfg(gmp_limb_bits_64)]
-one_limb! { u64 }
+one_limb! { u64, from_u64 }
 
 #[cfg(gmp_limb_bits_32)]
 impl ToMini for u64 {}
+
 #[cfg(gmp_limb_bits_32)]
 impl SealedToMini for u64 {
     #[inline]
@@ -343,6 +356,18 @@ impl SealedToMini for u64 {
     }
 
     is_zero! {}
+}
+
+#[cfg(gmp_limb_bits_32)]
+#[inline]
+const fn from_u64(val: u64) -> (i32, Limbs) {
+    if val == 0 {
+        (0, small_limbs![])
+    } else if val <= 0xffff_ffff {
+        (1, small_limbs![val as limb_t])
+    } else {
+        (2, small_limbs![val as limb_t, (val >> 32) as limb_t])
+    }
 }
 
 impl ToMini for u128 {}
@@ -392,7 +417,47 @@ impl SealedToMini for u128 {
     is_zero! {}
 }
 
+#[cfg(gmp_limb_bits_64)]
+#[inline]
+const fn from_u128(val: u128) -> (i32, Limbs) {
+    if val == 0 {
+        (0, small_limbs![])
+    } else if val <= 0xffff_ffff_ffff_ffff {
+        (1, small_limbs![val as limb_t])
+    } else {
+        (2, small_limbs![val as limb_t, (val >> 64) as limb_t])
+    }
+}
+
+#[cfg(gmp_limb_bits_32)]
+#[inline]
+const fn from_u128(val: u128) -> (i32, Limbs) {
+    if val == 0 {
+        (0, small_limbs![])
+    } else if val <= 0xffff_ffff {
+        (1, small_limbs![val as limb_t])
+    } else if val <= 0xffff_ffff_ffff_ffff {
+        (2, small_limbs![val as limb_t, (val >> 32) as limb_t])
+    } else if val <= 0xffff_ffff_ffff_ffff_ffff_ffff {
+        (
+            3,
+            small_limbs![val as limb_t, (val >> 32) as limb_t, (val >> 64) as limb_t],
+        )
+    } else {
+        (
+            4,
+            small_limbs![
+                val as limb_t,
+                (val >> 32) as limb_t,
+                (val >> 64) as limb_t,
+                (val >> 96) as limb_t
+            ],
+        )
+    }
+}
+
 impl ToMini for usize {}
+
 impl SealedToMini for usize {
     #[cfg(target_pointer_width = "32")]
     #[inline]
@@ -407,6 +472,18 @@ impl SealedToMini for usize {
     }
 
     is_zero! {}
+}
+
+#[cfg(target_pointer_width = "32")]
+#[inline]
+const fn from_usize(val: usize) -> (i32, Limbs) {
+    from_u32(val as u32)
+}
+
+#[cfg(target_pointer_width = "64")]
+#[inline]
+const fn from_usize(val: usize) -> (i32, Limbs) {
+    from_u64(val as u64)
 }
 
 impl<T: ToMini> Assign<T> for MiniInteger {
