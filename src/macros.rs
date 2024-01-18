@@ -2589,10 +2589,16 @@ macro_rules! small_limbs {
             core::mem::MaybeUninit::uninit(),
         ]
     };
-    ($limb:expr) => {
+    ($limb0:expr) => {
         [
-            core::mem::MaybeUninit::new($limb),
+            core::mem::MaybeUninit::new($limb0),
             core::mem::MaybeUninit::uninit(),
+        ]
+    };
+    ($limb0:expr, $limb1:expr) => {
+        [
+            core::mem::MaybeUninit::new($limb0),
+            core::mem::MaybeUninit::new($limb1),
         ]
     };
 }
@@ -2608,12 +2614,36 @@ macro_rules! small_limbs {
             core::mem::MaybeUninit::uninit(),
         ]
     };
-    ($limb:expr) => {
+    ($limb0:expr) => {
         [
-            core::mem::MaybeUninit::new($limb),
+            core::mem::MaybeUninit::new($limb0),
             core::mem::MaybeUninit::uninit(),
             core::mem::MaybeUninit::uninit(),
             core::mem::MaybeUninit::uninit(),
+        ]
+    };
+    ($limb0:expr, $limb1:expr) => {
+        [
+            core::mem::MaybeUninit::new($limb0),
+            core::mem::MaybeUninit::new($limb1),
+            core::mem::MaybeUninit::uninit(),
+            core::mem::MaybeUninit::uninit(),
+        ]
+    };
+    ($limb0:expr, $limb1:expr, $limb2:expr) => {
+        [
+            core::mem::MaybeUninit::new($limb0),
+            core::mem::MaybeUninit::new($limb1),
+            core::mem::MaybeUninit::new($limb2),
+            core::mem::MaybeUninit::uninit(),
+        ]
+    };
+    ($limb0:expr, $limb1:expr, $limb2:expr, $limb3:expr) => {
+        [
+            core::mem::MaybeUninit::new($limb0),
+            core::mem::MaybeUninit::new($limb1),
+            core::mem::MaybeUninit::new($limb2),
+            core::mem::MaybeUninit::new($limb3),
         ]
     };
 }
