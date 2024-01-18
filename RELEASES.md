@@ -8,11 +8,20 @@ Version 1.24.0 (unreleased)
 ===========================
 
   * The following methods were added to [`MiniInteger`][mi-1-24]:
+      * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
+        [`const_from_i32`][mi-i32-1-24], [`const_from_i64`][mi-i64-1-24],
+        [`const_from_i128`][mi-i128-1-24], [`const_from_isize`][mi-isize-1-24]
       * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
 
 [mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
+[mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
+[mi-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i16
+[mi-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i32
+[mi-i64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i64
+[mi-i8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i8
+[mi-isize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_isize
 [mi-u128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u128
 [mi-u16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u16
 [mi-u32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u32

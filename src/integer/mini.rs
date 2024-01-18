@@ -142,6 +142,216 @@ impl MiniInteger {
         }
     }
 
+    /// Creates a [`MiniInteger`] from a [`i8`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const TWO: MiniInteger = MiniInteger::const_from_i8(2i8);
+    /// const TWO_BORROW: BorrowInteger = TWO.borrow();
+    /// const TWO_REF: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO_REF, 2);
+    /// ```
+    #[inline]
+    pub const fn const_from_i8(val: i8) -> Self {
+        let (size, limbs) = from_i8(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniInteger`] from a [`i16`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const KIBI: MiniInteger = MiniInteger::const_from_i16(1i16 << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
+    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI_REF, 1i16 << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_i16(val: i16) -> Self {
+        let (size, limbs) = from_i16(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniInteger`] from a [`i32`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const MEBI: MiniInteger = MiniInteger::const_from_i32(1i32 << 20);
+    /// const MEBI_BORROW: BorrowInteger = MEBI.borrow();
+    /// const MEBI_REF: &Integer = BorrowInteger::const_deref(&MEBI_BORROW);
+    /// assert_eq!(*MEBI_REF, 1i32 << 20);
+    /// ```
+    #[inline]
+    pub const fn const_from_i32(val: i32) -> Self {
+        let (size, limbs) = from_i32(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniInteger`] from a [`i64`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const TEBI: MiniInteger = MiniInteger::const_from_i64(1i64 << 40);
+    /// const TEBI_BORROW: BorrowInteger = TEBI.borrow();
+    /// const TEBI_REF: &Integer = BorrowInteger::const_deref(&TEBI_BORROW);
+    /// assert_eq!(*TEBI_REF, 1i64 << 40);
+    /// ```
+    #[inline]
+    pub const fn const_from_i64(val: i64) -> Self {
+        let (size, limbs) = from_i64(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniInteger`] from a [`i128`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const YOBI: MiniInteger = MiniInteger::const_from_i128(1i128 << 80);
+    /// const YOBI_BORROW: BorrowInteger = YOBI.borrow();
+    /// const YOBI_REF: &Integer = BorrowInteger::const_deref(&YOBI_BORROW);
+    /// assert_eq!(*YOBI_REF, 1i128 << 80);
+    /// ```
+    #[inline]
+    pub const fn const_from_i128(val: i128) -> Self {
+        let (size, limbs) = from_i128(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniInteger`] from a [`isize`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const KIBI: MiniInteger = MiniInteger::const_from_isize(1isize << 10);
+    /// const KIBI_BORROW: BorrowInteger = KIBI.borrow();
+    /// const KIBI_REF: &Integer = BorrowInteger::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI_REF, 1isize << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_isize(val: isize) -> Self {
+        let (size, limbs) = from_isize(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Creates a [`MiniInteger`] from a [`u8`].
     ///
     /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
@@ -472,8 +682,9 @@ macro_rules! is_zero {
 }
 
 macro_rules! signed {
-    ($($I:ty)*) => { $(
+    ($I:ty, $fn:ident, $fnu:ident) => {
         impl ToMini for $I {}
+
         impl SealedToMini for $I {
             #[inline]
             fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
@@ -486,7 +697,14 @@ macro_rules! signed {
 
             is_zero! {}
         }
-    )* };
+
+        const fn $fn(val: $I) -> (c_int, Limbs) {
+            let unsigned_abs = val.unsigned_abs();
+            let (size, limbs) = $fnu(unsigned_abs);
+            let size = if val < 0 { -size } else { size };
+            (size, limbs)
+        }
+    };
 }
 
 macro_rules! one_limb {
@@ -508,7 +726,7 @@ macro_rules! one_limb {
         }
 
         #[inline]
-        const fn $fn(val: $U) -> (i32, Limbs) {
+        const fn $fn(val: $U) -> (c_int, Limbs) {
             if val == 0 {
                 (0, small_limbs![])
             } else {
@@ -518,7 +736,12 @@ macro_rules! one_limb {
     };
 }
 
-signed! { i8 i16 i32 i64 i128 isize }
+signed! { i8, from_i8, from_u8 }
+signed! { i16, from_i16, from_u16 }
+signed! { i32, from_i32, from_u32 }
+signed! { i64, from_i64, from_u64 }
+signed! { i128, from_i128, from_u128 }
+signed! { isize, from_isize, from_usize }
 
 impl ToMini for bool {}
 
@@ -570,7 +793,7 @@ impl SealedToMini for u64 {
 
 #[cfg(gmp_limb_bits_32)]
 #[inline]
-const fn from_u64(val: u64) -> (i32, Limbs) {
+const fn from_u64(val: u64) -> (c_int, Limbs) {
     if val == 0 {
         (0, small_limbs![])
     } else if val <= 0xffff_ffff {
@@ -629,7 +852,7 @@ impl SealedToMini for u128 {
 
 #[cfg(gmp_limb_bits_64)]
 #[inline]
-const fn from_u128(val: u128) -> (i32, Limbs) {
+const fn from_u128(val: u128) -> (c_int, Limbs) {
     if val == 0 {
         (0, small_limbs![])
     } else if val <= 0xffff_ffff_ffff_ffff {
@@ -641,7 +864,7 @@ const fn from_u128(val: u128) -> (i32, Limbs) {
 
 #[cfg(gmp_limb_bits_32)]
 #[inline]
-const fn from_u128(val: u128) -> (i32, Limbs) {
+const fn from_u128(val: u128) -> (c_int, Limbs) {
     if val == 0 {
         (0, small_limbs![])
     } else if val <= 0xffff_ffff {
@@ -686,13 +909,13 @@ impl SealedToMini for usize {
 
 #[cfg(target_pointer_width = "32")]
 #[inline]
-const fn from_usize(val: usize) -> (i32, Limbs) {
+const fn from_usize(val: usize) -> (c_int, Limbs) {
     from_u32(val as u32)
 }
 
 #[cfg(target_pointer_width = "64")]
 #[inline]
-const fn from_usize(val: usize) -> (i32, Limbs) {
+const fn from_usize(val: usize) -> (c_int, Limbs) {
     from_u64(val as u64)
 }
 
