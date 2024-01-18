@@ -151,7 +151,7 @@ impl MiniRational {
                     d,
                 },
             },
-            first_limbs: small_limbs![0],
+            first_limbs: small_limbs![],
             last_limbs: small_limbs![1],
         }
     }
@@ -357,8 +357,8 @@ impl MiniRational {
     pub unsafe fn from_canonical<Num: ToMini, Den: ToMini>(num: Num, den: Den) -> Self {
         let mut num_size = 0;
         let mut den_size = 0;
-        let mut num_limbs: Limbs = small_limbs![0];
-        let mut den_limbs: Limbs = small_limbs![0];
+        let mut num_limbs: Limbs = small_limbs![];
+        let mut den_limbs: Limbs = small_limbs![];
         num.copy(&mut num_size, &mut num_limbs);
         den.copy(&mut den_size, &mut den_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
@@ -407,13 +407,10 @@ impl MiniRational {
     /// assert_eq!(a_borrow.denom(), b_borrow.denom());
     /// ```
     pub unsafe fn assign_canonical<Num: ToMini, Den: ToMini>(&mut self, num: Num, den: Den) {
-        let (num_limbs, den_limbs) = if self.num_is_first() {
-            (&mut self.first_limbs, &mut self.last_limbs)
-        } else {
-            (&mut self.last_limbs, &mut self.first_limbs)
-        };
-        num.copy(&mut self.inner.num.size, num_limbs);
-        den.copy(&mut self.inner.den.size, den_limbs);
+        // make num is first
+        self.inner.den.d = self.inner.num.d;
+        num.copy(&mut self.inner.num.size, &mut self.first_limbs);
+        den.copy(&mut self.inner.den.size, &mut self.last_limbs);
     }
 
     #[inline]
@@ -429,21 +426,18 @@ impl MiniRational {
 impl<Num: ToMini> Assign<Num> for MiniRational {
     #[inline]
     fn assign(&mut self, src: Num) {
-        let (num_limbs, den_limbs) = if self.num_is_first() {
-            (&mut self.first_limbs, &mut self.last_limbs)
-        } else {
-            (&mut self.last_limbs, &mut self.first_limbs)
-        };
-        src.copy(&mut self.inner.num.size, num_limbs);
+        // make num is first
+        self.inner.den.d = self.inner.num.d;
+        src.copy(&mut self.inner.num.size, &mut self.first_limbs);
         self.inner.den.size = 1;
-        den_limbs[0] = MaybeUninit::new(1);
+        self.last_limbs[0] = MaybeUninit::new(1);
     }
 }
 
 impl<Num: ToMini> From<Num> for MiniRational {
     fn from(src: Num) -> Self {
         let mut num_size = 0;
-        let mut num_limbs = small_limbs![0];
+        let mut num_limbs = small_limbs![];
         src.copy(&mut num_size, &mut num_limbs);
         // since inner.num.d == inner.den.d, first_limbs are num_limbs
         let d = NonNull::dangling();
@@ -469,15 +463,10 @@ impl<Num: ToMini> From<Num> for MiniRational {
 impl<Num: ToMini, Den: ToMini> Assign<(Num, Den)> for MiniRational {
     fn assign(&mut self, src: (Num, Den)) {
         assert!(!src.1.is_zero(), "division by zero");
-        {
-            let (num_limbs, den_limbs) = if self.num_is_first() {
-                (&mut self.first_limbs, &mut self.last_limbs)
-            } else {
-                (&mut self.last_limbs, &mut self.first_limbs)
-            };
-            src.0.copy(&mut self.inner.num.size, num_limbs);
-            src.1.copy(&mut self.inner.den.size, den_limbs);
-        }
+        // make num is first
+        self.inner.den.d = self.inner.num.d;
+        src.0.copy(&mut self.inner.num.size, &mut self.first_limbs);
+        src.1.copy(&mut self.inner.den.size, &mut self.last_limbs);
         // SAFETY: canonicalization will never need to make a number larger.
         xmpq::canonicalize(unsafe { self.as_nonreallocating_rational() });
     }
@@ -487,41 +476,27 @@ impl<Num: ToMini, Den: ToMini> From<(Num, Den)> for MiniRational {
     fn from(src: (Num, Den)) -> Self {
         assert!(!src.1.is_zero(), "division by zero");
         let d = NonNull::dangling();
-        let mut inner = mpq_t {
-            num: mpz_t {
-                alloc: LIMBS_IN_SMALL.cast(),
-                size: 0,
-                d,
+        let mut ret = MiniRational {
+            inner: mpq_t {
+                num: mpz_t {
+                    alloc: LIMBS_IN_SMALL.cast(),
+                    size: 0,
+                    d,
+                },
+                den: mpz_t {
+                    alloc: LIMBS_IN_SMALL.cast(),
+                    size: 0,
+                    d,
+                },
             },
-            den: mpz_t {
-                alloc: LIMBS_IN_SMALL.cast(),
-                size: 0,
-                d,
-            },
+            first_limbs: small_limbs![],
+            last_limbs: small_limbs![],
         };
-        let mut num_limbs: Limbs = small_limbs![0];
-        let mut den_limbs: Limbs = small_limbs![0];
-        src.0.copy(&mut inner.num.size, &mut num_limbs);
-        src.1.copy(&mut inner.den.size, &mut den_limbs);
-        inner.num.d = NonNull::<[MaybeUninit<limb_t>]>::from(&mut num_limbs[..]).cast();
-        inner.den.d = NonNull::<[MaybeUninit<limb_t>]>::from(&mut den_limbs[..]).cast();
-        unsafe {
-            gmp::mpq_canonicalize(&mut inner);
-        }
-        // order of limbs is important as inner.num.d != inner.den.d
-        if num_limbs.as_ptr() <= den_limbs.as_ptr() {
-            MiniRational {
-                inner,
-                first_limbs: num_limbs,
-                last_limbs: den_limbs,
-            }
-        } else {
-            MiniRational {
-                inner,
-                first_limbs: den_limbs,
-                last_limbs: num_limbs,
-            }
-        }
+        src.0.copy(&mut ret.inner.num.size, &mut ret.first_limbs);
+        src.1.copy(&mut ret.inner.den.size, &mut ret.last_limbs);
+        // SAFETY: canonicalization will never need to make a number larger.
+        xmpq::canonicalize(unsafe { ret.as_nonreallocating_rational() });
+        ret
     }
 }
 
