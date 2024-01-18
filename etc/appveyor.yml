@@ -71,7 +71,8 @@ test_script:
   - cargo +%MSRV%-%TARGET% check --features "fail-on-warnings num-traits serde"
 
 after_test:
-  - bash -c "cd ""$USERPROFILE/.cargo/registry""; for c in cache/*/*.crate; do s=src/${c#cache/}; if [ ! -e ${s/.crate/} ]; then rm -v $c; fi; done; find cache -name \*.crate | sort"
+  # ugh, appveyor can't handle percentage signs, so we need to use $(sed 's/\.crate$//' <<< $s)
+  - bash -c "cd ""$USERPROFILE/.cargo/registry""; for c in cache/*/*.crate; do s=src/${c#cache/}; if [ ! -e $(sed 's/\.crate$//' <<< $s) ]; then rm -v $c; fi; done; find cache -name \*.crate | sort"
   # delete named stale versions
   - bash -c "cd ""$LOCALAPPDATA"" && rm -rfv gmp-mpfr-sys/gmp-mpfr-sys-1.5.0-*"
   - bash -c "cd ""$LOCALAPPDATA""; find gmp-mpfr-sys -name \*.[ah] | sort"
