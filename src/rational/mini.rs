@@ -17,7 +17,7 @@
 #![allow(deprecated)]
 
 use crate::ext::xmpq;
-use crate::integer::ToMini;
+use crate::integer::{MiniInteger, ToMini};
 use crate::rational::BorrowRational;
 use crate::{Assign, Rational};
 use az::Cast;
@@ -153,6 +153,58 @@ impl MiniRational {
             },
             first_limbs: small_limbs![0],
             last_limbs: small_limbs![1],
+        }
+    }
+
+    /// Creates a [`MiniRational`] from a [`MiniInteger`].
+    ///
+    /// This is equivalent to `MiniRational::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::MiniInteger;
+    /// use rug::rational::{BorrowRational, MiniRational};
+    /// use rug::Rational;
+    ///
+    /// const TWO_INT: MiniInteger = MiniInteger::const_from_i8(2i8);
+    /// const TWO: MiniRational = MiniRational::const_from_integer(TWO_INT);
+    /// const TWO_BORROW: BorrowRational = TWO.borrow();
+    /// const TWO_REF: &Rational = BorrowRational::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO_REF, 2);
+    ///
+    /// const HALF_BORROW: BorrowRational = TWO_REF.as_recip();
+    /// const HALF_REF: &Rational = BorrowRational::const_deref(&HALF_BORROW);
+    /// assert_eq!(*HALF_REF, MiniRational::from((1, 2)));
+    /// ```
+    #[inline]
+    pub const fn const_from_integer(val: MiniInteger) -> Self {
+        let MiniInteger {
+            inner: mut num_inner,
+            limbs: num_limbs,
+        } = val;
+        let MiniInteger {
+            inner: mut den_inner,
+            limbs: den_limbs,
+        } = MiniInteger::const_from_u8(1);
+        let d = NonNull::dangling();
+        // remove d pointer relation
+        num_inner.d = d;
+        den_inner.d = d;
+        MiniRational {
+            inner: mpq_t {
+                num: num_inner,
+                den: den_inner,
+            },
+            first_limbs: num_limbs,
+            last_limbs: den_limbs,
         }
     }
 

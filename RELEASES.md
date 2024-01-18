@@ -14,6 +14,11 @@ Version 1.24.0 (unreleased)
       * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
+  * [`MiniRational`][mr-1-24] now implements
+    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>.
+  * The
+    <code>[MiniRational][mr-1-24]::[const\_from\_integer][mr-cfi-1-24]</code>
+    method was added.
 
 [mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
 [mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
@@ -28,6 +33,8 @@ Version 1.24.0 (unreleased)
 [mi-u64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u64
 [mi-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u8
 [mi-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_usize
+[mr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
+[mr-cfi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.const_from_integer
 
 Version 1.23.0 (2024-01-18)
 ===========================

@@ -66,8 +66,8 @@ assert_eq!(a, 1500);
 */
 #[derive(Clone, Copy)]
 pub struct MiniInteger {
-    inner: mpz_t,
-    limbs: Limbs,
+    pub(crate) inner: mpz_t,
+    pub(crate) limbs: Limbs,
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
