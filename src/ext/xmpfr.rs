@@ -547,10 +547,6 @@ pub fn set_prec_nan(x: &mut Float, prec: prec_t) {
 
 #[inline]
 pub fn set_special(x: &mut Float, src: Special) {
-    const EXP_MAX: c_long = ((!0 as c_ulong) >> 1) as c_long;
-    const EXP_ZERO: c_long = 0 - EXP_MAX;
-    const EXP_NAN: c_long = 1 - EXP_MAX;
-    const EXP_INF: c_long = 2 - EXP_MAX;
     // Safety: We do not change inner.d, and we set inner.exp to
     // indicate a singular number so even if the data at inner.d is
     // uninitialized, we still won't use it.
@@ -878,7 +874,9 @@ pub unsafe fn custom_special(f: *mut mpfr_t, limbs: *mut limb_t, special: Specia
     }
 }
 
-pub const EXP_ZERO: mpfr::exp_t = -mpfr::exp_t::MAX;
+pub const EXP_ZERO: exp_t = -exp_t::MAX;
+pub const EXP_NAN: exp_t = 1 - exp_t::MAX;
+pub const EXP_INF: exp_t = 2 - exp_t::MAX;
 
 #[inline]
 #[cfg(feature = "rand")]
