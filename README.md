@@ -31,12 +31,18 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 ### Version 1.24.0 news (unreleased)
 
   * [`MiniRational`][mr-1-24] now implements
-    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code> and
-    <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>.
-  * The following methods are now usabel in const context:
+      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>
+      * <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
+  * [`MiniComplex`][mc-1-24] now implements
+      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>
+      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
+      * <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
+      * <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
+  * The following methods are now usable in const context:
       * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
       * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
       * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
+      * <code>[MiniComplex][mc-1-24]::[borrow][mc-b-1-24]</code>
   * The following methods were added to [`MiniInteger`][mi-1-24]:
       * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
         [`const_from_i32`][mi-i32-1-24], [`const_from_i64`][mi-i64-1-24],
@@ -44,9 +50,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
-  * The
-    <code>[MiniRational][mr-1-24]::[const\_from\_integer][mr-cfi-1-24]</code>
-    method was added.
+  * The following methoed was added to [`MiniRational`][mr-1-24]:
+      * [`const_from_integer`][mr-cfi-1-24]
   * The following methods were added to [`MiniFloat`][mf-1-24]:
       * [`const_from_i8`][mf-i8-1-24], [`const_from_i16`][mf-i16-1-24],
         [`const_from_i32`][mf-i32-1-24], [`const_from_i64`][mf-i64-1-24],
@@ -55,9 +60,16 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
         [`const_from_u32`][mf-u32-1-24], [`const_from_u64`][mf-u64-1-24],
         [`const_from_u128`][mf-u128-1-24], [`const_from_usize`][mf-usize-1-24]
       * [`const_from_special`][mf-cfs-1-24]
+  * The following methods were added to [`MiniComplex`][mc-1-24]:
+      * [`const_from_real`][mc-cfr-1-24]
+      * [`const_from_parts`][mc-cfp-1-24]
 
 [`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
+[mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
+[mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
+[mc-cfp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_parts
+[mc-cfr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_real
 [mf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
 [mf-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.borrow
 [mf-cfs-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_special
@@ -90,6 +102,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [mr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
 [mr-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.borrow
 [mr-cfi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.const_from_integer
+[tuple]: https://doc.rust-lang.org/nightly/core/primitive.tuple.html
 
 ### Version 1.23.0 news (2024-01-18)
 
