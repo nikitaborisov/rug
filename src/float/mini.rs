@@ -942,10 +942,10 @@ const fn from_u128(val: u128) -> (prec_t, c_int, exp_t, Limbs) {
             sign,
             exp,
             small_limbs![
-                val as limb_t,
-                (val >> 32) as limb_t,
-                (val >> 64) as limb_t,
-                (val >> 96) as limb_t
+                sval as limb_t,
+                (sval >> 32) as limb_t,
+                (sval >> 64) as limb_t,
+                (sval >> 96) as limb_t
             ],
         )
     }
