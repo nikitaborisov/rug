@@ -14,8 +14,6 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-#![allow(deprecated)]
-
 use crate::ext::xmpq;
 use crate::integer::{MiniInteger, ToMini};
 use crate::rational::BorrowRational;

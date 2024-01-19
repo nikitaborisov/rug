@@ -698,6 +698,7 @@ macro_rules! signed {
             is_zero! {}
         }
 
+        #[inline]
         const fn $fn(val: $I) -> (c_int, Limbs) {
             let unsigned_abs = val.unsigned_abs();
             let (size, limbs) = $fnu(unsigned_abs);
