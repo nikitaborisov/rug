@@ -17,7 +17,7 @@
 use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::ToMini;
+use crate::float::{MiniFloat, Special, ToMini};
 use crate::{Assign, Complex};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -180,6 +180,103 @@ impl MiniComplex {
         }
     }
 
+    /// Creates a [`MiniComplex`] from a [`MiniFloat`] real part.
+    ///
+    /// This is equivalent to `MiniComplex::from(real)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::complex::{BorrowComplex, MiniComplex};
+    /// use rug::float::MiniFloat;
+    /// use rug::Complex;
+    ///
+    /// const TWO_FLOAT: MiniFloat = MiniFloat::const_from_i8(2i8);
+    /// const TWO_MINI: MiniComplex = MiniComplex::const_from_real(TWO_FLOAT);
+    /// const TWO_BORROW: BorrowComplex = TWO_MINI.borrow();
+    /// const TWO: &Complex = BorrowComplex::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
+    /// ```
+    #[inline]
+    pub const fn const_from_real(real: MiniFloat) -> Self {
+        let MiniFloat {
+            inner: mut re_inner,
+            limbs: re_limbs,
+        } = real;
+        let MiniFloat {
+            inner: mut im_inner,
+            limbs: im_limbs,
+        } = MiniFloat::const_from_special(Special::Zero);
+        let d = NonNull::dangling();
+        // remove d pointer relation
+        re_inner.d = d;
+        im_inner.d = d;
+        MiniComplex {
+            inner: mpc_t {
+                re: re_inner,
+                im: im_inner,
+            },
+            first_limbs: re_limbs,
+            last_limbs: im_limbs,
+        }
+    }
+
+    /// Creates a [`MiniComplex`] from two [`MiniFloat`] parts.
+    ///
+    /// This is equivalent to `MiniComplex::from((real, imag))`, but can also be
+    /// used in constant context. Unless required in constant context, use the
+    /// [`From`] trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::complex::{BorrowComplex, MiniComplex};
+    /// use rug::float::MiniFloat;
+    /// use rug::Complex;
+    ///
+    /// const TWO_FLOAT: MiniFloat = MiniFloat::const_from_i8(2i8);
+    /// const SIX_FLOAT: MiniFloat = MiniFloat::const_from_i8(6i8);
+    /// const TWO_SIX_MINI: MiniComplex = MiniComplex::const_from_parts(TWO_FLOAT, SIX_FLOAT);
+    /// const TWO_SIX_BORROW: BorrowComplex = TWO_SIX_MINI.borrow();
+    /// const TWO_SIX: &Complex = BorrowComplex::const_deref(&TWO_SIX_BORROW);
+    /// assert_eq!(*TWO_SIX, (2, 6));
+    /// ```
+    #[inline]
+    pub const fn const_from_parts(real: MiniFloat, imag: MiniFloat) -> Self {
+        let MiniFloat {
+            inner: mut re_inner,
+            limbs: re_limbs,
+        } = real;
+        let MiniFloat {
+            inner: mut im_inner,
+            limbs: im_limbs,
+        } = imag;
+        let d = NonNull::dangling();
+        // remove d pointer relation
+        re_inner.d = d;
+        im_inner.d = d;
+        MiniComplex {
+            inner: mpc_t {
+                re: re_inner,
+                im: im_inner,
+            },
+            first_limbs: re_limbs,
+            last_limbs: im_limbs,
+        }
+    }
+
     /// Returns a mutable reference to a [`Complex`] number for simple
     /// operations that do not need to change the precision of the real or
     /// imaginary part.
@@ -299,6 +396,51 @@ impl MiniComplex {
         let re_ptr = self.inner.re.d.as_ptr();
         let im_ptr = self.inner.im.d.as_ptr();
         unsafe { re_ptr.offset_from(im_ptr) <= 0 }
+    }
+}
+
+impl Assign<MiniFloat> for MiniComplex {
+    #[inline]
+    fn assign(&mut self, src: MiniFloat) {
+        // make re is first
+        self.inner.im.d = self.inner.re.d;
+        self.inner.re.prec = src.inner.prec;
+        self.inner.re.sign = src.inner.sign;
+        self.inner.re.exp = src.inner.exp;
+        self.inner.im.prec = float::prec_min() as prec_t;
+        self.inner.im.sign = 1;
+        self.inner.im.exp = xmpfr::EXP_ZERO;
+        self.first_limbs = src.limbs;
+    }
+}
+
+impl From<MiniFloat> for MiniComplex {
+    #[inline]
+    fn from(src: MiniFloat) -> Self {
+        MiniComplex::const_from_real(src)
+    }
+}
+
+impl Assign<(MiniFloat, MiniFloat)> for MiniComplex {
+    #[inline]
+    fn assign(&mut self, src: (MiniFloat, MiniFloat)) {
+        // make re is first
+        self.inner.im.d = self.inner.re.d;
+        self.inner.re.prec = src.0.inner.prec;
+        self.inner.re.sign = src.0.inner.sign;
+        self.inner.re.exp = src.0.inner.exp;
+        self.inner.im.prec = src.1.inner.prec;
+        self.inner.im.sign = src.1.inner.sign;
+        self.inner.im.exp = src.1.inner.exp;
+        self.first_limbs = src.0.limbs;
+        self.last_limbs = src.1.limbs;
+    }
+}
+
+impl From<(MiniFloat, MiniFloat)> for MiniComplex {
+    #[inline]
+    fn from(src: (MiniFloat, MiniFloat)) -> Self {
+        MiniComplex::const_from_parts(src.0, src.1)
     }
 }
 

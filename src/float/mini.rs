@@ -80,8 +80,8 @@ assert_eq!(a, -15000);
 */
 #[derive(Clone, Copy)]
 pub struct MiniFloat {
-    inner: mpfr_t,
-    limbs: Limbs,
+    pub(crate) inner: mpfr_t,
+    pub(crate) limbs: Limbs,
 }
 
 static_assert!(mem::size_of::<Limbs>() == 16);
