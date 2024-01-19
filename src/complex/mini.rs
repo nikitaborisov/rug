@@ -158,19 +158,20 @@ impl MiniComplex {
     /// ```
     #[inline]
     pub const fn new() -> Self {
+        let d = NonNull::dangling();
         MiniComplex {
             inner: mpc_t {
                 re: mpfr_t {
                     prec: float::prec_min() as prec_t,
                     sign: 1,
                     exp: xmpfr::EXP_ZERO,
-                    d: NonNull::dangling(),
+                    d,
                 },
                 im: mpfr_t {
                     prec: float::prec_min() as prec_t,
                     sign: 1,
                     exp: xmpfr::EXP_ZERO,
-                    d: NonNull::dangling(),
+                    d,
                 },
             },
             first_limbs: small_limbs![],
@@ -291,8 +292,12 @@ impl MiniComplex {
     }
 
     #[inline]
-    fn re_is_first(&self) -> bool {
-        self.inner.re.d <= self.inner.im.d
+    const fn re_is_first(&self) -> bool {
+        // SAFETY: re.d and im.d were created either from the same dangling
+        // pointer, or from fields in the same struct
+        let re_ptr = self.inner.re.d.as_ptr();
+        let im_ptr = self.inner.im.d.as_ptr();
+        unsafe { re_ptr.offset_from(im_ptr) <= 0 }
     }
 }
 
@@ -311,18 +316,19 @@ impl<Re: ToMini> Assign<Re> for MiniComplex {
 
 impl<Re: ToMini> From<Re> for MiniComplex {
     fn from(src: Re) -> Self {
+        let d = NonNull::dangling();
         let mut inner = mpc_t {
             re: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: NonNull::dangling(),
+                d,
             },
             im: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: NonNull::dangling(),
+                d,
             },
         };
         let mut re_limbs = small_limbs![];
@@ -363,18 +369,19 @@ impl<Re: ToMini, Im: ToMini> Assign<(Re, Im)> for MiniComplex {
 
 impl<Re: ToMini, Im: ToMini> From<(Re, Im)> for MiniComplex {
     fn from(src: (Re, Im)) -> Self {
+        let d = NonNull::dangling();
         let mut inner = mpc_t {
             re: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: NonNull::dangling(),
+                d,
             },
             im: mpfr_t {
                 prec: 0,
                 sign: 0,
                 exp: 0,
-                d: NonNull::dangling(),
+                d,
             },
         };
         let mut re_limbs = small_limbs![];
