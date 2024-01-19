@@ -21,6 +21,7 @@ use crate::float::{self, Round, Special};
 use crate::misc::NegAbs;
 use crate::{Assign, Float};
 use az::{Az, UnwrappedCast, WrappingCast};
+use core::ffi::c_int;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
     UpperHex,
@@ -33,7 +34,7 @@ use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::limb_t;
 use gmp_mpfr_sys::mpfr;
-use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};
+use gmp_mpfr_sys::mpfr::{exp_t, mpfr_t, prec_t};
 
 const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
 type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
@@ -169,6 +170,474 @@ impl MiniFloat {
         }
     }
 
+    /// Creates a [`MiniFloat`] from a [`i8`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_MINI: MiniFloat = MiniFloat::const_from_i8(2i8);
+    /// const TWO_BORROW: BorrowFloat = TWO_MINI.borrow();
+    /// const TWO: &Float = BorrowFloat::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
+    /// ```
+    #[inline]
+    pub const fn const_from_i8(val: i8) -> Self {
+        let (prec, sign, exp, limbs) = from_i8(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`i16`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const KIBI_MINI: MiniFloat = MiniFloat::const_from_i16(1i16 << 10);
+    /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
+    /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1i16 << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_i16(val: i16) -> Self {
+        let (prec, sign, exp, limbs) = from_i16(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`i32`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const MEBI_MINI: MiniFloat = MiniFloat::const_from_i32(1i32 << 20);
+    /// const MEBI_BORROW: BorrowFloat = MEBI_MINI.borrow();
+    /// const MEBI: &Float = BorrowFloat::const_deref(&MEBI_BORROW);
+    /// assert_eq!(*MEBI, 1i32 << 20);
+    /// ```
+    #[inline]
+    pub const fn const_from_i32(val: i32) -> Self {
+        let (prec, sign, exp, limbs) = from_i32(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`i64`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TEBI_MINI: MiniFloat = MiniFloat::const_from_i64(1i64 << 40);
+    /// const TEBI_BORROW: BorrowFloat = TEBI_MINI.borrow();
+    /// const TEBI: &Float = BorrowFloat::const_deref(&TEBI_BORROW);
+    /// assert_eq!(*TEBI, 1i64 << 40);
+    /// ```
+    #[inline]
+    pub const fn const_from_i64(val: i64) -> Self {
+        let (prec, sign, exp, limbs) = from_i64(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`i128`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const YOBI_MINI: MiniFloat = MiniFloat::const_from_i128(1i128 << 80);
+    /// const YOBI_BORROW: BorrowFloat = YOBI_MINI.borrow();
+    /// const YOBI: &Float = BorrowFloat::const_deref(&YOBI_BORROW);
+    /// assert_eq!(*YOBI, 1i128 << 80);
+    /// ```
+    #[inline]
+    pub const fn const_from_i128(val: i128) -> Self {
+        let (prec, sign, exp, limbs) = from_i128(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`isize`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const KIBI_MINI: MiniFloat = MiniFloat::const_from_isize(1isize << 10);
+    /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
+    /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1isize << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_isize(val: isize) -> Self {
+        let (prec, sign, exp, limbs) = from_isize(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`u8`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_MINI: MiniFloat = MiniFloat::const_from_u8(2u8);
+    /// const TWO_BORROW: BorrowFloat = TWO_MINI.borrow();
+    /// const TWO: &Float = BorrowFloat::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
+    /// ```
+    #[inline]
+    pub const fn const_from_u8(val: u8) -> Self {
+        let (prec, sign, exp, limbs) = from_u8(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`u16`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const KIBI_MINI: MiniFloat = MiniFloat::const_from_u16(1u16 << 10);
+    /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
+    /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1u16 << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_u16(val: u16) -> Self {
+        let (prec, sign, exp, limbs) = from_u16(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`u32`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const MEBI_MINI: MiniFloat = MiniFloat::const_from_u32(1u32 << 20);
+    /// const MEBI_BORROW: BorrowFloat = MEBI_MINI.borrow();
+    /// const MEBI: &Float = BorrowFloat::const_deref(&MEBI_BORROW);
+    /// assert_eq!(*MEBI, 1u32 << 20);
+    /// ```
+    #[inline]
+    pub const fn const_from_u32(val: u32) -> Self {
+        let (prec, sign, exp, limbs) = from_u32(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`u64`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TEBI_MINI: MiniFloat = MiniFloat::const_from_u64(1u64 << 40);
+    /// const TEBI_BORROW: BorrowFloat = TEBI_MINI.borrow();
+    /// const TEBI: &Float = BorrowFloat::const_deref(&TEBI_BORROW);
+    /// assert_eq!(*TEBI, 1u64 << 40);
+    /// ```
+    #[inline]
+    pub const fn const_from_u64(val: u64) -> Self {
+        let (prec, sign, exp, limbs) = from_u64(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`u128`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const YOBI_MINI: MiniFloat = MiniFloat::const_from_u128(1u128 << 80);
+    /// const YOBI_BORROW: BorrowFloat = YOBI_MINI.borrow();
+    /// const YOBI: &Float = BorrowFloat::const_deref(&YOBI_BORROW);
+    /// assert_eq!(*YOBI, 1u128 << 80);
+    /// ```
+    #[inline]
+    pub const fn const_from_u128(val: u128) -> Self {
+        let (prec, sign, exp, limbs) = from_u128(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`usize`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const KIBI_MINI: MiniFloat = MiniFloat::const_from_usize(1usize << 10);
+    /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
+    /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
+    /// assert_eq!(*KIBI, 1usize << 10);
+    /// ```
+    #[inline]
+    pub const fn const_from_usize(val: usize) -> Self {
+        let (prec, sign, exp, limbs) = from_usize(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from a [`Special`] value.
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat, Special};
+    /// use rug::Float;
+    ///
+    /// const INF_MINI: MiniFloat = MiniFloat::const_from_special(Special::Infinity);
+    /// const INF_BORROW: BorrowFloat = INF_MINI.borrow();
+    /// const INF: &Float = BorrowFloat::const_deref(&INF_BORROW);
+    /// assert!(INF.is_infinite());
+    /// ```
+    #[inline]
+    pub const fn const_from_special(val: Special) -> Self {
+        let (prec, sign, exp, limbs) = from_special(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Returns a mutable reference to a [`Float`] for simple operations that do
     /// not need to change the precision of the number.
     ///
@@ -272,13 +741,14 @@ pub trait SealedToMini: Copy {
 }
 
 macro_rules! unsafe_signed {
-    ($($I:ty)*) => { $(
+    ($I:ty, $fn:ident, $fnu:ident) => {
         impl ToMini for $I {}
+
         impl SealedToMini for $I {
             #[inline]
             unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let (neg, abs) = self.neg_abs();
-                unsafe{
+                unsafe {
                     abs.copy(inner, limbs);
                     if neg {
                         (*inner).sign = -1;
@@ -286,41 +756,75 @@ macro_rules! unsafe_signed {
                 }
             }
         }
-    )* };
+
+        #[inline]
+        const fn $fn(val: $I) -> (prec_t, c_int, exp_t, Limbs) {
+            let unsigned_abs = val.unsigned_abs();
+            let (prec, sign, exp, limbs) = $fnu(unsigned_abs);
+            let sign = if val < 0 { -1 } else { sign };
+            (prec, sign, exp, limbs)
+        }
+    };
 }
 
-macro_rules! unsafe_unsigned_32 {
-    ($U:ty, $bits:expr) => {
+macro_rules! unsafe_unsigned_limb {
+    ($U:ty, $fn:ident) => {
         impl ToMini for $U {}
+
         impl SealedToMini for $U {
             #[inline]
             unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
                 let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
                 if self == 0 {
                     unsafe {
-                        xmpfr::custom_zero(inner, limbs_ptr, $bits);
+                        xmpfr::custom_zero(inner, limbs_ptr, <$U>::BITS as prec_t);
                     }
                 } else {
                     let leading = self.leading_zeros();
-                    let limb_leading = leading + gmp::LIMB_BITS.az::<u32>() - $bits;
+                    let limb_leading = leading + gmp::LIMB_BITS.az::<u32>() - <$U>::BITS;
                     limbs[0] = MaybeUninit::new(limb_t::from(self) << limb_leading);
-                    let exp = ($bits - leading).unwrapped_cast();
+                    let exp = (<$U>::BITS - leading).unwrapped_cast();
                     unsafe {
-                        xmpfr::custom_regular(inner, limbs_ptr, exp, $bits);
+                        xmpfr::custom_regular(inner, limbs_ptr, exp, <$U>::BITS as prec_t);
                     }
                 }
+            }
+        }
+
+        #[inline]
+        const fn $fn(val: $U) -> (prec_t, c_int, exp_t, Limbs) {
+            let prec = <$U>::BITS as prec_t;
+            let sign = 1;
+            if val == 0 {
+                (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+            } else {
+                let leading = val.leading_zeros();
+                let limb_leading = leading + (gmp::LIMB_BITS as u32) - <$U>::BITS;
+                let exp = (<$U>::BITS - leading) as exp_t;
+                let limb = (val as limb_t) << limb_leading;
+                (prec, sign, exp, small_limbs![limb])
             }
         }
     };
 }
 
-unsafe_signed! { i8 i16 i32 i64 i128 isize }
+unsafe_signed! { i8, from_i8, from_u8 }
+unsafe_signed! { i16, from_i16, from_u16 }
+unsafe_signed! { i32, from_i32, from_u32 }
+unsafe_signed! { i64, from_i64, from_u64 }
+unsafe_signed! { i128, from_i128, from_u128 }
+unsafe_signed! { isize, from_isize, from_usize }
 
-unsafe_unsigned_32! { u8, 8 }
-unsafe_unsigned_32! { u16, 16 }
-unsafe_unsigned_32! { u32, 32 }
+unsafe_unsigned_limb! { u8, from_u8 }
+unsafe_unsigned_limb! { u16, from_u16 }
+unsafe_unsigned_limb! { u32, from_u32 }
+#[cfg(gmp_limb_bits_64)]
+unsafe_unsigned_limb! { u64, from_u64 }
 
+#[cfg(gmp_limb_bits_32)]
 impl ToMini for u64 {}
+
+#[cfg(gmp_limb_bits_32)]
 impl SealedToMini for u64 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -349,7 +853,28 @@ impl SealedToMini for u64 {
     }
 }
 
+#[cfg(gmp_limb_bits_32)]
+#[inline]
+const fn from_u64(val: u64) -> (prec_t, c_int, exp_t, Limbs) {
+    let prec = u64::BITS as prec_t;
+    let sign = 1;
+    if val == 0 {
+        (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+    } else {
+        let leading = val.leading_zeros();
+        let sval = val << leading;
+        let exp = (u64::BITS - leading) as exp_t;
+        (
+            prec,
+            sign,
+            exp,
+            small_limbs![sval as limb_t, (sval >> 32) as limb_t],
+        )
+    }
+}
+
 impl ToMini for u128 {}
+
 impl SealedToMini for u128 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -381,7 +906,53 @@ impl SealedToMini for u128 {
     }
 }
 
+#[cfg(gmp_limb_bits_64)]
+#[inline]
+const fn from_u128(val: u128) -> (prec_t, c_int, exp_t, Limbs) {
+    let prec = u128::BITS as prec_t;
+    let sign = 1;
+    if val == 0 {
+        (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+    } else {
+        let leading = val.leading_zeros();
+        let sval = val << leading;
+        let exp = (u128::BITS - leading) as exp_t;
+        (
+            prec,
+            sign,
+            exp,
+            small_limbs![sval as limb_t, (sval >> 64) as limb_t],
+        )
+    }
+}
+
+#[cfg(gmp_limb_bits_32)]
+#[inline]
+const fn from_u128(val: u128) -> (prec_t, c_int, exp_t, Limbs) {
+    let prec = u128::BITS as prec_t;
+    let sign = 1;
+    if val == 0 {
+        (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+    } else {
+        let leading = val.leading_zeros();
+        let sval = val << leading;
+        let exp = (u128::BITS - leading) as exp_t;
+        (
+            prec,
+            sign,
+            exp,
+            small_limbs![
+                val as limb_t,
+                (val >> 32) as limb_t,
+                (val >> 64) as limb_t,
+                (val >> 96) as limb_t
+            ],
+        )
+    }
+}
+
 impl ToMini for usize {}
+
 impl SealedToMini for usize {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -402,7 +973,20 @@ impl SealedToMini for usize {
     }
 }
 
+#[cfg(target_pointer_width = "32")]
+#[inline]
+const fn from_usize(val: usize) -> (prec_t, c_int, exp_t, Limbs) {
+    from_u32(val as u32)
+}
+
+#[cfg(target_pointer_width = "64")]
+#[inline]
+const fn from_usize(val: usize) -> (prec_t, c_int, exp_t, Limbs) {
+    from_u64(val as u64)
+}
+
 impl ToMini for f32 {}
+
 impl SealedToMini for f32 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -423,6 +1007,7 @@ impl SealedToMini for f32 {
 }
 
 impl ToMini for f64 {}
+
 impl SealedToMini for f64 {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -442,6 +1027,7 @@ impl SealedToMini for f64 {
 }
 
 impl ToMini for Special {}
+
 impl SealedToMini for Special {
     #[inline]
     unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
@@ -450,6 +1036,18 @@ impl SealedToMini for Special {
         unsafe {
             xmpfr::custom_special(inner, limbs_ptr, self, prec);
         }
+    }
+}
+
+#[inline]
+const fn from_special(val: Special) -> (prec_t, c_int, exp_t, Limbs) {
+    let prec = float::prec_min() as prec_t;
+    match val {
+        Special::Zero => (prec, 1, xmpfr::EXP_ZERO, small_limbs![]),
+        Special::NegZero => (prec, -1, xmpfr::EXP_ZERO, small_limbs![]),
+        Special::Infinity => (prec, 1, xmpfr::EXP_INF, small_limbs![]),
+        Special::NegInfinity => (prec, -1, xmpfr::EXP_INF, small_limbs![]),
+        Special::Nan => (prec, 1, xmpfr::EXP_NAN, small_limbs![]),
     }
 }
 

@@ -7,6 +7,13 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.24.0 (unreleased)
 ===========================
 
+  * [`MiniRational`][mr-1-24] now implements
+    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code> and
+    <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>.
+  * The following methods are now usabel in const context:
+      * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
+      * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
+      * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
   * The following methods were added to [`MiniInteger`][mi-1-24]:
       * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
         [`const_from_i32`][mi-i32-1-24], [`const_from_i64`][mi-i64-1-24],
@@ -14,15 +21,36 @@ Version 1.24.0 (unreleased)
       * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
-  * [`MiniRational`][mr-1-24] now implements
-    <code>[From][`From`]\<[MiniInteger][mi-1-24]></code> and
-    <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>.
   * The
     <code>[MiniRational][mr-1-24]::[const\_from\_integer][mr-cfi-1-24]</code>
     method was added.
+  * The following methods were added to [`MiniFloat`][mf-1-24]:
+      * [`const_from_i8`][mf-i8-1-24], [`const_from_i16`][mf-i16-1-24],
+        [`const_from_i32`][mf-i32-1-24], [`const_from_i64`][mf-i64-1-24],
+        [`const_from_i128`][mf-i128-1-24], [`const_from_isize`][mf-isize-1-24]
+      * [`const_from_u8`][mf-u8-1-24], [`const_from_u16`][mf-u16-1-24],
+        [`const_from_u32`][mf-u32-1-24], [`const_from_u64`][mf-u64-1-24],
+        [`const_from_u128`][mf-u128-1-24], [`const_from_usize`][mf-usize-1-24]
+      * [`const_from_special`][mf-cfs-1-24]
 
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
+[mf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
+[mf-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.borrow
+[mf-cfs-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_special
+[mf-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i128
+[mf-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i16
+[mf-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i32
+[mf-i64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i64
+[mf-i8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i8
+[mf-isize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_isize
+[mf-u128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u128
+[mf-u16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u16
+[mf-u32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u32
+[mf-u64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u64
+[mf-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u8
+[mf-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_usize
 [mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
+[mi-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
 [mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
 [mi-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i16
 [mi-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i32
@@ -36,6 +64,7 @@ Version 1.24.0 (unreleased)
 [mi-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u8
 [mi-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_usize
 [mr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
+[mr-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.borrow
 [mr-cfi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.const_from_integer
 
 Version 1.23.0 (2024-01-18)
