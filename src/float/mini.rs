@@ -27,6 +27,7 @@ use core::fmt::{
 };
 use core::mem;
 use core::mem::MaybeUninit;
+#[allow(unused_imports)]
 use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
@@ -215,16 +216,17 @@ impl MiniFloat {
     /// assert_eq!(Float::with_val(53, abs_ref), 13);
     /// ```
     #[inline]
-    pub fn borrow(&self) -> impl Deref<Target = Float> + '_ {
+    pub const fn borrow(&self) -> BorrowFloat {
         // SAFETY: Since d points to the limbs, the mpfr_t is in a consistent
         // state. Also, the lifetime of the BorrowFloat is the lifetime of self,
         // which covers the limbs.
+        let d: *const Limbs = &self.limbs;
         unsafe {
             BorrowFloat::from_raw(mpfr_t {
                 prec: self.inner.prec,
                 sign: self.inner.sign,
                 exp: self.inner.exp,
-                d: NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast(),
+                d: NonNull::new_unchecked(d.cast_mut().cast()),
             })
         }
     }
