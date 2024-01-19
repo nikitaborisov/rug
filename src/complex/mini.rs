@@ -25,6 +25,7 @@ use core::fmt::{
 };
 use core::mem;
 use core::mem::MaybeUninit;
+#[allow(unused_imports)]
 use core::ops::Deref;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp;
@@ -237,13 +238,13 @@ impl MiniComplex {
     /// assert_eq!(*conj.imag(), -5.5);
     /// ```
     #[inline]
-    pub fn borrow(&self) -> impl Deref<Target = Complex> + '_ {
-        let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
-        let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
+    pub const fn borrow(&self) -> BorrowComplex {
+        let first_d: *const Limbs = &self.first_limbs;
+        let last_d: *const Limbs = &self.last_limbs;
         let (re_d, im_d) = if self.re_is_first() {
-            (first, last)
+            (first_d, last_d)
         } else {
-            (last, first)
+            (last_d, first_d)
         };
         // SAFETY: Since re_d and im_d point to the limbs, the mpc_t is in a
         // consistent state. Also, the lifetime of the BorrowComplex is the
@@ -254,13 +255,13 @@ impl MiniComplex {
                     prec: self.inner.re.prec,
                     sign: self.inner.re.sign,
                     exp: self.inner.re.exp,
-                    d: re_d,
+                    d: NonNull::new_unchecked(re_d.cast_mut().cast()),
                 },
                 im: mpfr_t {
                     prec: self.inner.im.prec,
                     sign: self.inner.im.sign,
                     exp: self.inner.im.exp,
-                    d: im_d,
+                    d: NonNull::new_unchecked(im_d.cast_mut().cast()),
                 },
             })
         }
