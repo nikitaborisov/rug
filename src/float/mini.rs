@@ -191,6 +191,7 @@ impl MiniFloat {
     /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
     /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
     /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f32::MANTISSA_DIGITS);
     /// ```
     #[inline]
     pub const fn const_from_f32(val: f32) -> Self {
@@ -227,6 +228,7 @@ impl MiniFloat {
     /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
     /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
     /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f64::MANTISSA_DIGITS);
     /// ```
     #[inline]
     pub const fn const_from_f64(val: f64) -> Self {
@@ -263,6 +265,7 @@ impl MiniFloat {
     /// const TWO_BORROW: BorrowFloat = TWO_MINI.borrow();
     /// const TWO: &Float = BorrowFloat::const_deref(&TWO_BORROW);
     /// assert_eq!(*TWO, 2);
+    /// assert_eq!(TWO.prec(), i8::BITS);
     /// ```
     #[inline]
     pub const fn const_from_i8(val: i8) -> Self {
@@ -299,6 +302,7 @@ impl MiniFloat {
     /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
     /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
     /// assert_eq!(*KIBI, 1i16 << 10);
+    /// assert_eq!(KIBI.prec(), i16::BITS);
     /// ```
     #[inline]
     pub const fn const_from_i16(val: i16) -> Self {
@@ -335,6 +339,7 @@ impl MiniFloat {
     /// const MEBI_BORROW: BorrowFloat = MEBI_MINI.borrow();
     /// const MEBI: &Float = BorrowFloat::const_deref(&MEBI_BORROW);
     /// assert_eq!(*MEBI, 1i32 << 20);
+    /// assert_eq!(MEBI.prec(), i32::BITS);
     /// ```
     #[inline]
     pub const fn const_from_i32(val: i32) -> Self {
@@ -371,6 +376,7 @@ impl MiniFloat {
     /// const TEBI_BORROW: BorrowFloat = TEBI_MINI.borrow();
     /// const TEBI: &Float = BorrowFloat::const_deref(&TEBI_BORROW);
     /// assert_eq!(*TEBI, 1i64 << 40);
+    /// assert_eq!(TEBI.prec(), i64::BITS);
     /// ```
     #[inline]
     pub const fn const_from_i64(val: i64) -> Self {
@@ -407,6 +413,7 @@ impl MiniFloat {
     /// const YOBI_BORROW: BorrowFloat = YOBI_MINI.borrow();
     /// const YOBI: &Float = BorrowFloat::const_deref(&YOBI_BORROW);
     /// assert_eq!(*YOBI, 1i128 << 80);
+    /// assert_eq!(YOBI.prec(), i128::BITS);
     /// ```
     #[inline]
     pub const fn const_from_i128(val: i128) -> Self {
@@ -443,6 +450,7 @@ impl MiniFloat {
     /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
     /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
     /// assert_eq!(*KIBI, 1isize << 10);
+    /// assert_eq!(KIBI.prec(), isize::BITS);
     /// ```
     #[inline]
     pub const fn const_from_isize(val: isize) -> Self {
@@ -479,6 +487,7 @@ impl MiniFloat {
     /// const TWO_BORROW: BorrowFloat = TWO_MINI.borrow();
     /// const TWO: &Float = BorrowFloat::const_deref(&TWO_BORROW);
     /// assert_eq!(*TWO, 2);
+    /// assert_eq!(TWO.prec(), u8::BITS);
     /// ```
     #[inline]
     pub const fn const_from_u8(val: u8) -> Self {
@@ -515,6 +524,7 @@ impl MiniFloat {
     /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
     /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
     /// assert_eq!(*KIBI, 1u16 << 10);
+    /// assert_eq!(KIBI.prec(), u16::BITS);
     /// ```
     #[inline]
     pub const fn const_from_u16(val: u16) -> Self {
@@ -551,6 +561,7 @@ impl MiniFloat {
     /// const MEBI_BORROW: BorrowFloat = MEBI_MINI.borrow();
     /// const MEBI: &Float = BorrowFloat::const_deref(&MEBI_BORROW);
     /// assert_eq!(*MEBI, 1u32 << 20);
+    /// assert_eq!(MEBI.prec(), u32::BITS);
     /// ```
     #[inline]
     pub const fn const_from_u32(val: u32) -> Self {
@@ -587,6 +598,7 @@ impl MiniFloat {
     /// const TEBI_BORROW: BorrowFloat = TEBI_MINI.borrow();
     /// const TEBI: &Float = BorrowFloat::const_deref(&TEBI_BORROW);
     /// assert_eq!(*TEBI, 1u64 << 40);
+    /// assert_eq!(TEBI.prec(), u64::BITS);
     /// ```
     #[inline]
     pub const fn const_from_u64(val: u64) -> Self {
@@ -623,6 +635,7 @@ impl MiniFloat {
     /// const YOBI_BORROW: BorrowFloat = YOBI_MINI.borrow();
     /// const YOBI: &Float = BorrowFloat::const_deref(&YOBI_BORROW);
     /// assert_eq!(*YOBI, 1u128 << 80);
+    /// assert_eq!(YOBI.prec(), u128::BITS);
     /// ```
     #[inline]
     pub const fn const_from_u128(val: u128) -> Self {
@@ -659,6 +672,7 @@ impl MiniFloat {
     /// const KIBI_BORROW: BorrowFloat = KIBI_MINI.borrow();
     /// const KIBI: &Float = BorrowFloat::const_deref(&KIBI_BORROW);
     /// assert_eq!(*KIBI, 1usize << 10);
+    /// assert_eq!(KIBI.prec(), usize::BITS);
     /// ```
     #[inline]
     pub const fn const_from_usize(val: usize) -> Self {
@@ -688,6 +702,7 @@ impl MiniFloat {
     /// # Examples
     ///
     /// ```rust
+    /// use rug::float;
     /// use rug::float::{BorrowFloat, MiniFloat, Special};
     /// use rug::Float;
     ///
@@ -695,6 +710,7 @@ impl MiniFloat {
     /// const INF_BORROW: BorrowFloat = INF_MINI.borrow();
     /// const INF: &Float = BorrowFloat::const_deref(&INF_BORROW);
     /// assert!(INF.is_infinite());
+    /// assert_eq!(INF.prec(), float::prec_min());
     /// ```
     #[inline]
     pub const fn const_from_special(val: Special) -> Self {
