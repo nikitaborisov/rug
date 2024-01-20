@@ -881,6 +881,17 @@ mod tests {
         };
     }
 
+    macro_rules! check_pow_other {
+        ($list:expr, $other:expr) => {
+            for op in $list {
+                for b in &$other {
+                    let bc = Complex::with_val(150, b);
+                    assert!(same(op.clone().pow(b), op.clone().pow(bc)));
+                }
+            }
+        };
+    }
+
     #[test]
     fn check_pow() {
         use crate::tests::{F32, I32};
@@ -905,6 +916,14 @@ mod tests {
             Float::with_val(20, 12.5) << 10000,
             Float::with_val(20, Special::Infinity),
         ];
+        let i = [
+            Integer::from(0),
+            Integer::from(1),
+            Integer::from(-1),
+            Integer::from(12),
+            Integer::from(-12),
+            Integer::from(12) << 100,
+        ];
 
         let against = large
             .iter()
@@ -912,6 +931,7 @@ mod tests {
             .chain(I32.iter().map(|&x| Complex::with_val(20, x)))
             .chain(F32.iter().map(|&x| Complex::with_val(20, x)))
             .chain(f.iter().map(|x| Complex::with_val(20, x)))
+            .chain(i.iter().map(|x| Complex::with_val(20, x)))
             .collect::<Vec<Complex>>();
 
         check_pow!(&[-1001i32, -1, 0, 1, 1001], against);
@@ -928,6 +948,7 @@ mod tests {
             ],
             against
         );
+        check_pow_other!(against, i);
 
         float::free_cache(FreeCache::All);
     }
