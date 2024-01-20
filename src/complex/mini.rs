@@ -17,7 +17,7 @@
 use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
 use crate::float;
-use crate::float::{MiniFloat, Special, ToMini};
+use crate::float::{MiniFloat, ToMini};
 use crate::{Assign, Complex};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -186,6 +186,9 @@ impl MiniComplex {
     /// constant context. Unless required in constant context, use the [`From`]
     /// trait instead.
     ///
+    /// The precision of the imaginary part is set to the precision of the real
+    /// part.
+    ///
     /// # Planned deprecation
     ///
     /// This method will be deprecated when the [`From`] trait is usable in
@@ -195,7 +198,6 @@ impl MiniComplex {
     ///
     /// ```rust
     /// use rug::complex::{BorrowComplex, MiniComplex};
-    /// use rug::float;
     /// use rug::float::MiniFloat;
     /// use rug::Complex;
     ///
@@ -444,107 +446,37 @@ impl From<(MiniFloat, MiniFloat)> for MiniComplex {
 
 impl<Re: ToMini> Assign<Re> for MiniComplex {
     fn assign(&mut self, src: Re) {
-        unsafe {
-            src.copy(&mut self.inner.re, &mut self.first_limbs);
-            xmpfr::custom_zero(
-                &mut self.inner.im,
-                cast_ptr_mut!(self.last_limbs.as_mut_ptr(), limb_t),
-                self.inner.re.prec,
-            );
-        }
+        // make re is first
+        self.inner.im.d = self.inner.re.d;
+        src.copy(&mut self.inner.re, &mut self.first_limbs);
+        self.inner.im.prec = self.inner.re.prec;
+        self.inner.im.sign = 1;
+        self.inner.im.exp = xmpfr::EXP_ZERO;
     }
 }
 
 impl<Re: ToMini> From<Re> for MiniComplex {
     fn from(src: Re) -> Self {
-        let d = NonNull::dangling();
-        let mut inner = mpc_t {
-            re: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d,
-            },
-            im: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d,
-            },
-        };
-        let mut re_limbs = small_limbs![];
-        let mut im_limbs = small_limbs![];
-        unsafe {
-            src.copy(&mut inner.re, &mut re_limbs);
-            xmpfr::custom_zero(
-                &mut inner.im,
-                cast_ptr_mut!(im_limbs.as_mut_ptr(), limb_t),
-                inner.re.prec,
-            );
-        }
-        // order of limbs is important as inner.num.d != inner.den.d
-        if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            MiniComplex {
-                inner,
-                first_limbs: re_limbs,
-                last_limbs: im_limbs,
-            }
-        } else {
-            MiniComplex {
-                inner,
-                first_limbs: im_limbs,
-                last_limbs: re_limbs,
-            }
-        }
+        let re = MiniFloat::from(src);
+        MiniComplex::const_from_real(re)
     }
 }
 
 impl<Re: ToMini, Im: ToMini> Assign<(Re, Im)> for MiniComplex {
     fn assign(&mut self, src: (Re, Im)) {
-        unsafe {
-            src.0.copy(&mut self.inner.re, &mut self.first_limbs);
-            src.1.copy(&mut self.inner.im, &mut self.last_limbs);
-        }
+        // make re is first
+        self.inner.im.d = self.inner.re.d;
+        src.0.copy(&mut self.inner.re, &mut self.first_limbs);
+        src.1.copy(&mut self.inner.im, &mut self.last_limbs);
     }
 }
 
 impl<Re: ToMini, Im: ToMini> From<(Re, Im)> for MiniComplex {
+    #[inline]
     fn from(src: (Re, Im)) -> Self {
-        let d = NonNull::dangling();
-        let mut inner = mpc_t {
-            re: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d,
-            },
-            im: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d,
-            },
-        };
-        let mut re_limbs = small_limbs![];
-        let mut im_limbs = small_limbs![];
-        unsafe {
-            src.0.copy(&mut inner.re, &mut re_limbs);
-            src.1.copy(&mut inner.im, &mut im_limbs);
-        }
-        // order of limbs is important as inner.num.d != inner.den.d
-        if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            MiniComplex {
-                inner,
-                first_limbs: re_limbs,
-                last_limbs: im_limbs,
-            }
-        } else {
-            MiniComplex {
-                inner,
-                first_limbs: im_limbs,
-                last_limbs: re_limbs,
-            }
-        }
+        let re = MiniFloat::from(src.0);
+        let im = MiniFloat::from(src.1);
+        MiniComplex::const_from_parts(re, im)
     }
 }
 
@@ -602,6 +534,7 @@ mod tests {
         assert_eq!(*c.clone().borrow_excl(), c);
         let mut orig_swapped_parts = swapped_parts(&c);
         unsafe {
+            assert_eq!(c.borrow_excl().real().prec(), c.borrow_excl().imag().prec());
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
         assert_eq!(*c.borrow_excl(), (-2, 1));
@@ -613,6 +546,7 @@ mod tests {
         assert_eq!(*c.clone().borrow_excl(), c);
         orig_swapped_parts = swapped_parts(&c);
         unsafe {
+            assert_eq!(c.borrow_excl().real().prec(), c.borrow_excl().imag().prec());
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
         assert_eq!(*c.borrow_excl(), (0, 12));
@@ -624,6 +558,7 @@ mod tests {
         assert_eq!(*c.clone().borrow_excl(), c);
         orig_swapped_parts = swapped_parts(&c);
         unsafe {
+            assert_eq!(c.borrow_excl().real().prec(), c.borrow_excl().imag().prec());
             c.as_nonreallocating_complex().mul_i_mut(false);
         }
         assert_eq!(*c.borrow_excl(), (-5, 4));
