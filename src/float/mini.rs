@@ -172,7 +172,7 @@ impl MiniFloat {
         }
     }
 
-    /// Creates a [`MiniFloat`] from an [`f32`].
+    /// Creates a [`MiniFloat`] from a [`bool`].
     ///
     /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
     /// constant context. Unless required in constant context, use the [`From`]
@@ -186,55 +186,19 @@ impl MiniFloat {
     /// # Examples
     ///
     /// ```rust
+    /// use rug::float;
     /// use rug::float::{BorrowFloat, MiniFloat};
     /// use rug::Float;
     ///
-    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f32(2.5);
-    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
-    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
-    /// assert_eq!(*TWO_HALF, 2.5);
-    /// assert_eq!(TWO_HALF.prec(), f32::MANTISSA_DIGITS);
+    /// const ONE_MINI: MiniFloat = MiniFloat::const_from_bool(true);
+    /// const ONE_BORROW: BorrowFloat = ONE_MINI.borrow();
+    /// const ONE: &Float = BorrowFloat::const_deref(&ONE_BORROW);
+    /// assert_eq!(*ONE, 1);
+    /// assert_eq!(ONE.prec(), float::prec_min());
     /// ```
     #[inline]
-    pub const fn const_from_f32(val: f32) -> Self {
-        let (prec, sign, exp, limbs) = from_f32(val);
-        MiniFloat {
-            inner: mpfr_t {
-                prec,
-                sign,
-                exp,
-                d: NonNull::dangling(),
-            },
-            limbs,
-        }
-    }
-
-    /// Creates a [`MiniFloat`] from an [`f64`].
-    ///
-    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
-    /// constant context. Unless required in constant context, use the [`From`]
-    /// trait instead.
-    ///
-    /// # Planned deprecation
-    ///
-    /// This method will be deprecated when the [`From`] trait is usable in
-    /// constant context.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// use rug::float::{BorrowFloat, MiniFloat};
-    /// use rug::Float;
-    ///
-    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f64(2.5);
-    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
-    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
-    /// assert_eq!(*TWO_HALF, 2.5);
-    /// assert_eq!(TWO_HALF.prec(), f64::MANTISSA_DIGITS);
-    /// ```
-    #[inline]
-    pub const fn const_from_f64(val: f64) -> Self {
-        let (prec, sign, exp, limbs) = from_f64(val);
+    pub const fn const_from_bool(val: bool) -> Self {
+        let (prec, sign, exp, limbs) = from_bool(val);
         MiniFloat {
             inner: mpfr_t {
                 prec,
@@ -690,6 +654,80 @@ impl MiniFloat {
         }
     }
 
+    /// Creates a [`MiniFloat`] from an [`f32`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f32(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f32::MANTISSA_DIGITS);
+    /// ```
+    #[inline]
+    pub const fn const_from_f32(val: f32) -> Self {
+        let (prec, sign, exp, limbs) = from_f32(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from an [`f64`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f64(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f64::MANTISSA_DIGITS);
+    /// ```
+    #[inline]
+    pub const fn const_from_f64(val: f64) -> Self {
+        let (prec, sign, exp, limbs) = from_f64(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Creates a [`MiniFloat`] from a [`Special`] value.
     ///
     /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
@@ -918,6 +956,17 @@ impl SealedToMini for bool {
                 xmpfr::custom_regular(inner, limbs_ptr, exp, float::prec_min() as prec_t);
             }
         }
+    }
+}
+
+#[inline]
+const fn from_bool(val: bool) -> (prec_t, c_int, exp_t, Limbs) {
+    let prec = float::prec_min() as prec_t;
+    let sign = 1;
+    if !val {
+        (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+    } else {
+        (prec, sign, 1, small_limbs![1 << (limb_t::BITS - 1)])
     }
 }
 
