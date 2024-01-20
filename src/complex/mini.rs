@@ -195,6 +195,7 @@ impl MiniComplex {
     ///
     /// ```rust
     /// use rug::complex::{BorrowComplex, MiniComplex};
+    /// use rug::float;
     /// use rug::float::MiniFloat;
     /// use rug::Complex;
     ///
@@ -203,6 +204,7 @@ impl MiniComplex {
     /// const TWO_BORROW: BorrowComplex = TWO_MINI.borrow();
     /// const TWO: &Complex = BorrowComplex::const_deref(&TWO_BORROW);
     /// assert_eq!(*TWO, 2);
+    /// assert_eq!(TWO.prec(), (i8::BITS, float::prec_min()));
     /// ```
     #[inline]
     pub const fn const_from_real(real: MiniFloat) -> Self {
@@ -247,11 +249,13 @@ impl MiniComplex {
     /// use rug::Complex;
     ///
     /// const TWO_FLOAT: MiniFloat = MiniFloat::const_from_i8(2i8);
-    /// const SIX_FLOAT: MiniFloat = MiniFloat::const_from_i8(6i8);
-    /// const TWO_SIX_MINI: MiniComplex = MiniComplex::const_from_parts(TWO_FLOAT, SIX_FLOAT);
-    /// const TWO_SIX_BORROW: BorrowComplex = TWO_SIX_MINI.borrow();
-    /// const TWO_SIX: &Complex = BorrowComplex::const_deref(&TWO_SIX_BORROW);
-    /// assert_eq!(*TWO_SIX, (2, 6));
+    /// const THOUSAND_FLOAT: MiniFloat = MiniFloat::const_from_i16(1000i16);
+    /// const TWO_1000I_MINI: MiniComplex =
+    ///     MiniComplex::const_from_parts(TWO_FLOAT, THOUSAND_FLOAT);
+    /// const TWO_1000I_BORROW: BorrowComplex = TWO_1000I_MINI.borrow();
+    /// const TWO_1000I: &Complex = BorrowComplex::const_deref(&TWO_1000I_BORROW);
+    /// assert_eq!(*TWO_1000I, (2, 1000));
+    /// assert_eq!(TWO_1000I.prec(), (i8::BITS, i16::BITS));
     /// ```
     #[inline]
     pub const fn const_from_parts(real: MiniFloat, imag: MiniFloat) -> Self {
