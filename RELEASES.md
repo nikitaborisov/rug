@@ -21,6 +21,7 @@ Version 1.24.0 (unreleased)
       * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
       * <code>[MiniComplex][mc-1-24]::[borrow][mc-b-1-24]</code>
   * The following methods were added to [`MiniInteger`][mi-1-24]:
+      * [`const_from_bool`][mi-bool-1-24]
       * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
         [`const_from_i32`][mi-i32-1-24], [`const_from_i64`][mi-i64-1-24],
         [`const_from_i128`][mi-i128-1-24], [`const_from_isize`][mi-isize-1-24]
@@ -66,6 +67,7 @@ Version 1.24.0 (unreleased)
 [mf-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_usize
 [mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
 [mi-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
+[mi-bool-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_bool
 [mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
 [mi-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i16
 [mi-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i32

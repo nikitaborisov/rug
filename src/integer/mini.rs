@@ -142,6 +142,41 @@ impl MiniInteger {
         }
     }
 
+    /// Creates a [`MiniInteger`] from a [`bool`].
+    ///
+    /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const ONE_MINI: MiniInteger = MiniInteger::const_from_bool(true);
+    /// const ONE_BORROW: BorrowInteger = ONE_MINI.borrow();
+    /// const ONE: &Integer = BorrowInteger::const_deref(&ONE_BORROW);
+    /// assert_eq!(*ONE, 1);
+    /// ```
+    #[inline]
+    pub const fn const_from_bool(val: bool) -> Self {
+        let (size, limbs) = from_bool(val);
+        MiniInteger {
+            inner: mpz_t {
+                alloc: LIMBS_IN_SMALL as c_int,
+                size,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Creates a [`MiniInteger`] from a [`i8`].
     ///
     /// This is equivalent to `MiniInteger::from(val)`, but can also be used in
@@ -663,8 +698,9 @@ impl MiniInteger {
 ///   * <code>[From][`From`]\<T> for [MiniInteger][`MiniInteger`]</code>
 ///
 /// This trait is sealed and cannot be implemented for more types; it is
-/// implemented for [`bool`] and the unsigned integer types [`u8`], [`u16`],
-/// [`u32`], [`u64`], [`u128`] and [`usize`].
+/// implemented for [`bool`] and for the integer types [`i8`], [`i16`], [`i32`],
+/// [`i64`], [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`]
+/// and [`usize`].
 pub trait ToMini: SealedToMini {}
 
 pub trait SealedToMini: Sized {
@@ -760,6 +796,16 @@ impl SealedToMini for bool {
     #[inline]
     fn is_zero(&self) -> bool {
         !*self
+    }
+}
+
+
+#[inline]
+const fn from_bool(val: bool) -> (c_int, Limbs) {
+    if val {
+        (1, small_limbs![1])
+    } else {
+        (0, small_limbs![])
     }
 }
 
