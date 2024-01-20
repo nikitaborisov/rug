@@ -204,29 +204,23 @@ impl MiniComplex {
     /// const TWO_BORROW: BorrowComplex = TWO_MINI.borrow();
     /// const TWO: &Complex = BorrowComplex::const_deref(&TWO_BORROW);
     /// assert_eq!(*TWO, 2);
-    /// assert_eq!(TWO.prec(), (i8::BITS, float::prec_min()));
+    /// assert_eq!(TWO.prec(), (i8::BITS, i8::BITS));
     /// ```
     #[inline]
     pub const fn const_from_real(real: MiniFloat) -> Self {
-        let MiniFloat {
-            inner: mut re_inner,
-            limbs: re_limbs,
-        } = real;
-        let MiniFloat {
-            inner: mut im_inner,
-            limbs: im_limbs,
-        } = MiniFloat::const_from_special(Special::Zero);
-        let d = NonNull::dangling();
-        // remove d pointer relation
-        re_inner.d = d;
-        im_inner.d = d;
+        let MiniFloat { inner, limbs } = real;
         MiniComplex {
             inner: mpc_t {
-                re: re_inner,
-                im: im_inner,
+                re: inner,
+                im: mpfr_t {
+                    prec: inner.prec,
+                    sign: 1,
+                    exp: xmpfr::EXP_ZERO,
+                    d: inner.d,
+                },
             },
-            first_limbs: re_limbs,
-            last_limbs: im_limbs,
+            first_limbs: limbs,
+            last_limbs: small_limbs![],
         }
     }
 
@@ -411,7 +405,7 @@ impl Assign<MiniFloat> for MiniComplex {
         self.inner.re.prec = src.inner.prec;
         self.inner.re.sign = src.inner.sign;
         self.inner.re.exp = src.inner.exp;
-        self.inner.im.prec = float::prec_min() as prec_t;
+        self.inner.im.prec = src.inner.prec;
         self.inner.im.sign = 1;
         self.inner.im.exp = xmpfr::EXP_ZERO;
         self.first_limbs = src.limbs;
@@ -664,9 +658,9 @@ mod tests {
                 assert_eq!(*a.borrow(), val $(as $U)?);
                 assert_eq!(*b.borrow(), val $(as $U)?);
                 assert_eq!(*c.borrow(), val $(as $U)?);
-                assert_eq!(a.borrow().prec(), ($prec, 1));
-                assert_eq!(b.borrow().prec(), ($prec, 1));
-                assert_eq!(c.borrow().prec(), ($prec, 1));
+                assert_eq!(a.borrow().prec(), ($prec, $prec));
+                assert_eq!(b.borrow().prec(), ($prec, $prec));
+                assert_eq!(c.borrow().prec(), ($prec, $prec));
 
                 let one = MiniFloat::from(true);
                 let a = MiniComplex::from((float, one));
