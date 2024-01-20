@@ -16,7 +16,7 @@
 
 use crate::ext::xmpz;
 use crate::integer::arith::MulIncomplete;
-use crate::integer::{BorrowInteger, Order};
+use crate::integer::{BorrowInteger, MiniInteger, Order};
 use crate::misc;
 use crate::ops::{DivRounding, NegAssign, SubFrom};
 #[cfg(feature = "rand")]
@@ -235,10 +235,8 @@ impl Integer {
     /// assert_eq!(*Integer::ONE, 1);
     /// ```
     pub const ONE: &'static Integer = {
-        const LIMBS: [limb_t; 1] = [1];
-        const MPZ: mpz_t = unsafe { gmp::MPZ_ROINIT_N(LIMBS.as_ptr().cast_mut(), 1) };
-        // Safety: MPZ will remain valid, and will not be changed.
-        const BORROW: BorrowInteger = unsafe { BorrowInteger::from_raw(MPZ) };
+        const MINI: MiniInteger = MiniInteger::const_from_bool(true);
+        const BORROW: BorrowInteger = MINI.borrow();
         BorrowInteger::const_deref(&BORROW)
     };
 
@@ -251,10 +249,7 @@ impl Integer {
     /// assert_eq!(*Integer::NEG_ONE, -1);
     /// ```
     pub const NEG_ONE: &'static Integer = {
-        const LIMBS: [limb_t; 1] = [1];
-        const MPZ: mpz_t = unsafe { gmp::MPZ_ROINIT_N(LIMBS.as_ptr().cast_mut(), -1) };
-        // Safety: MPZ will remain valid, and will not be changed.
-        const BORROW: BorrowInteger = unsafe { BorrowInteger::from_raw(MPZ) };
+        const BORROW: BorrowInteger = Integer::ONE.as_neg();
         BorrowInteger::const_deref(&BORROW)
     };
 

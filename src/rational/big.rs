@@ -27,7 +27,7 @@ use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 use gmp_mpfr_sys::gmp;
-use gmp_mpfr_sys::gmp::{limb_t, mpq_t};
+use gmp_mpfr_sys::gmp::mpq_t;
 use std::error::Error;
 
 /**
@@ -192,13 +192,8 @@ impl Rational {
     /// assert_eq!(*Rational::ZERO, 0);
     /// ```
     pub const ZERO: &'static Rational = {
-        const DENOM_LIMBS: [limb_t; 1] = [1];
-        const MPQ: mpq_t = mpq_t {
-            num: xmpz::owned_init(),
-            den: unsafe { gmp::MPZ_ROINIT_N(DENOM_LIMBS.as_ptr().cast_mut(), 1) },
-        };
-        // Safety: MPQ will remain valid, and will not be changed.
-        const BORROW: BorrowRational = unsafe { BorrowRational::from_raw(MPQ) };
+        const INT: &Integer = &Integer::ZERO;
+        const BORROW: BorrowRational = INT.as_rational();
         BorrowRational::const_deref(&BORROW)
     };
 
@@ -211,14 +206,7 @@ impl Rational {
     /// assert_eq!(*Rational::ONE, 1);
     /// ```
     pub const ONE: &'static Rational = {
-        const NUMER_LIMBS: [limb_t; 1] = [1];
-        const DENOM_LIMBS: [limb_t; 1] = [1];
-        const MPQ: mpq_t = mpq_t {
-            num: unsafe { gmp::MPZ_ROINIT_N(NUMER_LIMBS.as_ptr().cast_mut(), 1) },
-            den: unsafe { gmp::MPZ_ROINIT_N(DENOM_LIMBS.as_ptr().cast_mut(), 1) },
-        };
-        // Safety: MPQ will remain valid, and will not be changed.
-        const BORROW: BorrowRational = unsafe { BorrowRational::from_raw(MPQ) };
+        const BORROW: BorrowRational = Integer::ONE.as_rational();
         BorrowRational::const_deref(&BORROW)
     };
 
@@ -231,14 +219,7 @@ impl Rational {
     /// assert_eq!(*Rational::NEG_ONE, -1);
     /// ```
     pub const NEG_ONE: &'static Rational = {
-        const NUMER_LIMBS: [limb_t; 1] = [1];
-        const DENOM_LIMBS: [limb_t; 1] = [1];
-        const MPQ: mpq_t = mpq_t {
-            num: unsafe { gmp::MPZ_ROINIT_N(NUMER_LIMBS.as_ptr().cast_mut(), -1) },
-            den: unsafe { gmp::MPZ_ROINIT_N(DENOM_LIMBS.as_ptr().cast_mut(), 1) },
-        };
-        // Safety: MPQ will remain valid, and will not be changed.
-        const BORROW: BorrowRational = unsafe { BorrowRational::from_raw(MPQ) };
+        const BORROW: BorrowRational = Integer::NEG_ONE.as_rational();
         BorrowRational::const_deref(&BORROW)
     };
 
