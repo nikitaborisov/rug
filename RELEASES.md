@@ -47,10 +47,16 @@ Version 1.24.0 (unreleased)
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
       * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
+  * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
+    the following traits are implemented for [`Integer`][int-1-24]:
+      * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
+      * [`Euclid`][nt-0-2-e], [`CheckedEuclid`][nt-0-2-ce]
 
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
+[feat-exp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#experimental-optional-features
 [flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
+[int-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Integer.html
 [mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
 [mc-cfp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_parts
@@ -91,6 +97,10 @@ Version 1.24.0 (unreleased)
 [mr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
 [mr-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.borrow
 [mr-cfi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.const_from_integer
+[nt-0-2-cd]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedDiv.html
+[nt-0-2-ce]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.CheckedEuclid.html
+[nt-0-2-cr]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedRem.html
+[nt-0-2-e]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.Euclid.html
 
 Version 1.23.0 (2024-01-18)
 ===========================

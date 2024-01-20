@@ -22,6 +22,8 @@ use az::{CheckedCast, UnwrappedCast};
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
 use num_traits_crate::cast::{FromPrimitive, ToPrimitive};
 use num_traits_crate::identities::{One, Zero};
+use num_traits_crate::ops::checked::{CheckedDiv, CheckedRem};
+use num_traits_crate::ops::euclid::{CheckedEuclid, Euclid};
 use num_traits_crate::ops::mul_add::{MulAdd, MulAddAssign};
 use num_traits_crate::sign::Signed;
 use num_traits_crate::Num;
@@ -363,5 +365,53 @@ impl Roots for Integer {
     #[inline]
     fn cbrt(&self) -> Self {
         self.root_ref(3).into()
+    }
+}
+
+impl CheckedDiv for Integer {
+    fn checked_div(&self, v: &Self) -> Option<Self> {
+        if v.is_zero() {
+            None
+        } else {
+            Some(Integer::from(self / v))
+        }
+    }
+}
+
+impl CheckedRem for Integer {
+    fn checked_rem(&self, v: &Self) -> Option<Self> {
+        if v.is_zero() {
+            None
+        } else {
+            Some(Integer::from(self % v))
+        }
+    }
+}
+
+impl Euclid for Integer {
+    fn div_euclid(&self, v: &Self) -> Self {
+        Integer::from(DivRounding::div_euc(self, v))
+    }
+
+    fn rem_euclid(&self, v: &Self) -> Self {
+        Integer::from(RemRounding::rem_euc(self, v))
+    }
+}
+
+impl CheckedEuclid for Integer {
+    fn checked_div_euclid(&self, v: &Self) -> Option<Self> {
+        if v.is_zero() {
+            None
+        } else {
+            Some(Integer::from(DivRounding::div_euc(self, v)))
+        }
+    }
+
+    fn checked_rem_euclid(&self, v: &Self) -> Option<Self> {
+        if v.is_zero() {
+            None
+        } else {
+            Some(Integer::from(RemRounding::rem_euc(self, v)))
+        }
     }
 }
