@@ -16,9 +16,9 @@
 
 #![allow(deprecated)]
 
-use crate::misc::NegAbs;
+use crate::integer::ToMini;
 use crate::{Assign, Integer};
-use az::{Az, Cast, WrappingCast};
+use az::Cast;
 use core::cell::UnsafeCell;
 use core::ffi::c_int;
 use core::fmt::Debug;
@@ -198,179 +198,10 @@ impl Deref for SmallInteger {
     }
 }
 
-/// Types implementing this trait can be converted to [`SmallInteger`].
-///
-/// The following are implemented when `T` implements `ToSmall`:
-///   * <code>[Assign][`Assign`]\<T> for [SmallInteger][`SmallInteger`]</code>
-///   * <code>[From][`From`]\<T> for [SmallInteger][`SmallInteger`]</code>
-///
-/// This trait is sealed and cannot be implemented for more types; it is
-/// implemented for [`bool`] and the unsigned integer types [`u8`], [`u16`],
-/// [`u32`], [`u64`], [`u128`] and [`usize`].
-#[deprecated(since = "1.23.0", note = "use `MiniInteger` and `ToMini` instead")]
-pub trait ToSmall: SealedToSmall {}
-
-pub trait SealedToSmall: Sized {
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs);
-    fn is_zero(&self) -> bool;
-}
-
-macro_rules! is_zero {
-    () => {
-        #[inline]
-        fn is_zero(&self) -> bool {
-            *self == 0
-        }
-    };
-}
-
-macro_rules! signed {
-    ($($I:ty)*) => { $(
-        impl ToSmall for $I {}
-        impl SealedToSmall for $I {
-            #[inline]
-            fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-                let (neg, abs) = self.neg_abs();
-                abs.copy(size, limbs);
-                if neg {
-                    *size = -*size;
-                }
-            }
-
-            is_zero! {}
-        }
-    )* };
-}
-
-macro_rules! one_limb {
-    ($($U:ty)*) => { $(
-        impl ToSmall for $U {}
-        impl SealedToSmall for $U {
-            #[inline]
-            fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-                if self == 0 {
-                    *size = 0;
-                } else {
-                    *size = 1;
-                    limbs[0] = MaybeUninit::new(self.into());
-                }
-            }
-
-            is_zero! {}
-        }
-    )* };
-}
-
-signed! { i8 i16 i32 i64 i128 isize }
-
-impl ToSmall for bool {}
-
-impl SealedToSmall for bool {
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        if self {
-            *size = 1;
-            limbs[0] = MaybeUninit::new(1);
-        } else {
-            *size = 0;
-        }
-    }
-
-    #[inline]
-    fn is_zero(&self) -> bool {
-        !*self
-    }
-}
-
-one_limb! { u8 u16 u32 }
-
-#[cfg(gmp_limb_bits_64)]
-one_limb! { u64 }
-
-#[cfg(gmp_limb_bits_32)]
-impl ToSmall for u64 {}
-#[cfg(gmp_limb_bits_32)]
-impl SealedToSmall for u64 {
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        if self == 0 {
-            *size = 0;
-        } else if self <= 0xffff_ffff {
-            *size = 1;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-        } else {
-            *size = 2;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-            limbs[1] = MaybeUninit::new((self >> 32).wrapping_cast());
-        }
-    }
-
-    is_zero! {}
-}
-
-impl ToSmall for u128 {}
-
-impl SealedToSmall for u128 {
-    #[cfg(gmp_limb_bits_64)]
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        if self == 0 {
-            *size = 0;
-        } else if self <= 0xffff_ffff_ffff_ffff {
-            *size = 1;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-        } else {
-            *size = 2;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-            limbs[1] = MaybeUninit::new((self >> 64).wrapping_cast());
-        }
-    }
-
-    #[cfg(gmp_limb_bits_32)]
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        if self == 0 {
-            *size = 0;
-        } else if self <= 0xffff_ffff {
-            *size = 1;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-        } else if self <= 0xffff_ffff_ffff_ffff {
-            *size = 2;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-            limbs[1] = MaybeUninit::new((self >> 32).wrapping_cast());
-        } else if self <= 0xffff_ffff_ffff_ffff_ffff_ffff {
-            *size = 3;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-            limbs[1] = MaybeUninit::new((self >> 32).wrapping_cast());
-            limbs[2] = MaybeUninit::new((self >> 64).wrapping_cast());
-        } else {
-            *size = 4;
-            limbs[0] = MaybeUninit::new(self.wrapping_cast());
-            limbs[1] = MaybeUninit::new((self >> 32).wrapping_cast());
-            limbs[2] = MaybeUninit::new((self >> 64).wrapping_cast());
-            limbs[3] = MaybeUninit::new((self >> 96).wrapping_cast());
-        }
-    }
-
-    is_zero! {}
-}
-
-impl ToSmall for usize {}
-impl SealedToSmall for usize {
-    #[cfg(target_pointer_width = "32")]
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        self.az::<u32>().copy(size, limbs);
-    }
-
-    #[cfg(target_pointer_width = "64")]
-    #[inline]
-    fn copy(self, size: &mut c_int, limbs: &mut Limbs) {
-        self.az::<u64>().copy(size, limbs);
-    }
-
-    is_zero! {}
-}
+/// See [`ToMini`].
+#[deprecated(since = "1.23.0", note = "`ToMini` instead")]
+pub trait ToSmall: ToMini {}
+impl<T: ToMini> ToSmall for T {}
 
 impl<T: ToSmall> Assign<T> for SmallInteger {
     #[inline]
