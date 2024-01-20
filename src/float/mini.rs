@@ -1584,4 +1584,63 @@ mod tests {
         assert!(f.is_nan());
         assert_ne!(f.is_sign_positive(), f64::NAN.is_sign_positive());
     }
+
+    macro_rules! compare_conv {
+        ($T:ident, $prec:expr, $fn:ident, [$($val:expr),+] $( as $U:ident)?) => {
+            for &val in &[$($val),+] {
+                let a = MiniFloat::from(val);
+                let b = MiniFloat::$fn(val);
+                let mut c = MiniFloat::new();
+                c.assign(val);
+                assert_eq!(*a.borrow(), val $(as $U)?);
+                assert_eq!(*b.borrow(), val $(as $U)?);
+                assert_eq!(*c.borrow(), val $(as $U)?);
+                assert_eq!(a.borrow().prec(), $prec);
+                assert_eq!(b.borrow().prec(), $prec);
+                assert_eq!(c.borrow().prec(), $prec);
+                assert_eq!(a.borrow().is_sign_positive(), b.borrow().is_sign_positive());
+                assert_eq!(a.borrow().is_sign_positive(), c.borrow().is_sign_positive());
+            }
+        };
+    }
+
+    #[test]
+    fn check_equiv_convs() {
+        compare_conv!(bool, 1, const_from_bool, [false, true] as u8);
+        compare_conv!(i8, i8::BITS, const_from_i8, [i8::MIN, 0, i8::MAX]);
+        compare_conv!(i16, i16::BITS, const_from_i16, [i16::MIN, 0, i16::MAX]);
+        compare_conv!(i32, i32::BITS, const_from_i32, [i32::MIN, 0, i32::MAX]);
+        compare_conv!(i64, i64::BITS, const_from_i64, [i64::MIN, 0, i64::MAX]);
+        compare_conv!(i128, i128::BITS, const_from_i128, [i128::MIN, 0, i128::MAX]);
+        compare_conv!(
+            isize,
+            isize::BITS,
+            const_from_isize,
+            [isize::MIN, 0, isize::MAX]
+        );
+        compare_conv!(u8, u8::BITS, const_from_u8, [0, u8::MAX]);
+        compare_conv!(u16, u16::BITS, const_from_u16, [0, u16::MAX]);
+        compare_conv!(u32, u32::BITS, const_from_u32, [0, u32::MAX]);
+        compare_conv!(u64, u64::BITS, const_from_u64, [0, u64::MAX]);
+        compare_conv!(u128, u128::BITS, const_from_u128, [0, u128::MAX]);
+        compare_conv!(usize, usize::BITS, const_from_usize, [0, usize::MAX]);
+        compare_conv!(
+            f32,
+            f32::MANTISSA_DIGITS,
+            const_from_f32,
+            [f32::MIN, 0.0, f32::MAX, f32::INFINITY]
+        );
+        compare_conv!(
+            f64,
+            f64::MANTISSA_DIGITS,
+            const_from_f64,
+            [f64::MIN, 0.0, f64::MAX, f64::INFINITY]
+        );
+        compare_conv!(
+            Special,
+            1,
+            const_from_special,
+            [Special::NegZero, Special::Infinity]
+        );
+    }
 }

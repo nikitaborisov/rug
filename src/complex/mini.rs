@@ -572,7 +572,7 @@ impl Assign for MiniComplex {
 mod tests {
     use crate::complex::MiniComplex;
     use crate::float;
-    use crate::float::FreeCache;
+    use crate::float::{FreeCache, MiniFloat, Special};
     use crate::{Assign, Complex};
 
     #[test]
@@ -651,5 +651,74 @@ mod tests {
         assert_eq!(format!("{mini:o}"), format!("{check:o}"));
         assert_eq!(format!("{mini:x}"), format!("{check:x}"));
         assert_eq!(format!("{mini:X}"), format!("{check:X}"));
+    }
+
+    macro_rules! compare_conv {
+        ($T:ident, $prec:expr, [$($val:expr),+] $( as $U:ident)?) => {
+            for &val in &[$($val),+] {
+                let float = MiniFloat::from(val);
+                let a = MiniComplex::from(float);
+                let b = MiniComplex::const_from_real(float);
+                let mut c = MiniComplex::new();
+                c.assign(float);
+                assert_eq!(*a.borrow(), val $(as $U)?);
+                assert_eq!(*b.borrow(), val $(as $U)?);
+                assert_eq!(*c.borrow(), val $(as $U)?);
+                assert_eq!(a.borrow().prec(), ($prec, 1));
+                assert_eq!(b.borrow().prec(), ($prec, 1));
+                assert_eq!(c.borrow().prec(), ($prec, 1));
+
+                let one = MiniFloat::from(true);
+                let a = MiniComplex::from((float, one));
+                let b = MiniComplex::const_from_parts(float, one);
+                let mut c = MiniComplex::new();
+                c.assign((float, one));
+                assert_eq!(*a.borrow(), (val $(as $U)?, 1));
+                assert_eq!(*b.borrow(), (val $(as $U)?, 1));
+                assert_eq!(*c.borrow(), (val $(as $U)?, 1));
+                assert_eq!(a.borrow().prec(), ($prec, 1));
+                assert_eq!(b.borrow().prec(), ($prec, 1));
+                assert_eq!(c.borrow().prec(), ($prec, 1));
+
+                let a = MiniComplex::from((one, float));
+                let b = MiniComplex::const_from_parts(one, float);
+                let mut c = MiniComplex::new();
+                c.assign((one, float));
+                assert_eq!(*a.borrow(), (1, val $(as $U)?));
+                assert_eq!(*b.borrow(), (1, val $(as $U)?));
+                assert_eq!(*c.borrow(), (1, val $(as $U)?));
+                assert_eq!(a.borrow().prec(), (1, $prec));
+                assert_eq!(b.borrow().prec(), (1, $prec));
+                assert_eq!(c.borrow().prec(), (1, $prec));
+            }
+        };
+    }
+
+    #[test]
+    fn check_equiv_convs() {
+        compare_conv!(bool, 1, [false, true] as u8);
+        compare_conv!(i8, i8::BITS, [i8::MIN, 0, i8::MAX]);
+        compare_conv!(i16, i16::BITS, [i16::MIN, 0, i16::MAX]);
+        compare_conv!(i32, i32::BITS, [i32::MIN, 0, i32::MAX]);
+        compare_conv!(i64, i64::BITS, [i64::MIN, 0, i64::MAX]);
+        compare_conv!(i128, i128::BITS, [i128::MIN, 0, i128::MAX]);
+        compare_conv!(isize, isize::BITS, [isize::MIN, 0, isize::MAX]);
+        compare_conv!(u8, u8::BITS, [0, u8::MAX]);
+        compare_conv!(u16, u16::BITS, [0, u16::MAX]);
+        compare_conv!(u32, u32::BITS, [0, u32::MAX]);
+        compare_conv!(u64, u64::BITS, [0, u64::MAX]);
+        compare_conv!(u128, u128::BITS, [0, u128::MAX]);
+        compare_conv!(usize, usize::BITS, [0, usize::MAX]);
+        compare_conv!(
+            f32,
+            f32::MANTISSA_DIGITS,
+            [f32::MIN, 0.0, f32::MAX, f32::INFINITY]
+        );
+        compare_conv!(
+            f64,
+            f64::MANTISSA_DIGITS,
+            [f64::MIN, 0.0, f64::MAX, f64::INFINITY]
+        );
+        compare_conv!(Special, 1, [Special::NegZero, Special::Infinity]);
     }
 }

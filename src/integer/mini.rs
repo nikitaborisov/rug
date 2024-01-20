@@ -1058,4 +1058,35 @@ mod tests {
         assert_eq!(format!("{mini:x}"), format!("{check:x}"));
         assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
+
+    macro_rules! compare_conv {
+        ($T:ident, $fn:ident, [$($val:expr),+] $( as $U:ident)?) => {
+            for &val in &[$($val),+] {
+                let a = MiniInteger::from(val);
+                let b = MiniInteger::$fn(val);
+                let mut c = MiniInteger::new();
+                c.assign(val);
+                assert_eq!(*a.borrow(), val $(as $U)?);
+                assert_eq!(*b.borrow(), val $(as $U)?);
+                assert_eq!(*c.borrow(), val $(as $U)?);
+            }
+        };
+    }
+
+    #[test]
+    fn check_equiv_convs() {
+        compare_conv!(bool, const_from_bool, [false, true] as u8);
+        compare_conv!(i8, const_from_i8, [i8::MIN, 0, i8::MAX]);
+        compare_conv!(i16, const_from_i16, [i16::MIN, 0, i16::MAX]);
+        compare_conv!(i32, const_from_i32, [i32::MIN, 0, i32::MAX]);
+        compare_conv!(i64, const_from_i64, [i64::MIN, 0, i64::MAX]);
+        compare_conv!(i128, const_from_i128, [i128::MIN, 0, i128::MAX]);
+        compare_conv!(isize, const_from_isize, [isize::MIN, 0, isize::MAX]);
+        compare_conv!(u8, const_from_u8, [0, u8::MAX]);
+        compare_conv!(u16, const_from_u16, [0, u16::MAX]);
+        compare_conv!(u32, const_from_u32, [0, u32::MAX]);
+        compare_conv!(u64, const_from_u64, [0, u64::MAX]);
+        compare_conv!(u128, const_from_u128, [0, u128::MAX]);
+        compare_conv!(usize, const_from_usize, [0, usize::MAX]);
+    }
 }
