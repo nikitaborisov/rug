@@ -198,7 +198,16 @@ impl Deref for SmallInteger {
     }
 }
 
-/// See [`ToMini`].
+/// Types implementing this trait can be converted to [`SmallInteger`].
+///
+/// The following are implemented when `T` implements `ToSmall`:
+///   * <code>[Assign][`Assign`]\<T> for [SmallInteger][`SmallInteger`]</code>
+///   * <code>[From][`From`]\<T> for [SmallInteger][`SmallInteger`]</code>
+///
+/// This trait is sealed and cannot be implemented for more types; it is
+/// implemented for [`bool`] and for the integer types [`i8`], [`i16`], [`i32`],
+/// [`i64`], [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`]
+/// and [`usize`].
 #[deprecated(since = "1.23.0", note = "`ToMini` instead")]
 pub trait ToSmall: ToMini {}
 impl<T: ToMini> ToSmall for T {}

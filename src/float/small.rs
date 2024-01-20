@@ -200,7 +200,16 @@ impl Deref for SmallFloat {
     }
 }
 
-/// See [`ToMini`].
+/// Types implementing this trait can be converted to [`SmallFloat`].
+///
+/// The following are implemented when `T` implements `ToSmall`:
+///   * <code>[Assign]\<T> for [SmallFloat]</code>
+///   * <code>[From]\<T> for [SmallFloat]</code>
+///
+/// This trait is sealed and cannot be implemented for more types; it is
+/// implemented for [`bool`], for the integer types [`i8`], [`i16`], [`i32`],
+/// [`i64`], [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`]
+/// and [`usize`], and for the floating-point types [`f32`] and [`f64`].
 #[deprecated(since = "1.23.0", note = "`ToMini` instead")]
 pub trait ToSmall: ToMini {}
 impl<T: ToMini> ToSmall for T {}
