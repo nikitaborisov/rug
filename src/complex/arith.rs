@@ -881,19 +881,60 @@ mod tests {
         };
     }
 
-    macro_rules! check_pow_other {
-        ($list:expr, $other:expr) => {
-            for op in $list {
-                for b in &$other {
-                    let bc = Complex::with_val(150, b);
-                    assert!(same(op.clone().pow(b), op.clone().pow(bc)));
-                }
-            }
-        };
-    }
-
     #[test]
     fn check_pow() {
+        use crate::tests::{F32, I32};
+        let large = [
+            Complex::with_val(20, (Special::Zero, 1.0)),
+            Complex::with_val(20, (Special::NegZero, 1.0)),
+            Complex::with_val(20, (Special::Infinity, 1.0)),
+            Complex::with_val(20, (Special::NegInfinity, 1.0)),
+            Complex::with_val(20, (Special::Nan, 1.0)),
+            Complex::with_val(20, (1, 1.0)),
+            Complex::with_val(20, (-1, 1.0)),
+            Complex::with_val(20, (999_999e100, 1.0)),
+            Complex::with_val(20, (999_999e-100, 1.0)),
+            Complex::with_val(20, (-999_999e100, 1.0)),
+            Complex::with_val(20, (-999_999e-100, 1.0)),
+        ];
+        let f = [
+            Float::with_val(20, 0.0),
+            Float::with_val(20, 1.0),
+            Float::with_val(20, -1.0),
+            Float::with_val(20, 12.5),
+            Float::with_val(20, 12.5) << 10000,
+            Float::with_val(20, Special::Infinity),
+        ];
+
+        let against = large
+            .iter()
+            .cloned()
+            .chain(I32.iter().map(|&x| Complex::with_val(20, x)))
+            .chain(F32.iter().map(|&x| Complex::with_val(20, x)))
+            .chain(f.iter().map(|x| Complex::with_val(20, x)))
+            .collect::<Vec<Complex>>();
+
+        check_pow!(&[-1001i32, -1, 0, 1, 1001], against);
+        check_pow!(&[0u32, 1, 1001], against);
+        check_pow!(
+            &[
+                0.0,
+                1.0,
+                -1.0,
+                1000.5,
+                f64::NAN,
+                f64::INFINITY,
+                f64::NEG_INFINITY
+            ],
+            against
+        );
+
+        float::free_cache(FreeCache::All);
+    }
+
+    #[cfg(feature = "integer")]
+    #[test]
+    fn check_pow_int() {
         use crate::tests::{F32, I32};
         let large = [
             Complex::with_val(20, (Special::Zero, 1.0)),
@@ -925,7 +966,7 @@ mod tests {
             Integer::from(12) << 100,
         ];
 
-        let against = large
+        let comp = large
             .iter()
             .cloned()
             .chain(I32.iter().map(|&x| Complex::with_val(20, x)))
@@ -934,21 +975,12 @@ mod tests {
             .chain(i.iter().map(|x| Complex::with_val(20, x)))
             .collect::<Vec<Complex>>();
 
-        check_pow!(&[-1001i32, -1, 0, 1, 1001], against);
-        check_pow!(&[0u32, 1, 1001], against);
-        check_pow!(
-            &[
-                0.0,
-                1.0,
-                -1.0,
-                1000.5,
-                f64::NAN,
-                f64::INFINITY,
-                f64::NEG_INFINITY
-            ],
-            against
-        );
-        check_pow_other!(against, i);
+        for a in &comp {
+            for b in &i {
+                let b_as_c = Complex::with_val(150, b);
+                assert!(same(a.clone().pow(b), a.clone().pow(b_as_c)));
+            }
+        }
 
         float::free_cache(FreeCache::All);
     }
