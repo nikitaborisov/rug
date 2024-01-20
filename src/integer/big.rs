@@ -3946,9 +3946,7 @@ impl Integer {
         modulo: &'a Self,
     ) -> Option<PowModIncomplete<'a>> {
         if exponent.is_negative() {
-            let Some(InvertIncomplete { sinverse, .. }) = self.invert_ref(modulo) else {
-                return None;
-            };
+            let InvertIncomplete { sinverse, .. } = self.invert_ref(modulo)?;
             Some(PowModIncomplete {
                 ref_self: None,
                 sinverse: Some(sinverse),
