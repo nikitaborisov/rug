@@ -113,6 +113,24 @@ impl<'a> BorrowComplex<'a> {
     /// This method can be used to create a constant reference.
     ///
     /// ```rust
+    /// use rug::complex::{BorrowComplex, MiniComplex};
+    /// use rug::float::MiniFloat;
+    /// use rug::Complex;
+    ///
+    /// const TWO_FLOAT: MiniFloat = MiniFloat::const_from_i8(2);
+    /// const THOUSAND_FLOAT: MiniFloat = MiniFloat::const_from_i16(1000);
+    /// const TWO_1000I_MINI: MiniComplex =
+    ///     MiniComplex::const_from_parts(TWO_FLOAT, THOUSAND_FLOAT);
+    /// const TWO_1000I_BORROW: BorrowComplex = TWO_1000I_MINI.borrow();
+    /// const TWO_1000I: &Complex = BorrowComplex::const_deref(&TWO_1000I_BORROW);
+    /// assert_eq!(*TWO_1000I, (2, 1000));
+    /// ```
+    ///
+    /// If the constant cannot be initialized using
+    /// [`MiniComplex`][crate::complex::MiniComplex], we can set up the limbs
+    /// directly, though it is more complicated.
+    ///
+    /// ```rust
     /// use core::ptr::NonNull;
     /// use gmp_mpfr_sys::gmp::limb_t;
     /// use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};

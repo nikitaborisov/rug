@@ -112,6 +112,20 @@ impl<'a> BorrowFloat<'a> {
     /// This method can be used to create a constant reference.
     ///
     /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f32(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// ```
+    ///
+    /// If the constant cannot be initialized using
+    /// [`MiniFloat`][crate::float::MiniFloat], we can set up the limbs
+    /// directly, though it is more complicated.
+    ///
+    /// ```rust
     /// use core::ptr::NonNull;
     /// use gmp_mpfr_sys::gmp::limb_t;
     /// use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};

@@ -114,6 +114,20 @@ impl<'a> BorrowInteger<'a> {
     /// This method can be used to create a constant reference.
     ///
     /// ```rust
+    /// use rug::integer::{BorrowInteger, MiniInteger};
+    /// use rug::Integer;
+    ///
+    /// const TWO_MINI: MiniInteger = MiniInteger::const_from_i32(2);
+    /// const TWO_BORROW: BorrowInteger = TWO_MINI.borrow();
+    /// const TWO: &Integer = BorrowInteger::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
+    /// ```
+    ///
+    /// If the constant cannot be initialized using
+    /// [`MiniInteger`][crate::integer::MiniInteger], we can set up the limbs
+    /// directly, though it is more complicated.
+    ///
+    /// ```rust
     /// use gmp_mpfr_sys::gmp;
     /// use gmp_mpfr_sys::gmp::{limb_t, mpz_t};
     /// use rug::integer::BorrowInteger;

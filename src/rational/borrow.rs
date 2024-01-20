@@ -117,6 +117,22 @@ impl<'a> BorrowRational<'a> {
     /// This method can be used to create a constant reference.
     ///
     /// ```rust
+    /// use rug::integer::MiniInteger;
+    /// use rug::rational::{BorrowRational, MiniRational};
+    /// use rug::Rational;
+    ///
+    /// const TWO_INT: MiniInteger = MiniInteger::const_from_i32(2);
+    /// const TWO_MINI: MiniRational = MiniRational::const_from_integer(TWO_INT);
+    /// const TWO_BORROW: BorrowRational = TWO_MINI.borrow();
+    /// const TWO: &Rational = BorrowRational::const_deref(&TWO_BORROW);
+    /// assert_eq!(*TWO, 2);
+    /// ```
+    ///
+    /// Creating a constant with [`MiniRational`][crate::rational::MiniRational]
+    /// is rather limited. If the constant cannot be initialized that way, we
+    /// can set up the limbs directly, though it is more complicated.
+    ///
+    /// ```rust
     /// use gmp_mpfr_sys::gmp;
     /// use gmp_mpfr_sys::gmp::{limb_t, mpq_t};
     /// use rug::rational::BorrowRational;
