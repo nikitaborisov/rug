@@ -56,7 +56,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
         [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
         [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
-  * The following methoed was added to [`MiniRational`][mr-1-24]:
+  * The following method was added to [`MiniRational`][mr-1-24]:
       * [`const_from_integer`][mr-cfi-1-24]
   * The following methods were added to [`MiniFloat`][mf-1-24]:
       * [`const_from_bool`][mf-bool-1-24]
@@ -69,8 +69,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_f32`][mf-f32-1-24], [`const_from_f64`][mf-f64-1-24]
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
-      * [`const_from_real`][mc-cfr-1-24]
-      * [`const_from_parts`][mc-cfp-1-24]
+      * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
 
 [`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
 [`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
