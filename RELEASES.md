@@ -7,6 +7,8 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.24.0 (unreleased)
 ===========================
 
+  * [`Float`][flo-1-24] now implements
+    <code>[AssignRound][assr-1-24]\<[bool][`bool`]></code>.
   * [`MiniRational`][mr-1-24] now implements
       * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>,
         <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
@@ -48,6 +50,8 @@ Version 1.24.0 (unreleased)
       * [`const_from_parts`][mc-cfp-1-24]
 
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
+[assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
+[flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
 [mc-cfp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_parts

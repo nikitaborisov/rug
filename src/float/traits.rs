@@ -328,6 +328,7 @@ conv_ops_cast! { isize, i32 }
 #[cfg(target_pointer_width = "64")]
 conv_ops_cast! { isize, i64 }
 
+conv_ops! { bool, xmpfr::set_ui }
 conv_ops! { u8, xmpfr::set_ui }
 conv_ops! { u16, xmpfr::set_ui }
 conv_ops! { u32, xmpfr::set_ui }
