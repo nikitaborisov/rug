@@ -799,7 +799,6 @@ impl SealedToMini for bool {
     }
 }
 
-
 #[inline]
 const fn from_bool(val: bool) -> (c_int, Limbs) {
     if val {
