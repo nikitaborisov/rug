@@ -947,10 +947,9 @@ impl SealedToMini for bool {
                 xmpfr::custom_zero(inner, limbs_ptr, 1);
             }
         } else {
-            let val = 1u8;
+            let val = limb_t::from(self);
             let leading = val.leading_zeros();
-            let limb_leading = leading + gmp::LIMB_BITS.az::<u32>() - 1;
-            limbs[0] = MaybeUninit::new(limb_t::from(self) << limb_leading);
+            limbs[0] = MaybeUninit::new(val << leading);
             let exp = 1;
             unsafe {
                 xmpfr::custom_regular(inner, limbs_ptr, exp, float::prec_min() as prec_t);
