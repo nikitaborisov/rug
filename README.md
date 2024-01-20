@@ -31,13 +31,16 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 ### Version 1.24.0 news (unreleased)
 
   * [`MiniRational`][mr-1-24] now implements
-      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>
-      * <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
+      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>,
+        <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
+  * [`MiniFloat`][mf-1-24] now implements
+      * <code>[From][`From`]\<[bool][`bool`]></code>,
+        <code>[Assign][ass-1-24]\<[bool][`bool`]></code>
   * [`MiniComplex`][mc-1-24] now implements
-      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>
-      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
-      * <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
-      * <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
+      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>,
+        <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
+      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>,
+        <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
   * The following methods are now usable in const context:
       * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
       * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
@@ -67,6 +70,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_parts`][mc-cfp-1-24]
 
 [`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
+[`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow

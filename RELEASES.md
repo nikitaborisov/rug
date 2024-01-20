@@ -8,13 +8,16 @@ Version 1.24.0 (unreleased)
 ===========================
 
   * [`MiniRational`][mr-1-24] now implements
-      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>
-      * <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
+      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>,
+        <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
+  * [`MiniFloat`][mf-1-24] now implements
+      * <code>[From][`From`]\<[bool][`bool`]></code>,
+        <code>[Assign][ass-1-24]\<[bool][`bool`]></code>
   * [`MiniComplex`][mc-1-24] now implements
-      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>
-      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
-      * <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
-      * <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
+      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>,
+        <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
+      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>,
+        <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
   * The following methods are now usable in const context:
       * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
       * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>

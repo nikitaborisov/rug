@@ -46,6 +46,8 @@ This can be useful when you have a primitive number type but need a reference to
 a [`Float`]. The `MiniFloat` will have a precision according to the type of the
 primitive used to set its value.
 
+  * [`bool`]: the `MiniFloat` will have the [minimum possible
+    precision][crate::float::prec_min].
   * [`i8`], [`u8`]: the `MiniFloat` will have eight bits of precision.
   * [`i16`], [`u16`]: the `MiniFloat` will have 16 bits of precision.
   * [`i32`], [`u32`]: the `MiniFloat` will have 32 bits of precision.
@@ -819,9 +821,9 @@ impl MiniFloat {
 ///   * <code>[From]\<T> for [MiniFloat]</code>
 ///
 /// This trait is sealed and cannot be implemented for more types; it is
-/// implemented for the integer types [`i8`], [`i16`], [`i32`], [`i64`],
-/// [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`] and
-/// [`usize`], and for the floating-point types [`f32`] and [`f64`].
+/// implemented for [`bool`], for the integer types [`i8`], [`i16`], [`i32`],
+/// [`i64`], [`i128`], [`isize`], [`u8`], [`u16`], [`u32`], [`u64`], [`u128`]
+/// and [`usize`], and for the floating-point types [`f32`] and [`f64`].
 pub trait ToMini: SealedToMini {}
 
 pub trait SealedToMini: Copy {
@@ -894,6 +896,29 @@ macro_rules! unsafe_unsigned_limb {
             }
         }
     };
+}
+
+impl ToMini for bool {}
+
+impl SealedToMini for bool {
+    #[inline]
+    unsafe fn copy(self, inner: *mut mpfr_t, limbs: &mut Limbs) {
+        let limbs_ptr = cast_ptr_mut!(limbs.as_mut_ptr(), limb_t);
+        if !self {
+            unsafe {
+                xmpfr::custom_zero(inner, limbs_ptr, 1);
+            }
+        } else {
+            let val = 1u8;
+            let leading = val.leading_zeros();
+            let limb_leading = leading + gmp::LIMB_BITS.az::<u32>() - 1;
+            limbs[0] = MaybeUninit::new(limb_t::from(self) << limb_leading);
+            let exp = 1;
+            unsafe {
+                xmpfr::custom_regular(inner, limbs_ptr, exp, float::prec_min() as prec_t);
+            }
+        }
+    }
 }
 
 unsafe_signed! { i8, from_i8, from_u8 }
