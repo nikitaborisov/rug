@@ -237,107 +237,47 @@ impl Deref for SmallComplex {
 
 impl<Re: ToSmall> Assign<Re> for SmallComplex {
     fn assign(&mut self, src: Re) {
-        unsafe {
-            src.copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
-            xmpfr::custom_zero(
-                &mut self.inner.get_mut().im,
-                cast_ptr_mut!(self.last_limbs.as_mut_ptr(), limb_t),
-                self.inner.get_mut().re.prec,
-            );
-        }
+        let inner = self.inner.get_mut();
+        // make re is first
+        inner.im.d = inner.re.d;
+        src.copy(&mut inner.re, &mut self.first_limbs);
+        inner.im.prec = inner.re.prec;
+        inner.im.sign = 1;
+        inner.im.exp = xmpfr::EXP_ZERO;
     }
 }
 
 impl<Re: ToSmall> From<Re> for SmallComplex {
     fn from(src: Re) -> Self {
-        let mut inner = mpc_t {
-            re: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d: NonNull::dangling(),
-            },
-            im: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d: NonNull::dangling(),
-            },
-        };
-        let mut re_limbs = small_limbs![];
-        let mut im_limbs = small_limbs![];
-        unsafe {
-            src.copy(&mut inner.re, &mut re_limbs);
-            xmpfr::custom_zero(
-                &mut inner.im,
-                cast_ptr_mut!(im_limbs.as_mut_ptr(), limb_t),
-                inner.re.prec,
-            );
-        }
-        // order of limbs is important as inner.num.d != inner.den.d
-        if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            SmallComplex {
-                inner: UnsafeCell::new(inner),
-                first_limbs: re_limbs,
-                last_limbs: im_limbs,
-            }
-        } else {
-            SmallComplex {
-                inner: UnsafeCell::new(inner),
-                first_limbs: im_limbs,
-                last_limbs: re_limbs,
-            }
-        }
+        let mut ret = SmallComplex::new();
+        let inner = ret.inner.get_mut();
+        src.copy(&mut inner.re, &mut ret.first_limbs);
+        inner.im.prec = inner.re.prec;
+        inner.im.sign = 1;
+        inner.im.exp = xmpfr::EXP_ZERO;
+        ret
     }
 }
 
 impl<Re: ToSmall, Im: ToSmall> Assign<(Re, Im)> for SmallComplex {
     fn assign(&mut self, src: (Re, Im)) {
-        unsafe {
-            src.0
-                .copy(&mut self.inner.get_mut().re, &mut self.first_limbs);
-            src.1
-                .copy(&mut self.inner.get_mut().im, &mut self.last_limbs);
-        }
+        let inner = self.inner.get_mut();
+        // make re is first
+        inner.im.d = inner.re.d;
+        src.0.copy(&mut inner.re, &mut self.first_limbs);
+        src.1.copy(&mut inner.im, &mut self.last_limbs);
     }
 }
 
 impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
     fn from(src: (Re, Im)) -> Self {
-        let mut inner = mpc_t {
-            re: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d: NonNull::dangling(),
-            },
-            im: mpfr_t {
-                prec: 0,
-                sign: 0,
-                exp: 0,
-                d: NonNull::dangling(),
-            },
-        };
-        let mut re_limbs = small_limbs![];
-        let mut im_limbs = small_limbs![];
-        unsafe {
-            src.0.copy(&mut inner.re, &mut re_limbs);
-            src.1.copy(&mut inner.im, &mut im_limbs);
-        }
-        // order of limbs is important as inner.num.d != inner.den.d
-        if re_limbs.as_ptr() <= im_limbs.as_ptr() {
-            SmallComplex {
-                inner: UnsafeCell::new(inner),
-                first_limbs: re_limbs,
-                last_limbs: im_limbs,
-            }
-        } else {
-            SmallComplex {
-                inner: UnsafeCell::new(inner),
-                first_limbs: im_limbs,
-                last_limbs: re_limbs,
-            }
-        }
+        let mut ret = SmallComplex::new();
+        let inner = ret.inner.get_mut();
+        // make re is first
+        inner.im.d = inner.re.d;
+        src.0.copy(&mut inner.re, &mut ret.first_limbs);
+        src.1.copy(&mut inner.im, &mut ret.last_limbs);
+        ret
     }
 }
 
