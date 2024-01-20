@@ -44,7 +44,7 @@ impl OptRational for () {
     type Part = ();
     #[inline(always)]
     fn mpq(self) -> *const mpq_t {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
     #[inline(always)]
     fn mpq_or(self, default: *mut mpq_t) -> *const mpq_t {
@@ -56,7 +56,7 @@ impl OptRational for () {
     }
     #[inline(always)]
     fn unwrap_parts<'a>(self) -> (&'a Integer, &'a Integer) {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
 }
 

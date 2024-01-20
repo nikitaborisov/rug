@@ -50,7 +50,7 @@ impl OptComplex for () {
     type Part = ();
     #[inline(always)]
     fn mpc(self) -> *const mpc_t {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
     #[inline(always)]
     fn mpc_or(self, default: *mut mpc_t) -> *const mpc_t {
@@ -65,7 +65,7 @@ impl OptComplex for () {
     where
         Self: 'a,
     {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
 }
 

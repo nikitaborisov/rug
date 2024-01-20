@@ -48,7 +48,7 @@ impl OptFloat for () {
     const IS_SOME: bool = false;
     #[inline(always)]
     fn mpfr(self) -> *const mpfr_t {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
     #[inline(always)]
     fn mpfr_or(self, default: *mut mpfr_t) -> *const mpfr_t {

@@ -49,7 +49,7 @@ impl OptInteger for () {
     const IS_SOME: bool = false;
     #[inline(always)]
     fn mpz(self) -> *const mpz_t {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
     #[inline(always)]
     fn mpz_or(self, default: *mut mpz_t) -> *const mpz_t {
@@ -60,7 +60,7 @@ impl OptInteger for () {
     where
         Self: 'a,
     {
-        panic!("unwrapping ()");
+        unreachable!("unwrapping ()");
     }
     #[inline(always)]
     fn unwrap_or<'a>(self, default: &'a mut Integer) -> &'a Integer
@@ -275,7 +275,7 @@ pub fn gcd_opt_ui<O: OptInteger>(rop: Option<&mut Integer>, op1: O, op2: c_ulong
             (rop, op1.mpz_or(rop))
         }
         None if O::IS_SOME => (ptr::null_mut(), op1.mpz()),
-        None => panic!("no operand"),
+        None => unreachable!("no operand"),
     };
     unsafe { gmp::mpz_gcd_ui(rop, op1, op2) }
 }
