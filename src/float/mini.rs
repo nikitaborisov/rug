@@ -170,6 +170,78 @@ impl MiniFloat {
         }
     }
 
+    /// Creates a [`MiniFloat`] from an [`f32`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f32(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// ```
+    #[inline]
+    pub const fn const_from_f32(val: f32) -> Self {
+        let (prec, sign, exp, limbs) = from_f32(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    /// Creates a [`MiniFloat`] from an [`f64`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f64(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// ```
+    #[inline]
+    pub const fn const_from_f64(val: f64) -> Self {
+        let (prec, sign, exp, limbs) = from_f64(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Creates a [`MiniFloat`] from a [`i8`].
     ///
     /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
@@ -1006,6 +1078,64 @@ impl SealedToMini for f32 {
     }
 }
 
+const fn from_f32(val: f32) -> (prec_t, c_int, exp_t, Limbs) {
+    const SIGN_MASK: u32 = 1 << (u32::BITS - 1);
+    const IMPLICIT: u32 = 1 << (f32::MANTISSA_DIGITS - 1);
+    const MANT_MASK: u32 = IMPLICIT - 1;
+    const EXP_MASK: u32 = !(SIGN_MASK | MANT_MASK);
+
+    let val: u32 = unsafe { mem::transmute(val) };
+    let prec = f32::MANTISSA_DIGITS as prec_t;
+    let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
+    let exp_bits = val & EXP_MASK;
+    let mant_bits = val & MANT_MASK;
+    match exp_bits {
+        0 => {
+            if mant_bits == 0 {
+                // zero
+
+                (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+            } else {
+                // subnormal
+
+                // If val is equal to MANT_MASK, we have max subnormal.
+                // Minimum normal is 10000... with MIN_EXP.
+                // Maximum subnormal is 01111... with MIN_EXP.
+                // So for maximum subnormal, we need exp to be MIN_EXP - 1.
+                // For every other leading zero, we need exp to be smaller by 1.
+                const MAX_SUBNORMAL_LEADING: u32 = MANT_MASK.leading_zeros();
+                let leading = mant_bits.leading_zeros();
+                let exp = f32::MIN_EXP as exp_t - 1 - (leading - MAX_SUBNORMAL_LEADING) as exp_t;
+                let shifted = mant_bits << leading;
+                let limb = (shifted as limb_t) << (limb_t::BITS - u32::BITS);
+                (prec, sign, exp, small_limbs![limb])
+            }
+        }
+        EXP_MASK => {
+            if mant_bits == 0 {
+                // inf
+
+                (prec, sign, xmpfr::EXP_INF, small_limbs![])
+            } else {
+                // NaN
+
+                (prec, sign, xmpfr::EXP_NAN, small_limbs![])
+            }
+        }
+        _ => {
+            // normal
+
+            // When biased_exp is 1, we want exp to be MIN_EXP.
+            let biased_exp = (exp_bits >> (prec - 1)) as exp_t;
+            let exp = biased_exp - 1 + f32::MIN_EXP as exp_t;
+            let with_implicit = mant_bits | IMPLICIT;
+            let shifted = with_implicit << (u32::BITS - f32::MANTISSA_DIGITS);
+            let limb = (shifted as limb_t) << (limb_t::BITS - u32::BITS);
+            (prec, sign, exp, small_limbs![limb])
+        }
+    }
+}
+
 impl ToMini for f64 {}
 
 impl SealedToMini for f64 {
@@ -1021,6 +1151,86 @@ impl SealedToMini for f64 {
         if self.is_sign_negative() {
             unsafe {
                 (*inner).sign = -1;
+            }
+        }
+    }
+}
+
+const fn from_f64(val: f64) -> (prec_t, c_int, exp_t, Limbs) {
+    const SIGN_MASK: u64 = 1 << (u64::BITS - 1);
+    const IMPLICIT: u64 = 1 << (f64::MANTISSA_DIGITS - 1);
+    const MANT_MASK: u64 = IMPLICIT - 1;
+    const EXP_MASK: u64 = !(SIGN_MASK | MANT_MASK);
+
+    let val: u64 = unsafe { mem::transmute(val) };
+    let prec = f64::MANTISSA_DIGITS as prec_t;
+    let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
+    let exp_bits = val & EXP_MASK;
+    let mant_bits = val & MANT_MASK;
+    match exp_bits {
+        0 => {
+            if mant_bits == 0 {
+                // zero
+
+                (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+            } else {
+                // subnormal
+
+                // If val is equal to MANT_MASK, we have max subnormal.
+                // Minimum normal is 10000... with MIN_EXP.
+                // Maximum subnormal is 01111... with MIN_EXP.
+                // So for maximum subnormal, we need exp to be MIN_EXP - 1.
+                // For every other leading zero, we need exp to be smaller by 1.
+                const MAX_SUBNORMAL_LEADING: u32 = MANT_MASK.leading_zeros();
+                let leading = mant_bits.leading_zeros();
+                let exp = f64::MIN_EXP as exp_t - 1 - (leading - MAX_SUBNORMAL_LEADING) as exp_t;
+                let shifted = mant_bits << leading;
+                #[cfg(gmp_limb_bits_64)]
+                {
+                    (prec, sign, exp, small_limbs![shifted])
+                }
+                #[cfg(gmp_limb_bits_32)]
+                {
+                    (
+                        prec,
+                        sign,
+                        exp,
+                        small_limbs![shifted as limb_t, (shifted >> 32) as limb_t],
+                    )
+                }
+            }
+        }
+        EXP_MASK => {
+            if mant_bits == 0 {
+                // inf
+
+                (prec, sign, xmpfr::EXP_INF, small_limbs![])
+            } else {
+                // NaN
+
+                (prec, sign, xmpfr::EXP_NAN, small_limbs![])
+            }
+        }
+        _ => {
+            // normal
+
+            // When biased_exp is 1, we want exp to be MIN_EXP.
+            let biased_exp = (exp_bits >> (prec - 1)) as exp_t;
+            let exp = biased_exp - 1 + f64::MIN_EXP as exp_t;
+            let with_implicit = mant_bits | IMPLICIT;
+            let shifted = with_implicit << (u64::BITS - f64::MANTISSA_DIGITS);
+            #[cfg(gmp_limb_bits_64)]
+            {
+                (prec, sign, exp, small_limbs![shifted])
+            }
+            #[cfg(gmp_limb_bits_32)]
+            {
+                (
+                    prec,
+                    sign,
+                    exp,
+                    small_limbs![shifted as limb_t, (shifted >> 32) as limb_t],
+                )
             }
         }
     }
@@ -1222,5 +1432,67 @@ mod tests {
         assert_eq!(format!("{mini:o}"), format!("{check:o}"));
         assert_eq!(format!("{mini:x}"), format!("{check:x}"));
         assert_eq!(format!("{mini:X}"), format!("{check:X}"));
+    }
+
+    #[test]
+    fn check_from_f32() {
+        let vals = [
+            0.0,
+            -0.0,
+            1.0,
+            core::f32::consts::PI,
+            f32::MIN,
+            f32::MAX,
+            f32::INFINITY,
+            f32::NEG_INFINITY,
+            f32::MIN_POSITIVE,
+            f32::from_bits(1),
+            f32::MIN_POSITIVE - f32::from_bits(1),
+        ];
+        for &val in &vals {
+            let mut mini = MiniFloat::const_from_f32(val);
+            let f = mini.borrow_excl();
+            assert_eq!(*f, val);
+            assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+        }
+        let mut mini = MiniFloat::const_from_f32(f32::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_eq!(f.is_sign_positive(), f32::NAN.is_sign_positive());
+        let mut mini = MiniFloat::const_from_f32(-f32::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_ne!(f.is_sign_positive(), f32::NAN.is_sign_positive());
+    }
+
+    #[test]
+    fn check_from_f64() {
+        let vals = [
+            0.0,
+            -0.0,
+            1.0,
+            core::f64::consts::PI,
+            f64::MIN,
+            f64::MAX,
+            f64::INFINITY,
+            f64::NEG_INFINITY,
+            f64::MIN_POSITIVE,
+            f64::from_bits(1),
+            f64::MIN_POSITIVE - f64::from_bits(1),
+        ];
+        for &val in &vals {
+            let mut mini = MiniFloat::const_from_f64(val);
+            let f = mini.borrow_excl();
+            assert_eq!(*f, val);
+            assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+        }
+        let mut mini = MiniFloat::const_from_f64(f64::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_eq!(f.is_sign_positive(), f64::NAN.is_sign_positive());
+        let mut mini = MiniFloat::const_from_f64(-f64::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_ne!(f.is_sign_positive(), f64::NAN.is_sign_positive());
     }
 }

@@ -53,6 +53,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * The following methoed was added to [`MiniRational`][mr-1-24]:
       * [`const_from_integer`][mr-cfi-1-24]
   * The following methods were added to [`MiniFloat`][mf-1-24]:
+      * [`const_from_f32`][mf-f32-1-24], [`const_from_f64`][mf-f64-1-24],
       * [`const_from_i8`][mf-i8-1-24], [`const_from_i16`][mf-i16-1-24],
         [`const_from_i32`][mf-i32-1-24], [`const_from_i64`][mf-i64-1-24],
         [`const_from_i128`][mf-i128-1-24], [`const_from_isize`][mf-isize-1-24]
@@ -73,6 +74,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [mf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
 [mf-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.borrow
 [mf-cfs-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_special
+[mf-f32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_f32
+[mf-f64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_f64
 [mf-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i128
 [mf-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i16
 [mf-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i32
