@@ -841,39 +841,6 @@ pub fn submul<O: OptFloat>(
     reverse_ord.reverse()
 }
 
-#[inline]
-pub unsafe fn custom_zero(f: *mut mpfr_t, limbs: *mut limb_t, prec: prec_t) {
-    unsafe {
-        mpfr::custom_init(limbs.cast(), prec);
-        mpfr::custom_init_set(f, mpfr::ZERO_KIND, 0, prec, limbs.cast());
-    }
-}
-
-#[inline]
-pub unsafe fn custom_regular(f: *mut mpfr_t, limbs: *mut limb_t, exp: exp_t, prec: prec_t) {
-    unsafe {
-        mpfr::custom_init(limbs.cast(), prec);
-        mpfr::custom_init_set(f, mpfr::REGULAR_KIND, exp, prec, limbs.cast());
-    }
-}
-
-#[inline]
-pub unsafe fn custom_special(f: *mut mpfr_t, limbs: *mut limb_t, special: Special, prec: prec_t) {
-    unsafe {
-        mpfr::custom_init(limbs.cast(), prec);
-    }
-    let kind = match special {
-        Special::Zero => mpfr::ZERO_KIND,
-        Special::NegZero => -mpfr::ZERO_KIND,
-        Special::Infinity => mpfr::INF_KIND,
-        Special::NegInfinity => -mpfr::INF_KIND,
-        Special::Nan => mpfr::NAN_KIND,
-    };
-    unsafe {
-        mpfr::custom_init_set(f, kind, 0, prec, limbs.cast());
-    }
-}
-
 pub const EXP_ZERO: exp_t = -exp_t::MAX;
 pub const EXP_NAN: exp_t = 1 - exp_t::MAX;
 pub const EXP_INF: exp_t = 2 - exp_t::MAX;
