@@ -22,7 +22,7 @@ use crate::{Assign, Rational};
 use az::Cast;
 use core::cell::UnsafeCell;
 use core::ffi::c_int;
-use core::fmt::Debug;
+use core::fmt::{Debug, Formatter, Result as FmtResult};
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -97,7 +97,7 @@ impl Default for SmallRational {
 
 impl Debug for SmallRational {
     #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&**self, f)
     }
 }

@@ -20,7 +20,7 @@ use crate::ext::xmpfr;
 use crate::float::{self, ToMini};
 use crate::{Assign, Float};
 use core::cell::UnsafeCell;
-use core::fmt::Debug;
+use core::fmt::{Debug, Formatter, Result as FmtResult};
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ops::Deref;
@@ -104,7 +104,7 @@ impl Default for SmallFloat {
 
 impl Debug for SmallFloat {
     #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         Debug::fmt(&**self, f)
     }
 }

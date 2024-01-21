@@ -46,7 +46,6 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ptr;
 use core::ptr::NonNull;
 use gmp_mpfr_sys::gmp::{self, limb_t, mpz_t, randfnptr_t, randseed_t, randstate_t};
-use std::process;
 
 /**
 The state of a random number generator.
@@ -1336,19 +1335,27 @@ static_assert_same_size!(ThreadRandState, Option<ThreadRandState>);
 
 // abort functions do not need a wrapper to abort on panic, they never panic and always abort
 unsafe extern "C" fn abort_seed(_: *mut randstate_t, _: *const mpz_t) {
-    process::abort();
+    unsafe {
+        libc::abort();
+    }
 }
 
 unsafe extern "C" fn abort_get(_: *mut randstate_t, _: *mut limb_t, _: c_ulong) {
-    process::abort();
+    unsafe {
+        libc::abort();
+    }
 }
 
 unsafe extern "C" fn abort_clear(_: *mut randstate_t) {
-    process::abort();
+    unsafe {
+        libc::abort();
+    }
 }
 
 unsafe extern "C" fn abort_iset(_: *mut randstate_t, _: *const randstate_t) {
-    process::abort();
+    unsafe {
+        libc::abort();
+    }
 }
 
 unsafe extern "C" fn custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
