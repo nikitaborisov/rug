@@ -1360,6 +1360,10 @@ impl Float {
     /// This method performs a shallow copy and negates it, and negation does
     /// not change the allocated data.
     ///
+    /// Unlike the other negation methods (the `-` operator,
+    /// <code>[Neg]::[neg][Neg::neg]</code>, etc.), this method does not set the
+    /// [MPFR NaN flag] if a NaN is encountered.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -1375,12 +1379,12 @@ impl Float {
     ///
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
-    pub fn as_neg(&self) -> BorrowFloat<'_> {
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [Neg::neg]: core::ops::Neg::neg
+    /// [Neg]: core::ops::Neg
+    pub const fn as_neg(&self) -> BorrowFloat<'_> {
         let mut raw = self.inner;
         raw.sign = -raw.sign;
-        if self.is_nan() {
-            xmpfr::set_nanflag();
-        }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowFloat::from_raw(raw) }
     }
@@ -1391,6 +1395,9 @@ impl Float {
     ///
     /// This method performs a shallow copy and possibly negates it, and
     /// negation does not change the allocated data.
+    ///
+    /// Unlike the other absolute value methods ([`abs`], [`abs_mut`], etc.),
+    /// this method does not set the [MPFR NaN flag] if a NaN is encountered.
     ///
     /// # Examples
     ///
@@ -1407,12 +1414,12 @@ impl Float {
     ///
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
-    pub fn as_abs(&self) -> BorrowFloat<'_> {
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`abs_mut`]: Self::abs_mut
+    /// [`abs`]: Self::abs
+    pub const fn as_abs(&self) -> BorrowFloat<'_> {
         let mut raw = self.inner;
         raw.sign = 1;
-        if self.is_nan() {
-            xmpfr::set_nanflag();
-        }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowFloat::from_raw(raw) }
     }

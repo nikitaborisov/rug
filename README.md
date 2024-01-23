@@ -44,6 +44,11 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>,
         <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
   * The following methods are now usable in const context:
+      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
+        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
+      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
       * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
       * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
       * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
@@ -75,12 +80,28 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
       * [`Euclid`][nt-0-2-e], [`CheckedEuclid`][nt-0-2-ce]
 
+#### Compatibility note
+
+The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if a
+NaN is encountered:
+  * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
+    <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
+  * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
+    <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
+    <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+
 [`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
 [`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
+[com-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html
+[com-ac-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_conj
+[com-am-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_mul_i
+[com-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_neg
 [feat-exp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#experimental-optional-features
 [flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
+[flo-aa-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_abs
+[flo-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_neg
 [int-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Integer.html
 [mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
@@ -126,6 +147,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [nt-0-2-ce]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.CheckedEuclid.html
 [nt-0-2-cr]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedRem.html
 [nt-0-2-e]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.Euclid.html
+[sys-mpfr-sn-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/fn.set_nanflag.html
 [tuple]: https://doc.rust-lang.org/nightly/core/primitive.tuple.html
 
 ### Version 1.23.0 news (2024-01-18)

@@ -873,6 +873,10 @@ impl Complex {
     /// This method performs a shallow copy and negates it, and negation does
     /// not change the allocated data.
     ///
+    /// Unlike the other negation methods (the `-` operator,
+    /// <code>[Neg]::[neg][Neg::neg]</code>, etc.), this method does not set the
+    /// [MPFR NaN flag] if a NaN is encountered.
+    ///
     /// # Examples
     ///
     /// ```rust
@@ -888,13 +892,13 @@ impl Complex {
     ///
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
-    pub fn as_neg(&self) -> BorrowComplex<'_> {
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [Neg::neg]: core::ops::Neg::neg
+    /// [Neg]: core::ops::Neg
+    pub const fn as_neg(&self) -> BorrowComplex<'_> {
         let mut raw = self.inner;
         raw.re.sign = -raw.re.sign;
         raw.im.sign = -raw.im.sign;
-        if self.real().is_nan() || self.imag().is_nan() {
-            xmpfr::set_nanflag();
-        }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowComplex::from_raw(raw) }
     }
@@ -905,6 +909,9 @@ impl Complex {
     ///
     /// This method performs a shallow copy and negates its imaginary part, and
     /// negation does not change the allocated data.
+    ///
+    /// Unlike the other conjugate methods ([`conj`], [`conj_mut`], etc.), this
+    /// method does not set the [MPFR NaN flag] if a NaN is encountered.
     ///
     /// # Examples
     ///
@@ -921,12 +928,12 @@ impl Complex {
     ///
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
-    pub fn as_conj(&self) -> BorrowComplex<'_> {
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`conj_mut`]: Self::conj_mut
+    /// [`conj`]: Self::conj
+    pub const fn as_conj(&self) -> BorrowComplex<'_> {
         let mut raw = self.inner;
         raw.im.sign = -raw.im.sign;
-        if self.imag().is_nan() {
-            xmpfr::set_nanflag();
-        }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowComplex::from_raw(raw) }
     }
@@ -935,10 +942,13 @@ impl Complex {
     ///
     /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
     ///
-    /// This method operates by performing some shallow copying; unlike the
-    /// [`mul_i`][Complex::mul_i] method and friends, this method swaps the
+    /// This method operates by performing some shallow copying; unlike other
+    /// similar methods ( [`mul_i`], [`mul_i_mut`], etc.), this method swaps the
     /// precision of the real and imaginary parts if they have unequal
     /// precisions.
+    ///
+    /// Also, unlike other similar methods ([`mul_i`], [`mul_i_mut`], etc.),
+    /// this method does not set the [MPFR NaN flag] if a NaN is encountered.
     ///
     /// # Examples
     ///
@@ -957,7 +967,10 @@ impl Complex {
     ///
     /// [Deref::Target]: core::ops::Deref::Target
     /// [Deref]: core::ops::Deref
-    pub fn as_mul_i(&self, negative: bool) -> BorrowComplex<'_> {
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`mul_i_mut`]: Self::mul_i_mut
+    /// [`mul_i`]: Self::mul_i
+    pub const fn as_mul_i(&self, negative: bool) -> BorrowComplex<'_> {
         let mut raw = mpc_t {
             re: self.inner.im,
             im: self.inner.re,
@@ -966,9 +979,6 @@ impl Complex {
             raw.im.sign = -raw.im.sign;
         } else {
             raw.re.sign = -raw.re.sign;
-        }
-        if self.real().is_nan() || self.imag().is_nan() {
-            xmpfr::set_nanflag();
         }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowComplex::from_raw(raw) }
