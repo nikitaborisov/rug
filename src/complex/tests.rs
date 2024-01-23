@@ -218,32 +218,29 @@ fn check_nanflag() {
     assert!(!m.real().is_nan() && m.imag().is_nan());
     assert!(nanflag());
 
+    // as_neg, as_conj, as_mul_i shouldn't set nan flag from version 1.24.0 onwards
     clear_nanflag();
+
     let a = re_nan.as_neg();
     assert!(a.real().is_nan() && !a.imag().is_nan());
-    assert!(nanflag());
-    clear_nanflag();
+    assert!(!nanflag());
     let a = im_nan.as_neg();
     assert!(!a.real().is_nan() && a.imag().is_nan());
-    assert!(nanflag());
+    assert!(!nanflag());
 
-    clear_nanflag();
     let a = re_nan.as_conj();
     assert!(a.real().is_nan() && !a.imag().is_nan());
     assert!(!nanflag());
-    clear_nanflag();
     let a = im_nan.as_conj();
     assert!(!a.real().is_nan() && a.imag().is_nan());
-    assert!(nanflag());
+    assert!(!nanflag());
 
-    clear_nanflag();
     let a = re_nan.as_mul_i(false);
     assert!(!a.real().is_nan() && a.imag().is_nan());
-    assert!(nanflag());
-    clear_nanflag();
+    assert!(!nanflag());
     let a = im_nan.as_mul_i(true);
     assert!(a.real().is_nan() && !a.imag().is_nan());
-    assert!(nanflag());
+    assert!(!nanflag());
 }
 
 #[test]

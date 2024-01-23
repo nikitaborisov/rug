@@ -335,15 +335,16 @@ fn check_nanflag() {
     assert!(m.is_nan());
     assert!(nanflag());
 
+    // as_neg, as_abs shouldn't set nan flag from version 1.24.0 onwards
     clear_nanflag();
+
     let a = nan.as_neg();
     assert!(a.is_nan());
-    assert!(nanflag());
+    assert!(!nanflag());
 
-    clear_nanflag();
     let a = nan.as_abs();
     assert!(a.is_nan());
-    assert!(nanflag());
+    assert!(!nanflag());
 }
 
 #[cfg(feature = "rand")]
