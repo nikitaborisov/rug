@@ -71,6 +71,8 @@ assert_eq!(a, 150);
 a *= &*b;
 assert_eq!(a, -15000);
 ```
+
+[`Special`]: crate::float::Special
 */
 #[deprecated(since = "1.23.0", note = "use `MiniFloat` instead")]
 pub struct SmallFloat {
