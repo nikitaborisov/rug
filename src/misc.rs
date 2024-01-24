@@ -18,13 +18,13 @@
 
 use az::{Az, UnwrappedAs, WrappingCast};
 use core::ffi::c_char;
+use core::fmt::Write;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ptr;
 use core::slice;
 use core::str;
 use libc::size_t;
-use core::fmt::Write;
 
 pub trait NegAbs {
     type Abs;
@@ -244,12 +244,24 @@ impl StringLike {
         }
     }
 
+    #[inline]
     pub fn as_str(&self) -> &str {
         match self {
-            StringLike::String(s) => s,
+            StringLike::String(s) => s.as_str(),
             StringLike::Malloc { ptr, cap: _, len } => unsafe {
                 let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
                 str::from_utf8_unchecked(s)
+            },
+        }
+    }
+
+    #[inline]
+    pub fn as_mut_str(&mut self) -> &mut str {
+        match self {
+            StringLike::String(s) => s.as_mut_str(),
+            StringLike::Malloc { ptr, cap: _, len } => unsafe {
+                let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
+                str::from_utf8_unchecked_mut(s)
             },
         }
     }
@@ -272,8 +284,7 @@ impl StringLike {
         }
     }
 
-    // SAFETY: must keep
-    pub unsafe fn reserved_space(&mut self) -> &mut [MaybeUninit<u8>] {
+    pub fn reserved_space(&mut self) -> &mut [MaybeUninit<u8>] {
         match self {
             StringLike::String(s) => {
                 let mu_ptr = s.as_mut_ptr().cast::<MaybeUninit<u8>>();
@@ -296,7 +307,8 @@ impl StringLike {
         }
     }
 
-    // SAFETY: there should be enough capacity to increase length by increment
+    // SAFETY: there should be enough capacity to increase length by increment,
+    // and increased length must be valid utf8
     pub unsafe fn increase_len(&mut self, increment: usize) {
         match self {
             StringLike::String(s) => unsafe {
