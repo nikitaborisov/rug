@@ -332,11 +332,11 @@ fn fmt_radix(c: &Complex, fmt: &mut Formatter<'_>, format: Format) -> FmtResult 
     let mut buf = [0; 4];
     let fill_buf = fmt.fill().encode_utf8(&mut buf);
     for _ in 0..padding_left {
-        fmt.write_str(&fill_buf)?;
+        fmt.write_str(fill_buf)?;
     }
     fmt.write_str(s.as_str())?;
     for _ in 0..padding_right {
-        fmt.write_str(&fill_buf)?;
+        fmt.write_str(fill_buf)?;
     }
     Ok(())
 }

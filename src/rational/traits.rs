@@ -323,7 +323,7 @@ fn fmt_radix(
     big::append_to_string(&mut s, r, radix, to_upper);
     let st = s.as_str();
     let neg = st.starts_with('-');
-    let buf = if neg { &st[1..] } else { &st[..] };
+    let buf = if neg { &st[1..] } else { st };
     f.pad_integral(!neg, prefix, buf)
 }
 

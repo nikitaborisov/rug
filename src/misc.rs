@@ -218,7 +218,7 @@ impl StringLike {
     #[cfg(feature = "std")]
     pub fn unwrap_string(mut self) -> String {
         match &mut self {
-            StringLike::String(s) => mem::replace(s, String::new()),
+            StringLike::String(s) => mem::take(s),
             StringLike::Malloc { .. } => unreachable!("unexpected variant"),
         }
     }
@@ -348,7 +348,7 @@ impl Drop for StringLike {
             #[cfg(feature = "std")]
             StringLike::String(_) => {}
             StringLike::Malloc { ptr, .. } => unsafe {
-                if *ptr != ptr::null_mut() {
+                if !ptr.is_null() {
                     libc::free(ptr.cast());
                 }
             },
@@ -389,7 +389,7 @@ impl<T> VecLike<T> {
     }
 
     #[inline]
-    pub fn as_mut_slice(&self) -> &mut [T] {
+    pub fn as_mut_slice(&mut self) -> &mut [T] {
         // null ptr is not allowed
         if self.cap == 0 {
             return &mut [];

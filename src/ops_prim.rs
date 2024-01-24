@@ -16,10 +16,10 @@
 
 use crate::ops::{
     AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, MulFrom, NegAssign,
-    NotAssign, Pow, PowAssign, PowFrom, RemFrom, RemRounding, ShlFrom, ShrFrom, SubFrom,
+    NotAssign, PowAssign, PowFrom, RemFrom, RemRounding, ShlFrom, ShrFrom, SubFrom,
 };
 #[cfg(feature = "std")]
-use crate::ops::{DivRoundingAssign, DivRoundingFrom, RemRoundingAssign, RemRoundingFrom};
+use crate::ops::{DivRoundingAssign, DivRoundingFrom, Pow, RemRoundingAssign, RemRoundingFrom};
 use crate::Assign;
 use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
 

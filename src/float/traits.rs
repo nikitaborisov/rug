@@ -375,7 +375,7 @@ fn fmt_radix(flt: &Float, fmt: &mut Formatter<'_>, format: Format, prefix: &str)
     let (neg, buf) = if let Some(stripped) = st.strip_prefix('-') {
         (true, stripped)
     } else {
-        (false, &*st)
+        (false, st)
     };
     let prefix = if flt.is_finite() { prefix } else { "" };
     fmt.pad_integral(!neg, prefix, buf)

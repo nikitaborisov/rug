@@ -321,7 +321,7 @@ fn fmt_radix(
     let (neg, buf) = if let Some(stripped) = st.strip_prefix('-') {
         (true, stripped)
     } else {
-        (false, &*st)
+        (false, st)
     };
     f.pad_integral(!neg, prefix, buf)
 }
