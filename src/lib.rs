@@ -298,21 +298,24 @@ The Rug crate has six optional features:
     supporting features.
  4. `complex`, enabled by default. Required for the [`Complex`] number type and
     its supporting features. This feature requires the `float` feature.
- 5. `rand`, enabled by default. Required for the [`RandState`][rand::RandState]
-    type and its supporting features. This feature requires the `integer`
-    feature.
- 6. `serde`, disabled by default. This provides serialization support for the
+ 5. `rand`, enabled by default. Required for the [`RandState`] type and its
+    supporting features. This feature requires the `integer` feature.
+ 6. `std`, enabled by default. This is for features that are not possible under
+    `no_std`, such as methods that return [`String`] or the implementation of
+    the [`Error`] trait.
+ 7. `serde`, disabled by default. This provides serialization support for the
     [`Integer`], [`Rational`], [`Float`] and [`Complex`] number types, providing
-    that they are enabled. This feature requires the [serde crate].
+    that they are enabled. This feature requires the `std` feature and the
+    [serde crate].
 
-The first five optional features are enabled by default; to use features
+The first six optional features are enabled by default; to use features
 selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
 version = "1.23"
 default-features = false
-features = ["integer", "float", "rand"]
+features = ["integer", "float", "std"]
 ```
 
 Here only the `integer`, `float` and `rand` features are enabled. If none of the
@@ -328,7 +331,9 @@ version bump. Similarly, on a minor version bump, optional dependencies can be
 updated to an incompatible newer version.
 
  1. `num-traits`, disabled by default. This implements some traits from the
-    [*num-traits* crate] and the [*num-integer* crate].
+    [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
+    this to an optional feature once the [*num-traits* crate] and the
+    [*num-integer* crate] reach version 1.0.0.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: #incomplete-computation-values

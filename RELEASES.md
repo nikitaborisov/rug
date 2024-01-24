@@ -52,21 +52,29 @@ Version 1.24.0 (unreleased)
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
       * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
+  * The `std` [optional feature][feat-1-24] was added. The feature is enabled by
+    default, and the crate will be compiled without the standard library
+    (`no_std`) if the feature is disabled.
   * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
     the following traits are implemented for [`Integer`][int-1-24]:
       * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
       * [`Euclid`][nt-0-2-e], [`CheckedEuclid`][nt-0-2-ce]
 
-Compatibility note
-------------------
+Compatibility notes
+-------------------
 
-The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if a
-NaN is encountered:
-  * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
-    <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
-  * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
-    <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
-    <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+  * The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if
+    a NaN is encountered:
+      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
+        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
+      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+  * Functionality that depends on `std` now requires the `std` feature to be
+    enabled. While the `std` feature is enabled by default, it is now disabled
+    if the crate’s default features are disabled in [*Cargo.toml*]. In this
+    case, `std` must be added to the list of features to reenable the
+    functionality.
 
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
@@ -74,6 +82,7 @@ NaN is encountered:
 [com-ac-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_conj
 [com-am-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_mul_i
 [com-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_neg
+[feat-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#optional-features
 [feat-exp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#experimental-optional-features
 [flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-aa-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_abs

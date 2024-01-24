@@ -75,20 +75,28 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
       * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
+  * The `std` [optional feature][feat-1-24] was added. The feature is enabled by
+    default, and the crate will be compiled without the standard library
+    (`no_std`) if the feature is disabled.
   * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
     the following traits are implemented for [`Integer`][int-1-24]:
       * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
       * [`Euclid`][nt-0-2-e], [`CheckedEuclid`][nt-0-2-ce]
 
-#### Compatibility note
+#### Compatibility notes
 
-The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if a
-NaN is encountered:
-  * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
-    <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
-  * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
-    <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
-    <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+  * The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if
+    a NaN is encountered:
+      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
+        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
+      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+  * Functionality that depends on `std` now requires the `std` feature to be
+    enabled. While the `std` feature is enabled by default, it is now disabled
+    if the crate’s default features are disabled in [*Cargo.toml*]. In this
+    case, `std` must be added to the list of features to reenable the
+    functionality.
 
 [`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
 [`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
@@ -98,6 +106,7 @@ NaN is encountered:
 [com-ac-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_conj
 [com-am-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_mul_i
 [com-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_neg
+[feat-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#optional-features
 [feat-exp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#experimental-optional-features
 [flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-aa-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_abs
@@ -295,18 +304,22 @@ The Rug crate has six optional features:
     its supporting features. This feature requires the `float` feature.
  5. `rand`, enabled by default. Required for the [`RandState`] type and its
     supporting features. This feature requires the `integer` feature.
- 6. `serde`, disabled by default. This provides serialization support for the
+ 6. `std`, enabled by default. This is for features that are not possible under
+    `no_std`, such as methods that return [`String`] or the implementation of
+    the [`Error`] trait.
+ 7. `serde`, disabled by default. This provides serialization support for the
     [`Integer`], [`Rational`], [`Float`] and [`Complex`] number types, providing
-    that they are enabled. This feature requires the [serde crate].
+    that they are enabled. This feature requires the `std` feature and the
+    [serde crate].
 
-The first five optional features are enabled by default; to use features
+The first six optional features are enabled by default; to use features
 selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
 version = "1.23"
 default-features = false
-features = ["integer", "float", "rand"]
+features = ["integer", "float", "std"]
 ```
 
 Here only the `integer`, `float` and `rand` features are enabled. If none of the
@@ -322,7 +335,9 @@ version bump. Similarly, on a minor version bump, optional dependencies can be
 updated to an incompatible newer version.
 
  1. `num-traits`, disabled by default. This implements some traits from the
-    [*num-traits* crate] and the [*num-integer* crate].
+    [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
+    this to an optional feature once the [*num-traits* crate] and the
+    [*num-integer* crate] reach version 1.0.0.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: https://docs.rs/rug/~1.23/rug/index.html#incomplete-computation-values
@@ -338,10 +353,12 @@ updated to an incompatible newer version.
 [`Assign::assign`]: https://docs.rs/rug/~1.23/rug/trait.Assign.html#tymethod.assign
 [`Assign`]: https://docs.rs/rug/~1.23/rug/trait.Assign.html
 [`Complex`]: https://docs.rs/rug/~1.23/rug/struct.Complex.html
+[`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
 [`Float`]: https://docs.rs/rug/~1.23/rug/struct.Float.html
 [`Integer`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html
 [`RandState`]: https://docs.rs/rug/~1.23/rug/rand/struct.RandState.html
 [`Rational`]: https://docs.rs/rug/~1.23/rug/struct.Rational.html
+[`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
 [`new`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html#method.new
 [`ops`]: https://docs.rs/rug/~1.23/rug/ops/index.html
 [`parse_radix`]: https://docs.rs/rug/~1.23/rug/struct.Integer.html#method.parse_radix
