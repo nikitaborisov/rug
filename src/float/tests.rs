@@ -20,7 +20,10 @@ use crate::float;
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
 #[cfg(feature = "rand")]
-use crate::rand::{RandGen, RandState};
+use crate::rand::RandGen;
+#[cfg(feature = "std")]
+#[cfg(feature = "rand")]
+use crate::rand::RandState;
 use crate::{Assign, Float};
 use az::Az;
 use core::cmp::Ordering;
@@ -364,6 +367,7 @@ impl RandGen for OnesZerosRand {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(feature = "rand")]
 #[test]
 fn check_nan_random_bits() {

@@ -316,8 +316,11 @@ fn check_to_digits_bool() {
     i.write_digits(&mut buf, Order::MsfBe);
     assert_eq!(buf, [F, F, F, T, T, T, F, F, T, F]);
 
-    let vec: Vec<bool> = i.to_digits(Order::MsfBe);
-    assert_eq!(vec, [T, T, T, F, F, T, F]);
+    #[cfg(feature = "std")]
+    {
+        let vec: Vec<bool> = i.to_digits(Order::MsfBe);
+        assert_eq!(vec, [T, T, T, F, F, T, F]);
+    }
 }
 
 #[test]
@@ -361,8 +364,11 @@ fn check_to_digits_u8() {
     i.write_digits(&mut buf, Order::MsfBe);
     assert_eq!(buf, [0, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
 
-    let vec: Vec<u8> = i.to_digits(Order::MsfBe);
-    assert_eq!(vec, [1, 2, 3, 4, 5, 6, 7, 8]);
+    #[cfg(feature = "std")]
+    {
+        let vec: Vec<u8> = i.to_digits(Order::MsfBe);
+        assert_eq!(vec, [1, 2, 3, 4, 5, 6, 7, 8]);
+    }
 }
 
 #[test]
@@ -422,8 +428,11 @@ fn check_to_digits_u16() {
     i.write_digits(&mut buf, Order::MsfBe);
     assert_eq!(buf, [0, be_0102, be_0304, be_0506, be_0708]);
 
-    let vec: Vec<u16> = i.to_digits(Order::MsfBe);
-    assert_eq!(*vec, [be_0102, be_0304, be_0506, be_0708]);
+    #[cfg(feature = "std")]
+    {
+        let vec: Vec<u16> = i.to_digits(Order::MsfBe);
+        assert_eq!(*vec, [be_0102, be_0304, be_0506, be_0708]);
+    }
 }
 
 #[test]
@@ -478,8 +487,11 @@ fn check_to_digits_u128() {
     i.write_digits(&mut buf, Order::MsfBe);
     assert_eq!(buf, [0, 0, be_1111, 0, be_2222]);
 
-    let vec: Vec<u128> = i.to_digits(Order::MsfBe);
-    assert_eq!(*vec, [be_1111, 0, be_2222]);
+    #[cfg(feature = "std")]
+    {
+        let vec: Vec<u128> = i.to_digits(Order::MsfBe);
+        assert_eq!(*vec, [be_1111, 0, be_2222]);
+    }
 }
 
 #[test]

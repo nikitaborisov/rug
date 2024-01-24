@@ -1750,9 +1750,15 @@ impl SealedMutRandState for ThreadRandState<'_> {
 
 #[cfg(test)]
 mod tests {
-    use crate::rand::{RandGen, RandState, ThreadRandGen, ThreadRandState};
-    use az::{Az, Cast};
+    #[cfg(feature = "std")]
+    use crate::rand::ThreadRandState;
+    use crate::rand::{RandGen, RandState, ThreadRandGen};
+    #[cfg(feature = "std")]
+    use az::Az;
+    use az::Cast;
+    #[cfg(feature = "std")]
     use core::ptr;
+    #[cfg(feature = "std")]
     use gmp_mpfr_sys::gmp;
 
     struct SimpleGenerator {
@@ -1767,6 +1773,7 @@ mod tests {
                 .wrapping_add(1);
             (self.seed >> 32).cast()
         }
+        #[cfg(feature = "std")]
         fn boxed_clone(&self) -> Option<Box<dyn RandGen>> {
             let other = SimpleGenerator { seed: self.seed };
             let boxed = Box::new(other);
@@ -1774,6 +1781,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn check_custom_clone() {
         let mut gen = SimpleGenerator { seed: 1 };
@@ -1807,6 +1815,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "std")]
     #[test]
     #[should_panic(expected = "`RandGen::boxed_clone` returned `None`")]
     fn check_custom_no_clone() {
@@ -1815,6 +1824,7 @@ mod tests {
         let _ = rand1.clone();
     }
 
+    #[cfg(feature = "std")]
     #[test]
     #[should_panic(expected = "cannot convert custom `RandState` into raw")]
     fn check_custom_into_raw() {
@@ -1837,6 +1847,7 @@ mod tests {
                 .wrapping_add(1);
             (self.seed >> 32).cast()
         }
+        #[cfg(feature = "std")]
         fn boxed_clone(&self) -> Option<Box<dyn ThreadRandGen>> {
             let other = ThreadSimpleGenerator {
                 _dummy: ptr::null(),
@@ -1847,6 +1858,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn thread_check_custom_clone() {
         let mut gen = ThreadSimpleGenerator {
@@ -1883,6 +1895,7 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "std")]
     #[test]
     #[should_panic(expected = "`ThreadRandGen::boxed_clone` returned `None`")]
     fn thread_check_custom_no_clone() {
@@ -1891,6 +1904,7 @@ mod tests {
         let _ = rand1.clone();
     }
 
+    #[cfg(feature = "std")]
     #[test]
     #[should_panic(expected = "cannot convert custom `ThreadRandState` into raw")]
     fn thread_check_custom_into_raw() {
@@ -1899,6 +1913,8 @@ mod tests {
         let _ = rand1.into_raw();
     }
 
+    #[cfg(feature = "std")]
+    #[cfg(feature = "std")]
     #[test]
     fn thread_check_raw() {
         let mut check = RandState::new();
