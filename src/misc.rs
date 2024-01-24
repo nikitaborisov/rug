@@ -19,6 +19,7 @@
 use az::{Az, UnwrappedAs, WrappingCast};
 use core::ffi::c_char;
 use core::fmt::Write;
+use core::iter::Extend;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ptr;
@@ -199,6 +200,7 @@ pub fn find_space_outside_brackets(bytes: &[u8]) -> Option<usize> {
 }
 
 pub enum StringLike {
+    #[cfg(feature = "std")]
     String(String),
     Malloc {
         ptr: *mut c_char,
@@ -208,10 +210,12 @@ pub enum StringLike {
 }
 
 impl StringLike {
+    #[cfg(feature = "std")]
     pub fn new_string() -> Self {
         StringLike::String(String::new())
     }
 
+    #[cfg(feature = "std")]
     pub fn unwrap_string(mut self) -> String {
         match &mut self {
             StringLike::String(s) => mem::replace(s, String::new()),
@@ -228,14 +232,18 @@ impl StringLike {
     }
 
     pub fn push_str(&mut self, s: &str) {
+        #[cfg(feature = "std")]
         if let StringLike::String(st) = self {
             st.push_str(s);
             return;
         }
         self.reserve(s.len());
+        #[cfg(feature = "std")]
         let StringLike::Malloc { ptr, cap: _, len } = self else {
             unreachable!();
         };
+        #[cfg(not(feature = "std"))]
+        let StringLike::Malloc { ptr, cap: _, len } = self;
         unsafe {
             ptr.cast::<u8>()
                 .offset((*len).unwrapped_as())
@@ -247,6 +255,7 @@ impl StringLike {
     #[inline]
     pub fn as_str(&self) -> &str {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(s) => s.as_str(),
             StringLike::Malloc { ptr, cap: _, len } => unsafe {
                 let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
@@ -258,6 +267,7 @@ impl StringLike {
     #[inline]
     pub fn as_mut_str(&mut self) -> &mut str {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(s) => s.as_mut_str(),
             StringLike::Malloc { ptr, cap: _, len } => unsafe {
                 let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
@@ -268,6 +278,7 @@ impl StringLike {
 
     pub fn reserve(&mut self, additional: usize) {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(s) => {
                 s.reserve(additional);
             }
@@ -286,6 +297,7 @@ impl StringLike {
 
     pub fn reserved_space(&mut self) -> &mut [MaybeUninit<u8>] {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(s) => {
                 let mu_ptr = s.as_mut_ptr().cast::<MaybeUninit<u8>>();
                 unsafe {
@@ -311,6 +323,7 @@ impl StringLike {
     // and increased length must be valid utf8
     pub unsafe fn increase_len(&mut self, increment: usize) {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(s) => unsafe {
                 let new_len = s.len().checked_add(increment).expect("overflow");
                 s.as_mut_vec().set_len(new_len);
@@ -332,6 +345,7 @@ impl StringLike {
 impl Drop for StringLike {
     fn drop(&mut self) {
         match self {
+            #[cfg(feature = "std")]
             StringLike::String(_) => {}
             StringLike::Malloc { ptr, .. } => unsafe {
                 if *ptr != ptr::null_mut() {
@@ -346,5 +360,112 @@ impl Write for StringLike {
     fn write_str(&mut self, s: &str) -> core::fmt::Result {
         self.push_str(s);
         Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub struct VecLike<T> {
+    ptr: *mut T,
+    cap: size_t,
+    len: size_t,
+}
+
+impl<T> VecLike<T> {
+    pub fn new() -> Self {
+        VecLike {
+            ptr: ptr::null_mut(),
+            cap: 0,
+            len: 0,
+        }
+    }
+
+    #[inline]
+    pub fn as_slice(&self) -> &[T] {
+        // null ptr is not allowed
+        if self.cap == 0 {
+            return &[];
+        }
+        unsafe { slice::from_raw_parts(self.ptr, self.len) }
+    }
+
+    #[inline]
+    pub fn as_mut_slice(&self) -> &mut [T] {
+        // null ptr is not allowed
+        if self.cap == 0 {
+            return &mut [];
+        }
+        unsafe { slice::from_raw_parts_mut(self.ptr, self.len) }
+    }
+
+    pub fn reserve(&mut self, additional: usize) {
+        let cap = self.len.checked_add(additional).expect("overflow");
+        if cap > self.cap {
+            let bytes_cap = cap
+                .checked_mul(mem::size_of::<T>())
+                .expect("overflow")
+                .unwrapped_as();
+            self.ptr = unsafe { libc::realloc(self.ptr.cast(), bytes_cap).cast() };
+            self.cap = cap;
+        }
+    }
+
+    pub fn push(&mut self, elem: T) {
+        if self.cap == self.len {
+            self.reserve(if self.cap == 0 { 4 } else { self.cap });
+        }
+        debug_assert!(self.cap > self.len);
+        unsafe {
+            self.ptr.offset(self.len.unwrapped_as()).write(elem);
+        }
+        self.len += 1;
+    }
+
+    pub fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        for item in iter {
+            self.push(item);
+        }
+    }
+}
+
+impl<T> Default for VecLike<T> {
+    fn default() -> Self {
+        VecLike::new()
+    }
+}
+
+impl<T> Drop for VecLike<T> {
+    fn drop(&mut self) {
+        if self.cap == 0 {
+            return;
+        }
+        unsafe {
+            let s = ptr::slice_from_raw_parts_mut(self.ptr, self.len);
+            self.len = 0;
+            ptr::drop_in_place(s);
+            libc::free(self.ptr.cast());
+        }
+    }
+}
+
+impl<T> FromIterator<T> for VecLike<T> {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+    {
+        let mut vec = VecLike::new();
+        vec.extend(iter);
+        vec
+    }
+}
+
+impl<T> Extend<T> for VecLike<T> {
+    fn extend<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = T>,
+    {
+        self.extend(iter);
     }
 }
