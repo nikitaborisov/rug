@@ -14,15 +14,14 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[allow(unused_imports)]
 use crate::ops::{
-    AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, MulFrom, NegAssign,
-    NotAssign, PowAssign, PowFrom, RemFrom, RemRounding, ShlFrom, ShrFrom, SubFrom,
+    AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, DivRoundingAssign,
+    DivRoundingFrom, MulFrom, NegAssign, NotAssign, Pow, PowAssign, PowFrom, RemFrom, RemRounding,
+    RemRoundingAssign, RemRoundingFrom, ShlFrom, ShrFrom, SubFrom,
 };
-#[cfg(feature = "std")]
-use crate::ops::{DivRoundingAssign, DivRoundingFrom, Pow, RemRoundingAssign, RemRoundingFrom};
 use crate::Assign;
 use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
-
 #[cfg(feature = "std")]
 use std::borrow::Cow;
 

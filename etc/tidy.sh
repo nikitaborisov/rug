@@ -41,16 +41,18 @@ print_eval_check \
 # integer,rational = rational
 # integer,rand = rand
 # float,complex = complex
+# std,serde = serde
 for features in \
     '' gmp-mpfr-sys{,\ gmp-mpfr-sys/{mpfr,mpc}} \
-    integer{,\ float,\ complex}{,\ serde} \
-    rational{,\ float,\ complex}{,\ rand}{,\ serde} \
-    float{,\ rand}{,\ serde} \
-    complex{,\ rand}{,\ serde} \
-    rand{,\ serde} \
+    integer{,\ float,\ complex}{,\ std,\ serde} \
+    rational{,\ float,\ complex}{,\ rand}{,\ std,\ serde} \
+    float{,\ rand}{,\ std,\ serde} \
+    complex{,\ rand}{,\ std,\ serde} \
+    rand{,\ std,\ serde} \
+    std \
     serde
 do
-    if [[ "$features" =~ ^(()|serde)$ ]]; then
+    if [[ "$features" =~ ^(()|std|serde)$ ]]; then
         gmp=""
     else
         gmp="-p gmp-mpfr-sys"

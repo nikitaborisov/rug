@@ -1558,6 +1558,7 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_32)]
 unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
@@ -1632,6 +1633,7 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_32)]
 unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
