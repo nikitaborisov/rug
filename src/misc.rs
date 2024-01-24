@@ -239,7 +239,8 @@ impl StringLike {
         }
         self.reserve(s.len());
         #[cfg(feature = "std")]
-        let StringLike::Malloc { ptr, cap: _, len } = self else {
+        let StringLike::Malloc { ptr, cap: _, len } = self
+        else {
             unreachable!();
         };
         #[cfg(not(feature = "std"))]
