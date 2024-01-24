@@ -3978,6 +3978,8 @@ impl Integer {
     /// # Examples
     ///
     /// ```rust
+    /// # // wrap in fn to suppress valgrind false positive
+    /// # fn doctest_secure_pow_mod() {
     /// use rug::Integer;
     /// // 7 ^ 4 mod 13 = 9
     /// let n = Integer::from(7);
@@ -3985,6 +3987,8 @@ impl Integer {
     /// let m = Integer::from(13);
     /// let power = n.secure_pow_mod(&e, &m);
     /// assert_eq!(power, 9);
+    /// # }
+    /// # doctest_secure_pow_mod();
     /// ```
     #[inline]
     #[must_use]
@@ -4011,6 +4015,8 @@ impl Integer {
     /// # Examples
     ///
     /// ```rust
+    /// # // wrap in fn to suppress valgrind false positive
+    /// # fn doctest_secure_pow_mod_mut() {
     /// use rug::Integer;
     /// // 7 ^ 4 mod 13 = 9
     /// let mut n = Integer::from(7);
@@ -4018,6 +4024,8 @@ impl Integer {
     /// let m = Integer::from(13);
     /// n.secure_pow_mod_mut(&e, &m);
     /// assert_eq!(n, 9);
+    /// # }
+    /// # doctest_secure_pow_mod_mut();
     /// ```
     #[inline]
     pub fn secure_pow_mod_mut(&mut self, exponent: &Self, modulo: &Self) {
@@ -4048,6 +4056,8 @@ impl Integer {
     /// # Examples
     ///
     /// ```rust
+    /// # // wrap in fn to suppress valgrind false positive
+    /// # fn doctest_secure_pow_mod_ref() {
     /// use rug::Integer;
     /// // 7 ^ 4 mod 13 = 9
     /// let n = Integer::from(7);
@@ -4055,6 +4065,8 @@ impl Integer {
     /// let m = Integer::from(13);
     /// let power = Integer::from(n.secure_pow_mod_ref(&e, &m));
     /// assert_eq!(power, 9);
+    /// # }
+    /// # doctest_secure_pow_mod_ref();
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
