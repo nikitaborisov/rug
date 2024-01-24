@@ -19,6 +19,7 @@ use crate::integer::big;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
 use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
+use crate::misc::StringLike;
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
 use core::fmt::{
@@ -313,12 +314,13 @@ fn fmt_radix(
     to_upper: bool,
     prefix: &str,
 ) -> FmtResult {
-    let mut s = String::new();
+    let mut s = StringLike::new_malloc();
     big::append_to_string(&mut s, i, radix, to_upper);
-    let (neg, buf) = if let Some(stripped) = s.strip_prefix('-') {
+    let st = s.as_str();
+    let (neg, buf) = if let Some(stripped) = st.strip_prefix('-') {
         (true, stripped)
     } else {
-        (false, &*s)
+        (false, &*st)
     };
     f.pad_integral(!neg, prefix, buf)
 }

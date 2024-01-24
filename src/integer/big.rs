@@ -18,6 +18,7 @@ use crate::ext::xmpz;
 use crate::integer::arith::MulIncomplete;
 use crate::integer::{BorrowInteger, MiniInteger, Order};
 use crate::misc;
+use crate::misc::StringLike;
 use crate::ops::{DivRounding, NegAssign, SubFrom};
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
@@ -1844,9 +1845,9 @@ impl Integer {
     /// ```
     #[inline]
     pub fn to_string_radix(&self, radix: i32) -> String {
-        let mut s = String::new();
+        let mut s = StringLike::new_string();
         append_to_string(&mut s, self, radix, false);
-        s
+        s.unwrap_string()
     }
 
     /// Assigns from an [`f32`] if it is [finite][f32::is_finite], rounding
@@ -6372,26 +6373,29 @@ pub(crate) fn req_chars(i: &Integer, radix: i32, extra: usize) -> usize {
     }
 }
 
-pub(crate) fn append_to_string(s: &mut String, i: &Integer, radix: i32, to_upper: bool) {
+pub(crate) fn append_to_string(s: &mut StringLike, i: &Integer, radix: i32, to_upper: bool) {
     // add 1 for nul
     let size = req_chars(i, radix, 1);
     s.reserve(size);
-    let reserved_ptr = s.as_ptr();
+    let reserved_ptr = s.as_str().as_ptr();
     let case_radix = if to_upper { -radix } else { radix };
-    let orig_len = s.len();
     unsafe {
-        let bytes = s.as_mut_vec();
-        let start = bytes.as_mut_ptr().add(orig_len);
-        gmp::mpz_get_str(cast_ptr_mut!(start, c_char), case_radix.cast(), i.as_raw());
-        let added = slice::from_raw_parts(start, size);
-        let nul_index = added.iter().position(|&x| x == 0).unwrap();
-        bytes.set_len(orig_len + nul_index);
+        let alloced = s.reserved_space();
+        gmp::mpz_get_str(
+            cast_ptr_mut!(alloced.as_mut_ptr(), c_char),
+            case_radix.cast(),
+            i.as_raw(),
+        );
+        let nul_index = alloced
+            .iter()
+            .position(|&x: &MaybeUninit<u8>| {
+                // SAFETY: bytes will be initialized up to and including nul
+                x.assume_init() == 0
+            })
+            .unwrap();
+        s.increase_len(nul_index);
     }
-    debug_assert_eq!(reserved_ptr, s.as_ptr());
-    #[cfg(not(debug_assertions))]
-    {
-        let _ = reserved_ptr;
-    }
+    debug_assert_eq!(reserved_ptr, s.as_str().as_ptr());
 }
 
 #[derive(Debug)]
