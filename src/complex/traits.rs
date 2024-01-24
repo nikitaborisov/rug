@@ -23,6 +23,7 @@ use crate::ext::xmpc;
 use crate::ext::xmpc::{Ordering2, Round2};
 use crate::float::big::ExpFormat;
 use crate::float::{Round, Special};
+use crate::misc::StringLike;
 use crate::ops::AssignRound;
 use crate::{Assign, Complex, Float};
 use core::cmp::Ordering;
@@ -315,13 +316,13 @@ fn fmt_radix(c: &Complex, fmt: &mut Formatter<'_>, format: Format) -> FmtResult 
         prefix: if fmt.alternate() { format.prefix } else { "" },
         ..format
     };
-    let mut s = String::new();
+    let mut s = StringLike::new_malloc();
     big::append_to_string(&mut s, c, format);
     // s is ascii only, so just take len for character count
-    let count = s.len();
+    let count = s.as_str().len();
     let padding = match fmt.width() {
         Some(width) if width > count => width - count,
-        _ => return fmt.write_str(&s),
+        _ => return fmt.write_str(s.as_str()),
     };
     let (padding_left, padding_right) = match fmt.align() {
         Some(Alignment::Left) => (0, padding),
@@ -333,7 +334,7 @@ fn fmt_radix(c: &Complex, fmt: &mut Formatter<'_>, format: Format) -> FmtResult 
     for _ in 0..padding_left {
         fmt.write_str(&fill_buf)?;
     }
-    fmt.write_str(&s)?;
+    fmt.write_str(s.as_str())?;
     for _ in 0..padding_right {
         fmt.write_str(&fill_buf)?;
     }

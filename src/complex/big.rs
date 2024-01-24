@@ -25,6 +25,7 @@ use crate::float::big::{
 };
 use crate::float::{ParseFloatError, Round, Special};
 use crate::misc;
+use crate::misc::StringLike;
 use crate::ops::{
     AddAssignRound, AssignRound, CompleteRound, NegAssign, SubAssignRound, SubFrom, SubFromRound,
 };
@@ -680,7 +681,6 @@ impl Complex {
         num_digits: Option<usize>,
         round: Round2,
     ) -> String {
-        let mut s = String::new();
         let format = Format {
             radix,
             precision: num_digits,
@@ -690,8 +690,9 @@ impl Complex {
             prefix: "",
             exp: ExpFormat::Point,
         };
+        let mut s = StringLike::new_string();
         append_to_string(&mut s, self, format);
-        s
+        s.unwrap_string()
     }
 
     /// Borrows the real part as a [`Float`].
@@ -4219,7 +4220,7 @@ impl Default for Format {
     }
 }
 
-pub(crate) fn append_to_string(s: &mut String, c: &Complex, f: Format) {
+pub(crate) fn append_to_string(s: &mut StringLike, c: &Complex, f: Format) {
     let (re, im) = (c.real(), c.imag());
     let re_plus = f.sign_plus && re.is_sign_positive();
     let im_plus = f.sign_plus && im.is_sign_positive();
@@ -4240,51 +4241,47 @@ pub(crate) fn append_to_string(s: &mut String, c: &Complex, f: Format) {
     let cap = big_float::req_chars(re, ff, extra);
     let cap = big_float::req_chars(im, ff, cap);
     s.reserve(cap);
-    let reserved_ptr = s.as_ptr();
-    s.push('(');
+    let reserved_ptr = s.as_str().as_ptr();
+    s.push_str("(");
     if re_plus {
-        s.push('+');
+        s.push_str("+");
     }
-    let prefix_start = s.len();
+    let prefix_start = s.as_str().len();
     if re_prefix {
         s.push_str(f.prefix);
     }
-    let prefix_end = s.len();
+    let prefix_end = s.as_str().len();
     big_float::append_to_string(s, re, ff);
-    if re_prefix && s.as_bytes()[prefix_end] == b'-' {
+    if re_prefix && s.as_str().as_bytes()[prefix_end] == b'-' {
         unsafe {
-            let bytes = slice::from_raw_parts_mut(s.as_mut_ptr(), s.len());
+            let bytes = slice::from_raw_parts_mut(s.as_mut_str().as_mut_ptr(), s.as_str().len());
             bytes[prefix_start] = b'-';
             bytes[prefix_start + 1..=prefix_end].copy_from_slice(f.prefix.as_bytes());
         }
     }
-    s.push(' ');
+    s.push_str(" ");
     if im_plus {
-        s.push('+');
+        s.push_str("+");
     }
-    let prefix_start = s.len();
+    let prefix_start = s.as_str().len();
     if im_prefix {
         s.push_str(f.prefix);
     }
-    let prefix_end = s.len();
+    let prefix_end = s.as_str().len();
     let ff = FloatFormat {
         round: f.round.1,
         ..ff
     };
     big_float::append_to_string(s, im, ff);
-    if im_prefix && s.as_bytes()[prefix_end] == b'-' {
+    if im_prefix && s.as_str().as_bytes()[prefix_end] == b'-' {
         unsafe {
-            let bytes = slice::from_raw_parts_mut(s.as_mut_ptr(), s.len());
+            let bytes = slice::from_raw_parts_mut(s.as_mut_str().as_mut_ptr(), s.as_str().len());
             bytes[prefix_start] = b'-';
             bytes[prefix_start + 1..=prefix_end].copy_from_slice(f.prefix.as_bytes());
         }
     }
-    s.push(')');
-    debug_assert_eq!(reserved_ptr, s.as_ptr());
-    #[cfg(not(debug_assertions))]
-    {
-        let _ = reserved_ptr;
-    }
+    s.push_str(")");
+    debug_assert_eq!(reserved_ptr, s.as_str().as_ptr());
 }
 
 #[derive(Debug)]
