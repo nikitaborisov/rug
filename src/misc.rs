@@ -24,6 +24,7 @@ use core::ptr;
 use core::slice;
 use core::str;
 use libc::size_t;
+use core::fmt::Write;
 
 pub trait NegAbs {
     type Abs;
@@ -326,5 +327,12 @@ impl Drop for StringLike {
                 }
             },
         }
+    }
+}
+
+impl Write for StringLike {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        self.push_str(s);
+        Ok(())
     }
 }
