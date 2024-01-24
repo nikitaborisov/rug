@@ -16,6 +16,7 @@
 
 use crate::ext::xmpq;
 use crate::ext::xmpz;
+use crate::misc::StringLike;
 use crate::rational::big;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
@@ -318,10 +319,11 @@ fn fmt_radix(
     to_upper: bool,
     prefix: &str,
 ) -> FmtResult {
-    let mut s = String::new();
+    let mut s = StringLike::new_malloc();
     big::append_to_string(&mut s, r, radix, to_upper);
-    let neg = s.starts_with('-');
-    let buf = if neg { &s[1..] } else { &s[..] };
+    let st = s.as_str();
+    let neg = st.starts_with('-');
+    let buf = if neg { &st[1..] } else { &st[..] };
     f.pad_integral(!neg, prefix, buf)
 }
 

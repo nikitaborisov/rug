@@ -17,6 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::integer::big as big_integer;
+use crate::misc::StringLike;
 use crate::ops::{NegAssign, SubFrom};
 use crate::rational::arith::MulIncomplete;
 use crate::rational::BorrowRational;
@@ -672,9 +673,9 @@ impl Rational {
     /// ```
     #[inline]
     pub fn to_string_radix(&self, radix: i32) -> String {
-        let mut s = String::new();
+        let mut s = StringLike::new_string();
         append_to_string(&mut s, self, radix, false);
-        s
+        s.unwrap_string()
     }
 
     /// Assigns from an [`f32`] if it is [finite][f32::is_finite], losing no
@@ -3014,7 +3015,7 @@ ref_rat_op_int! { xmpq::round_int; struct RoundIncomplete {} }
 ref_math_op1! { Rational; xmpq::round_fract; struct RemRoundIncomplete {} }
 ref_rat_op_rat_int! { xmpq::round_fract_whole; struct FractRoundIncomplete {} }
 
-pub(crate) fn append_to_string(s: &mut String, r: &Rational, radix: i32, to_upper: bool) {
+pub(crate) fn append_to_string(s: &mut StringLike, r: &Rational, radix: i32, to_upper: bool) {
     let (num, den) = (r.numer(), r.denom());
     let is_whole = *den == 1;
     if !is_whole {
@@ -3023,16 +3024,12 @@ pub(crate) fn append_to_string(s: &mut String, r: &Rational, radix: i32, to_uppe
         let cap = big_integer::req_chars(num, radix, cap_for_den_nul);
         s.reserve(cap);
     };
-    let reserved_ptr = s.as_ptr();
+    let reserved_ptr = s.as_str().as_ptr();
     big_integer::append_to_string(s, num, radix, to_upper);
     if !is_whole {
-        s.push('/');
+        s.push_str("/");
         big_integer::append_to_string(s, den, radix, to_upper);
-        debug_assert_eq!(reserved_ptr, s.as_ptr());
-        #[cfg(not(debug_assertions))]
-        {
-            let _ = reserved_ptr;
-        }
+        debug_assert_eq!(reserved_ptr, s.as_str().as_ptr());
     }
 }
 
