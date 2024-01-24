@@ -349,6 +349,7 @@ updated to an incompatible newer version.
 [sys win]: gmp_mpfr_sys#building-on-windows
 [sys]: gmp_mpfr_sys
 */
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![warn(missing_docs)]
 #![doc(html_root_url = "https://docs.rs/rug/~1.23")]
 #![doc(html_logo_url = "data:image/svg+xml;base64,

@@ -30,6 +30,7 @@ use core::mem;
 use core::mem::MaybeUninit;
 use core::str::FromStr;
 use gmp_mpfr_sys::gmp::limb_t;
+#[cfg(feature = "std")]
 use std::error::Error;
 
 impl Default for Integer {
@@ -377,6 +378,7 @@ impl Display for TryFromIntegerError {
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for TryFromIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

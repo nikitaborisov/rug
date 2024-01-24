@@ -18,6 +18,7 @@ use crate::complex::MiniComplex;
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::{ordering1, raw_round, OptFloat, EXP_ZERO};
 use crate::float::Round;
+use crate::misc::VecLike;
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
@@ -205,8 +206,8 @@ pub fn sum<'a, I>(rop: &mut Complex, values: I, rnd: Round2) -> Ordering2
 where
     I: Iterator<Item = &'a Complex>,
 {
-    let pointers = values.map(Complex::as_raw).collect::<Vec<_>>();
-    unsafe { sum_raw(rop.as_raw_mut(), &pointers, rnd) }
+    let pointers = values.map(Complex::as_raw).collect::<VecLike<_>>();
+    unsafe { sum_raw(rop.as_raw_mut(), pointers.as_slice(), rnd) }
 }
 
 // add original value of rop to sum
@@ -216,10 +217,11 @@ where
 {
     let rop = rop.as_raw_mut();
     let capacity = values.size_hint().0.checked_add(1).expect("overflow");
-    let mut pointers = Vec::with_capacity(capacity);
+    let mut pointers = VecLike::new();
+    pointers.reserve(capacity);
     pointers.push(rop.cast_const());
     pointers.extend(values.map(Complex::as_raw));
-    unsafe { sum_raw(rop, &pointers, rnd) }
+    unsafe { sum_raw(rop, pointers.as_slice(), rnd) }
 }
 
 pub unsafe fn sum_raw(rop: *mut mpc_t, pointers: &[*const mpc_t], rnd: Round2) -> Ordering2 {
@@ -233,9 +235,16 @@ pub fn dot<'a, I>(rop: &mut Complex, values: I, rnd: Round2) -> Ordering2
 where
     I: Iterator<Item = (&'a Complex, &'a Complex)>,
 {
-    let (pointers_a, pointers_b): (Vec<_>, Vec<_>) =
+    let (pointers_a, pointers_b): (VecLike<_>, VecLike<_>) =
         values.map(|(a, b)| (a.as_raw(), b.as_raw())).unzip();
-    unsafe { dot_raw(rop.as_raw_mut(), &pointers_a, &pointers_b, rnd) }
+    unsafe {
+        dot_raw(
+            rop.as_raw_mut(),
+            pointers_a.as_slice(),
+            pointers_b.as_slice(),
+            rnd,
+        )
+    }
 }
 
 // add original value of rop to dot
@@ -262,15 +271,17 @@ where
 
     let rop = rop.as_raw_mut();
     let capacity = values.size_hint().0.checked_add(1).expect("overflow");
-    let mut pointers_a = Vec::with_capacity(capacity);
-    let mut pointers_b = Vec::with_capacity(capacity);
+    let mut pointers_a = VecLike::new();
+    let mut pointers_b = VecLike::new();
+    pointers_a.reserve(capacity);
+    pointers_b.reserve(capacity);
     pointers_a.push(rop.cast_const());
     pointers_b.push(&ONE as *const mpc_t);
     for a_b in values {
         pointers_a.push(a_b.0.as_raw());
         pointers_b.push(a_b.1.as_raw());
     }
-    unsafe { dot_raw(rop, &pointers_a, &pointers_b, rnd) }
+    unsafe { dot_raw(rop, pointers_a.as_slice(), pointers_b.as_slice(), rnd) }
 }
 
 // pointers_a and pointers_b must have same length

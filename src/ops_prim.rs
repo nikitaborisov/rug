@@ -15,12 +15,15 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ops::{
-    AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, DivRoundingAssign,
-    DivRoundingFrom, MulFrom, NegAssign, NotAssign, Pow, PowAssign, PowFrom, RemFrom, RemRounding,
-    RemRoundingAssign, RemRoundingFrom, ShlFrom, ShrFrom, SubFrom,
+    AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, MulFrom, NegAssign,
+    NotAssign, Pow, PowAssign, PowFrom, RemFrom, RemRounding, ShlFrom, ShrFrom, SubFrom,
 };
+#[cfg(feature = "std")]
+use crate::ops::{DivRoundingAssign, DivRoundingFrom, RemRoundingAssign, RemRoundingFrom};
 use crate::Assign;
 use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
+
+#[cfg(feature = "std")]
 use std::borrow::Cow;
 
 macro_rules! assign_from {
@@ -145,6 +148,7 @@ macro_rules! float_ops {
                 *self = -*self;
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<i32> for $T {
             type Output = $T;
@@ -153,6 +157,7 @@ macro_rules! float_ops {
                 self.powi(rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<i32> for &$T {
             type Output = $T;
@@ -161,6 +166,7 @@ macro_rules! float_ops {
                 self.powi(rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<&i32> for $T {
             type Output = $T;
@@ -169,6 +175,7 @@ macro_rules! float_ops {
                 self.powi(*rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<&i32> for &$T {
             type Output = $T;
@@ -177,18 +184,21 @@ macro_rules! float_ops {
                 self.powi(*rhs)
             }
         }
+        #[cfg(feature = "std")]
         impl PowAssign<i32> for $T {
             #[inline]
             fn pow_assign(&mut self, rhs: i32) {
                 *self = self.powi(rhs);
             }
         }
+        #[cfg(feature = "std")]
         impl PowAssign<&i32> for $T {
             #[inline]
             fn pow_assign(&mut self, rhs: &i32) {
                 *self = self.powi(*rhs);
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<$T> for $T {
             type Output = $T;
@@ -197,6 +207,7 @@ macro_rules! float_ops {
                 self.powf(rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<$T> for &$T {
             type Output = $T;
@@ -205,6 +216,7 @@ macro_rules! float_ops {
                 self.powf(rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<&$T> for $T {
             type Output = $T;
@@ -213,6 +225,7 @@ macro_rules! float_ops {
                 self.powf(*rhs)
             }
         }
+        #[cfg(feature = "std")]
         #[cfg(not(feature = "num-traits"))]
         impl Pow<&$T> for &$T {
             type Output = $T;
@@ -221,12 +234,14 @@ macro_rules! float_ops {
                 self.powf(*rhs)
             }
         }
+        #[cfg(feature = "std")]
         impl PowAssign<$T> for $T {
             #[inline]
             fn pow_assign(&mut self, rhs: $T) {
                 *self = self.powf(rhs);
             }
         }
+        #[cfg(feature = "std")]
         impl PowAssign<&$T> for $T {
             #[inline]
             fn pow_assign(&mut self, rhs: &$T) {
@@ -238,6 +253,7 @@ macro_rules! float_ops {
         assign_from! { $T; mul; MulFrom mul_from }
         assign_from! { $T; div; DivFrom div_from }
         assign_from! { $T; rem; RemFrom rem_from }
+        #[cfg(feature = "std")]
         assign_from! { $T; pow; PowFrom pow_from }
     )* };
 }
@@ -261,6 +277,7 @@ macro_rules! rounding_fill {
         $floor_from:ident
         $euc_from:ident
     ) => {
+        #[cfg(feature = "std")]
         impl $Imp<&$T> for $T {
             type Output = <$T as $Imp>::Output;
             #[inline]
@@ -281,6 +298,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $Imp<$T> for &$T {
             type Output = <$T as $Imp>::Output;
             #[inline]
@@ -301,6 +319,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $Imp<&$T> for &$T {
             type Output = <$T as $Imp>::Output;
             #[inline]
@@ -321,6 +340,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $ImpAssign for $T {
             #[inline]
             fn $trunc_ass(&mut self, rhs: $T) {
@@ -340,6 +360,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $ImpAssign<&$T> for $T {
             #[inline]
             fn $trunc_ass(&mut self, rhs: &$T) {
@@ -359,6 +380,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $ImpFrom for $T {
             #[inline]
             fn $trunc_from(&mut self, lhs: $T) {
@@ -378,6 +400,7 @@ macro_rules! rounding_fill {
             }
         }
 
+        #[cfg(feature = "std")]
         impl $ImpFrom<&$T> for $T {
             #[inline]
             fn $trunc_from(&mut self, lhs: &$T) {
@@ -541,6 +564,7 @@ macro_rules! rounding_unsigned {
 
 macro_rules! rounding_float {
     ($($T:ty)*) => { $(
+        #[cfg(feature = "std")]
         impl DivRounding for $T {
             type Output = $T;
             #[inline]
@@ -672,6 +696,7 @@ rounding_unsigned! { u8 u16 u32 u64 u128 usize }
 
 rounding_float! { f32 f64 }
 
+#[cfg(feature = "std")]
 impl Assign<&str> for String {
     #[inline]
     fn assign(&mut self, src: &str) {
@@ -680,6 +705,7 @@ impl Assign<&str> for String {
     }
 }
 
+#[cfg(feature = "std")]
 impl<'a> Assign<&'a str> for Cow<'a, str> {
     #[inline]
     fn assign(&mut self, src: &'a str) {
@@ -687,6 +713,7 @@ impl<'a> Assign<&'a str> for Cow<'a, str> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<'a> Assign<Cow<'a, str>> for Cow<'a, str> {
     #[inline]
     fn assign(&mut self, src: Cow<'a, str>) {
@@ -694,6 +721,7 @@ impl<'a> Assign<Cow<'a, str>> for Cow<'a, str> {
     }
 }
 
+#[cfg(feature = "std")]
 impl AddFrom<&str> for String {
     #[inline]
     fn add_from(&mut self, lhs: &str) {
@@ -701,6 +729,7 @@ impl AddFrom<&str> for String {
     }
 }
 
+#[cfg(feature = "std")]
 impl<'a> AddFrom<&'a str> for Cow<'a, str> {
     fn add_from(&mut self, lhs: &'a str) {
         if lhs.is_empty() {
@@ -722,6 +751,7 @@ impl<'a> AddFrom<&'a str> for Cow<'a, str> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<'a> AddFrom<Cow<'a, str>> for Cow<'a, str> {
     fn add_from(&mut self, lhs: Cow<'a, str>) {
         if lhs.is_empty() {

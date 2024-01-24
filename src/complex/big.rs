@@ -39,6 +39,7 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
+#[cfg(feature = "std")]
 use std::error::Error;
 
 /**
@@ -639,6 +640,7 @@ impl Complex {
     /// assert_eq!(c4.to_string_radix(10, Some(3)), "(1.21e24 2.50e-1)");
     /// assert_eq!(c4.to_string_radix(16, Some(3)), "(1.00@20 4.00@-1)");
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_string_radix(&self, radix: i32, num_digits: Option<usize>) -> String {
         self.to_string_radix_round(radix, num_digits, NEAREST2)
@@ -675,6 +677,7 @@ impl Complex {
     /// let su = c.to_string_radix_round(10, Some(2), up);
     /// assert_eq!(su, "(11 0)");
     /// ```
+    #[cfg(feature = "std")]
     pub fn to_string_radix_round(
         &self,
         radix: i32,
@@ -4447,6 +4450,7 @@ impl Display for ParseComplexError {
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for ParseComplexError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

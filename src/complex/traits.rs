@@ -329,8 +329,8 @@ fn fmt_radix(c: &Complex, fmt: &mut Formatter<'_>, format: Format) -> FmtResult 
         Some(Alignment::Right) | None => (padding, 0),
         Some(Alignment::Center) => (padding / 2, padding - padding / 2),
     };
-    let mut fill_buf = String::with_capacity(4);
-    fill_buf.push(fmt.fill());
+    let mut buf = [0; 4];
+    let fill_buf = fmt.fill().encode_utf8(&mut buf);
     for _ in 0..padding_left {
         fmt.write_str(&fill_buf)?;
     }

@@ -20,13 +20,13 @@ use crate::ops::{DivRounding, RemRounding};
 use crate::{Assign, Integer};
 use az::{CheckedCast, UnwrappedCast};
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
-use num_traits_crate::cast::{FromPrimitive, ToPrimitive};
-use num_traits_crate::identities::{One, Zero};
-use num_traits_crate::ops::checked::{CheckedDiv, CheckedRem};
-use num_traits_crate::ops::euclid::{CheckedEuclid, Euclid};
-use num_traits_crate::ops::mul_add::{MulAdd, MulAddAssign};
-use num_traits_crate::sign::Signed;
-use num_traits_crate::Num;
+use num_traits::cast::{FromPrimitive, ToPrimitive};
+use num_traits::identities::{One, Zero};
+use num_traits::ops::checked::{CheckedDiv, CheckedRem};
+use num_traits::ops::euclid::{CheckedEuclid, Euclid};
+use num_traits::ops::mul_add::{MulAdd, MulAddAssign};
+use num_traits::sign::Signed;
+use num_traits::Num;
 
 impl Zero for Integer {
     #[inline]

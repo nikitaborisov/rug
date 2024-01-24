@@ -1098,11 +1098,40 @@ pub unsafe fn limb_mut(z: &mut Integer, index: isize) -> &mut limb_t {
     unsafe { &mut *z.inner_mut().d.as_ptr().offset(index) }
 }
 
+#[cfg(not(feature = "std"))]
+pub fn realloc_for_mpn_set_str(rop: &mut Integer, len: usize, radix: i32) {
+    // add 2 for possible rounding errors
+    let bits = (libm::log2f(radix.az()) * len.az::<f32>()).az::<usize>() + 2;
+    // add 1 because mpn_set_str requires an extra limb
+    let limb_bits = gmp::LIMB_BITS.az::<usize>();
+    let limbs = (bits + limb_bits - 1) / limb_bits + 1;
+    unsafe {
+        gmp::_mpz_realloc(rop.as_raw_mut(), limbs.unwrapped_cast());
+    }
+}
+
+#[cfg(feature = "std")]
 pub fn realloc_for_mpn_set_str(rop: &mut Integer, len: usize, radix: i32) {
     // add 1 for possible rounding errors
-    let bits = (f64::from(radix).log2() * len.az::<f64>()).ceil() + 1.0;
+    let bits;
+    #[cfg(feature = "std")]
+    {
+        bits = (f64::from(radix).log2() * len.az::<f64>()).ceil() + 1.0;
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        bits = libm::ceil(libm::log2(f64::from(radix)) * len.az::<f64>()) + 1.0;
+    }
     // add 1 because mpn_set_str requires an extra limb
-    let limbs = (bits / f64::from(gmp::LIMB_BITS)).ceil() + 1.0;
+    let limbs;
+    #[cfg(feature = "std")]
+    {
+        limbs = (bits / f64::from(gmp::LIMB_BITS)).ceil() + 1.0;
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        limbs = libm::ceil(bits / f64::from(gmp::LIMB_BITS)) + 1.0;
+    }
     unsafe {
         gmp::_mpz_realloc(rop.as_raw_mut(), limbs.unwrapped_cast());
     }

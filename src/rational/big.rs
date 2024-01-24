@@ -17,7 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::integer::big as big_integer;
-use crate::misc::StringLike;
+use crate::misc::{StringLike, VecLike};
 use crate::ops::{NegAssign, SubFrom};
 use crate::rational::arith::MulIncomplete;
 use crate::rational::BorrowRational;
@@ -29,6 +29,7 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::mpq_t;
+#[cfg(feature = "std")]
 use std::error::Error;
 
 /**
@@ -671,6 +672,7 @@ impl Rational {
     /// assert_eq!(r3.to_string_radix(10), "-5/3");
     /// assert_eq!(r3.to_string_radix(5), "-10/3");
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_string_radix(&self, radix: i32) -> String {
         let mut s = StringLike::new_string();
@@ -3036,7 +3038,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, r: &Rational, radix: i32, to_
 #[derive(Debug)]
 pub struct ParseIncomplete {
     is_negative: bool,
-    digits: Vec<u8>,
+    digits: VecLike<u8>,
     den_start: usize,
     radix: i32,
 }
@@ -3048,8 +3050,8 @@ impl Assign<ParseIncomplete> for Rational {
             xmpq::set_0(self);
             return;
         }
-        let den_len = src.digits.len() - num_len;
-        let num_str = src.digits.as_ptr();
+        let den_len = src.digits.as_slice().len() - num_len;
+        let num_str = src.digits.as_slice().as_ptr();
         unsafe {
             let (num, den) = self.as_mut_numer_denom_no_canonicalization();
             xmpz::realloc_for_mpn_set_str(num, num_len, src.radix);
@@ -3078,7 +3080,8 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseRationalError
     assert!((2..=36).contains(&radix), "radix out of range");
     let bradix = radix.unwrapped_as::<u8>();
 
-    let mut digits = Vec::with_capacity(bytes.len() + 1);
+    let mut digits = VecLike::new();
+    digits.reserve(bytes.len() + 1);
     let mut has_sign = false;
     let mut is_negative = false;
     let mut has_digits = false;
@@ -3096,7 +3099,7 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseRationalError
                 });
             }
             has_digits = false;
-            den_start = Some(digits.len());
+            den_start = Some(digits.as_slice().len());
             continue;
         }
         let digit = match b {
@@ -3125,7 +3128,9 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseRationalError
             });
         }
         has_digits = true;
-        if digit > 0 || (!digits.is_empty() && den_start != Some(digits.len())) {
+        if digit > 0
+            || (!digits.as_slice().is_empty() && den_start != Some(digits.as_slice().len()))
+        {
             digits.push(digit);
         }
     }
@@ -3138,12 +3143,12 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseRationalError
             },
         });
     }
-    if den_start == Some(digits.len()) {
+    if den_start == Some(digits.as_slice().len()) {
         return Err(Error {
             kind: Kind::DenomZero,
         });
     }
-    let den_start = den_start.unwrap_or(digits.len());
+    let den_start = den_start.unwrap_or(digits.as_slice().len());
     Ok(ParseIncomplete {
         is_negative,
         digits,
@@ -3207,6 +3212,7 @@ impl Display for ParseRationalError {
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for ParseRationalError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

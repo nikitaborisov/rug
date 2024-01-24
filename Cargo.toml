@@ -18,14 +18,16 @@ categories = ["api-bindings", "mathematics"]
 license = "LGPL-3.0+"
 
 [features]
-default = ["integer", "rational", "float", "complex", "rand"]
+default = ["integer", "rational", "float", "complex", "rand", "std"]
 integer = ["gmp-mpfr-sys"]
 rational = ["integer"]
 float = ["gmp-mpfr-sys/mpfr"]
 complex = ["float", "gmp-mpfr-sys/mpc"]
 rand = ["integer"]
+serde = ["dep:serde", "std"]
+std = []
 fail-on-warnings = []
-num-traits = ["num-integer", "num-traits-crate"]
+num-traits = ["num-integer", "dep:num-traits"]
 
 [dependencies.az]
 version = "1.1"
@@ -39,12 +41,14 @@ version = "~1.6"
 default-features = false
 optional = true
 
+[dependencies.libm]
+version = "0.2"
+
 [dependencies.serde]
 version = "1.0.25"
 optional = true
 
-[dependencies.num-traits-crate]
-package = "num-traits"
+[dependencies.num-traits]
 version = "0.2.15"
 default-features = false
 features = ["i128", "std"]

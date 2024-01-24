@@ -18,7 +18,7 @@ use crate::ext::xmpz;
 use crate::integer::arith::MulIncomplete;
 use crate::integer::{BorrowInteger, MiniInteger, Order};
 use crate::misc;
-use crate::misc::StringLike;
+use crate::misc::{StringLike, VecLike};
 use crate::ops::{DivRounding, NegAssign, SubFrom};
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
@@ -39,6 +39,7 @@ use gmp_mpfr_sys::gmp;
 #[cfg(feature = "rational")]
 use gmp_mpfr_sys::gmp::mpq_t;
 use gmp_mpfr_sys::gmp::{bitcnt_t, limb_t, mpz_t};
+#[cfg(feature = "std")]
 use std::error::Error;
 
 /**
@@ -682,6 +683,7 @@ impl Integer {
     /// let digits_zero = zero.to_digits::<u32>(Order::MsfBe);
     /// assert!(digits_zero.is_empty());
     /// ```
+    #[cfg(feature = "std")]
     pub fn to_digits<T: UnsignedPrimitive>(&self, order: Order) -> Vec<T> {
         let digit_count = self.significant_digits::<T>();
         let mut v = Vec::<T>::with_capacity(digit_count);
@@ -1843,6 +1845,7 @@ impl Integer {
     /// i.assign(Integer::parse_radix("123456789aAbBcCdDeEfF", 16).unwrap());
     /// assert_eq!(i.to_string_radix(16), "123456789aabbccddeeff");
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_string_radix(&self, radix: i32) -> String {
         let mut s = StringLike::new_string();
@@ -6401,7 +6404,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, i: &Integer, radix: i32, to_u
 #[derive(Debug)]
 pub struct ParseIncomplete {
     is_negative: bool,
-    digits: Vec<u8>,
+    digits: VecLike<u8>,
     radix: i32,
 }
 
@@ -6423,7 +6426,8 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseIntegerError>
     assert!((2..=36).contains(&radix), "radix out of range");
     let bradix = radix.unwrapped_as::<u8>();
 
-    let mut digits = Vec::with_capacity(bytes.len());
+    let mut digits = VecLike::new();
+    digits.reserve(bytes.len());
     let mut has_sign = false;
     let mut is_negative = false;
     let mut has_digits = false;
@@ -6454,7 +6458,7 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseIntegerError>
             });
         };
         has_digits = true;
-        if digit > 0 || !digits.is_empty() {
+        if digit > 0 || !digits.as_slice().is_empty() {
             digits.push(digit);
         }
     }
@@ -6517,6 +6521,7 @@ impl Display for ParseIntegerError {
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for ParseIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

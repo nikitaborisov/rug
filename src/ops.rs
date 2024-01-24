@@ -528,7 +528,7 @@ pub trait Pow<Rhs> {
 
 #[cfg(feature = "num-traits")]
 #[doc(inline)]
-pub use num_traits_crate::pow::Pow;
+pub use num_traits::pow::Pow;
 
 /**
 Compound power operation and assignment.

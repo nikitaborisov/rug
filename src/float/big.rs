@@ -26,7 +26,7 @@ use crate::float::{BorrowFloat, MiniFloat, OrdFloat, Round, Special};
 #[cfg(feature = "integer")]
 use crate::integer::BorrowInteger;
 use crate::misc;
-use crate::misc::StringLike;
+use crate::misc::{StringLike, VecLike};
 use crate::ops::{
     AddAssignRound, AssignRound, CompleteRound, DivRounding, NegAssign, SubAssignRound, SubFrom,
     SubFromRound,
@@ -41,6 +41,7 @@ use crate::Rational;
 use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::c_char;
+use core::ffi::CStr;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::num::FpCategory;
@@ -54,8 +55,8 @@ use gmp_mpfr_sys::gmp::mpz_t;
 use gmp_mpfr_sys::mpc::mpc_t;
 use gmp_mpfr_sys::mpfr;
 use gmp_mpfr_sys::mpfr::{exp_t, mpfr_t, prec_t};
+#[cfg(feature = "std")]
 use std::error::Error;
-use std::ffi::{CStr, CString};
 
 /**
 A multi-precision floating-point number with arbitrarily large precision and
@@ -1163,6 +1164,7 @@ impl Float {
     /// assert_eq!(two_to_80.to_string_radix(10, Some(3)), "1.21e24");
     /// assert_eq!(two_to_80.to_string_radix(16, Some(3)), "1.00@20");
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_string_radix(&self, radix: i32, num_digits: Option<usize>) -> String {
         self.to_string_radix_round(radix, num_digits, Round::Nearest)
@@ -1190,6 +1192,7 @@ impl Float {
     /// let up = twentythree.to_string_radix_round(10, Some(2), Round::Up);
     /// assert_eq!(up, "24");
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_string_radix_round(
         &self,
@@ -1246,6 +1249,7 @@ impl Float {
     /// ```
     ///
     /// [normal]: `Float::is_normal`
+    #[cfg(feature = "std")]
     #[inline]
     pub fn to_sign_string_exp(
         &self,
@@ -1294,6 +1298,7 @@ impl Float {
     /// ```
     ///
     /// [normal]: `Float::is_normal`
+    #[cfg(feature = "std")]
     pub fn to_sign_string_exp_round(
         &self,
         radix: i32,
@@ -11456,10 +11461,20 @@ pub(crate) fn req_chars(f: &Float, format: Format, extra: usize) -> usize {
     } else {
         use core::f64::consts::LOG10_2;
         let digits = req_digits(f, format);
-        let log2_radix = f64::from(format.radix).log2();
-        let exp = (xmpfr::get_exp(f).az::<f64>() / log2_radix - 1.0).abs();
-        // add 1 for '-' and an extra 1 in case of rounding errors
-        let exp_digits = (exp * LOG10_2).ceil().az::<usize>() + 2;
+        let log2_radix;
+        #[cfg(not(feature = "std"))]
+        {
+            log2_radix = libm::log2(format.radix.az());
+        }
+        #[cfg(feature = "std")]
+        {
+            log2_radix = f64::from(format.radix).log2();
+        }
+        let exp = xmpfr::get_exp(f).az::<f64>() / log2_radix - 1.0;
+        let exp = if exp.is_sign_negative() { -exp } else { exp };
+        // add 1 for '-' and an extra 1 in case of rounding errors, and an extra
+        // 1 because of truncation in conversion to usize
+        let exp_digits = (exp * LOG10_2).az::<usize>() + 3;
         // '.', exp separator, exp_digits
         digits.checked_add(2 + exp_digits).expect("overflow")
     };
@@ -11575,7 +11590,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
 
 #[derive(Debug)]
 pub enum ParseIncomplete {
-    CString { c_string: CString, radix: i32 },
+    CString { c_string: VecLike<u8>, radix: i32 },
     Special(Special),
     NegNan,
 }
@@ -11600,13 +11615,13 @@ impl AssignRound<ParseIncomplete> for Float {
         let ret = unsafe {
             mpfr::strtofr(
                 self.as_raw_mut(),
-                c_string.as_ptr(),
+                c_string.as_slice().as_ptr().cast(),
                 c_str_end.as_mut_ptr(),
                 radix.unwrapped_cast(),
                 raw_round(round),
             )
         };
-        let nul = cast_ptr!(c_string.as_bytes_with_nul().last().unwrap(), c_char);
+        let nul = cast_ptr!(c_string.as_slice().last().unwrap(), c_char);
         assert_eq!(unsafe { c_str_end.assume_init() }.cast_const(), nul);
         ordering1(ret)
     }
@@ -11657,7 +11672,8 @@ fn parse(mut bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseFloatErro
         return special;
     }
 
-    let mut v = Vec::with_capacity(bytes.len() + 2);
+    let mut v = VecLike::new();
+    v.reserve(bytes.len() + 2);
     if has_minus {
         v.push(b'-');
     }
@@ -11717,9 +11733,10 @@ fn parse(mut bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseFloatErro
             parse_error!(ParseErrorKind::NoDigits)
         };
     }
-    // we've only added checked bytes, so we know there are no nuls
-    let c_string = unsafe { CString::from_vec_unchecked(v) };
-    Ok(ParseIncomplete::CString { c_string, radix })
+    // Add nul at end
+    v.push(0);
+    // we've only added checked bytes, so we know there are no nuls except last
+    Ok(ParseIncomplete::CString { c_string: v, radix })
 }
 
 fn parse_special(
@@ -11856,6 +11873,7 @@ impl Display for ParseFloatError {
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for ParseFloatError {
     #[allow(deprecated)]
     fn description(&self) -> &str {
@@ -11890,7 +11908,15 @@ fn ieee_storage_bits_for_prec(prec: u32) -> Option<u32> {
     let estimate = prec - 4 * prec.leading_zeros() + 113;
     // k must be a multiple of 32
     let k = (estimate + 16) & !31;
-    let p = k - (f64::from(k).log2() * 4.0).round().unwrapped_as::<u32>() + 13;
+    let p;
+    #[cfg(feature = "std")]
+    {
+        p = k - (f64::from(k).log2() * 4.0).round().unwrapped_as::<u32>() + 13;
+    }
+    #[cfg(not(feature = "std"))]
+    {
+        p = k - libm::round(libm::log2(f64::from(k)) * 4.0).unwrapped_as::<u32>() + 13;
+    }
     if p == prec {
         Some(k)
     } else {

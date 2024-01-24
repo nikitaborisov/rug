@@ -39,13 +39,23 @@ so that they can be used with methods like
 */
 
 use crate::Integer;
-use az::{Cast, UnwrappedAs, UnwrappedCast};
-use core::ffi::{c_ulong, c_void};
+use az::Cast;
+#[cfg(feature = "std")]
+use az::{UnwrappedAs, UnwrappedCast};
+use core::ffi::c_ulong;
+#[cfg(feature = "std")]
+use core::ffi::c_void;
 use core::marker::PhantomData;
-use core::mem::{ManuallyDrop, MaybeUninit};
+#[cfg(feature = "std")]
+use core::mem::ManuallyDrop;
+use core::mem::MaybeUninit;
 use core::ptr;
+#[cfg(feature = "std")]
 use core::ptr::NonNull;
-use gmp_mpfr_sys::gmp::{self, limb_t, mpz_t, randfnptr_t, randseed_t, randstate_t};
+use gmp_mpfr_sys::gmp;
+#[cfg(feature = "std")]
+use gmp_mpfr_sys::gmp::randseed_t;
+use gmp_mpfr_sys::gmp::{limb_t, mpz_t, randfnptr_t, randstate_t};
 
 /**
 The state of a random number generator.
@@ -245,6 +255,7 @@ impl RandState<'_> {
     /// ```
     ///
     /// [boxed\_clone]: RandGen::boxed_clone
+    #[cfg(feature = "std")]
     pub fn new_custom(custom: &mut dyn RandGen) -> RandState<'_> {
         let b = Box::<&mut dyn RandGen>::new(custom);
         let r_ptr = NonNull::<&mut dyn RandGen>::from(Box::leak(b));
@@ -290,6 +301,7 @@ impl RandState<'_> {
     /// ```
     ///
     /// [boxed\_clone]: RandGen::boxed_clone
+    #[cfg(feature = "std")]
     pub fn new_custom_boxed(custom: Box<dyn RandGen>) -> RandState<'static> {
         let b = Box::<Box<dyn RandGen>>::new(custom);
         let r_ptr = NonNull::<Box<dyn RandGen>>::from(Box::leak(b));
@@ -373,6 +385,7 @@ impl RandState<'_> {
     ///
     /// [`new_custom_boxed`]: RandState::new_custom_boxed
     /// [`new_custom`]: RandState::new_custom
+    #[cfg(feature = "std")]
     #[inline]
     pub fn into_raw(self) -> randstate_t {
         assert!(
@@ -459,6 +472,7 @@ impl RandState<'_> {
     ///
     /// [`new_custom_boxed`]: RandState::new_custom_boxed
     /// [`new_custom`]: RandState::new_custom
+    #[cfg(feature = "std")]
     #[inline]
     pub fn into_custom_boxed(self) -> Result<Box<dyn RandGen>, Self> {
         if !ptr::eq(self.inner.algdata, &CUSTOM_BOXED_FUNCS) {
@@ -632,6 +646,7 @@ impl ThreadRandState<'_> {
     /// println!("0 ≤ {} < 15", i);
     /// assert!(i < 15);
     /// ```
+    #[cfg(feature = "std")]
     pub fn new_custom(custom: &mut dyn ThreadRandGen) -> ThreadRandState<'_> {
         let b = Box::<&mut dyn ThreadRandGen>::new(custom);
         let r_ptr = NonNull::<&mut dyn ThreadRandGen>::from(Box::leak(b));
@@ -677,6 +692,7 @@ impl ThreadRandState<'_> {
     /// println!("0 ≤ {} < 15", i);
     /// assert!(i < 15);
     /// ```
+    #[cfg(feature = "std")]
     pub fn new_custom_boxed(custom: Box<dyn ThreadRandGen>) -> ThreadRandState<'static> {
         let b = Box::<Box<dyn ThreadRandGen>>::new(custom);
         let r_ptr = NonNull::<Box<dyn ThreadRandGen>>::from(Box::leak(b));
@@ -781,6 +797,7 @@ impl ThreadRandState<'_> {
     ///
     /// [`new_custom_boxed`]: ThreadRandState::new_custom_boxed
     /// [`new_custom`]: ThreadRandState::new_custom
+    #[cfg(feature = "std")]
     #[inline]
     pub fn into_raw(self) -> randstate_t {
         assert!(
@@ -893,6 +910,7 @@ impl ThreadRandState<'_> {
     ///
     /// [`new_custom_boxed`]: ThreadRandState::new_custom_boxed
     /// [`new_custom`]: ThreadRandState::new_custom
+    #[cfg(feature = "std")]
     #[inline]
     pub fn into_custom_boxed(self) -> Result<Box<dyn ThreadRandGen>, Self> {
         if !ptr::eq(self.inner.algdata, &THREAD_CUSTOM_BOXED_FUNCS) {
@@ -1206,6 +1224,7 @@ pub trait RandGen: Send + Sync {
     /// assert_eq!(rand.seed, 0xC0B1_8CCF_4E25_2D17);
     /// assert_eq!(other.gen(), 0xC0B1_8CCF);
     /// ```
+    #[cfg(feature = "std")]
     #[inline]
     fn boxed_clone(&self) -> Option<Box<dyn RandGen>> {
         None
@@ -1321,6 +1340,7 @@ pub trait ThreadRandGen {
     ///
     /// This method is similar to
     /// <code>[RandGen]::[boxed\_clone][RandGen::boxed_clone]</code>.
+    #[cfg(feature = "std")]
     #[inline]
     fn boxed_clone(&self) -> Option<Box<dyn ThreadRandGen>> {
         None
@@ -1358,6 +1378,7 @@ unsafe extern "C" fn abort_iset(_: *mut randstate_t, _: *const randstate_t) {
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn RandGen>().as_ptr();
@@ -1367,6 +1388,7 @@ unsafe extern "C" fn custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_get(rstate: *mut randstate_t, dest: *mut limb_t, nbits: c_ulong) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn RandGen>().as_ptr();
@@ -1375,12 +1397,14 @@ unsafe extern "C" fn custom_get(rstate: *mut randstate_t, dest: *mut limb_t, nbi
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_clear(rstate: *mut randstate_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn RandGen>().as_ptr();
     drop(unsafe { Box::from_raw(r_ptr) });
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_iset(dst: *mut randstate_t, src: *const randstate_t) {
     let d = unsafe { (*src).seed.d };
     let r_ptr = d.cast::<&mut dyn RandGen>().as_ptr();
@@ -1389,6 +1413,7 @@ unsafe extern "C" fn custom_iset(dst: *mut randstate_t, src: *const randstate_t)
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_boxed_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn RandGen>>().as_ptr();
@@ -1398,6 +1423,7 @@ unsafe extern "C" fn custom_boxed_seed(rstate: *mut randstate_t, seed: *const mp
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_boxed_get(rstate: *mut randstate_t, dest: *mut limb_t, nbits: c_ulong) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn RandGen>>().as_ptr();
@@ -1406,12 +1432,14 @@ unsafe extern "C" fn custom_boxed_get(rstate: *mut randstate_t, dest: *mut limb_
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_boxed_clear(rstate: *mut randstate_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn RandGen>>().as_ptr();
     drop(unsafe { Box::from_raw(r_ptr) });
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn custom_boxed_iset(dst: *mut randstate_t, src: *const randstate_t) {
     let d = unsafe { (*src).seed.d };
     let r_ptr = d.cast::<Box<dyn RandGen>>().as_ptr();
@@ -1420,6 +1448,7 @@ unsafe extern "C" fn custom_boxed_iset(dst: *mut randstate_t, src: *const randst
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn ThreadRandGen>().as_ptr();
@@ -1429,6 +1458,7 @@ unsafe extern "C" fn thread_custom_seed(rstate: *mut randstate_t, seed: *const m
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_get(
     rstate: *mut randstate_t,
     dest: *mut limb_t,
@@ -1441,12 +1471,14 @@ unsafe extern "C" fn thread_custom_get(
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_clear(rstate: *mut randstate_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn ThreadRandGen>().as_ptr();
     drop(unsafe { Box::from_raw(r_ptr) });
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_iset(dst: *mut randstate_t, src: *const randstate_t) {
     let d = unsafe { (*src).seed.d };
     let r_ptr = d.cast::<&mut dyn ThreadRandGen>().as_ptr();
@@ -1455,6 +1487,7 @@ unsafe extern "C" fn thread_custom_iset(dst: *mut randstate_t, src: *const rands
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_boxed_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn ThreadRandGen>>().as_ptr();
@@ -1464,6 +1497,7 @@ unsafe extern "C" fn thread_custom_boxed_seed(rstate: *mut randstate_t, seed: *c
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_boxed_get(
     rstate: *mut randstate_t,
     dest: *mut limb_t,
@@ -1476,12 +1510,14 @@ unsafe extern "C" fn thread_custom_boxed_get(
     }
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_boxed_clear(rstate: *mut randstate_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn ThreadRandGen>>().as_ptr();
     drop(unsafe { Box::from_raw(r_ptr) });
 }
 
+#[cfg(feature = "std")]
 unsafe extern "C" fn thread_custom_boxed_iset(dst: *mut randstate_t, src: *const randstate_t) {
     let d = unsafe { (*src).seed.d };
     let r_ptr = d.cast::<Box<dyn ThreadRandGen>>().as_ptr();
@@ -1490,6 +1526,7 @@ unsafe extern "C" fn thread_custom_boxed_iset(dst: *mut randstate_t, src: *const
     }
 }
 
+#[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_64)]
 unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
@@ -1540,6 +1577,7 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     }
 }
 
+#[cfg(feature = "std")]
 unsafe fn gen_copy(gen: &dyn RandGen, dst: *mut randstate_t) {
     // Do not panic here if boxed_clone returns None, as panics cannot
     // cross FFI boundaries. Instead, set dst_ptr.seed.d to null.
@@ -1562,6 +1600,7 @@ unsafe fn gen_copy(gen: &dyn RandGen, dst: *mut randstate_t) {
     };
 }
 
+#[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_64)]
 unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
@@ -1612,6 +1651,7 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
     }
 }
 
+#[cfg(feature = "std")]
 unsafe fn thread_gen_copy(gen: &dyn ThreadRandGen, dst: *mut randstate_t) {
     // Do not panic here if boxed_clone returns None, as panics cannot
     // cross FFI boundaries. Instead, set dst_ptr.seed.d to null.
@@ -1641,6 +1681,7 @@ static ABORT_FUNCS: randfnptr_t = randfnptr_t {
     iset: abort_iset,
 };
 
+#[cfg(feature = "std")]
 static CUSTOM_FUNCS: randfnptr_t = randfnptr_t {
     seed: custom_seed,
     get: custom_get,
@@ -1648,6 +1689,7 @@ static CUSTOM_FUNCS: randfnptr_t = randfnptr_t {
     iset: custom_iset,
 };
 
+#[cfg(feature = "std")]
 static CUSTOM_BOXED_FUNCS: randfnptr_t = randfnptr_t {
     seed: custom_boxed_seed,
     get: custom_boxed_get,
@@ -1655,6 +1697,7 @@ static CUSTOM_BOXED_FUNCS: randfnptr_t = randfnptr_t {
     iset: custom_boxed_iset,
 };
 
+#[cfg(feature = "std")]
 static THREAD_CUSTOM_FUNCS: randfnptr_t = randfnptr_t {
     seed: thread_custom_seed,
     get: thread_custom_get,
@@ -1662,6 +1705,7 @@ static THREAD_CUSTOM_FUNCS: randfnptr_t = randfnptr_t {
     iset: thread_custom_iset,
 };
 
+#[cfg(feature = "std")]
 static THREAD_CUSTOM_BOXED_FUNCS: randfnptr_t = randfnptr_t {
     seed: thread_custom_boxed_seed,
     get: thread_custom_boxed_get,

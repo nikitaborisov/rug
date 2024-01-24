@@ -18,10 +18,10 @@ use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;
-use num_traits_crate::cast::{FromPrimitive, ToPrimitive};
-use num_traits_crate::identities::{One, Zero};
-use num_traits_crate::ops::inv::Inv;
-use num_traits_crate::ops::mul_add::{MulAdd, MulAddAssign};
+use num_traits::cast::{FromPrimitive, ToPrimitive};
+use num_traits::identities::{One, Zero};
+use num_traits::ops::inv::Inv;
+use num_traits::ops::mul_add::{MulAdd, MulAddAssign};
 
 impl Zero for Rational {
     #[inline]
