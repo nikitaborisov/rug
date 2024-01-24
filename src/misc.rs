@@ -16,7 +16,14 @@
 
 #![allow(dead_code)]
 
-use az::{Az, WrappingCast};
+use az::{Az, UnwrappedAs, WrappingCast};
+use core::ffi::c_char;
+use core::mem;
+use core::mem::MaybeUninit;
+use core::ptr;
+use core::slice;
+use core::str;
+use libc::size_t;
 
 pub trait NegAbs {
     type Abs;
@@ -188,4 +195,136 @@ pub fn find_space_outside_brackets(bytes: &[u8]) -> Option<usize> {
         }
     }
     None
+}
+
+pub enum StringLike {
+    String(String),
+    Malloc {
+        ptr: *mut c_char,
+        cap: size_t,
+        len: size_t,
+    },
+}
+
+impl StringLike {
+    pub fn new_string() -> Self {
+        StringLike::String(String::new())
+    }
+
+    pub fn unwrap_string(mut self) -> String {
+        match &mut self {
+            StringLike::String(s) => mem::replace(s, String::new()),
+            StringLike::Malloc { .. } => unreachable!("unexpected variant"),
+        }
+    }
+
+    pub fn new_malloc() -> Self {
+        StringLike::Malloc {
+            ptr: ptr::null_mut(),
+            cap: 0,
+            len: 0,
+        }
+    }
+
+    pub fn push_str(&mut self, s: &str) {
+        if let StringLike::String(st) = self {
+            st.push_str(s);
+            return;
+        }
+        self.reserve(s.len());
+        let StringLike::Malloc { ptr, cap: _, len } = self else {
+            unreachable!();
+        };
+        unsafe {
+            ptr.cast::<u8>()
+                .offset((*len).unwrapped_as())
+                .copy_from_nonoverlapping(s.as_ptr(), s.len());
+            self.increase_len(s.len());
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        match self {
+            StringLike::String(s) => s,
+            StringLike::Malloc { ptr, cap: _, len } => unsafe {
+                let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
+                str::from_utf8_unchecked(s)
+            },
+        }
+    }
+
+    pub fn reserve(&mut self, additional: usize) {
+        match self {
+            StringLike::String(s) => {
+                s.reserve(additional);
+            }
+            StringLike::Malloc { ptr, cap, len } => {
+                let new_cap = len
+                    .checked_add(additional.unwrapped_as::<size_t>())
+                    .expect("overflow");
+                if new_cap > *cap {
+                    let new_ptr = unsafe { libc::realloc(ptr.cast(), new_cap) };
+                    *ptr = new_ptr.cast::<c_char>();
+                    *cap = new_cap;
+                }
+            }
+        }
+    }
+
+    // SAFETY: must keep
+    pub unsafe fn reserved_space(&mut self) -> &mut [MaybeUninit<u8>] {
+        match self {
+            StringLike::String(s) => {
+                let mu_ptr = s.as_mut_ptr().cast::<MaybeUninit<u8>>();
+                unsafe {
+                    slice::from_raw_parts_mut(
+                        mu_ptr.offset(s.len().unwrapped_as()),
+                        s.capacity() - s.len(),
+                    )
+                }
+            }
+            StringLike::Malloc { ptr, cap, len } => {
+                let mu_ptr = (*ptr).cast::<MaybeUninit<u8>>();
+                unsafe {
+                    slice::from_raw_parts_mut(
+                        mu_ptr.offset((*len).unwrapped_as()),
+                        (*cap - *len).unwrapped_as(),
+                    )
+                }
+            }
+        }
+    }
+
+    // SAFETY: there should be enough capacity to increase length by increment
+    pub unsafe fn increase_len(&mut self, increment: usize) {
+        match self {
+            StringLike::String(s) => unsafe {
+                let new_len = s.len().checked_add(increment).expect("overflow");
+                s.as_mut_vec().set_len(new_len);
+            },
+            StringLike::Malloc {
+                ptr: _,
+                cap: _,
+                len,
+            } => {
+                let new_len = len
+                    .checked_add(increment.unwrapped_as::<size_t>())
+                    .expect("overflow");
+                *len = new_len;
+            }
+        }
+    }
+}
+
+impl Drop for StringLike {
+    fn drop(&mut self) {
+        match self {
+            StringLike::String(_) => {}
+            StringLike::Malloc { ptr, .. } => unsafe {
+                if *ptr != ptr::null_mut() {
+                    libc::free(ptr.cast());
+                }
+            },
+        }
+    }
 }
