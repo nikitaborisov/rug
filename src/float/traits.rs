@@ -20,6 +20,7 @@ use crate::float::big::{ExpFormat, Format};
 #[allow(deprecated)]
 use crate::float::SmallFloat;
 use crate::float::{Constant, MiniFloat, OrdFloat, Round, Special};
+use crate::misc::StringLike;
 use crate::ops::AssignRound;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -368,12 +369,13 @@ fn fmt_radix(flt: &Float, fmt: &mut Formatter<'_>, format: Format, prefix: &str)
         precision: fmt.precision(),
         ..format
     };
-    let mut s = String::new();
+    let mut s = StringLike::new_malloc();
     big::append_to_string(&mut s, flt, format);
-    let (neg, buf) = if let Some(stripped) = s.strip_prefix('-') {
+    let st = s.as_str();
+    let (neg, buf) = if let Some(stripped) = st.strip_prefix('-') {
         (true, stripped)
     } else {
-        (false, &*s)
+        (false, &*st)
     };
     let prefix = if flt.is_finite() { prefix } else { "" };
     fmt.pad_integral(!neg, prefix, buf)

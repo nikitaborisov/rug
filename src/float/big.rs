@@ -26,6 +26,7 @@ use crate::float::{BorrowFloat, MiniFloat, OrdFloat, Round, Special};
 #[cfg(feature = "integer")]
 use crate::integer::BorrowInteger;
 use crate::misc;
+use crate::misc::StringLike;
 use crate::ops::{
     AddAssignRound, AssignRound, CompleteRound, DivRounding, NegAssign, SubAssignRound, SubFrom,
     SubFromRound,
@@ -1196,15 +1197,15 @@ impl Float {
         num_digits: Option<usize>,
         round: Round,
     ) -> String {
-        let mut s = String::new();
         let format = Format {
             radix,
             precision: num_digits,
             round,
             ..Format::default()
         };
+        let mut s = StringLike::new_string();
         append_to_string(&mut s, self, format);
-        s
+        s.unwrap_string()
     }
 
     /// Returns a string representation of `self` together with a sign and an
@@ -11480,7 +11481,7 @@ pub(crate) fn req_digits(f: &Float, format: Format) -> usize {
     }
 }
 
-pub(crate) fn append_to_string(s: &mut String, f: &Float, format: Format) {
+pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
     use core::fmt::Write;
 
     if f.is_zero() {
@@ -11509,7 +11510,7 @@ pub(crate) fn append_to_string(s: &mut String, f: &Float, format: Format) {
     // no need to add 1 for nul, as req_chars includes an allocation for '.'
     let size = req_chars(f, format, 0);
     s.reserve(size);
-    let reserved_ptr = s.as_ptr();
+    let reserved_ptr = s.as_str().as_ptr();
 
     let radix_with_case = if format.to_upper {
         -format.radix
@@ -11519,8 +11520,8 @@ pub(crate) fn append_to_string(s: &mut String, f: &Float, format: Format) {
     let digits = format.precision.unwrap_or(0);
     let mut exp: exp_t;
     unsafe {
-        let vec = s.as_mut_vec();
-        let write_ptr = vec.as_mut_ptr().add(vec.len()).cast();
+        let alloced = s.reserved_space();
+        let write_ptr = alloced.as_mut_ptr().cast();
         let mut maybe_exp = MaybeUninit::uninit();
         let c_buf = mpfr::get_str(
             write_ptr,
@@ -11551,25 +11552,25 @@ pub(crate) fn append_to_string(s: &mut String, f: &Float, format: Format) {
         let bytes_before_point = digits_before_point + usize::from(added_sign);
         if bytes_before_point == c_len {
             // no point
-            vec.set_len(vec.len() + c_len);
+            s.increase_len(c_len);
         } else {
-            let point_ptr = write_ptr.add(bytes_before_point);
+            let point_ptr = write_ptr.offset(bytes_before_point.unwrapped_as());
             point_ptr.copy_to(point_ptr.offset(1), c_len - bytes_before_point);
             *point_ptr = b'.' as c_char;
-            vec.set_len(vec.len() + c_len + 1);
+            s.increase_len(c_len + 1);
         }
     }
     if format.exp == ExpFormat::Exp || exp != 0 {
-        s.push(if format.radix > 10 {
-            '@'
+        s.push_str(if format.radix > 10 {
+            "@"
         } else if format.to_upper {
-            'E'
+            "E"
         } else {
-            'e'
+            "e"
         });
         write!(s, "{exp}").unwrap();
     }
-    debug_assert_eq!(reserved_ptr, s.as_ptr());
+    debug_assert_eq!(reserved_ptr, s.as_str().as_ptr());
 }
 
 #[derive(Debug)]
