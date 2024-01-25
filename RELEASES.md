@@ -75,6 +75,11 @@ Compatibility notes
     if the crate’s default features are disabled in [*Cargo.toml*]. In this
     case, `std` must be added to the list of features to reenable the
     functionality.
+  * The implementation of the deprecated [`SmallInteger`][smi-1-24],
+    [`SmallRational`][smr-1-24], [`SmallFloat`][smf-1-24] and
+    [`SmallComplex`][smc-1-24] was changed to remove [their soundness
+    issue][issue 52]. They now allocate memory for the digits, though their
+    whole point was to be non-allocating.
 
 [ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
 [assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
@@ -133,6 +138,10 @@ Compatibility notes
 [nt-0-2-ce]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.CheckedEuclid.html
 [nt-0-2-cr]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedRem.html
 [nt-0-2-e]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.Euclid.html
+[smc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
+[smf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
+[smi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
+[smr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
 [sys-mpfr-sn-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/fn.set_nanflag.html
 
 Version 1.23.0 (2024-01-18)
