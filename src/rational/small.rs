@@ -49,6 +49,7 @@ assert_eq!(*a.numer(), -21);
 assert_eq!(*a.denom(), 13);
 ```
 
+[`MiniRational`]: crate::rational::MiniRational
 [soundness issue]: https://gitlab.com/tspiteri/rug/-/issues/52
 */
 #[deprecated(since = "1.23.0", note = "use `MiniRational` instead")]
