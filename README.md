@@ -32,6 +32,19 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
   * [`Float`][flo-1-24] now implements
     <code>[AssignRound][assr-1-24]\<[bool][`bool`]></code>.
+  * The following methods are now usable in const context:
+      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
+        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
+      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
+        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
+      * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
+      * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
+      * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
+      * <code>[MiniComplex][mc-1-24]::[borrow][mc-b-1-24]</code>
+  * The `std` [optional feature][feat-1-24] was added ([issue 62]). The feature
+    is enabled by default, and the crate will be compiled without the standard
+    library (`no_std`) if the feature is disabled.
   * [`MiniRational`][mr-1-24] now implements
       * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>,
         <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
@@ -43,16 +56,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
         <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
       * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>,
         <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
-  * The following methods are now usable in const context:
-      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
-        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
-      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
-      * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
-      * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
-      * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
-      * <code>[MiniComplex][mc-1-24]::[borrow][mc-b-1-24]</code>
   * The following methods were added to [`MiniInteger`][mi-1-24]:
       * [`const_from_bool`][mi-bool-1-24]
       * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
@@ -75,9 +78,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
       * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
-  * The `std` [optional feature][feat-1-24] was added ([issue 62]). The feature
-    is enabled by default, and the crate will be compiled without the standard
-    library (`no_std`) if the feature is disabled.
   * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
     the following traits are implemented for [`Integer`][int-1-24]:
       * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
