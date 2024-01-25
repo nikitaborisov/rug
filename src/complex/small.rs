@@ -16,45 +16,25 @@
 
 #![allow(deprecated)]
 
-use crate::ext::xmpfr;
-use crate::float;
-use crate::float::ToSmall;
+use crate::complex::{BorrowComplex, MiniComplex};
+use crate::float::{MiniFloat, Special, ToSmall};
 use crate::{Assign, Complex};
-use core::cell::UnsafeCell;
 use core::fmt::{Debug, Formatter, Result as FmtResult};
+use core::marker::PhantomData;
 use core::mem;
-use core::mem::MaybeUninit;
 use core::ops::Deref;
-use core::ptr::NonNull;
-use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::limb_t;
-use gmp_mpfr_sys::mpc::mpc_t;
-use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};
 
-const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
-type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
+const ZERO_MINI: MiniComplex = MiniComplex::new();
+const ZERO_BORROW: BorrowComplex = ZERO_MINI.borrow();
+const ZERO: &Complex = BorrowComplex::const_deref(&ZERO_BORROW);
 
 /**
-A small complex number that does not require any memory allocation.
+A small complex number that did not require any memory allocation until version 1.23.0.
 
-This can be useful when you have real and imaginary numbers that are primitive
-integers or floats and you need a reference to a [`Complex`].
-
-The `SmallComplex` will have a precision according to the types of the
-primitives used to set its real and imaginary parts. Note that if different
-types are used to set the parts, the parts can have different precisions.
-
-  * [`i8`], [`u8`]: the part will have eight bits of precision.
-  * [`i16`], [`u16`]: the part will have 16 bits of precision.
-  * [`i32`], [`u32`]: the part will have 32 bits of precision.
-  * [`i64`], [`u64`]: the part will have 64 bits of precision.
-  * [`i128`], [`u128`]: the part will have 128 bits of precision.
-  * [`isize`], [`usize`]: the part will have 32 or 64 bits of precision,
-    depending on the platform.
-  * [`f32`]: the part will have 24 bits of precision.
-  * [`f64`]: the part will have 53 bits of precision.
-  * [`Special`][crate::float::Special]: the part will have the [minimum possible
-    precision][crate::float::prec_min].
+Because of a [soundness issue], this has been deprecated and replaced by
+[`MiniComplex`]. To fix the soundness issue, this struct now uses allocations
+like [`Complex`] itself, so it is less efficient than [`MiniComplex`].
 
 The `SmallComplex` type can be coerced to a [`Complex`], as it implements
 <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
@@ -74,30 +54,23 @@ a += &*b;
 assert_eq!(*a.real(), -9);
 assert_eq!(*a.imag(), -18.5);
 ```
+
+[soundness issue]: https://gitlab.com/tspiteri/rug/-/issues/52
 */
 #[deprecated(since = "1.23.0", note = "use `MiniComplex` instead")]
+#[derive(Clone)]
 pub struct SmallComplex {
-    inner: UnsafeCell<mpc_t>,
-    // real part is first in limbs if inner.re.d <= inner.im.d
-    first_limbs: Limbs,
-    last_limbs: Limbs,
+    inner: MaybeZero,
+    // for !Sync
+    phantom: PhantomData<*const limb_t>,
 }
 
-impl Clone for SmallComplex {
-    fn clone(&self) -> SmallComplex {
-        SmallComplex {
-            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
-            first_limbs: self.first_limbs,
-            last_limbs: self.last_limbs,
-        }
-    }
+#[derive(Clone)]
+enum MaybeZero {
+    Complex(Complex),
+    Zero,
 }
 
-// Safety: SmallComplex cannot be Sync because it contains an
-// UnsafeCell which is written to then read without further
-// protection, so it could lead to data races. But SmallComplex can be
-// Send because if it is owned, no other reference can be used to
-// modify the UnsafeCell.
 unsafe impl Send for SmallComplex {}
 
 impl Default for SmallComplex {
@@ -110,7 +83,10 @@ impl Default for SmallComplex {
 impl Debug for SmallComplex {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        Debug::fmt(&**self, f)
+        match &self.inner {
+            MaybeZero::Complex(c) => Debug::fmt(c, f),
+            MaybeZero::Zero => Debug::fmt(ZERO, f),
+        }
     }
 }
 
@@ -131,22 +107,8 @@ impl SmallComplex {
     #[inline]
     pub const fn new() -> Self {
         SmallComplex {
-            inner: UnsafeCell::new(mpc_t {
-                re: mpfr_t {
-                    prec: float::prec_min() as prec_t,
-                    sign: 1,
-                    exp: xmpfr::EXP_ZERO,
-                    d: NonNull::dangling(),
-                },
-                im: mpfr_t {
-                    prec: float::prec_min() as prec_t,
-                    sign: 1,
-                    exp: xmpfr::EXP_ZERO,
-                    d: NonNull::dangling(),
-                },
-            }),
-            first_limbs: small_limbs![],
-            last_limbs: small_limbs![],
+            inner: MaybeZero::Zero,
+            phantom: PhantomData,
         }
     }
 
@@ -176,48 +138,15 @@ impl SmallComplex {
     // Safety: after calling update_d(), self.inner.d points to the
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_complex(&mut self) -> &mut Complex {
-        self.update_d();
-        let ptr = cast_ptr_mut!(self.inner.get(), Complex);
-        unsafe { &mut *ptr }
-    }
-
-    #[inline]
-    // Safety: self is not Sync, so reading d does not cause a data race.
-    fn re_is_first(&self) -> bool {
-        let ptr = self.inner.get().cast_const();
-        unsafe { (*ptr).re.d <= (*ptr).im.d }
-    }
-
-    // To be used when offsetting re and im in case the struct has
-    // been displaced in memory; if currently re.d <= im.d then re.d
-    // points to first_limbs and im.d points to last_limbs, otherwise
-    // re.d points to last_limbs and im.d points to first_limbs.
-    #[inline]
-    fn update_d(&self) {
-        // Since this is borrowed, the limbs won't move around, and we can set
-        // the d fields.
-        //
-        // However, if there already exists a reference created with Deref, we
-        // must not set the d fields as that reference contains its d fields
-        // without the UnsafeCell wrapping. So we first check whether the d
-        // fields are already set correctly. If not, then there is no existing
-        // reference created with Deref yet, so we can set the d fields.
-
-        let first = NonNull::<[MaybeUninit<limb_t>]>::from(&self.first_limbs[..]).cast();
-        let last = NonNull::<[MaybeUninit<limb_t>]>::from(&self.last_limbs[..]).cast();
-        let (re_d, im_d) = if self.re_is_first() {
-            (first, last)
-        } else {
-            (last, first)
-        };
-        // Safety: self is not Sync, so we can write to d without causing a data race.
-        let ptr = self.inner.get().cast_const();
-        unsafe {
-            if (*ptr).re.d != re_d || (*ptr).im.d != im_d {
-                let ptr = self.inner.get();
-                (*ptr).re.d = re_d;
-                (*ptr).im.d = im_d;
-            }
+        if let MaybeZero::Zero = self.inner {
+            *self = SmallComplex {
+                inner: MaybeZero::Complex(Complex::new(ZERO.prec())),
+                phantom: PhantomData,
+            };
+        }
+        match &mut self.inner {
+            MaybeZero::Complex(c) => c,
+            MaybeZero::Zero => unreachable!(),
         }
     }
 }
@@ -226,58 +155,64 @@ impl Deref for SmallComplex {
     type Target = Complex;
     #[inline]
     fn deref(&self) -> &Complex {
-        self.update_d();
-        let ptr = cast_ptr!(self.inner.get().cast_const(), Complex);
-        // Safety: since we called update_d, the inner pointer is
-        // pointing to the limbs and the complex number is in a
-        // consistent state.
-        unsafe { &*ptr }
+        match &self.inner {
+            MaybeZero::Complex(c) => c,
+            MaybeZero::Zero => ZERO,
+        }
     }
 }
 
 impl<Re: ToSmall> Assign<Re> for SmallComplex {
     fn assign(&mut self, src: Re) {
-        let inner = self.inner.get_mut();
-        // make re is first
-        inner.im.d = inner.re.d;
-        src.copy(&mut inner.re, &mut self.first_limbs);
-        inner.im.prec = inner.re.prec;
-        inner.im.sign = 1;
-        inner.im.exp = xmpfr::EXP_ZERO;
+        let mut mini = MiniFloat::from(src);
+        let src = mini.borrow_excl();
+        unsafe {
+            let dst = self.as_nonreallocating_complex();
+            dst.mut_real().set_prec(src.prec());
+            dst.mut_real().assign(src);
+            dst.mut_imag().set_prec(src.prec());
+            dst.mut_imag().assign(Special::Zero);
+        }
     }
 }
 
 impl<Re: ToSmall> From<Re> for SmallComplex {
     fn from(src: Re) -> Self {
-        let mut ret = SmallComplex::new();
-        let inner = ret.inner.get_mut();
-        src.copy(&mut inner.re, &mut ret.first_limbs);
-        inner.im.prec = inner.re.prec;
-        inner.im.sign = 1;
-        inner.im.exp = xmpfr::EXP_ZERO;
-        ret
+        let mut mini = MiniFloat::from(src);
+        let src = mini.borrow_excl();
+        SmallComplex {
+            inner: MaybeZero::Complex(Complex::with_val(src.prec(), src)),
+            phantom: PhantomData,
+        }
     }
 }
 
 impl<Re: ToSmall, Im: ToSmall> Assign<(Re, Im)> for SmallComplex {
     fn assign(&mut self, src: (Re, Im)) {
-        let inner = self.inner.get_mut();
-        // make re is first
-        inner.im.d = inner.re.d;
-        src.0.copy(&mut inner.re, &mut self.first_limbs);
-        src.1.copy(&mut inner.im, &mut self.last_limbs);
+        let mut re = MiniFloat::from(src.0);
+        let mut im = MiniFloat::from(src.1);
+        let re = re.borrow_excl();
+        let im = im.borrow_excl();
+        unsafe {
+            let dst = self.as_nonreallocating_complex();
+            dst.mut_real().set_prec(re.prec());
+            dst.mut_real().assign(re);
+            dst.mut_imag().set_prec(im.prec());
+            dst.mut_imag().assign(im);
+        }
     }
 }
 
 impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
     fn from(src: (Re, Im)) -> Self {
-        let mut ret = SmallComplex::new();
-        let inner = ret.inner.get_mut();
-        // make re is first
-        inner.im.d = inner.re.d;
-        src.0.copy(&mut inner.re, &mut ret.first_limbs);
-        src.1.copy(&mut inner.im, &mut ret.last_limbs);
-        ret
+        let mut re = MiniFloat::from(src.0);
+        let mut im = MiniFloat::from(src.1);
+        let re = re.borrow_excl();
+        let im = im.borrow_excl();
+        SmallComplex {
+            inner: MaybeZero::Complex(Complex::with_val((re.prec(), im.prec()), (re, im))),
+            phantom: PhantomData,
+        }
     }
 }
 
