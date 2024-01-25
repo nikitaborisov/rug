@@ -52,9 +52,9 @@ Version 1.24.0 (unreleased)
       * [`const_from_special`][mf-cfs-1-24]
   * The following methods were added to [`MiniComplex`][mc-1-24]:
       * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
-  * The `std` [optional feature][feat-1-24] was added. The feature is enabled by
-    default, and the crate will be compiled without the standard library
-    (`no_std`) if the feature is disabled.
+  * The `std` [optional feature][feat-1-24] was added ([issue 62]). The feature
+    is enabled by default, and the crate will be compiled without the standard
+    library (`no_std`) if the feature is disabled.
   * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
     the following traits are implemented for [`Integer`][int-1-24]:
       * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
@@ -88,6 +88,7 @@ Compatibility notes
 [flo-aa-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_abs
 [flo-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_neg
 [int-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Integer.html
+[issue 62]: https://gitlab.com/tspiteri/rug/-/issues/62
 [mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
 [mc-cfp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_parts
