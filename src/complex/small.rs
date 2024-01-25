@@ -60,15 +60,9 @@ assert_eq!(*a.imag(), -18.5);
 #[deprecated(since = "1.23.0", note = "use `MiniComplex` instead")]
 #[derive(Clone)]
 pub struct SmallComplex {
-    inner: MaybeZero,
+    inner: Option<Complex>,
     // for !Sync
     phantom: PhantomData<*const limb_t>,
-}
-
-#[derive(Clone)]
-enum MaybeZero {
-    Complex(Complex),
-    Zero,
 }
 
 unsafe impl Send for SmallComplex {}
@@ -84,8 +78,8 @@ impl Debug for SmallComplex {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match &self.inner {
-            MaybeZero::Complex(c) => Debug::fmt(c, f),
-            MaybeZero::Zero => Debug::fmt(ZERO, f),
+            Some(c) => Debug::fmt(c, f),
+            None => Debug::fmt(ZERO, f),
         }
     }
 }
@@ -107,7 +101,7 @@ impl SmallComplex {
     #[inline]
     pub const fn new() -> Self {
         SmallComplex {
-            inner: MaybeZero::Zero,
+            inner: None,
             phantom: PhantomData,
         }
     }
@@ -138,15 +132,15 @@ impl SmallComplex {
     // Safety: after calling update_d(), self.inner.d points to the
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_complex(&mut self) -> &mut Complex {
-        if let MaybeZero::Zero = self.inner {
+        if self.inner.is_none() {
             *self = SmallComplex {
-                inner: MaybeZero::Complex(Complex::new(ZERO.prec())),
+                inner: Some(Complex::new(ZERO.prec())),
                 phantom: PhantomData,
             };
         }
         match &mut self.inner {
-            MaybeZero::Complex(c) => c,
-            MaybeZero::Zero => unreachable!(),
+            Some(c) => c,
+            None => unreachable!(),
         }
     }
 }
@@ -156,8 +150,8 @@ impl Deref for SmallComplex {
     #[inline]
     fn deref(&self) -> &Complex {
         match &self.inner {
-            MaybeZero::Complex(c) => c,
-            MaybeZero::Zero => ZERO,
+            Some(c) => c,
+            None => ZERO,
         }
     }
 }
@@ -181,7 +175,7 @@ impl<Re: ToSmall> From<Re> for SmallComplex {
         let mut mini = MiniFloat::from(src);
         let src = mini.borrow_excl();
         SmallComplex {
-            inner: MaybeZero::Complex(Complex::with_val(src.prec(), src)),
+            inner: Some(Complex::with_val(src.prec(), src)),
             phantom: PhantomData,
         }
     }
@@ -210,7 +204,7 @@ impl<Re: ToSmall, Im: ToSmall> From<(Re, Im)> for SmallComplex {
         let re = re.borrow_excl();
         let im = im.borrow_excl();
         SmallComplex {
-            inner: MaybeZero::Complex(Complex::with_val((re.prec(), im.prec()), (re, im))),
+            inner: Some(Complex::with_val((re.prec(), im.prec()), (re, im))),
             phantom: PhantomData,
         }
     }

@@ -54,15 +54,9 @@ assert_eq!(*a.denom(), 13);
 #[deprecated(since = "1.23.0", note = "use `MiniRational` instead")]
 #[derive(Clone)]
 pub struct SmallRational {
-    inner: MaybeZero,
+    inner: Option<Rational>,
     // for !Sync
     phantom: PhantomData<*const limb_t>,
-}
-
-#[derive(Clone)]
-enum MaybeZero {
-    Rational(Rational),
-    Zero(&'static Rational),
 }
 
 unsafe impl Send for SmallRational {}
@@ -78,8 +72,8 @@ impl Debug for SmallRational {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match &self.inner {
-            MaybeZero::Rational(r) => Debug::fmt(r, f),
-            MaybeZero::Zero(r) => Debug::fmt(r, f),
+            Some(r) => Debug::fmt(r, f),
+            None => Debug::fmt(Rational::ZERO, f),
         }
     }
 }
@@ -101,7 +95,7 @@ impl SmallRational {
     #[inline]
     pub const fn new() -> Self {
         SmallRational {
-            inner: MaybeZero::Zero(Rational::ZERO),
+            inner: None,
             phantom: PhantomData,
         }
     }
@@ -143,15 +137,15 @@ impl SmallRational {
     /// [`recip_mut`]: `Rational::recip_mut`
     #[inline]
     pub unsafe fn as_nonreallocating_rational(&mut self) -> &mut Rational {
-        if let MaybeZero::Zero(_) = self.inner {
+        if self.inner.is_none() {
             *self = SmallRational {
-                inner: MaybeZero::Rational(Rational::new()),
+                inner: Some(Rational::new()),
                 phantom: PhantomData,
             };
         }
         match &mut self.inner {
-            MaybeZero::Rational(r) => r,
-            MaybeZero::Zero(_) => unreachable!(),
+            Some(r) => r,
+            None => unreachable!(),
         }
     }
 
@@ -179,7 +173,7 @@ impl SmallRational {
         let num = MiniInteger::from(num);
         let den = MiniInteger::from(den);
         SmallRational {
-            inner: MaybeZero::Rational(unsafe { Rational::from_canonical(num, den) }),
+            inner: Some(unsafe { Rational::from_canonical(num, den) }),
             phantom: PhantomData,
         }
     }
@@ -224,8 +218,8 @@ impl Deref for SmallRational {
     #[inline]
     fn deref(&self) -> &Rational {
         match &self.inner {
-            MaybeZero::Rational(r) => r,
-            MaybeZero::Zero(r) => r,
+            Some(r) => r,
+            None => Rational::ZERO,
         }
     }
 }
@@ -245,7 +239,7 @@ impl<Num: ToSmall> From<Num> for SmallRational {
     fn from(src: Num) -> Self {
         let mut mini = MiniInteger::from(src);
         SmallRational {
-            inner: MaybeZero::Rational(Rational::from(mini.borrow_excl())),
+            inner: Some(Rational::from(mini.borrow_excl())),
             phantom: PhantomData,
         }
     }
@@ -269,7 +263,7 @@ impl<Num: ToSmall, Den: ToSmall> From<(Num, Den)> for SmallRational {
         let mut num = MiniInteger::from(src.0);
         let mut den = MiniInteger::from(src.1);
         SmallRational {
-            inner: MaybeZero::Rational(Rational::from((num.borrow_excl(), den.borrow_excl()))),
+            inner: Some(Rational::from((num.borrow_excl(), den.borrow_excl()))),
             phantom: PhantomData,
         }
     }

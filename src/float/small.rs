@@ -60,15 +60,9 @@ assert_eq!(a, -15000);
 #[deprecated(since = "1.23.0", note = "use `MiniFloat` instead")]
 #[derive(Clone)]
 pub struct SmallFloat {
-    inner: MaybeZero,
+    inner: Option<Float>,
     // for !Sync
     phantom: PhantomData<*const limb_t>,
-}
-
-#[derive(Clone)]
-enum MaybeZero {
-    Float(Float),
-    Zero,
 }
 
 unsafe impl Send for SmallFloat {}
@@ -84,8 +78,8 @@ impl Debug for SmallFloat {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match &self.inner {
-            MaybeZero::Float(fl) => Debug::fmt(fl, f),
-            MaybeZero::Zero => Debug::fmt(ZERO, f),
+            Some(fl) => Debug::fmt(fl, f),
+            None => Debug::fmt(ZERO, f),
         }
     }
 }
@@ -107,7 +101,7 @@ impl SmallFloat {
     #[inline]
     pub const fn new() -> Self {
         SmallFloat {
-            inner: MaybeZero::Zero,
+            inner: None,
             phantom: PhantomData,
         }
     }
@@ -137,15 +131,15 @@ impl SmallFloat {
     // Safety: after calling update_d(), self.inner.d points to the
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
-        if let MaybeZero::Zero = self.inner {
+        if self.inner.is_none() {
             *self = SmallFloat {
-                inner: MaybeZero::Float(Float::new(ZERO.prec())),
+                inner: Some(Float::new(ZERO.prec())),
                 phantom: PhantomData,
             };
         }
         match &mut self.inner {
-            MaybeZero::Float(f) => f,
-            MaybeZero::Zero => unreachable!(),
+            Some(f) => f,
+            None => unreachable!(),
         }
     }
 }
@@ -155,8 +149,8 @@ impl Deref for SmallFloat {
     #[inline]
     fn deref(&self) -> &Float {
         match &self.inner {
-            MaybeZero::Float(f) => f,
-            MaybeZero::Zero => ZERO,
+            Some(f) => f,
+            None => ZERO,
         }
     }
 }
@@ -194,7 +188,7 @@ impl<T: ToSmall> From<T> for SmallFloat {
         let mut mini = MiniFloat::from(src);
         let src = mini.borrow_excl();
         SmallFloat {
-            inner: MaybeZero::Float(Float::with_val(src.prec(), src)),
+            inner: Some(Float::with_val(src.prec(), src)),
             phantom: PhantomData,
         }
     }
