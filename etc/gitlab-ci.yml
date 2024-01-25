@@ -221,7 +221,7 @@ pages:
   - rm -rf public
   - mkdir public
   - cp etc/{index.html,rug.svg} public
-  - cargo +$TOOLCHAIN doc --no-deps --features "num-traits serde" -Z rustdoc-map
+  - cargo +$TOOLCHAIN doc --no-deps --features "fail-on-warnings num-traits serde" -Z rustdoc-map
   - mv target/doc public/dev
   artifacts:
     paths:
