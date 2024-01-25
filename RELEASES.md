@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.24.0 (unreleased)
+Version 1.24.0 (2024-01-25)
 ===========================
 
   * [`Float`][flo-1-24] now implements
@@ -81,67 +81,67 @@ Compatibility notes
     issue][issue 52]. They now allocate memory for the digits, though their
     whole point was to be non-allocating.
 
-[ass-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/trait.Assign.html
-[assr-1-24]:  https://tspiteri.gitlab.io/rug/dev/rug/ops/trait.AssignRound.html
-[com-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html
-[com-ac-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_conj
-[com-am-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_mul_i
-[com-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_neg
-[feat-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#optional-features
-[feat-exp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/index.html#experimental-optional-features
-[flo-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
-[flo-aa-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_abs
-[flo-an-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_neg
-[int-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Integer.html
+[ass-1-24]: https://docs.rs/rug/~1.24/rug/trait.Assign.html
+[assr-1-24]:  https://docs.rs/rug/~1.24/rug/ops/trait.AssignRound.html
+[com-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html
+[com-ac-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_conj
+[com-am-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_mul_i
+[com-an-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_neg
+[feat-1-24]: https://docs.rs/rug/~1.24/rug/index.html#optional-features
+[feat-exp-1-24]: https://docs.rs/rug/~1.24/rug/index.html#experimental-optional-features
+[flo-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html
+[flo-aa-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_abs
+[flo-an-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_neg
+[int-1-24]: https://docs.rs/rug/~1.24/rug/struct.Integer.html
 [issue 62]: https://gitlab.com/tspiteri/rug/-/issues/62
-[mc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html
-[mc-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.borrow
-[mc-cfp-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_parts
-[mc-cfr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.MiniComplex.html#method.const_from_real
-[mf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html
-[mf-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.borrow
-[mf-bool-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_bool
-[mf-cfs-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_special
-[mf-f32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_f32
-[mf-f64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_f64
-[mf-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i128
-[mf-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i16
-[mf-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i32
-[mf-i64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i64
-[mf-i8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_i8
-[mf-isize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_isize
-[mf-u128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u128
-[mf-u16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u16
-[mf-u32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u32
-[mf-u64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u64
-[mf-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_u8
-[mf-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.MiniFloat.html#method.const_from_usize
-[mi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html
-[mi-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.borrow
-[mi-bool-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_bool
-[mi-i128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i128
-[mi-i16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i16
-[mi-i32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i32
-[mi-i64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i64
-[mi-i8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_i8
-[mi-isize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_isize
-[mi-u128-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u128
-[mi-u16-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u16
-[mi-u32-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u32
-[mi-u64-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u64
-[mi-u8-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_u8
-[mi-usize-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.MiniInteger.html#method.const_from_usize
-[mr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html
-[mr-b-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.borrow
-[mr-cfi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.MiniRational.html#method.const_from_integer
+[mc-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html
+[mc-b-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.borrow
+[mc-cfp-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.const_from_parts
+[mc-cfr-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.const_from_real
+[mf-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html
+[mf-b-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.borrow
+[mf-bool-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_bool
+[mf-cfs-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_special
+[mf-f32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_f32
+[mf-f64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_f64
+[mf-i128-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i128
+[mf-i16-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i16
+[mf-i32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i32
+[mf-i64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i64
+[mf-i8-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i8
+[mf-isize-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_isize
+[mf-u128-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u128
+[mf-u16-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u16
+[mf-u32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u32
+[mf-u64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u64
+[mf-u8-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u8
+[mf-usize-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_usize
+[mi-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html
+[mi-b-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.borrow
+[mi-bool-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_bool
+[mi-i128-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i128
+[mi-i16-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i16
+[mi-i32-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i32
+[mi-i64-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i64
+[mi-i8-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i8
+[mi-isize-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_isize
+[mi-u128-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u128
+[mi-u16-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u16
+[mi-u32-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u32
+[mi-u64-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u64
+[mi-u8-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u8
+[mi-usize-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_usize
+[mr-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html
+[mr-b-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html#method.borrow
+[mr-cfi-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html#method.const_from_integer
 [nt-0-2-cd]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedDiv.html
 [nt-0-2-ce]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.CheckedEuclid.html
 [nt-0-2-cr]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedRem.html
 [nt-0-2-e]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.Euclid.html
-[smc-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/complex/struct.SmallComplex.html
-[smf-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/float/struct.SmallFloat.html
-[smi-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/integer/struct.SmallInteger.html
-[smr-1-24]: https://tspiteri.gitlab.io/rug/dev/rug/rational/struct.SmallRational.html
+[smc-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.SmallComplex.html
+[smf-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.SmallFloat.html
+[smi-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.SmallInteger.html
+[smr-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.SmallRational.html
 [sys-mpfr-sn-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/fn.set_nanflag.html
 
 Version 1.23.0 (2024-01-18)
