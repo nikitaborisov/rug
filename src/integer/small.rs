@@ -16,32 +16,19 @@
 
 #![allow(deprecated)]
 
-use crate::integer::ToMini;
+use crate::integer::{MiniInteger, ToMini};
 use crate::{Assign, Integer};
-use az::Cast;
-use core::cell::UnsafeCell;
-use core::ffi::c_int;
 use core::fmt::{Debug, Formatter, Result as FmtResult};
-use core::mem;
-use core::mem::MaybeUninit;
+use core::marker::PhantomData;
 use core::ops::Deref;
-use core::ptr::NonNull;
-use gmp_mpfr_sys::gmp;
-use gmp_mpfr_sys::gmp::{limb_t, mpz_t};
-
-pub const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
-pub type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
+use gmp_mpfr_sys::gmp::limb_t;
 
 /**
-A small integer that does not require any memory allocation.
+A small integer that did not require any memory allocation until version 1.23.0.
 
-This can be useful when you have a primitive integer type such as [`u64`] or
-[`i8`], but need a reference to an [`Integer`].
-
-If there are functions that take a [`u32`] or [`i32`] directly instead of an
-[`Integer`] reference, using them can still be faster than using a
-`SmallInteger`; the functions would still need to check for the size of an
-[`Integer`] obtained using `SmallInteger`.
+Because of a [soundness issue], this has been deprecated and replaced by
+[`MiniInteger`]. To fix the soundness issue, this struct now uses allocations
+like [`Integer`] itself, so it is less efficient than [`MiniInteger`].
 
 The `SmallInteger` type can be coerced to an [`Integer`], as it implements
 <code>[Deref]\<[Target][Deref::Target] = [Integer]></code>.
@@ -63,29 +50,18 @@ assert_eq!(a, 500);
 a.lcm_mut(&SmallInteger::from(30));
 assert_eq!(a, 1500);
 ```
+
+[soundness issue]: https://gitlab.com/tspiteri/rug/-/issues/52
 */
 #[deprecated(since = "1.23.0", note = "use `MiniInteger` instead")]
+#[repr(transparent)]
+#[derive(Clone)]
 pub struct SmallInteger {
-    inner: UnsafeCell<mpz_t>,
-    limbs: Limbs,
+    inner: Integer,
+    // for !Sync
+    phantom: PhantomData<*const limb_t>,
 }
 
-impl Clone for SmallInteger {
-    fn clone(&self) -> SmallInteger {
-        SmallInteger {
-            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
-            limbs: self.limbs,
-        }
-    }
-}
-
-static_assert!(mem::size_of::<Limbs>() == 16);
-
-// Safety: SmallInteger cannot be Sync because it contains an
-// UnsafeCell which is written to then read without further
-// protection, so it could lead to data races. But SmallInteger can be
-// Send because if it is owned, no other reference can be used to
-// modify the UnsafeCell.
 unsafe impl Send for SmallInteger {}
 
 impl Default for SmallInteger {
@@ -98,7 +74,7 @@ impl Default for SmallInteger {
 impl Debug for SmallInteger {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        Debug::fmt(&**self, f)
+        Debug::fmt(&self.inner, f)
     }
 }
 
@@ -118,12 +94,8 @@ impl SmallInteger {
     #[inline]
     pub const fn new() -> Self {
         SmallInteger {
-            inner: UnsafeCell::new(mpz_t {
-                alloc: LIMBS_IN_SMALL as c_int,
-                size: 0,
-                d: NonNull::dangling(),
-            }),
-            limbs: small_limbs![0],
+            inner: Integer::new(),
+            phantom: PhantomData,
         }
     }
 
@@ -157,32 +129,8 @@ impl SmallInteger {
     /// assert_eq!(i.capacity(), capacity);
     /// ```
     #[inline]
-    // Safety: after calling update_d(), self.inner.d points to the
-    // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_integer(&mut self) -> &mut Integer {
-        self.update_d();
-        let ptr = cast_ptr_mut!(self.inner.get(), Integer);
-        unsafe { &mut *ptr }
-    }
-
-    #[inline]
-    fn update_d(&self) {
-        // Since this is borrowed, the limbs won't move around, and we can set
-        // the d field.
-        //
-        // However, if there already exists a reference created with Deref, we
-        // must not set the d field as that reference contains its d field
-        // without the UnsafeCell wrapping. So we first check whether the d
-        // field is already set correctly. If not, then there is no existing
-        // reference created with Deref yet, so we can set the d field.
-
-        let d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        // Safety: self is not Sync, so we can write to d without causing a data race.
-        unsafe {
-            if (*self.inner.get().cast_const()).d != d {
-                (*self.inner.get()).d = d;
-            }
-        }
+        &mut self.inner
     }
 }
 
@@ -190,11 +138,7 @@ impl Deref for SmallInteger {
     type Target = Integer;
     #[inline]
     fn deref(&self) -> &Integer {
-        self.update_d();
-        let ptr = cast_ptr!(self.inner.get().cast_const(), Integer);
-        // Safety: since we called update_d, the inner pointer is pointing
-        // to the limbs and the number is in a consistent  state.
-        unsafe { &*ptr }
+        &self.inner
     }
 }
 
@@ -215,23 +159,18 @@ impl<T: ToMini> ToSmall for T {}
 impl<T: ToSmall> Assign<T> for SmallInteger {
     #[inline]
     fn assign(&mut self, src: T) {
-        src.copy(&mut self.inner.get_mut().size, &mut self.limbs);
+        let mut mini = MiniInteger::from(src);
+        self.inner.assign(mini.borrow_excl())
     }
 }
 
 impl<T: ToSmall> From<T> for SmallInteger {
     #[inline]
     fn from(src: T) -> Self {
-        let mut size = 0;
-        let mut limbs = small_limbs![0];
-        src.copy(&mut size, &mut limbs);
+        let mut mini = MiniInteger::from(src);
         SmallInteger {
-            inner: UnsafeCell::new(mpz_t {
-                alloc: LIMBS_IN_SMALL.cast(),
-                size,
-                d: NonNull::dangling(),
-            }),
-            limbs,
+            inner: Integer::from(mini.borrow_excl()),
+            phantom: PhantomData,
         }
     }
 }
@@ -246,7 +185,7 @@ impl Assign<&Self> for SmallInteger {
 impl Assign for SmallInteger {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 
