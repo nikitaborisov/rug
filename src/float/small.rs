@@ -16,40 +16,23 @@
 
 #![allow(deprecated)]
 
-use crate::ext::xmpfr;
-use crate::float::{self, ToMini};
+use crate::float::{BorrowFloat, MiniFloat, ToMini};
 use crate::{Assign, Float};
-use core::cell::UnsafeCell;
 use core::fmt::{Debug, Formatter, Result as FmtResult};
-use core::mem;
-use core::mem::MaybeUninit;
+use core::marker::PhantomData;
 use core::ops::Deref;
-use core::ptr::NonNull;
-use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::limb_t;
-use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};
 
-const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
-type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
+static ZERO_MINI: MiniFloat = MiniFloat::new();
+static ZERO_BORROW: BorrowFloat = ZERO_MINI.borrow();
+static ZERO: &Float = BorrowFloat::const_deref(&ZERO_BORROW);
 
 /**
-A small float that does not require any memory allocation.
+A small float that did not require any memory allocation until version 1.23.0.
 
-This can be useful when you have a primitive number type but need a reference to
-a [`Float`]. The `SmallFloat` will have a precision according to the type of the
-primitive used to set its value.
-
-  * [`i8`], [`u8`]: the `SmallFloat` will have eight bits of precision.
-  * [`i16`], [`u16`]: the `SmallFloat` will have 16 bits of precision.
-  * [`i32`], [`u32`]: the `SmallFloat` will have 32 bits of precision.
-  * [`i64`], [`u64`]: the `SmallFloat` will have 64 bits of precision.
-  * [`i128`], [`u128`]: the `SmallFloat` will have 128 bits of precision.
-  * [`isize`], [`usize`]: the `SmallFloat` will have 32 or 64 bits of precision,
-    depending on the platform.
-  * [`f32`]: the `SmallFloat` will have 24 bits of precision.
-  * [`f64`]: the `SmallFloat` will have 53 bits of precision.
-  * [`Special`]: the `SmallFloat` will have the [minimum possible
-    precision][crate::float::prec_min].
+Because of a [soundness issue], this has been deprecated and replaced by
+[`MiniFloat`]. To fix the soundness issue, this struct now uses allocations
+like [`Float`] itself, so it is less efficient than [`MiniFloat`].
 
 The `SmallFloat` type can be coerced to a [`Float`], as it implements
 <code>[Deref]\<[Target][Deref::Target] = [Float]></code>.
@@ -72,29 +55,22 @@ a *= &*b;
 assert_eq!(a, -15000);
 ```
 
-[`Special`]: crate::float::Special
+[soundness issue]: https://gitlab.com/tspiteri/rug/-/issues/52
 */
 #[deprecated(since = "1.23.0", note = "use `MiniFloat` instead")]
+#[derive(Clone)]
 pub struct SmallFloat {
-    inner: UnsafeCell<mpfr_t>,
-    limbs: Limbs,
+    inner: MaybeZero,
+    // for !Sync
+    phantom: PhantomData<*const limb_t>,
 }
 
-impl Clone for SmallFloat {
-    fn clone(&self) -> SmallFloat {
-        SmallFloat {
-            inner: UnsafeCell::new(unsafe { *self.inner.get().cast_const() }),
-            limbs: self.limbs,
-        }
-    }
+#[derive(Clone)]
+enum MaybeZero {
+    Float(Float),
+    Zero,
 }
 
-static_assert!(mem::size_of::<Limbs>() == 16);
-
-// Safety: SmallFloat cannot be Sync because it contains an UnsafeCell
-// which is written to then read without further protection, so it
-// could lead to data races. But SmallFloat can be Send because if it
-// is owned, no other reference can be used to modify the UnsafeCell.
 unsafe impl Send for SmallFloat {}
 
 impl Default for SmallFloat {
@@ -107,7 +83,10 @@ impl Default for SmallFloat {
 impl Debug for SmallFloat {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        Debug::fmt(&**self, f)
+        match &self.inner {
+            MaybeZero::Float(fl) => Debug::fmt(fl, f),
+            MaybeZero::Zero => Debug::fmt(ZERO, f),
+        }
     }
 }
 
@@ -128,13 +107,8 @@ impl SmallFloat {
     #[inline]
     pub const fn new() -> Self {
         SmallFloat {
-            inner: UnsafeCell::new(mpfr_t {
-                prec: float::prec_min() as prec_t,
-                sign: 1,
-                exp: xmpfr::EXP_ZERO,
-                d: NonNull::dangling(),
-            }),
-            limbs: small_limbs![],
+            inner: MaybeZero::Zero,
+            phantom: PhantomData,
         }
     }
 
@@ -163,28 +137,15 @@ impl SmallFloat {
     // Safety: after calling update_d(), self.inner.d points to the
     // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
-        self.update_d();
-        let ptr = cast_ptr_mut!(self.inner.get(), Float);
-        unsafe { &mut *ptr }
-    }
-
-    #[inline]
-    fn update_d(&self) {
-        // Since this is borrowed, the limbs won't move around, and we can set
-        // the d field.
-        //
-        // However, if there already exists a reference created with Deref, we
-        // must not set the d field as that reference contains its d field
-        // without the UnsafeCell wrapping. So we first check whether the d
-        // field is already set correctly. If not, then there is no existing
-        // reference created with Deref yet, so we can set the d field.
-
-        let d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        // Safety: self is not Sync, so we can write to d without causing a data race.
-        unsafe {
-            if (*self.inner.get().cast_const()).d != d {
-                (*self.inner.get()).d = d;
-            }
+        if let MaybeZero::Zero = self.inner {
+            *self = SmallFloat {
+                inner: MaybeZero::Float(Float::new(ZERO.prec())),
+                phantom: PhantomData,
+            };
+        }
+        match &mut self.inner {
+            MaybeZero::Float(f) => f,
+            MaybeZero::Zero => unreachable!(),
         }
     }
 }
@@ -193,12 +154,10 @@ impl Deref for SmallFloat {
     type Target = Float;
     #[inline]
     fn deref(&self) -> &Float {
-        self.update_d();
-        let ptr = cast_ptr!(self.inner.get().cast_const(), Float);
-        // Safety: since we called update_d, the inner pointer is
-        // pointing to the limbs and the number is in a consistent
-        // state.
-        unsafe { &*ptr }
+        match &self.inner {
+            MaybeZero::Float(f) => f,
+            MaybeZero::Zero => ZERO,
+        }
     }
 }
 
@@ -219,24 +178,24 @@ impl<T: ToMini> ToSmall for T {}
 impl<T: ToSmall> Assign<T> for SmallFloat {
     #[inline]
     fn assign(&mut self, src: T) {
-        src.copy(self.inner.get_mut(), &mut self.limbs);
+        let mut mini = MiniFloat::from(src);
+        unsafe {
+            let dst = self.as_nonreallocating_float();
+            let src = mini.borrow_excl();
+            dst.set_prec(src.prec());
+            dst.assign(src);
+        }
     }
 }
 
 impl<T: ToSmall> From<T> for SmallFloat {
     #[inline]
     fn from(src: T) -> Self {
-        let mut inner = mpfr_t {
-            prec: 0,
-            sign: 0,
-            exp: 0,
-            d: NonNull::dangling(),
-        };
-        let mut limbs = small_limbs![];
-        src.copy(&mut inner, &mut limbs);
+        let mut mini = MiniFloat::from(src);
+        let src = mini.borrow_excl();
         SmallFloat {
-            inner: UnsafeCell::new(inner),
-            limbs,
+            inner: MaybeZero::Float(Float::with_val(src.prec(), src)),
+            phantom: PhantomData,
         }
     }
 }
@@ -251,7 +210,7 @@ impl Assign<&Self> for SmallFloat {
 impl Assign for SmallFloat {
     #[inline]
     fn assign(&mut self, other: Self) {
-        drop(mem::replace(self, other));
+        *self = other;
     }
 }
 
