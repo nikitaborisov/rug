@@ -128,8 +128,6 @@ impl SmallFloat {
     /// assert_eq!(*f, 3.0);
     /// ```
     #[inline]
-    // Safety: after calling update_d(), self.inner.d points to the
-    // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
         if self.inner.is_none() {
             *self = SmallFloat {

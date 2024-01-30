@@ -129,8 +129,6 @@ impl SmallComplex {
     /// assert_eq!(*c, (-3.0, 1.0));
     /// ```
     #[inline]
-    // Safety: after calling update_d(), self.inner.d points to the
-    // limbs so it is in a consistent state.
     pub unsafe fn as_nonreallocating_complex(&mut self) -> &mut Complex {
         if self.inner.is_none() {
             *self = SmallComplex {
