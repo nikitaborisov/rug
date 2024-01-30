@@ -46,6 +46,8 @@ The `MiniComplex` will have a precision according to the types of the
 primitives used to set its real and imaginary parts. Note that if different
 types are used to set the parts, the parts can have different precisions.
 
+  * [`bool`]: the part will have the [minimum possible
+    precision][crate::float::prec_min].
   * [`i8`], [`u8`]: the part will have eight bits of precision.
   * [`i16`], [`u16`]: the part will have 16 bits of precision.
   * [`i32`], [`u32`]: the part will have 32 bits of precision.
