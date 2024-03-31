@@ -1752,21 +1752,22 @@ impl SealedMutRandState for ThreadRandState<'_> {
 
 #[cfg(test)]
 mod tests {
+    use crate::rand::RandState;
     #[cfg(feature = "std")]
-    use crate::rand::ThreadRandState;
-    use crate::rand::{RandGen, RandState, ThreadRandGen};
+    use crate::rand::{RandGen, ThreadRandGen, ThreadRandState};
     #[cfg(feature = "std")]
-    use az::Az;
-    use az::Cast;
+    use az::{Az, Cast};
     #[cfg(feature = "std")]
     use core::ptr;
     #[cfg(feature = "std")]
     use gmp_mpfr_sys::gmp;
 
+    #[cfg(feature = "std")]
     struct SimpleGenerator {
         seed: u64,
     }
 
+    #[cfg(feature = "std")]
     impl RandGen for SimpleGenerator {
         fn gen(&mut self) -> u32 {
             self.seed = self
@@ -1809,8 +1810,10 @@ mod tests {
         assert_eq!(third2, third4);
     }
 
+    #[cfg(feature = "std")]
     struct NoCloneGenerator;
 
+    #[cfg(feature = "std")]
     impl RandGen for NoCloneGenerator {
         fn gen(&mut self) -> u32 {
             0
@@ -1835,12 +1838,14 @@ mod tests {
         let _ = rand1.into_raw();
     }
 
+    #[cfg(feature = "std")]
     // include a dummy pointer to make !Send and !Sync
     struct ThreadSimpleGenerator {
         _dummy: *const i32,
         seed: u64,
     }
 
+    #[cfg(feature = "std")]
     impl ThreadRandGen for ThreadSimpleGenerator {
         fn gen(&mut self) -> u32 {
             self.seed = self
@@ -1889,8 +1894,10 @@ mod tests {
         assert_eq!(third2, third4);
     }
 
+    #[cfg(feature = "std")]
     struct ThreadNoCloneGenerator;
 
+    #[cfg(feature = "std")]
     impl ThreadRandGen for ThreadNoCloneGenerator {
         fn gen(&mut self) -> u32 {
             0

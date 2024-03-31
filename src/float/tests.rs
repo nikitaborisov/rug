@@ -19,11 +19,9 @@
 use crate::float;
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
-#[cfg(feature = "rand")]
-use crate::rand::RandGen;
 #[cfg(feature = "std")]
 #[cfg(feature = "rand")]
-use crate::rand::RandState;
+use crate::rand::{RandGen, RandState};
 use crate::{Assign, Float};
 use az::Az;
 use core::cmp::Ordering;
@@ -350,11 +348,13 @@ fn check_nanflag() {
     assert!(!nanflag());
 }
 
+#[cfg(feature = "std")]
 #[cfg(feature = "rand")]
 struct OnesZerosRand {
     one_words: u32,
 }
 
+#[cfg(feature = "std")]
 #[cfg(feature = "rand")]
 impl RandGen for OnesZerosRand {
     fn gen(&mut self) -> u32 {

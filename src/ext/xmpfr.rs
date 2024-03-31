@@ -39,6 +39,7 @@ pub trait OptFloat: Copy {
     const IS_SOME: bool;
     fn mpfr(self) -> *const mpfr_t;
     fn mpfr_or(self, default: *mut mpfr_t) -> *const mpfr_t;
+    #[cfg(feature = "rational")]
     fn unwrap_or<'a>(self, default: &'a mut Float) -> &'a Float
     where
         Self: 'a;
@@ -54,6 +55,7 @@ impl OptFloat for () {
     fn mpfr_or(self, default: *mut mpfr_t) -> *const mpfr_t {
         default.cast_const()
     }
+    #[cfg(feature = "rational")]
     #[inline(always)]
     fn unwrap_or<'a>(self, default: &'a mut Float) -> &'a Float
     where
@@ -73,6 +75,7 @@ impl OptFloat for &Float {
     fn mpfr_or(self, _default: *mut mpfr_t) -> *const mpfr_t {
         self.as_raw()
     }
+    #[cfg(feature = "rational")]
     #[inline(always)]
     fn unwrap_or<'b>(self, _default: &'b mut Float) -> &'b Float
     where
