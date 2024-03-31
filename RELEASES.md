@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.24.1 (unreleased)
+Version 1.24.1 (2024-04-01)
 ===========================
 
   * Bug fix: when std is not enabled, a precondition for `slice::from_raw_parts`

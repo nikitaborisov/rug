@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.24.1 news (unreleased)
+### Version 1.24.1 news (2024-04-01)
 
   * Bug fix: when std is not enabled, a precondition for `slice::from_raw_parts`
     was being violated ([issue 63]).
@@ -124,6 +124,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [flo-aa-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_abs
 [flo-an-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_neg
 [int-1-24]: https://docs.rs/rug/~1.24/rug/struct.Integer.html
+[issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
 [issue 62]: https://gitlab.com/tspiteri/rug/-/issues/62
 [mc-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html
 [mc-b-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.borrow
@@ -175,37 +176,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [smr-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.SmallRational.html
 [sys-mpfr-sn-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/fn.set_nanflag.html
 [tuple]: https://doc.rust-lang.org/nightly/core/primitive.tuple.html
-
-### Version 1.23.0 news (2024-01-18)
-
-  * [`MiniInteger`][mi-1-23], [`MiniRational`][mr-1-23], [`MiniFloat`][mf-1-23]
-    and [`MiniComplex`][mc-1-23] were added to replace
-    [`SmallInteger`][smi-1-23], [`SmallRational`][smr-1-23],
-    [`SmallFloat`][smf-1-23] and [`SmallComplex`][smc-1-23], which are now
-    deprecated.
-      * The new structs do *not* implement [`Deref`] directly, as this causes
-        issues with the current Rust memory models ([issue 52]).
-      * Borrowing requires the use of the [`borrow`][mi-b-1-23] methods, which
-        return an object that implements [`Deref`].
-      * The new [`borrow_excl`][mi-be-1-23] methods were also added; they
-        require exclusive access in order to save on some housekeeping and to
-        return references directly without the need of [`Deref`].
-      * The new structs implement [`Copy`] and [`Sync`].
-
-[`Copy`]: https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html
-[`Deref`]: https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html
-[`Sync`]: https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html
-[issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
-[mc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.MiniComplex.html
-[mf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.MiniFloat.html
-[mi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html
-[mi-b-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow
-[mi-be-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.MiniInteger.html#method.borrow_excl
-[mr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.MiniRational.html
-[smc-1-23]: https://docs.rs/rug/~1.23/rug/complex/struct.SmallComplex.html
-[smf-1-23]: https://docs.rs/rug/~1.23/rug/float/struct.SmallFloat.html
-[smi-1-23]: https://docs.rs/rug/~1.23/rug/integer/struct.SmallInteger.html
-[smr-1-23]: https://docs.rs/rug/~1.23/rug/rational/struct.SmallRational.html
 
 ### Other releases
 
