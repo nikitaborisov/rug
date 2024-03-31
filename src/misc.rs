@@ -19,10 +19,10 @@
 use az::{Az, UnwrappedAs, WrappingCast};
 use core::ffi::c_char;
 use core::fmt::Write;
-use core::iter::Extend;
 use core::mem;
 use core::mem::MaybeUninit;
 use core::ptr;
+use core::ptr::NonNull;
 use core::slice;
 use core::str;
 use libc::size_t;
@@ -225,7 +225,7 @@ impl StringLike {
 
     pub fn new_malloc() -> Self {
         StringLike::Malloc {
-            ptr: ptr::null_mut(),
+            ptr: NonNull::dangling().as_ptr(),
             cap: 0,
             len: 0,
         }
@@ -288,7 +288,14 @@ impl StringLike {
                     .checked_add(additional.unwrapped_as::<size_t>())
                     .expect("overflow");
                 if new_cap > *cap {
-                    let new_ptr = unsafe { libc::realloc(ptr.cast(), new_cap) };
+                    let new_ptr = if *cap == 0 {
+                        // cannot use realloc, as for empty slice ptr is
+                        // dangling to satisfy slice::from_raw_parts_mut, which
+                        // does not allow null pointer
+                        unsafe { libc::malloc(new_cap) }
+                    } else {
+                        unsafe { libc::realloc(ptr.cast(), new_cap) }
+                    };
                     *ptr = new_ptr.cast::<c_char>();
                     *cap = new_cap;
                 }
@@ -348,8 +355,9 @@ impl Drop for StringLike {
         match self {
             #[cfg(feature = "std")]
             StringLike::String(_) => {}
-            StringLike::Malloc { ptr, .. } => unsafe {
-                if !ptr.is_null() {
+            StringLike::Malloc { ptr, cap, .. } => unsafe {
+                // for zero capacity, ptr is dangling and must not be freed
+                if *cap != 0 {
                     libc::free(ptr.cast());
                 }
             },
@@ -374,7 +382,7 @@ pub struct VecLike<T> {
 impl<T> VecLike<T> {
     pub fn new() -> Self {
         VecLike {
-            ptr: ptr::null_mut(),
+            ptr: NonNull::dangling().as_ptr(),
             cap: 0,
             len: 0,
         }
@@ -399,14 +407,22 @@ impl<T> VecLike<T> {
     }
 
     pub fn reserve(&mut self, additional: usize) {
-        let cap = self.len.checked_add(additional).expect("overflow");
-        if cap > self.cap {
-            let bytes_cap = cap
+        let new_cap = self.len.checked_add(additional).expect("overflow");
+        if new_cap > self.cap {
+            let bytes_cap = new_cap
                 .checked_mul(mem::size_of::<T>())
                 .expect("overflow")
                 .unwrapped_as();
-            self.ptr = unsafe { libc::realloc(self.ptr.cast(), bytes_cap).cast() };
-            self.cap = cap;
+            let new_ptr = if self.cap == 0 {
+                // cannot use realloc, as for empty slice self.ptr is dangling
+                // to satisfy slice::from_raw_parts_mut, which does not allow
+                // null pointer
+                unsafe { libc::malloc(bytes_cap) }
+            } else {
+                unsafe { libc::realloc(self.ptr.cast(), bytes_cap) }
+            };
+            self.ptr = new_ptr.cast();
+            self.cap = new_cap;
         }
     }
 
@@ -439,6 +455,7 @@ impl<T> Default for VecLike<T> {
 
 impl<T> Drop for VecLike<T> {
     fn drop(&mut self) {
+        // if capacity is zero, ptr is dangling
         if self.cap == 0 {
             return;
         }

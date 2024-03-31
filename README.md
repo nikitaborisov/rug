@@ -28,6 +28,13 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.24.1 news (unreleased)
+
+  * Bug fix: when std is not enabled, a precondition for `slice::from_raw_parts`
+    was being violated ([issue 63]).
+
+[issue 63]: https://gitlab.com/tspiteri/rug/-/issues/63
+
 ### Version 1.24.0 news (2024-01-25)
 
   * [`Float`][flo-1-24] now implements

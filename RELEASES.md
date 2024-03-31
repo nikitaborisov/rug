@@ -4,6 +4,14 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.24.1 (unreleased)
+===========================
+
+  * Bug fix: when std is not enabled, a precondition for `slice::from_raw_parts`
+    was being violated ([issue 63]).
+
+[issue 63]: https://gitlab.com/tspiteri/rug/-/issues/63
+
 Version 1.24.0 (2024-01-25)
 ===========================
 
