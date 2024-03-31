@@ -632,14 +632,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::{ThreadRandGen, ThreadRandState};
     /// use rug::Integer;
     /// // dummy pointer field to ensure Seed is not Send and not Sync
-    /// struct Seed(*const ());
+    /// struct Seed { _unused_ptr: *const () }
     /// impl ThreadRandGen for Seed {
     ///     fn gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
     /// }
-    /// let mut seed = Seed(&());
+    /// let mut seed = Seed { _unused_ptr: &() };
     /// let mut rand = ThreadRandState::new_custom(&mut seed);
     /// let mut i = Integer::from(15);
     /// i.random_below_mut(&mut rand);
@@ -678,14 +678,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::{ThreadRandGen, ThreadRandState};
     /// use rug::Integer;
     /// // dummy pointer field to ensure Seed is not Send and not Sync
-    /// struct Seed(*const ());
+    /// struct Seed { _unused_ptr: *const () }
     /// impl ThreadRandGen for Seed {
     ///     fn gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
     /// }
-    /// let seed = Box::new(Seed(&()));
+    /// let seed = Box::new(Seed { _unused_ptr: &() });
     /// let mut rand = ThreadRandState::new_custom_boxed(seed);
     /// let mut i = Integer::from(15);
     /// i.random_below_mut(&mut rand);
@@ -1249,11 +1249,11 @@ use rand::rngs::ThreadRng;
 use rand::thread_rng;
 # #[cfg(skip_this)]
 use rand::RngCore;
-# struct ThreadRng(*const i32, u32);
+# struct ThreadRng { _unused_ptr: *const i32, val: u32 }
 # impl ThreadRng {
-#     pub fn next_u32(&mut self) -> u32 { self.1 = self.1.wrapping_add(1); self.1 }
+#     pub fn next_u32(&mut self) -> u32 { self.val = self.val.wrapping_add(1); self.val }
 # }
-# fn thread_rng() -> ThreadRng { ThreadRng(&0i32, !0 - 10) }
+# fn thread_rng() -> ThreadRng { ThreadRng { _unused_ptr: &0i32, val: !0 - 10 } }
 use rug::rand::{ThreadRandGen, ThreadRandState};
 struct Generator(ThreadRng);
 impl ThreadRandGen for Generator {
