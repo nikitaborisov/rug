@@ -1916,7 +1916,6 @@ mod tests {
     }
 
     #[cfg(feature = "std")]
-    #[cfg(feature = "std")]
     #[test]
     fn thread_check_raw() {
         let mut check = RandState::new();
