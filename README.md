@@ -30,8 +30,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.24.1 news (2024-04-01)
 
-  * Bug fix: when std is not enabled, a precondition for `slice::from_raw_parts`
-    was being violated ([issue 63]).
+  * Bug fix: a precondition for `slice::from_raw_parts` was being violated
+    ([issue 63]).
 
 [issue 63]: https://gitlab.com/tspiteri/rug/-/issues/63
 
