@@ -245,6 +245,10 @@ impl StringLike {
         };
         #[cfg(not(feature = "std"))]
         let StringLike::Malloc { ptr, cap: _, len } = self;
+
+        // SAFETY: ptr is non-null and properly aligned, as it is either a
+        // dangling pointer created with NonNull::dangling, or a pointer
+        // returned by malloc/realloc with non-zero size.
         unsafe {
             ptr.cast::<u8>()
                 .offset((*len).unwrapped_as())
@@ -258,10 +262,15 @@ impl StringLike {
         match self {
             #[cfg(feature = "std")]
             StringLike::String(s) => s.as_str(),
-            StringLike::Malloc { ptr, cap: _, len } => unsafe {
-                let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
-                str::from_utf8_unchecked(s)
-            },
+            StringLike::Malloc { ptr, cap: _, len } => {
+                // SAFETY: ptr is non-null and properly aligned, as it is either
+                // a dangling pointer created with NonNull::dangling, or a
+                // pointer returned by malloc/realloc with non-zero size.
+                unsafe {
+                    let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    str::from_utf8_unchecked(s)
+                }
+            }
         }
     }
 
@@ -270,10 +279,15 @@ impl StringLike {
         match self {
             #[cfg(feature = "std")]
             StringLike::String(s) => s.as_mut_str(),
-            StringLike::Malloc { ptr, cap: _, len } => unsafe {
-                let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
-                str::from_utf8_unchecked_mut(s)
-            },
+            StringLike::Malloc { ptr, cap: _, len } => {
+                // SAFETY: ptr is non-null and properly aligned, as it is either
+                // a dangling pointer created with NonNull::dangling, or a
+                // pointer returned by malloc/realloc with non-zero size.
+                unsafe {
+                    let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    str::from_utf8_unchecked_mut(s)
+                }
+            }
         }
     }
 
@@ -308,6 +322,8 @@ impl StringLike {
             #[cfg(feature = "std")]
             StringLike::String(s) => {
                 let mu_ptr = s.as_mut_ptr().cast::<MaybeUninit<u8>>();
+                // SAFETY: mu_ptr is non-null and properly aligned, as it is
+                // obtained from String::as_mut_ptr.
                 unsafe {
                     slice::from_raw_parts_mut(
                         mu_ptr.offset(s.len().unwrapped_as()),
@@ -317,6 +333,9 @@ impl StringLike {
             }
             StringLike::Malloc { ptr, cap, len } => {
                 let mu_ptr = (*ptr).cast::<MaybeUninit<u8>>();
+                // SAFETY: mu_ptr is non-null and properly aligned, as it is
+                // either a dangling pointer created with NonNull::dangling, or
+                // a pointer returned by malloc/realloc with non-zero size.
                 unsafe {
                     slice::from_raw_parts_mut(
                         mu_ptr.offset((*len).unwrapped_as()),
@@ -332,10 +351,13 @@ impl StringLike {
     pub unsafe fn increase_len(&mut self, increment: usize) {
         match self {
             #[cfg(feature = "std")]
-            StringLike::String(s) => unsafe {
-                let new_len = s.len().checked_add(increment).expect("overflow");
-                s.as_mut_vec().set_len(new_len);
-            },
+            StringLike::String(s) => {
+                // SAFETY: ensured by user.
+                unsafe {
+                    let new_len = s.len().checked_add(increment).expect("overflow");
+                    s.as_mut_vec().set_len(new_len);
+                }
+            }
             StringLike::Malloc {
                 ptr: _,
                 cap: _,
@@ -355,12 +377,14 @@ impl Drop for StringLike {
         match self {
             #[cfg(feature = "std")]
             StringLike::String(_) => {}
-            StringLike::Malloc { ptr, cap, .. } => unsafe {
+            StringLike::Malloc { ptr, cap, .. } => {
                 // for zero capacity, ptr is dangling and must not be freed
                 if *cap != 0 {
-                    libc::free(ptr.cast());
+                    unsafe {
+                        libc::free(ptr.cast());
+                    }
                 }
-            },
+            }
         }
     }
 }
@@ -390,19 +414,17 @@ impl<T> VecLike<T> {
 
     #[inline]
     pub fn as_slice(&self) -> &[T] {
-        // null ptr is not allowed
-        if self.cap == 0 {
-            return &[];
-        }
+        // SAFETY: self.ptr is non-null and properly aligned, as it is either a
+        // dangling pointer created with NonNull::dangling, or a pointer
+        // returned by malloc/realloc with non-zero size.
         unsafe { slice::from_raw_parts(self.ptr, self.len) }
     }
 
     #[inline]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
-        // null ptr is not allowed
-        if self.cap == 0 {
-            return &mut [];
-        }
+        // SAFETY: self.ptr is non-null and properly aligned, as it is either a
+        // dangling pointer created with NonNull::dangling, or a pointer
+        // returned by malloc/realloc with non-zero size.
         unsafe { slice::from_raw_parts_mut(self.ptr, self.len) }
     }
 
