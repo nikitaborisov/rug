@@ -2555,7 +2555,7 @@ macro_rules! cast_ptr {
     ($src:expr, $T:ty) => {{
         let ptr = crate::macros::CastPtr($src);
         if false {
-            #[allow(unused_unsafe)]
+            #[allow(unused_unsafe, clippy::missing_transmute_annotations)]
             unsafe {
                 let _ = core::mem::ManuallyDrop::new(core::mem::transmute::<_, $T>(
                     ptr.static_check_size(),
@@ -2571,7 +2571,7 @@ macro_rules! cast_ptr_mut {
     ($src:expr, $T:ty) => {{
         let ptr = crate::macros::CastPtrMut($src);
         if false {
-            #[allow(unused_unsafe)]
+            #[allow(unused_unsafe, clippy::missing_transmute_annotations)]
             unsafe {
                 let _ = core::mem::transmute::<_, $T>(ptr.static_check_size());
             }
