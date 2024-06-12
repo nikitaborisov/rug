@@ -1243,6 +1243,7 @@ This is similar to [`RandGen`] but can only be used in a single thread.
 # Examples
 
 ```rust
+# #![allow(unexpected_cfgs)]
 # #[cfg(skip_this)]
 use rand::rngs::ThreadRng;
 # #[cfg(skip_this)]
@@ -1271,6 +1272,7 @@ println!("0 ≤ {} < 10000", u);
 This would not compile, since `ThreadRng` is not [`Send`] and not [`Sync`].
 
 ```compile_fail
+# #![allow(unexpected_cfgs)]
 # #[cfg(skip_this)]
 use rand::rngs::ThreadRng;
 # #[cfg(skip_this)]
