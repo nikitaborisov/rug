@@ -1243,12 +1243,11 @@ This is similar to [`RandGen`] but can only be used in a single thread.
 # Examples
 
 ```rust
-# #![allow(unexpected_cfgs)]
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::rngs::ThreadRng;
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::thread_rng;
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::RngCore;
 # struct ThreadRng { _unused_ptr: *const i32, val: u32 }
 # impl ThreadRng {
@@ -1272,12 +1271,11 @@ println!("0 ≤ {} < 10000", u);
 This would not compile, since `ThreadRng` is not [`Send`] and not [`Sync`].
 
 ```compile_fail
-# #![allow(unexpected_cfgs)]
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::rngs::ThreadRng;
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::thread_rng;
-# #[cfg(skip_this)]
+# #[cfg(any())]
 use rand::RngCore;
 # struct ThreadRng(*const i32, u32);
 # impl ThreadRng {

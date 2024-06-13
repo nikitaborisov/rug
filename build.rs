@@ -15,6 +15,8 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 fn main() {
+    println!("cargo:rustc-check-cfg=cfg(gmp_limb_bits_32)");
+    println!("cargo:rustc-check-cfg=cfg(gmp_limb_bits_64)");
     if env::var_os("CARGO_FEATURE_GMP_MPFR_SYS").is_some() {
         let bits =
             env::var_os("DEP_GMP_LIMB_BITS").expect("DEP_GMP_LIMB_BITS not set by gmp-mfpr-sys");
@@ -47,6 +49,7 @@ fn check_feature(name: &str, contents: &str) {
     let status = cmd
         .status()
         .unwrap_or_else(|_| panic!("Unable to execute: {cmd:?}"));
+    println!("cargo:rustc-check-cfg=cfg({name})");
     if status.success() {
         println!("cargo:rustc-cfg={name}");
     }

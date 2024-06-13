@@ -445,7 +445,6 @@ Ii8+PC9nPjwvZz48L2c+PC9zdmc+Cg==
 #![warn(unsafe_op_in_unsafe_fn)]
 // allowed to deal with e.g. 1i32.into(): c_long which can be i32 or i64
 #![allow(clippy::useless_conversion)]
-#![allow(unexpected_cfgs)]
 #[macro_use]
 mod macros;
 mod ext;
