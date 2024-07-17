@@ -383,7 +383,7 @@ impl Float {
     #[inline]
     pub(crate) fn new_nan(prec: u32) -> Self {
         assert!(
-            prec >= float::prec_min() && prec <= float::prec_max(),
+            (float::prec_min()..=float::prec_max()).contains(&prec),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -456,7 +456,7 @@ impl Float {
     #[inline]
     pub fn set_prec_round(&mut self, prec: u32, round: Round) -> Ordering {
         assert!(
-            prec >= float::prec_min() && prec <= float::prec_max(),
+            (float::prec_min()..=float::prec_max()).contains(&prec),
             "precision out of range"
         );
         xmpfr::prec_round(self, prec.unwrapped_cast(), round)
@@ -543,7 +543,7 @@ impl Float {
     #[inline]
     pub(crate) fn new_nan_64(prec: u64) -> Self {
         assert!(
-            prec >= float::prec_min_64() && prec <= float::prec_max_64(),
+            (float::prec_min_64()..=float::prec_max_64()).contains(&prec),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -609,7 +609,7 @@ impl Float {
     #[inline]
     pub fn set_prec_round_64(&mut self, prec: u64, round: Round) -> Ordering {
         assert!(
-            prec >= float::prec_min_64() && prec <= float::prec_max_64(),
+            (float::prec_min_64()..=float::prec_max_64()).contains(&prec),
             "precision out of range"
         );
         xmpfr::prec_round(self, prec.unwrapped_cast(), round)
@@ -621,7 +621,7 @@ impl Float {
         Float: AssignRound<T, Round = Round, Ordering = Ordering>,
     {
         assert!(
-            prec >= mpfr::PREC_MIN && prec <= mpfr::PREC_MAX,
+            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -635,7 +635,7 @@ impl Float {
     #[inline]
     pub(crate) fn zero(prec: prec_t) -> Float {
         assert!(
-            prec >= mpfr::PREC_MIN && prec <= mpfr::PREC_MAX,
+            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -11628,7 +11628,7 @@ impl Default for Format {
 
 pub(crate) fn req_chars(f: &Float, format: Format, extra: usize) -> usize {
     assert!(
-        format.radix >= 2 && format.radix <= 36,
+        (2..=36).contains(&format.radix),
         "radix {} out of range",
         format.radix
     );

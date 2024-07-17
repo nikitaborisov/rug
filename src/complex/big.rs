@@ -199,10 +199,8 @@ impl Complex {
     pub(crate) fn new_nan<P: Prec>(prec: P) -> Self {
         let p = prec.prec();
         assert!(
-            p.0 >= float::prec_min()
-                && p.0 <= float::prec_max()
-                && p.1 >= float::prec_min()
-                && p.1 <= float::prec_max(),
+            (float::prec_min()..=float::prec_max()).contains(&p.0)
+                && (float::prec_min()..=float::prec_max()).contains(&p.1),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -363,10 +361,8 @@ impl Complex {
     pub(crate) fn new_nan_64<P: Prec64>(prec: P) -> Self {
         let p = prec.prec();
         assert!(
-            p.0 >= float::prec_min_64()
-                && p.0 <= float::prec_max_64()
-                && p.1 >= float::prec_min_64()
-                && p.1 <= float::prec_max_64(),
+            (float::prec_min_64()..=float::prec_max_64()).contains(&p.0)
+                && (float::prec_min_64()..=float::prec_max_64()).contains(&p.1),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -533,10 +529,8 @@ impl Complex {
         Complex: AssignRound<T, Round = Round2, Ordering = Ordering2>,
     {
         assert!(
-            prec.0 >= mpfr::PREC_MIN
-                && prec.0 <= mpfr::PREC_MAX
-                && prec.1 >= mpfr::PREC_MIN
-                && prec.1 <= mpfr::PREC_MAX,
+            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
+                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
@@ -550,10 +544,8 @@ impl Complex {
     #[inline]
     pub(crate) fn zero(prec: (prec_t, prec_t)) -> Complex {
         assert!(
-            prec.0 >= mpfr::PREC_MIN
-                && prec.0 <= mpfr::PREC_MAX
-                && prec.1 >= mpfr::PREC_MIN
-                && prec.1 <= mpfr::PREC_MAX,
+            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
+                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
