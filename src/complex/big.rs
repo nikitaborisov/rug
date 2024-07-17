@@ -15,7 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::complex::arith::{AddMulIncomplete, SubMulFromIncomplete};
-use crate::complex::{BorrowComplex, OrdComplex, Prec};
+use crate::complex::{BorrowComplex, OrdComplex, Prec, Prec64};
 use crate::ext::xmpc;
 use crate::ext::xmpc::{Ordering2, Round2, NEAREST2};
 use crate::ext::xmpfr;
@@ -354,6 +354,170 @@ impl Complex {
         (
             real.set_prec_round(p.0, round.0),
             imag.set_prec_round(p.1, round.1),
+        )
+    }
+
+    #[inline]
+    pub(crate) fn new_nan_64<P: Prec64>(prec: P) -> Self {
+        let p = prec.prec();
+        assert!(
+            p.0 >= float::prec_min_64()
+                && p.0 <= float::prec_max_64()
+                && p.1 >= float::prec_min_64()
+                && p.1 <= float::prec_max_64(),
+            "precision out of range"
+        );
+        let mut ret = MaybeUninit::uninit();
+        xmpc::write_new_nan(&mut ret, p.0.unwrapped_cast(), p.1.unwrapped_cast());
+        // Safety: write_new_nan initializes ret.
+        unsafe { ret.assume_init() }
+    }
+
+    /// Create a new [`Complex`] number with the specified precisions for the
+    /// real and imaginary parts and with value 0.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the precision is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c1 = Complex::new_64(32);
+    /// assert_eq!(c1.prec_64(), (32, 32));
+    /// assert_eq!(c1, 0);
+    /// let c2 = Complex::new_64((32, 64));
+    /// assert_eq!(c2.prec_64(), (32, 64));
+    /// assert_eq!(c2, 0);
+    /// ```
+    #[inline]
+    pub fn new_64<P: Prec64>(prec: P) -> Self {
+        Self::with_val_64(prec, (Special::Zero, Special::Zero))
+    }
+
+    /// Create a new [`Complex`] number with the specified precision and with
+    /// the given value, rounding to the nearest.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c1 = Complex::with_val_64(53, (1.3f64, -12));
+    /// assert_eq!(c1.prec_64(), (53, 53));
+    /// assert_eq!(c1, (1.3f64, -12));
+    /// let c2 = Complex::with_val_64(53, 42.0);
+    /// assert_eq!(c2.prec_64(), (53, 53));
+    /// assert_eq!(c2, 42);
+    /// assert_eq!(c2, (42, 0));
+    /// ```
+    #[inline]
+    pub fn with_val_64<P, T>(prec: P, val: T) -> Self
+    where
+        Self: Assign<T>,
+        P: Prec64,
+    {
+        let mut ret = Complex::new_nan_64(prec);
+        ret.assign(val);
+        ret
+    }
+
+    /// Create a new [`Complex`] number with the specified precision and with
+    /// the given value, applying the specified rounding method.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let round = (Round::Down, Round::Up);
+    /// let (c, dir) = Complex::with_val_round_64(4, (3.3, 2.3), round);
+    /// // 3.3 is rounded down to 3.25, 2.3 is rounded up to 2.5
+    /// assert_eq!(c.prec_64(), (4, 4));
+    /// assert_eq!(c, (3.25, 2.5));
+    /// assert_eq!(dir, (Ordering::Less, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn with_val_round_64<P, T>(prec: P, val: T, round: Round2) -> (Self, Ordering2)
+    where
+        Self: AssignRound<T, Round = Round2, Ordering = Ordering2>,
+        P: Prec64,
+    {
+        let mut ret = Complex::new_nan_64(prec);
+        let ord = ret.assign_round(val, round);
+        (ret, ord)
+    }
+
+    /// Returns the precision of the real and imaginary parts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let r = Complex::new_64((24, 53));
+    /// assert_eq!(r.prec_64(), (24, 53));
+    /// ```
+    #[inline]
+    pub const fn prec_64(&self) -> (u64, u64) {
+        (self.real().prec_64(), self.imag().prec_64())
+    }
+
+    /// Sets the precision of the real and imaginary parts, rounding to the
+    /// nearest.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the precision is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut r = Complex::with_val_64(6, (4.875, 4.625));
+    /// assert_eq!(r, (4.875, 4.625));
+    /// r.set_prec_64(4);
+    /// assert_eq!(r, (5.0, 4.5));
+    /// ```
+    #[inline]
+    pub fn set_prec_64<P: Prec64>(&mut self, prec: P) {
+        self.set_prec_round_64(prec, NEAREST2);
+    }
+
+    /// Sets the precision of the real and imaginary parts, applying the
+    /// specified rounding method.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the precision is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let mut r = Complex::with_val_64(6, (4.875, 4.625));
+    /// assert_eq!(r, (4.875, 4.625));
+    /// let dir = r.set_prec_round_64(4, (Round::Down, Round::Up));
+    /// assert_eq!(r, (4.5, 5.0));
+    /// assert_eq!(dir, (Ordering::Less, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn set_prec_round_64<P: Prec64>(&mut self, prec: P, round: Round2) -> Ordering2 {
+        let p = prec.prec();
+        let (real, imag) = self.as_mut_real_imag();
+        (
+            real.set_prec_round_64(p.0, round.0),
+            imag.set_prec_round_64(p.1, round.1),
         )
     }
 

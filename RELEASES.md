@@ -19,7 +19,20 @@ Version 1.25.0 (unreleased)
      * <code>[Float][flo-1-25]::[prec\_64][flo-p-1-25],
        <code>[Float][flo-1-25]::[set\_prec\_64][flo-sp-1-25],
        <code>[Float][flo-1-25]::[set\_prec\_round\_64][flo-spr-1-25]
+     * <code>[Complex][com-1-25]::[new\_64][com-n-1-25],
+       <code>[Complex][com-1-25]::[with\_val\_64][com-wv-1-25],
+       <code>[Complex][com-1-25]::[with\_val\_round\_64][com-wvr-1-25]
+     * <code>[Complex][com-1-25]::[prec\_64][com-p-1-25],
+       <code>[Complex][com-1-25]::[set\_prec\_64][com-sp-1-25],
+       <code>[Complex][com-1-25]::[set\_prec\_round\_64][com-spr-1-25]
 
+[com-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html
+[com-n-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.new_64
+[com-p-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.prec_64
+[com-sp-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.set_prec_64
+[com-spr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.set_prec_round_64
+[com-wv-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.with_val_64
+[com-wvr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.with_val_round_64
 [comm-1-25]: https://docs.rs/rug/~1.25/rug/complex/index.html
 [comm-p-1-25]: https://docs.rs/rug/~1.25/rug/complex/trait.Prec64.html
 [flo-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html
