@@ -462,6 +462,159 @@ impl Float {
         xmpfr::prec_round(self, prec.unwrapped_cast(), round)
     }
 
+    /// Create a new [`Float`] with the specified precision and with value 0.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::new_64(53);
+    /// assert_eq!(f.prec(), 53);
+    /// assert_eq!(f, 0);
+    /// ```
+    #[inline]
+    pub fn new_64(prec: u64) -> Self {
+        Self::with_val_64(prec, Special::Zero)
+    }
+
+    /// Create a new [`Float`] with the specified precision and with the given
+    /// value, rounding to the nearest.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val_64(53, 1.3);
+    /// assert_eq!(f.prec(), 53);
+    /// assert_eq!(f, 1.3);
+    /// ```
+    #[inline]
+    pub fn with_val_64<T>(prec: u64, val: T) -> Self
+    where
+        Float: Assign<T>,
+    {
+        let mut ret = Float::new_nan_64(prec);
+        ret.assign(val);
+        ret
+    }
+
+    /// Create a new [`Float`] with the specified precision and with the given
+    /// value, applying the specified rounding method.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// let (f1, dir) = Float::with_val_round_64(4, 3.3, Round::Nearest);
+    /// // 3.3 with precision 4 is rounded down to 3.25
+    /// assert_eq!(f1.prec(), 4);
+    /// assert_eq!(f1, 3.25);
+    /// assert_eq!(dir, Ordering::Less);
+    /// let (f2, dir) = Float::with_val_round_64(4, 3.3, Round::Up);
+    /// // 3.3 rounded up to 3.5
+    /// assert_eq!(f2.prec(), 4);
+    /// assert_eq!(f2, 3.5);
+    /// assert_eq!(dir, Ordering::Greater);
+    /// ```
+    #[inline]
+    pub fn with_val_round_64<T>(prec: u64, val: T, round: Round) -> (Self, Ordering)
+    where
+        Self: AssignRound<T, Round = Round, Ordering = Ordering>,
+    {
+        let mut ret = Float::new_nan_64(prec);
+        let ord = ret.assign_round(val, round);
+        (ret, ord)
+    }
+
+    #[inline]
+    pub(crate) fn new_nan_64(prec: u64) -> Self {
+        assert!(
+            prec >= float::prec_min_64() && prec <= float::prec_max_64(),
+            "precision out of range"
+        );
+        let mut ret = MaybeUninit::uninit();
+        xmpfr::write_new_nan(&mut ret, prec.unwrapped_cast());
+        // Safety: write_new_nan initializes ret.
+        unsafe { ret.assume_init() }
+    }
+
+    /// Returns the precision.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::new_64(53);
+    /// assert_eq!(f.prec_64(), 53);
+    /// ```
+    #[inline]
+    pub const fn prec_64(&self) -> u64 {
+        xmpfr::get_prec(self) as u64
+    }
+
+    /// Sets the precision, rounding to the nearest.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// // 16.25 has seven significant bits (binary 10000.01)
+    /// let mut f = Float::with_val_64(53, 16.25);
+    /// f.set_prec_64(5);
+    /// assert_eq!(f, 16);
+    /// assert_eq!(f.prec_64(), 5);
+    /// ```
+    #[inline]
+    pub fn set_prec_64(&mut self, prec: u64) {
+        self.set_prec_round_64(prec, Round::Nearest);
+    }
+
+    /// Sets the precision, applying the specified rounding method.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `prec` is out of the allowed range.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// // 16.25 has seven significant bits (binary 10000.01)
+    /// let mut f = Float::with_val_64(53, 16.25);
+    /// let dir = f.set_prec_round_64(5, Round::Up);
+    /// assert_eq!(f, 17);
+    /// assert_eq!(dir, Ordering::Greater);
+    /// assert_eq!(f.prec_64(), 5);
+    /// ```
+    #[inline]
+    pub fn set_prec_round_64(&mut self, prec: u64, round: Round) -> Ordering {
+        assert!(
+            prec >= float::prec_min_64() && prec <= float::prec_max_64(),
+            "precision out of range"
+        );
+        xmpfr::prec_round(self, prec.unwrapped_cast(), round)
+    }
+
     /// Creates a [`Float`] from an initialized [MPFR floating-point
     /// number][mpfr_t].
     ///

@@ -33,7 +33,21 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * The following functions were added:
      * <code>[float][flom-1-25]::[prec\_min\_64][flom-pmin-1-25]</code>,
        <code>[float][flom-1-25]::[prec\_max\_64][flom-pmax-1-25]</code>
+  * The following methods were added:
+     * <code>[Float][flo-1-25]::[new\_64][flo-n-1-25],
+       <code>[Float][flo-1-25]::[with\_val\_64][flo-wv-1-25],
+       <code>[Float][flo-1-25]::[with\_val\_round\_64][flo-wvr-1-25]
+     * <code>[Float][flo-1-25]::[prec\_64][flo-p-1-25],
+       <code>[Float][flo-1-25]::[set\_prec\_64][flo-sp-1-25],
+       <code>[Float][flo-1-25]::[set\_prec\_round\_64][flo-spr-1-25]
 
+[flo-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html
+[flo-n-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.new_64
+[flo-p-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.prec_64
+[flo-sp-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.set_prec_64
+[flo-spr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.set_prec_round_64
+[flo-wv-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.with_val_64
+[flo-wvr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.with_val_round_64
 [flom-1-25]: https://docs.rs/rug/~1.25/rug/float/index.html
 [flom-pmax-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_max_64.html
 [flom-pmin-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_min_64.html
