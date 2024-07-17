@@ -87,3 +87,48 @@ impl Prec for (u32, u32) {
         self
     }
 }
+
+/**
+The `Prec64` trait is used to specify the precision of the real and imaginary
+parts of a [`Complex`][crate::Complex] number.
+
+This trait is implememented for [`u64`] and for <code>[(][tuple][u64][], [u64][][)][tuple]</code>.
+
+# Examples
+
+```rust
+use rug::Complex;
+let c1 = Complex::new_64(32);
+assert_eq!(c1.prec_64(), (32, 32));
+let c2 = Complex::new_64((32, 64));
+assert_eq!(c2.prec_64(), (32, 64));
+```
+
+[`Complex`]: `crate::Complex`
+*/
+pub trait Prec64 {
+    /// Returns the precision for the real and imaginary parts.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::complex::Prec64;
+    /// assert_eq!(Prec64::prec(24), (24, 24));
+    /// assert_eq!(Prec64::prec((24, 53)), (24, 53));
+    /// ```
+    fn prec(self) -> (u64, u64);
+}
+
+impl Prec64 for u64 {
+    #[inline]
+    fn prec(self) -> (u64, u64) {
+        (self, self)
+    }
+}
+
+impl Prec64 for (u64, u64) {
+    #[inline]
+    fn prec(self) -> (u64, u64) {
+        self
+    }
+}

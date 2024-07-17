@@ -33,6 +33,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * The following functions were added:
      * <code>[float][flom-1-25]::[prec\_min\_64][flom-pmin-1-25]</code>,
        <code>[float][flom-1-25]::[prec\_max\_64][flom-pmax-1-25]</code>
+  * The <code>[complex][comm-1-25]::[Prec64][comm-p-1-25]</code> trait was
+    added.
   * The following methods were added:
      * <code>[Float][flo-1-25]::[new\_64][flo-n-1-25],
        <code>[Float][flo-1-25]::[with\_val\_64][flo-wv-1-25],
@@ -41,6 +43,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
        <code>[Float][flo-1-25]::[set\_prec\_64][flo-sp-1-25],
        <code>[Float][flo-1-25]::[set\_prec\_round\_64][flo-spr-1-25]
 
+[comm-1-25]: https://docs.rs/rug/~1.25/rug/complex/index.html
+[comm-p-1-25]: https://docs.rs/rug/~1.25/rug/complex/trait.Prec64.html
 [flo-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html
 [flo-n-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.new_64
 [flo-p-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.prec_64
