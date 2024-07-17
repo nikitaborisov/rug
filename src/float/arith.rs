@@ -35,6 +35,7 @@ use core::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Shl, ShlAssign, Shr,
     ShrAssign, Sub, SubAssign,
 };
+use gmp_mpfr_sys::mpfr::prec_t;
 
 impl Neg for Float {
     type Output = Float;
@@ -76,17 +77,17 @@ impl AssignRound<NegIncomplete<'_>> for Float {
 
 impl CompleteRound for NegIncomplete<'_> {
     type Completed = Float;
-    type Prec = u32;
+    type Prec = prec_t;
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn complete_round(self, prec: u32, round: Round) -> (Float, Ordering) {
-        Float::with_val_round(prec, self, round)
+    fn complete_round(self, prec: prec_t, round: Round) -> (Float, Ordering) {
+        Float::with_prec_t(prec, self, round)
     }
 }
 
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::add;
     Add { add }
     AddAssign { add_assign }
@@ -96,7 +97,7 @@ arith_binary_self_round! {
     AddIncomplete
 }
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::sub;
     Sub { sub }
     SubAssign { sub_assign }
@@ -106,7 +107,7 @@ arith_binary_self_round! {
     SubIncomplete
 }
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::mul;
     Mul { mul }
     MulAssign { mul_assign }
@@ -116,7 +117,7 @@ arith_binary_self_round! {
     MulIncomplete
 }
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::div;
     Div { div }
     DivAssign { div_assign }
@@ -126,7 +127,7 @@ arith_binary_self_round! {
     DivIncomplete
 }
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::fmod;
     Rem { rem }
     RemAssign { rem_assign }
@@ -136,7 +137,7 @@ arith_binary_self_round! {
     RemIncomplete
 }
 arith_binary_self_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::pow;
     Pow { pow }
     PowAssign { pow_assign }
@@ -148,7 +149,7 @@ arith_binary_self_round! {
 
 #[cfg(feature = "integer")]
 arith_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::add_z;
     Add { add }
     AddAssign { add_assign }
@@ -160,7 +161,7 @@ arith_commut_round! {
 }
 #[cfg(feature = "integer")]
 arith_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::sub_z, xmpfr::z_sub;
     Sub { sub }
     SubAssign { sub_assign }
@@ -173,7 +174,7 @@ arith_noncommut_round! {
 }
 #[cfg(feature = "integer")]
 arith_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::mul_z;
     Mul { mul }
     MulAssign { mul_assign }
@@ -185,7 +186,7 @@ arith_commut_round! {
 }
 #[cfg(feature = "integer")]
 arith_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::div_z, xmpfr::z_div;
     Div { div }
     DivAssign { div_assign }
@@ -198,7 +199,7 @@ arith_noncommut_round! {
 }
 #[cfg(feature = "integer")]
 arith_forward_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::pow_z;
     Pow { pow }
     PowAssign { pow_assign }
@@ -209,7 +210,7 @@ arith_forward_round! {
 
 #[cfg(feature = "rational")]
 arith_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::add_q;
     Add { add }
     AddAssign { add_assign }
@@ -221,7 +222,7 @@ arith_commut_round! {
 }
 #[cfg(feature = "rational")]
 arith_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::sub_q, xmpfr::q_sub;
     Sub { sub }
     SubAssign { sub_assign }
@@ -234,7 +235,7 @@ arith_noncommut_round! {
 }
 #[cfg(feature = "rational")]
 arith_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::mul_q;
     Mul { mul }
     MulAssign { mul_assign }
@@ -246,7 +247,7 @@ arith_commut_round! {
 }
 #[cfg(feature = "rational")]
 arith_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::div_q, xmpfr::q_div;
     Div { div }
     DivAssign { div_assign }
@@ -259,7 +260,7 @@ arith_noncommut_round! {
 }
 
 arith_prim_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::add;
     Add { add }
     AddAssign { add_assign }
@@ -282,7 +283,7 @@ arith_prim_commut_round! {
     f64, AddF64Incomplete;
 }
 arith_prim_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::sub, PrimOps::sub_from;
     Sub { sub }
     SubAssign { sub_assign }
@@ -305,7 +306,7 @@ arith_prim_noncommut_round! {
     f64, SubF64Incomplete, SubFromF64Incomplete;
 }
 arith_prim_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::mul;
     Mul { mul }
     MulAssign { mul_assign }
@@ -328,7 +329,7 @@ arith_prim_commut_round! {
     f64, MulF64Incomplete;
 }
 arith_prim_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::div, PrimOps::div_from;
     Div { div }
     DivAssign { div_assign }
@@ -351,7 +352,7 @@ arith_prim_noncommut_round! {
     f64, DivF64Incomplete, DivFromF64Incomplete;
 }
 arith_prim_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::rem, PrimOps::rem_from;
     Rem { rem }
     RemAssign { rem_assign }
@@ -374,7 +375,7 @@ arith_prim_noncommut_round! {
     f64, RemF64Incomplete, RemFromF64Incomplete;
 }
 arith_prim_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     PrimOps::pow, PrimOps::pow_from;
     Pow { pow }
     PowAssign { pow_assign }
@@ -398,63 +399,63 @@ arith_prim_noncommut_round! {
 }
 
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shl_u32;
     Shl { shl }
     ShlAssign { shl_assign }
     u32, ShlU32Incomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shr_u32;
     Shr { shr }
     ShrAssign { shr_assign }
     u32, ShrU32Incomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shl_i32;
     Shl { shl }
     ShlAssign { shl_assign }
     i32, ShlI32Incomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shr_i32;
     Shr { shr }
     ShrAssign { shr_assign }
     i32, ShrI32Incomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shl_usize;
     Shl { shl }
     ShlAssign { shl_assign }
     usize, ShlUsizeIncomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shr_usize;
     Shr { shr }
     ShrAssign { shr_assign }
     usize, ShrUsizeIncomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shl_isize;
     Shl { shl }
     ShlAssign { shl_assign }
     isize, ShlIsizeIncomplete;
 }
 arith_prim_exact_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     xmpfr::shr_isize;
     Shr { shr }
     ShrAssign { shr_assign }
     isize, ShrIsizeIncomplete;
 }
 mul_op_commut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     add_mul;
     Add { add }
     AddAssign { add_assign }
@@ -465,7 +466,7 @@ mul_op_commut_round! {
     AddMulIncomplete
 }
 mul_op_noncommut_round! {
-    Float, u32, Round, Round::Nearest, Ordering;
+    Float, prec_t, Round, Round::Nearest, Ordering;
     sub_mul, mul_sub;
     Sub { sub }
     SubAssign { sub_assign }
@@ -626,12 +627,12 @@ impl AssignRound<MulAddMulIncomplete<'_>> for Float {
 
 impl CompleteRound for MulAddMulIncomplete<'_> {
     type Completed = Float;
-    type Prec = u32;
+    type Prec = prec_t;
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn complete_round(self, prec: u32, round: Round) -> (Float, Ordering) {
-        Float::with_val_round(prec, self, round)
+    fn complete_round(self, prec: prec_t, round: Round) -> (Float, Ordering) {
+        Float::with_prec_t(prec, self, round)
     }
 }
 
@@ -667,12 +668,12 @@ impl AssignRound<MulSubMulIncomplete<'_>> for Float {
 
 impl CompleteRound for MulSubMulIncomplete<'_> {
     type Completed = Float;
-    type Prec = u32;
+    type Prec = prec_t;
     type Round = Round;
     type Ordering = Ordering;
     #[inline]
-    fn complete_round(self, prec: u32, round: Round) -> (Float, Ordering) {
-        Float::with_val_round(prec, self, round)
+    fn complete_round(self, prec: prec_t, round: Round) -> (Float, Ordering) {
+        Float::with_prec_t(prec, self, round)
     }
 }
 
