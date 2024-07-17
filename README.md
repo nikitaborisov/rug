@@ -28,6 +28,16 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.25.0 news (unreleased)
+
+  * The following functions were added:
+     * <code>[float][flom-1-25]::[prec\_min\_64][flom-pmin-1-25]</code>,
+       <code>[float][flom-1-25]::[prec\_max\_64][flom-pmax-1-25]</code>
+
+[flom-1-25]: https://docs.rs/rug/~1.25/rug/float/index.html
+[flom-pmax-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_max_64.html
+[flom-pmin-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_min_64.html
+
 ### Version 1.24.1 news (2024-04-01)
 
   * Bug fix: a precondition for `slice::from_raw_parts` was being violated

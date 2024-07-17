@@ -116,6 +116,9 @@ pub const fn prec_min() -> u32 {
 /**
 Returns the maximum value for the precision.
 
+If the maximum precision does not fit in a [`u32`],
+<code>[u32]::[MAX][u32::MAX]</code> is returned.
+
 # Examples
 
 ```rust
@@ -130,6 +133,36 @@ pub const fn prec_max() -> u32 {
     } else {
         u32::MAX
     }
+}
+
+/**
+Returns the minimum value for the precision.
+
+# Examples
+
+```rust
+use rug::float;
+println!("Minimum precision is {}", float::prec_min_64());
+```
+*/
+#[inline]
+pub const fn prec_min_64() -> u64 {
+    mpfr::PREC_MIN as u64
+}
+
+/**
+Returns the maximum value for the precision.
+
+# Examples
+
+```rust
+use rug::float;
+println!("Maximum precision is {}", float::prec_max_64());
+```
+*/
+#[inline]
+pub const fn prec_max_64() -> u64 {
+    mpfr::PREC_MAX as u64
 }
 
 /**
