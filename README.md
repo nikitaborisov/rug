@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.25.0 news (unreleased)
+### Version 1.25.0 news (2024-07-18)
 
   * The following functions were added:
      * <code>[float][flom-1-25]::[prec\_min\_64][flom-pmin-1-25]</code>,
@@ -68,155 +68,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [flom-1-25]: https://docs.rs/rug/~1.25/rug/float/index.html
 [flom-pmax-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_max_64.html
 [flom-pmin-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_min_64.html
-
-### Version 1.24.1 news (2024-04-01)
-
-  * Bug fix: a precondition for `slice::from_raw_parts` was being violated
-    ([issue 63]).
-
-[issue 63]: https://gitlab.com/tspiteri/rug/-/issues/63
-
-### Version 1.24.0 news (2024-01-25)
-
-  * [`Float`][flo-1-24] now implements
-    <code>[AssignRound][assr-1-24]\<[bool][`bool`]></code>.
-  * The following methods are now usable in const context:
-      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
-        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
-      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
-      * <code>[MiniInteger][mi-1-24]::[borrow][mi-b-1-24]</code>
-      * <code>[MiniRational][mr-1-24]::[borrow][mr-b-1-24]</code>
-      * <code>[MiniFloat][mf-1-24]::[borrow][mf-b-1-24]</code>
-      * <code>[MiniComplex][mc-1-24]::[borrow][mc-b-1-24]</code>
-  * The `std` [optional feature][feat-1-24] was added ([issue 62]). The feature
-    is enabled by default, and the crate will be compiled without the standard
-    library (`no_std`) if the feature is disabled.
-  * [`MiniRational`][mr-1-24] now implements
-      * <code>[From][`From`]\<[MiniInteger][mi-1-24]></code>,
-        <code>[Assign][ass-1-24]\<[MiniInteger][mi-1-24]></code>
-  * [`MiniFloat`][mf-1-24] now implements
-      * <code>[From][`From`]\<[bool][`bool`]></code>,
-        <code>[Assign][ass-1-24]\<[bool][`bool`]></code>
-  * [`MiniComplex`][mc-1-24] now implements
-      * <code>[From][`From`]\<[MiniFloat][mf-1-24]></code>,
-        <code>[Assign][ass-1-24]\<[MiniFloat][mf-1-24]></code>
-      * <code>[From][`From`]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>,
-        <code>[Assign][ass-1-24]\<[(][tuple][MiniFloat][mf-1-24][,][tuple] [MiniFloat][mf-1-24][)][tuple]></code>
-  * The following methods were added to [`MiniInteger`][mi-1-24]:
-      * [`const_from_bool`][mi-bool-1-24]
-      * [`const_from_i8`][mi-i8-1-24], [`const_from_i16`][mi-i16-1-24],
-        [`const_from_i32`][mi-i32-1-24], [`const_from_i64`][mi-i64-1-24],
-        [`const_from_i128`][mi-i128-1-24], [`const_from_isize`][mi-isize-1-24]
-      * [`const_from_u8`][mi-u8-1-24], [`const_from_u16`][mi-u16-1-24],
-        [`const_from_u32`][mi-u32-1-24], [`const_from_u64`][mi-u64-1-24],
-        [`const_from_u128`][mi-u128-1-24], [`const_from_usize`][mi-usize-1-24]
-  * The following method was added to [`MiniRational`][mr-1-24]:
-      * [`const_from_integer`][mr-cfi-1-24]
-  * The following methods were added to [`MiniFloat`][mf-1-24]:
-      * [`const_from_bool`][mf-bool-1-24]
-      * [`const_from_i8`][mf-i8-1-24], [`const_from_i16`][mf-i16-1-24],
-        [`const_from_i32`][mf-i32-1-24], [`const_from_i64`][mf-i64-1-24],
-        [`const_from_i128`][mf-i128-1-24], [`const_from_isize`][mf-isize-1-24]
-      * [`const_from_u8`][mf-u8-1-24], [`const_from_u16`][mf-u16-1-24],
-        [`const_from_u32`][mf-u32-1-24], [`const_from_u64`][mf-u64-1-24],
-        [`const_from_u128`][mf-u128-1-24], [`const_from_usize`][mf-usize-1-24]
-      * [`const_from_f32`][mf-f32-1-24], [`const_from_f64`][mf-f64-1-24]
-      * [`const_from_special`][mf-cfs-1-24]
-  * The following methods were added to [`MiniComplex`][mc-1-24]:
-      * [`const_from_real`][mc-cfr-1-24], [`const_from_parts`][mc-cfp-1-24]
-  * When the `num-traits` [experimental feature][feat-exp-1-24] is enabled,
-    the following traits are implemented for [`Integer`][int-1-24]:
-      * [`CheckedDiv`][nt-0-2-cd], [`CheckedRem`][nt-0-2-cr]
-      * [`Euclid`][nt-0-2-e], [`CheckedEuclid`][nt-0-2-ce]
-
-#### Compatibility notes
-
-  * The following methods no longer set the [MPFR NaN flag][sys-mpfr-sn-1-6] if
-    a NaN is encountered:
-      * <code>[Float][flo-1-24]::[as\_neg][flo-an-1-24]</code>,
-        <code>[Float][flo-1-24]::[as\_abs][flo-aa-1-24]</code>
-      * <code>[Complex][com-1-24]::[as\_neg][com-an-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_conj][com-ac-1-24]</code>,
-        <code>[Complex][com-1-24]::[as\_mul\_i][com-am-1-24]</code>
-  * Functionality that depends on `std` now requires the `std` feature to be
-    enabled. While the `std` feature is enabled by default, it is now disabled
-    if the crate’s default features are disabled in [*Cargo.toml*]. In this
-    case, `std` must be added to the list of features to reenable the
-    functionality.
-  * The implementation of the deprecated [`SmallInteger`][smi-1-24],
-    [`SmallRational`][smr-1-24], [`SmallFloat`][smf-1-24] and
-    [`SmallComplex`][smc-1-24] was changed to remove [their soundness
-    issue][issue 52]. They now allocate memory for the digits, though their
-    whole point was to be non-allocating.
-
-[`From`]: https://doc.rust-lang.org/nightly/core/convert/trait.From.html
-[`bool`]: https://doc.rust-lang.org/nightly/core/primitive.bool.html
-[ass-1-24]: https://docs.rs/rug/~1.24/rug/trait.Assign.html
-[assr-1-24]:  https://docs.rs/rug/~1.24/rug/ops/trait.AssignRound.html
-[com-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html
-[com-ac-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_conj
-[com-am-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_mul_i
-[com-an-1-24]: https://docs.rs/rug/~1.24/rug/struct.Complex.html#method.as_neg
-[feat-1-24]: https://docs.rs/rug/~1.24/rug/index.html#optional-features
-[feat-exp-1-24]: https://docs.rs/rug/~1.24/rug/index.html#experimental-optional-features
-[flo-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html
-[flo-aa-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_abs
-[flo-an-1-24]: https://docs.rs/rug/~1.24/rug/struct.Float.html#method.as_neg
-[int-1-24]: https://docs.rs/rug/~1.24/rug/struct.Integer.html
-[issue 52]: https://gitlab.com/tspiteri/rug/-/issues/52
-[issue 62]: https://gitlab.com/tspiteri/rug/-/issues/62
-[mc-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html
-[mc-b-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.borrow
-[mc-cfp-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.const_from_parts
-[mc-cfr-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.MiniComplex.html#method.const_from_real
-[mf-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html
-[mf-b-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.borrow
-[mf-bool-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_bool
-[mf-cfs-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_special
-[mf-f32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_f32
-[mf-f64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_f64
-[mf-i128-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i128
-[mf-i16-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i16
-[mf-i32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i32
-[mf-i64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i64
-[mf-i8-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_i8
-[mf-isize-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_isize
-[mf-u128-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u128
-[mf-u16-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u16
-[mf-u32-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u32
-[mf-u64-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u64
-[mf-u8-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_u8
-[mf-usize-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.MiniFloat.html#method.const_from_usize
-[mi-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html
-[mi-b-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.borrow
-[mi-bool-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_bool
-[mi-i128-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i128
-[mi-i16-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i16
-[mi-i32-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i32
-[mi-i64-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i64
-[mi-i8-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_i8
-[mi-isize-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_isize
-[mi-u128-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u128
-[mi-u16-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u16
-[mi-u32-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u32
-[mi-u64-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u64
-[mi-u8-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_u8
-[mi-usize-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.MiniInteger.html#method.const_from_usize
-[mr-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html
-[mr-b-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html#method.borrow
-[mr-cfi-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.MiniRational.html#method.const_from_integer
-[nt-0-2-cd]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedDiv.html
-[nt-0-2-ce]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.CheckedEuclid.html
-[nt-0-2-cr]: https://docs.rs/num-traits/~0.2/num_traits/ops/checked/trait.CheckedRem.html
-[nt-0-2-e]: https://docs.rs/num-traits/~0.2/num_traits/ops/euclid/trait.Euclid.html
-[smc-1-24]: https://docs.rs/rug/~1.24/rug/complex/struct.SmallComplex.html
-[smf-1-24]: https://docs.rs/rug/~1.24/rug/float/struct.SmallFloat.html
-[smi-1-24]: https://docs.rs/rug/~1.24/rug/integer/struct.SmallInteger.html
-[smr-1-24]: https://docs.rs/rug/~1.24/rug/rational/struct.SmallRational.html
-[sys-mpfr-sn-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/fn.set_nanflag.html
-[tuple]: https://doc.rust-lang.org/nightly/core/primitive.tuple.html
 
 ### Other releases
 
@@ -308,7 +159,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.24"
+rug = "1.25"
 ```
 
 Rug requires rustc version 1.65.0 or later.
@@ -345,7 +196,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.24"
+version = "1.25"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -368,7 +219,7 @@ updated to an incompatible newer version.
     [*num-integer* crate] reach version 1.0.0.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.24/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.25/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
@@ -378,22 +229,22 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.24/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.24/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.24/rug/struct.Complex.html
+[`Assign::assign`]: https://docs.rs/rug/~1.25/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.25/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.25/rug/struct.Complex.html
 [`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
-[`Float`]: https://docs.rs/rug/~1.24/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.24/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.24/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.24/rug/struct.Rational.html
+[`Float`]: https://docs.rs/rug/~1.25/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.25/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.25/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
-[`new`]: https://docs.rs/rug/~1.24/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.24/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.24/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.24/rug/struct.Integer.html#method.parse
+[`new`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.25/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.24/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.24/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.25/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.25/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
