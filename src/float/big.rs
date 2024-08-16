@@ -977,6 +977,20 @@ impl Float {
     /// float.assign(Special::Infinity);
     /// assert!(float.to_integer_exp().is_none());
     /// ```
+    ///
+    /// Going back from the returned [`Integer`] and exponent to the original
+    /// can be done by assigning the [`Integer`] and shifting to the left by the
+    /// exponent.
+    ///
+    /// ```rust
+    /// use rug::{Assign, Float};
+    /// let orig = Float::with_val(16, 6.5);
+    /// let (int, exp) = orig.to_integer_exp().unwrap();
+    /// let mut float = Float::new(16);
+    /// float.assign(&int);
+    /// float <<= exp;
+    /// assert_eq!(float, orig);
+    /// ```
     #[inline]
     pub fn to_integer_exp(&self) -> Option<(Integer, i32)> {
         if !self.is_finite() {
