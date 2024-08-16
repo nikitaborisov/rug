@@ -40,8 +40,7 @@ use crate::Integer;
 use crate::Rational;
 use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
-use core::ffi::c_char;
-use core::ffi::CStr;
+use core::ffi::{c_char, c_int, CStr};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::num::FpCategory;
@@ -2119,13 +2118,15 @@ impl Float {
     /// [Deref]: core::ops::Deref
     /// [significant bits]: Integer::significant_bits
     #[inline]
-    pub fn get_significand(&self) -> Option<BorrowInteger<'_>> {
+    pub const fn get_significand(&self) -> Option<BorrowInteger<'_>> {
         if self.is_normal() {
-            let limb_bits = prec_t::from(gmp::LIMB_BITS);
+            let limb_bits = gmp::LIMB_BITS as prec_t;
             let limbs = (self.inner.prec - 1) / limb_bits + 1;
+            let limbs_int = limbs as c_int;
+            assert!(limbs_int as prec_t == limbs, "overflow");
             let raw_int = mpz_t {
-                alloc: limbs.unwrapped_cast(),
-                size: limbs.unwrapped_cast(),
+                alloc: limbs_int,
+                size: limbs_int,
                 d: self.inner.d,
             };
             // Safety: the lifetime of the return type is equal to the lifetime of self.

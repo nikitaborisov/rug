@@ -4,6 +4,15 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.26.0 (unreleased)
+===========================
+
+  * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
+    usable in const context.
+
+[flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
+[flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
+
 Version 1.25.0 (2024-07-18)
 ===========================
 
