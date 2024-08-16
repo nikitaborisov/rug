@@ -998,7 +998,13 @@ impl Float {
         }
         let mut i = Integer::new();
         let exp = unsafe { mpfr::get_z_2exp(i.as_raw_mut(), self.as_raw()) };
-        Some((i, exp.unwrapped_cast()))
+        // Do not panic if i is zero and minimum exponent is smaller than i32::MIN.
+        let exp = if i.is_zero() {
+            exp.saturating_cast()
+        } else {
+            exp.unwrapped_cast()
+        };
+        Some((i, exp))
     }
 
     #[cfg(feature = "rational")]
