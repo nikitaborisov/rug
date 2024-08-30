@@ -651,6 +651,46 @@ impl MiniFloat {
         }
     }
 
+    #[cfg(feature = "nightly-float")]
+    /// Creates a [`MiniFloat`] from an [`f16`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f16(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f16::MANTISSA_DIGITS);
+    /// ```
+    #[inline]
+    pub const fn const_from_f16(val: f16) -> Self {
+        let (prec, sign, exp, limbs) = from_f16(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
     /// Creates a [`MiniFloat`] from an [`f32`].
     ///
     /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
@@ -714,6 +754,46 @@ impl MiniFloat {
     #[inline]
     pub const fn const_from_f64(val: f64) -> Self {
         let (prec, sign, exp, limbs) = from_f64(val);
+        MiniFloat {
+            inner: mpfr_t {
+                prec,
+                sign,
+                exp,
+                d: NonNull::dangling(),
+            },
+            limbs,
+        }
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Creates a [`MiniFloat`] from an [`f128`].
+    ///
+    /// This is equivalent to `MiniFloat::from(val)`, but can also be used in
+    /// constant context. Unless required in constant context, use the [`From`]
+    /// trait instead.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the [`From`] trait is usable in
+    /// constant context.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::float::{BorrowFloat, MiniFloat};
+    /// use rug::Float;
+    ///
+    /// const TWO_HALF_MINI: MiniFloat = MiniFloat::const_from_f128(2.5);
+    /// const TWO_HALF_BORROW: BorrowFloat = TWO_HALF_MINI.borrow();
+    /// const TWO_HALF: &Float = BorrowFloat::const_deref(&TWO_HALF_BORROW);
+    /// assert_eq!(*TWO_HALF, 2.5);
+    /// assert_eq!(TWO_HALF.prec(), f128::MANTISSA_DIGITS);
+    /// ```
+    #[inline]
+    pub const fn const_from_f128(val: f128) -> Self {
+        let (prec, sign, exp, limbs) = from_f128(val);
         MiniFloat {
             inner: mpfr_t {
                 prec,
@@ -1175,6 +1255,27 @@ macro_rules! from_float {
     };
 }
 
+#[cfg(feature = "nightly-float")]
+impl ToMini for f16 {}
+
+#[cfg(feature = "nightly-float")]
+impl SealedToMini for f16 {
+    #[inline]
+    fn copy(self, inner: &mut mpfr_t, limbs: &mut Limbs) {
+        (inner.prec, inner.sign, inner.exp, *limbs) = from_f16(self);
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+#[inline]
+const fn limbs_for_16(mant_bits: u16) -> Limbs {
+    let limb = (mant_bits as limb_t) << (limb_t::BITS - u16::BITS);
+    small_limbs![limb]
+}
+
+#[cfg(feature = "nightly-float")]
+from_float! { fn from_f16(f16); limbs_for_16(u16) }
+
 impl ToMini for f32 {}
 
 impl SealedToMini for f32 {
@@ -1214,6 +1315,38 @@ const fn limbs_for_64(mant_bits: u64) -> Limbs {
 }
 
 from_float! { fn from_f64(f64); limbs_for_64(u64) }
+
+#[cfg(feature = "nightly-float")]
+impl ToMini for f128 {}
+
+#[cfg(feature = "nightly-float")]
+impl SealedToMini for f128 {
+    #[inline]
+    fn copy(self, inner: &mut mpfr_t, limbs: &mut Limbs) {
+        (inner.prec, inner.sign, inner.exp, *limbs) = from_f128(self);
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+#[inline]
+const fn limbs_for_128(mant_bits: u128) -> Limbs {
+    #[cfg(gmp_limb_bits_64)]
+    {
+        small_limbs![mant_bits as limb_t, (mant_bits >> 64) as limb_t]
+    }
+    #[cfg(gmp_limb_bits_32)]
+    {
+        small_limbs![
+            mant_bits as limb_t,
+            (mant_bits >> 32) as limb_t,
+            (mant_bits >> 64) as limb_t,
+            (mant_bits >> 96) as limb_t
+        ]
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+from_float! { fn from_f128(f128); limbs_for_128(u128) }
 
 impl ToMini for Special {}
 
