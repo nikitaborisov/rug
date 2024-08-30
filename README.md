@@ -30,10 +30,13 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.26.0 news (unreleased)
 
-  * Bug fix: [`Complete`][c-1-26] was implemented for incomplete values produced
-    by
-    <code>[Integer][int-1-26]::{[clamp\_ref][int-cr-1-26],[invert\_ref][int-ir-1-26],[pow\_mod\_ref][int-pmr-1-26],[random\_below\_ref][int-rbr-1-26],[random\_bits][int-rb-1-26]}</code>
-    ([issue 69]).
+  * Bug fix: [`Complete`][c-1-26] was not implemented but documented for
+    incomplete values produced by the following methods ([issue 69]):
+      * <code>[Integer][int-1-26]::[clamp\_ref][int-cr-1-26]</code>,
+        <code>[Integer][int-1-26]::[invert\_ref][int-ir-1-26]</code>,
+        <code>[Integer][int-1-26]::[pow\_mod\_ref][int-pmr-1-26]</code>
+      * <code>[Integer][int-1-26]::[random\_bits][int-rb-1-26]</code>,
+        <code>[Integer][int-1-26]::[random\_below\_ref][int-rbr-1-26]</code>
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
 
