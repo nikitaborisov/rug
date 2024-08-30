@@ -16,8 +16,10 @@ Version 1.26.0 (unreleased)
         <code>[Integer][int-1-26]::[random\_below\_ref][int-rbr-1-26]</code>
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
+  * The experimental feature [`nightly-float`][feat-exp-1-26] was added.
 
 [c-1-26]: https://docs.rs/rug/latest/rug/trait.Complete.html
+[feat-exp-1-26]: https://docs.rs/rug/latest/rug/index.html#experimental-optional-features
 [flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
 [flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
 [int-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html

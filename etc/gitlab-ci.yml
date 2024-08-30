@@ -73,6 +73,18 @@ msrv-x86_64-gnulinux:
   only:
   - ci
 
+nightly-x86_64-gnulinux-float:
+  image: amd64/rust:1
+  stage: test
+  dependencies:
+  - clibs-x86_64-gnulinux
+  variables:
+    TOOLCHAIN: nightly-x86_64
+  script:
+  - cargo +$TOOLCHAIN test --features "fail-on-warnings nightly-float"
+  only:
+  - ci
+
 stable-x86_64-gnulinux-tarpaulin:
   image: amd64/rust:1
   stage: test
@@ -168,6 +180,18 @@ msrv-i686-gnulinux:
     TOOLCHAIN: $MSRV-i686
   script:
   - etc/test.sh
+  only:
+  - ci
+
+nightly-i686-gnulinux-float:
+  image: i386/rust:1
+  stage: test
+  dependencies:
+  - clibs-i686-gnulinux
+  variables:
+    TOOLCHAIN: nightly-i686
+  script:
+  - cargo +$TOOLCHAIN test --features "fail-on-warnings nightly-float"
   only:
   - ci
 

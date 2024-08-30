@@ -335,6 +335,10 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
+ 2. `nightly-float`, disabled by default. This requires the nightly compiler,
+    and implements some operations with the experimental [`f16`] and [`f128`]
+    primitives. (The plan is to always implement the operations and remove this
+    experimental feature once the primitives are stabilized.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: #incomplete-computation-values
@@ -346,6 +350,8 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
+[`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
+[`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
@@ -442,6 +448,7 @@ Ii8+PC9nPjwvZz48L2c+PC9zdmc+Cg==
 ")]
 #![doc(test(attr(deny(warnings))))]
 #![cfg_attr(feature = "fail-on-warnings", deny(warnings))]
+#![cfg_attr(feature = "nightly-float", feature(f16, f128))]
 #![warn(unsafe_op_in_unsafe_fn)]
 // allowed to deal with e.g. 1i32.into(): c_long which can be i32 or i64
 #![allow(clippy::useless_conversion)]

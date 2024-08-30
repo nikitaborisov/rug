@@ -39,8 +39,10 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
         <code>[Integer][int-1-26]::[random\_below\_ref][int-rbr-1-26]</code>
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
+  * The experimental feature [`nightly-float`][feat-exp-1-26] was added.
 
 [c-1-26]: https://docs.rs/rug/latest/rug/trait.Complete.html
+[feat-exp-1-26]: https://docs.rs/rug/latest/rug/index.html#experimental-optional-features
 [flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
 [flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
 [int-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html
@@ -240,6 +242,10 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
+ 2. `nightly-float`, disabled by default. This requires the nightly compiler,
+    and implements some operations with the experimental [`f16`] and [`f128`]
+    primitives. (The plan is to always implement the operations and remove this
+    experimental feature once the primitives are stabilized.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: https://docs.rs/rug/~1.25/rug/index.html#incomplete-computation-values
@@ -261,6 +267,8 @@ updated to an incompatible newer version.
 [`RandState`]: https://docs.rs/rug/~1.25/rug/rand/struct.RandState.html
 [`Rational`]: https://docs.rs/rug/~1.25/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
+[`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
+[`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
 [`new`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.new
 [`ops`]: https://docs.rs/rug/~1.25/rug/ops/index.html
 [`parse_radix`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.parse_radix
