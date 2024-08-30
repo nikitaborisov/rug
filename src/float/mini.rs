@@ -1545,6 +1545,42 @@ mod tests {
         assert_eq!(format!("{mini:X}"), format!("{check:X}"));
     }
 
+    #[cfg(feature = "nightly-float")]
+    #[test]
+    fn check_from_f16() {
+        let vals = [
+            0.0,
+            -0.0,
+            1.0,
+            core::f16::consts::PI,
+            f16::MIN,
+            f16::MAX,
+            f16::INFINITY,
+            f16::NEG_INFINITY,
+            f16::MIN_POSITIVE,
+            -f16::MIN_POSITIVE,
+            f16::from_bits(1),
+            -f16::from_bits(1),
+            f16::MIN_POSITIVE - f16::from_bits(1),
+            f16::from_bits(1) - f16::MIN_POSITIVE,
+        ];
+        for &val in &vals {
+            let mut mini = MiniFloat::const_from_f16(val);
+            let f = mini.borrow_excl();
+            assert_eq!(*f, val);
+            assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+            assert_eq!(f.to_f16(), val);
+        }
+        let mut mini = MiniFloat::const_from_f16(f16::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_eq!(f.is_sign_positive(), f16::NAN.is_sign_positive());
+        let mut mini = MiniFloat::const_from_f16(-f16::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_ne!(f.is_sign_positive(), f16::NAN.is_sign_positive());
+    }
+
     #[test]
     fn check_from_f32() {
         let vals = [
@@ -1557,14 +1593,18 @@ mod tests {
             f32::INFINITY,
             f32::NEG_INFINITY,
             f32::MIN_POSITIVE,
+            -f32::MIN_POSITIVE,
             f32::from_bits(1),
+            -f32::from_bits(1),
             f32::MIN_POSITIVE - f32::from_bits(1),
+            f32::from_bits(1) - f32::MIN_POSITIVE,
         ];
         for &val in &vals {
             let mut mini = MiniFloat::const_from_f32(val);
             let f = mini.borrow_excl();
             assert_eq!(*f, val);
             assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+            assert_eq!(f.to_f32(), val);
         }
         let mut mini = MiniFloat::const_from_f32(f32::NAN);
         let f = mini.borrow_excl();
@@ -1588,14 +1628,18 @@ mod tests {
             f64::INFINITY,
             f64::NEG_INFINITY,
             f64::MIN_POSITIVE,
+            -f64::MIN_POSITIVE,
             f64::from_bits(1),
+            -f64::from_bits(1),
             f64::MIN_POSITIVE - f64::from_bits(1),
+            f64::from_bits(1) - f64::MIN_POSITIVE,
         ];
         for &val in &vals {
             let mut mini = MiniFloat::const_from_f64(val);
             let f = mini.borrow_excl();
             assert_eq!(*f, val);
             assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+            assert_eq!(f.to_f64(), val);
         }
         let mut mini = MiniFloat::const_from_f64(f64::NAN);
         let f = mini.borrow_excl();
@@ -1605,6 +1649,42 @@ mod tests {
         let f = mini.borrow_excl();
         assert!(f.is_nan());
         assert_ne!(f.is_sign_positive(), f64::NAN.is_sign_positive());
+    }
+
+    #[cfg(feature = "nightly-float")]
+    #[test]
+    fn check_from_f128() {
+        let vals = [
+            0.0,
+            -0.0,
+            1.0,
+            core::f128::consts::PI,
+            f128::MIN,
+            f128::MAX,
+            f128::INFINITY,
+            f128::NEG_INFINITY,
+            f128::MIN_POSITIVE,
+            -f128::MIN_POSITIVE,
+            f128::from_bits(1),
+            -f128::from_bits(1),
+            f128::MIN_POSITIVE - f128::from_bits(1),
+            f128::from_bits(1) - f128::MIN_POSITIVE,
+        ];
+        for &val in &vals {
+            let mut mini = MiniFloat::const_from_f128(val);
+            let f = mini.borrow_excl();
+            assert_eq!(*f, val);
+            assert_eq!(f.is_sign_positive(), val.is_sign_positive());
+            assert_eq!(f.to_f128(), val);
+        }
+        let mut mini = MiniFloat::const_from_f128(f128::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_eq!(f.is_sign_positive(), f128::NAN.is_sign_positive());
+        let mut mini = MiniFloat::const_from_f128(-f128::NAN);
+        let f = mini.borrow_excl();
+        assert!(f.is_nan());
+        assert_ne!(f.is_sign_positive(), f128::NAN.is_sign_positive());
     }
 
     macro_rules! compare_conv {
