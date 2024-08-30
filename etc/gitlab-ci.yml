@@ -111,7 +111,7 @@ nightly-x86_64-gnulinux-valgrind:
   dependencies:
   - clibs-x86_64-gnulinux
   variables:
-    TOOLCHAIN: nightyly-x86_64
+    TOOLCHAIN: nightly-x86_64
     VALGRIND_OPTIONS: --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes --error-exitcode=1 --gen-suppressions=all --suppressions=etc/test_main_static.supp
     RUSTFLAGS: -C debuginfo=full -C strip=none
   script:
