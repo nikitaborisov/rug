@@ -85,7 +85,7 @@ nightly-x86_64-gnulinux-float:
   only:
   - ci
 
-stable-x86_64-gnulinux-tarpaulin:
+nightly-x86_64-gnulinux-tarpaulin:
   image: amd64/rust:1
   stage: test
   cache:
@@ -105,7 +105,7 @@ stable-x86_64-gnulinux-tarpaulin:
   only:
   - ci
 
-stable-x86_64-gnulinux-valgrind:
+nightly-x86_64-gnulinux-valgrind:
   image: amd64/rust:1
   stage: test
   dependencies:
@@ -117,9 +117,9 @@ stable-x86_64-gnulinux-valgrind:
   script:
   - apt-get update -qq && apt-get install -y -qq valgrind
   - etc/extract-doc-tests.sh
-  - cargo +$TOOLCHAIN test --features "num-traits serde" --lib
+  - cargo +$TOOLCHAIN test --features "num-traits serde nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/debug/deps/rug* | grep -v '\.d')"
-  - cargo +$TOOLCHAIN test --release --features "num-traits serde" --lib
+  - cargo +$TOOLCHAIN test --release --features "num-traits serde nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/release/deps/rug* | grep -v '\.d')"
   - etc/extract-doc-tests.sh restore
   only:
@@ -207,9 +207,9 @@ stable-i686-gnulinux-valgrind:
   script:
   - apt-get update -qq && apt-get install -y -qq valgrind
   - etc/extract-doc-tests.sh
-  - cargo +$TOOLCHAIN test --features "num-traits serde" --lib
+  - cargo +$TOOLCHAIN test --features "num-traits serde nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/debug/deps/rug* | grep -v '\.d')"
-  - cargo +$TOOLCHAIN test --release --features "num-traits serde" --lib
+  - cargo +$TOOLCHAIN test --release --features "num-traits serde nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/release/deps/rug* | grep -v '\.d')"
   - etc/extract-doc-tests.sh restore
   only:

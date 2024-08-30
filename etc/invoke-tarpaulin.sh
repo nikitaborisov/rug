@@ -32,4 +32,4 @@ else
     REQ_COV="--fail-under $1"
 fi
 EXCLUDE="--exclude-files build.rs src/ext/xmpz32.rs"
-cargo tarpaulin -v --features "num-traits serde" --ignore-tests $REQ_COV $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
+cargo tarpaulin -v --features "num-traits serde nightly-float" --ignore-tests $REQ_COV $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
