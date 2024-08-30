@@ -240,6 +240,22 @@ impl CheckedCast<usize> for &'_ Float {
     }
 }
 
+#[cfg(feature = "nightly-float")]
+impl Cast<f16> for Float {
+    #[inline]
+    fn cast(self) -> f16 {
+        (&self).cast()
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+impl Cast<f16> for &'_ Float {
+    #[inline]
+    fn cast(self) -> f16 {
+        self.to_f16_round(Round::Nearest)
+    }
+}
+
 impl Cast<f32> for Float {
     #[inline]
     fn cast(self) -> f32 {
@@ -265,6 +281,22 @@ impl Cast<f64> for &'_ Float {
     #[inline]
     fn cast(self) -> f64 {
         self.to_f64_round(Round::Nearest)
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+impl Cast<f128> for Float {
+    #[inline]
+    fn cast(self) -> f128 {
+        (&self).cast()
+    }
+}
+
+#[cfg(feature = "nightly-float")]
+impl Cast<f128> for &'_ Float {
+    #[inline]
+    fn cast(self) -> f128 {
+        self.to_f128_round(Round::Nearest)
     }
 }
 

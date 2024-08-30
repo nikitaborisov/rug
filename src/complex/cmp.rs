@@ -103,6 +103,8 @@ macro_rules! eq_re {
         eq_re_im! { $Re; i8 i16 i32 i64 i128 isize }
         eq_re_im! { $Re; u8 u16 u32 u64 u128 usize }
         eq_re_im! { $Re; f32 f64 }
+        #[cfg(feature = "nightly-float")]
+        eq_re_im! { $Re; f16 f128 }
     )* };
 }
 
@@ -114,6 +116,8 @@ eq_re! { Float Special }
 eq_re! { i8 i16 i32 i64 i128 isize }
 eq_re! { u8 u16 u32 u64 u128 usize }
 eq_re! { f32 f64 }
+#[cfg(feature = "nightly-float")]
+eq_re! { f16 f128 }
 
 #[cfg(test)]
 mod tests {
