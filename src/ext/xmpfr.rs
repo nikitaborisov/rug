@@ -510,6 +510,19 @@ unsafe_wrap! { fn shr_isize(op1: O; op2: isize) -> div_2isize }
 unsafe_wrap! { fn shl_usize(op1: O; op2: usize) -> mul_2usize }
 unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> div_2usize }
 
+#[cfg(feature = "nightly-float")]
+#[inline]
+pub fn set_f16(rop: &mut Float, src: f16, rnd: Round) -> Ordering {
+    set_f64(rop, src.into(), rnd)
+}
+
+#[cfg(feature = "nightly-float")]
+#[inline]
+pub fn set_f128(rop: &mut Float, src: f128, rnd: Round) -> Ordering {
+    let mut small = MiniFloat::from(src);
+    set(rop, small.borrow_excl(), rnd)
+}
+
 #[inline]
 unsafe fn mul_2isize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: isize, rnd: rnd_t) -> c_int {
     let op2 = op2.unwrapped_cast();

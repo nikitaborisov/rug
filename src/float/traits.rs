@@ -340,8 +340,12 @@ conv_ops_cast! { usize, u32 }
 #[cfg(target_pointer_width = "64")]
 conv_ops_cast! { usize, u64 }
 
+#[cfg(feature = "nightly-float")]
+conv_ops! { f16, xmpfr::set_f16 }
 conv_ops! { f32, xmpfr::set_f32 }
 conv_ops! { f64, xmpfr::set_f64 }
+#[cfg(feature = "nightly-float")]
+conv_ops! { f128, xmpfr::set_f128 }
 
 #[cfg(feature = "rational")]
 impl TryFrom<Float> for Rational {
