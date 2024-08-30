@@ -211,8 +211,22 @@ cmp_i! { usize, |f, t| xmpfr::cmp_ui(f, (*t).cast()) }
 #[cfg(target_pointer_width = "64")]
 cmp_i! { usize, |f, t| xmpfr::cmp_u64(f, (*t).cast()) }
 
+#[cfg(feature = "nightly-float")]
+cmp_f! { f16, |f, t| xmpfr::cmp_f64(f, (*t).into()) }
 cmp_f! { f32, |f, t| xmpfr::cmp_f64(f, (*t).into()) }
 cmp_f! { f64, |f, t| xmpfr::cmp_f64(f, *t) }
+
+#[cfg(feature = "nightly-float")]
+cmp! { f128 }
+
+#[cfg(feature = "nightly-float")]
+impl PartialOrd<f128> for Float {
+    #[inline]
+    fn partial_cmp(&self, o: &f128) -> Option<Ordering> {
+        let mut small = MiniFloat::from(*o);
+        PartialOrd::partial_cmp(self, small.borrow_excl())
+    }
+}
 
 cmp! { Special }
 
