@@ -95,7 +95,7 @@ nightly-x86_64-gnulinux-tarpaulin:
   dependencies:
   - clibs-x86_64-gnulinux
   variables:
-    TOOLCHAIN: stable-x86_64
+    TOOLCHAIN: nightly-x86_64
     REQ_COVERAGE: "79.0"
   script:
   - cargo install --version 0.30.0 --locked cargo-tarpaulin
@@ -111,7 +111,7 @@ nightly-x86_64-gnulinux-valgrind:
   dependencies:
   - clibs-x86_64-gnulinux
   variables:
-    TOOLCHAIN: stable-x86_64
+    TOOLCHAIN: nightyly-x86_64
     VALGRIND_OPTIONS: --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes --error-exitcode=1 --gen-suppressions=all --suppressions=etc/test_main_static.supp
     RUSTFLAGS: -C debuginfo=full -C strip=none
   script:
@@ -195,13 +195,13 @@ nightly-i686-gnulinux-float:
   only:
   - ci
 
-stable-i686-gnulinux-valgrind:
+nightly-i686-gnulinux-valgrind:
   image: i386/rust:1
   stage: test
   dependencies:
   - clibs-i686-gnulinux
   variables:
-    TOOLCHAIN: stable-i686
+    TOOLCHAIN: nightly-i686
     VALGRIND_OPTIONS: --leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --track-origins=yes --error-exitcode=1 --gen-suppressions=all --suppressions=etc/test_main_static.supp --suppressions=etc/i686_mpz_powm_sec.supp
     RUSTFLAGS: -C debuginfo=full -C strip=none
   script:
