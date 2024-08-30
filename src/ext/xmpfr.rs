@@ -798,6 +798,7 @@ pub fn get_f128(op: &Float, rnd: Round) -> f128 {
     // Normal. MANTISSA_DIGITS significant digits.
     let mant = {
         let data = small_mut.inner_data();
+        #[cfg(gmp_limb_bits_64)]
         {
             ((data[1] as u128) << 64) | (data[0] as u128)
         }
