@@ -40,7 +40,9 @@ use crate::Integer;
 use crate::Rational;
 use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
-use core::ffi::{c_char, c_int, CStr};
+#[cfg(feature = "integer")]
+use core::ffi::c_int;
+use core::ffi::{c_char, CStr};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::num::FpCategory;
