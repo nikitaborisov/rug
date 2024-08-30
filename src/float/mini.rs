@@ -1113,6 +1113,68 @@ const fn from_usize(val: usize) -> (prec_t, c_int, exp_t, Limbs) {
     from_u64(val as u64)
 }
 
+macro_rules! from_float {
+    (fn $method:ident($Float:ident); $limbs_for:ident($Uns:ident)) => {
+        const fn $method(val: $Float) -> (prec_t, c_int, exp_t, Limbs) {
+            const SIGN_MASK: $Uns = 1 << ($Uns::BITS - 1);
+            const IMPLICIT: $Uns = 1 << ($Float::MANTISSA_DIGITS - 1);
+            const MANT_MASK: $Uns = IMPLICIT - 1;
+            const EXP_MASK: $Uns = !(SIGN_MASK | MANT_MASK);
+
+            let val: $Uns = unsafe { mem::transmute(val) };
+            let prec = $Float::MANTISSA_DIGITS as prec_t;
+            let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
+            let exp_bits = val & EXP_MASK;
+            let mant_bits = val & MANT_MASK;
+            match exp_bits {
+                0 => {
+                    if mant_bits == 0 {
+                        // zero
+
+                        (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
+                    } else {
+                        // subnormal
+
+                        // If val is equal to MANT_MASK, we have max subnormal.
+                        // Minimum normal is 10000... with MIN_EXP.
+                        // Maximum subnormal is 01111... with MIN_EXP.
+                        // So for maximum subnormal, we need exp to be MIN_EXP - 1.
+                        // For every other leading zero, we need exp to be smaller by 1.
+                        const MAX_SUBNORMAL_LEADING: u32 = MANT_MASK.leading_zeros();
+                        let leading = mant_bits.leading_zeros();
+                        let exp = $Float::MIN_EXP as exp_t
+                            - 1
+                            - (leading - MAX_SUBNORMAL_LEADING) as exp_t;
+                        let shifted = mant_bits << leading;
+                        (prec, sign, exp, $limbs_for(shifted))
+                    }
+                }
+                EXP_MASK => {
+                    if mant_bits == 0 {
+                        // inf
+
+                        (prec, sign, xmpfr::EXP_INF, small_limbs![])
+                    } else {
+                        // NaN
+
+                        (prec, sign, xmpfr::EXP_NAN, small_limbs![])
+                    }
+                }
+                _ => {
+                    // normal
+
+                    // When biased_exp is 1, we want exp to be MIN_EXP.
+                    let biased_exp = (exp_bits >> (prec - 1)) as exp_t;
+                    let exp = biased_exp - 1 + $Float::MIN_EXP as exp_t;
+                    let with_implicit = mant_bits | IMPLICIT;
+                    let shifted = with_implicit << ($Uns::BITS - $Float::MANTISSA_DIGITS);
+                    (prec, sign, exp, $limbs_for(shifted))
+                }
+            }
+        }
+    };
+}
+
 impl ToMini for f32 {}
 
 impl SealedToMini for f32 {
@@ -1122,63 +1184,13 @@ impl SealedToMini for f32 {
     }
 }
 
-const fn from_f32(val: f32) -> (prec_t, c_int, exp_t, Limbs) {
-    const SIGN_MASK: u32 = 1 << (u32::BITS - 1);
-    const IMPLICIT: u32 = 1 << (f32::MANTISSA_DIGITS - 1);
-    const MANT_MASK: u32 = IMPLICIT - 1;
-    const EXP_MASK: u32 = !(SIGN_MASK | MANT_MASK);
-
-    let val: u32 = unsafe { mem::transmute(val) };
-    let prec = f32::MANTISSA_DIGITS as prec_t;
-    let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
-    let exp_bits = val & EXP_MASK;
-    let mant_bits = val & MANT_MASK;
-    match exp_bits {
-        0 => {
-            if mant_bits == 0 {
-                // zero
-
-                (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
-            } else {
-                // subnormal
-
-                // If val is equal to MANT_MASK, we have max subnormal.
-                // Minimum normal is 10000... with MIN_EXP.
-                // Maximum subnormal is 01111... with MIN_EXP.
-                // So for maximum subnormal, we need exp to be MIN_EXP - 1.
-                // For every other leading zero, we need exp to be smaller by 1.
-                const MAX_SUBNORMAL_LEADING: u32 = MANT_MASK.leading_zeros();
-                let leading = mant_bits.leading_zeros();
-                let exp = f32::MIN_EXP as exp_t - 1 - (leading - MAX_SUBNORMAL_LEADING) as exp_t;
-                let shifted = mant_bits << leading;
-                let limb = (shifted as limb_t) << (limb_t::BITS - u32::BITS);
-                (prec, sign, exp, small_limbs![limb])
-            }
-        }
-        EXP_MASK => {
-            if mant_bits == 0 {
-                // inf
-
-                (prec, sign, xmpfr::EXP_INF, small_limbs![])
-            } else {
-                // NaN
-
-                (prec, sign, xmpfr::EXP_NAN, small_limbs![])
-            }
-        }
-        _ => {
-            // normal
-
-            // When biased_exp is 1, we want exp to be MIN_EXP.
-            let biased_exp = (exp_bits >> (prec - 1)) as exp_t;
-            let exp = biased_exp - 1 + f32::MIN_EXP as exp_t;
-            let with_implicit = mant_bits | IMPLICIT;
-            let shifted = with_implicit << (u32::BITS - f32::MANTISSA_DIGITS);
-            let limb = (shifted as limb_t) << (limb_t::BITS - u32::BITS);
-            (prec, sign, exp, small_limbs![limb])
-        }
-    }
+#[inline]
+const fn limbs_for_32(mant_bits: u32) -> Limbs {
+    let limb = (mant_bits as limb_t) << (limb_t::BITS - u32::BITS);
+    small_limbs![limb]
 }
+
+from_float! { fn from_f32(f32); limbs_for_32(u32) }
 
 impl ToMini for f64 {}
 
@@ -1189,85 +1201,19 @@ impl SealedToMini for f64 {
     }
 }
 
-const fn from_f64(val: f64) -> (prec_t, c_int, exp_t, Limbs) {
-    const SIGN_MASK: u64 = 1 << (u64::BITS - 1);
-    const IMPLICIT: u64 = 1 << (f64::MANTISSA_DIGITS - 1);
-    const MANT_MASK: u64 = IMPLICIT - 1;
-    const EXP_MASK: u64 = !(SIGN_MASK | MANT_MASK);
-
-    let val: u64 = unsafe { mem::transmute(val) };
-    let prec = f64::MANTISSA_DIGITS as prec_t;
-    let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
-    let exp_bits = val & EXP_MASK;
-    let mant_bits = val & MANT_MASK;
-    match exp_bits {
-        0 => {
-            if mant_bits == 0 {
-                // zero
-
-                (prec, sign, xmpfr::EXP_ZERO, small_limbs![])
-            } else {
-                // subnormal
-
-                // If val is equal to MANT_MASK, we have max subnormal.
-                // Minimum normal is 10000... with MIN_EXP.
-                // Maximum subnormal is 01111... with MIN_EXP.
-                // So for maximum subnormal, we need exp to be MIN_EXP - 1.
-                // For every other leading zero, we need exp to be smaller by 1.
-                const MAX_SUBNORMAL_LEADING: u32 = MANT_MASK.leading_zeros();
-                let leading = mant_bits.leading_zeros();
-                let exp = f64::MIN_EXP as exp_t - 1 - (leading - MAX_SUBNORMAL_LEADING) as exp_t;
-                let shifted = mant_bits << leading;
-                #[cfg(gmp_limb_bits_64)]
-                {
-                    (prec, sign, exp, small_limbs![shifted])
-                }
-                #[cfg(gmp_limb_bits_32)]
-                {
-                    (
-                        prec,
-                        sign,
-                        exp,
-                        small_limbs![shifted as limb_t, (shifted >> 32) as limb_t],
-                    )
-                }
-            }
-        }
-        EXP_MASK => {
-            if mant_bits == 0 {
-                // inf
-
-                (prec, sign, xmpfr::EXP_INF, small_limbs![])
-            } else {
-                // NaN
-
-                (prec, sign, xmpfr::EXP_NAN, small_limbs![])
-            }
-        }
-        _ => {
-            // normal
-
-            // When biased_exp is 1, we want exp to be MIN_EXP.
-            let biased_exp = (exp_bits >> (prec - 1)) as exp_t;
-            let exp = biased_exp - 1 + f64::MIN_EXP as exp_t;
-            let with_implicit = mant_bits | IMPLICIT;
-            let shifted = with_implicit << (u64::BITS - f64::MANTISSA_DIGITS);
-            #[cfg(gmp_limb_bits_64)]
-            {
-                (prec, sign, exp, small_limbs![shifted])
-            }
-            #[cfg(gmp_limb_bits_32)]
-            {
-                (
-                    prec,
-                    sign,
-                    exp,
-                    small_limbs![shifted as limb_t, (shifted >> 32) as limb_t],
-                )
-            }
-        }
+#[inline]
+const fn limbs_for_64(mant_bits: u64) -> Limbs {
+    #[cfg(gmp_limb_bits_64)]
+    {
+        small_limbs![mant_bits]
+    }
+    #[cfg(gmp_limb_bits_32)]
+    {
+        small_limbs![mant_bits as limb_t, (mant_bits >> 32) as limb_t]
     }
 }
+
+from_float! { fn from_f64(f64); limbs_for_64(u64) }
 
 impl ToMini for Special {}
 
