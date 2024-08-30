@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.26.0 (unreleased)
+Version 1.26.0 (2024-08-30)
 ===========================
 
   * Bug fix: [`Complete`][c-1-26] was not implemented but documented for
@@ -16,18 +16,20 @@ Version 1.26.0 (unreleased)
         <code>[Integer][int-1-26]::[random\_below\_ref][int-rbr-1-26]</code>
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
-  * The experimental feature [`nightly-float`][feat-exp-1-26] was added.
+  * The experimental feature [`nightly-float`][feat-exp-1-26] was added ([issue
+    68]).
 
-[c-1-26]: https://docs.rs/rug/latest/rug/trait.Complete.html
-[feat-exp-1-26]: https://docs.rs/rug/latest/rug/index.html#experimental-optional-features
-[flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
-[flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
-[int-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html
-[int-cr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.clamp_ref
-[int-ir-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.invert_ref
-[int-pmr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.pow_mod_ref
-[int-rb-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_bits
-[int-rbr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_below_ref
+[c-1-26]: https://docs.rs/rug/~1.26/rug/trait.Complete.html
+[feat-exp-1-26]: https://docs.rs/rug/~1.26/rug/index.html#experimental-optional-features
+[flo-1-26]: https://docs.rs/rug/~1.26/rug/struct.Float.html
+[flo-gs-1-26]: https://docs.rs/rug/~1.26/rug/struct.Float.html#method.get_significand
+[int-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html
+[int-cr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.clamp_ref
+[int-ir-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.invert_ref
+[int-pmr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.pow_mod_ref
+[int-rb-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.random_bits
+[int-rbr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.random_below_ref
+[issue 68]: https://gitlab.com/tspiteri/rug/-/issues/68
 [issue 69]: https://gitlab.com/tspiteri/rug/-/issues/69
 
 Version 1.25.0 (2024-07-18)

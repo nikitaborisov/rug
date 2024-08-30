@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.26.0 news (unreleased)
+### Version 1.26.0 news (2024-08-30)
 
   * Bug fix: [`Complete`][c-1-26] was not implemented but documented for
     incomplete values produced by the following methods ([issue 69]):
@@ -39,60 +39,21 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
         <code>[Integer][int-1-26]::[random\_below\_ref][int-rbr-1-26]</code>
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
-  * The experimental feature [`nightly-float`][feat-exp-1-26] was added.
+  * The experimental feature [`nightly-float`][feat-exp-1-26] was added ([issue
+    68]).
 
-[c-1-26]: https://docs.rs/rug/latest/rug/trait.Complete.html
-[feat-exp-1-26]: https://docs.rs/rug/latest/rug/index.html#experimental-optional-features
-[flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
-[flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
-[int-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html
-[int-cr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.clamp_ref
-[int-ir-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.invert_ref
-[int-pmr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.pow_mod_ref
-[int-rb-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_bits
-[int-rbr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_below_ref
+[c-1-26]: https://docs.rs/rug/~1.26/rug/trait.Complete.html
+[feat-exp-1-26]: https://docs.rs/rug/~1.26/rug/index.html#experimental-optional-features
+[flo-1-26]: https://docs.rs/rug/~1.26/rug/struct.Float.html
+[flo-gs-1-26]: https://docs.rs/rug/~1.26/rug/struct.Float.html#method.get_significand
+[int-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html
+[int-cr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.clamp_ref
+[int-ir-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.invert_ref
+[int-pmr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.pow_mod_ref
+[int-rb-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.random_bits
+[int-rbr-1-26]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.random_below_ref
+[issue 68]: https://gitlab.com/tspiteri/rug/-/issues/68
 [issue 69]: https://gitlab.com/tspiteri/rug/-/issues/69
-
-### Version 1.25.0 news (2024-07-18)
-
-  * The following functions were added:
-     * <code>[float][flom-1-25]::[prec\_min\_64][flom-pmin-1-25]</code>,
-       <code>[float][flom-1-25]::[prec\_max\_64][flom-pmax-1-25]</code>
-  * The <code>[complex][comm-1-25]::[Prec64][comm-p-1-25]</code> trait was
-    added.
-  * The following methods were added:
-     * <code>[Float][flo-1-25]::[new\_64][flo-n-1-25]</code>,
-       <code>[Float][flo-1-25]::[with\_val\_64][flo-wv-1-25]</code>,
-       <code>[Float][flo-1-25]::[with\_val\_round\_64][flo-wvr-1-25]</code>
-     * <code>[Float][flo-1-25]::[prec\_64][flo-p-1-25]</code>,
-       <code>[Float][flo-1-25]::[set\_prec\_64][flo-sp-1-25]</code>,
-       <code>[Float][flo-1-25]::[set\_prec\_round\_64][flo-spr-1-25]</code>
-     * <code>[Complex][com-1-25]::[new\_64][com-n-1-25]</code>,
-       <code>[Complex][com-1-25]::[with\_val\_64][com-wv-1-25]</code>,
-       <code>[Complex][com-1-25]::[with\_val\_round\_64][com-wvr-1-25]</code>
-     * <code>[Complex][com-1-25]::[prec\_64][com-p-1-25]</code>,
-       <code>[Complex][com-1-25]::[set\_prec\_64][com-sp-1-25]</code>,
-       <code>[Complex][com-1-25]::[set\_prec\_round\_64][com-spr-1-25]</code>
-
-[com-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html
-[com-n-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.new_64
-[com-p-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.prec_64
-[com-sp-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.set_prec_64
-[com-spr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.set_prec_round_64
-[com-wv-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.with_val_64
-[com-wvr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Complex.html#method.with_val_round_64
-[comm-1-25]: https://docs.rs/rug/~1.25/rug/complex/index.html
-[comm-p-1-25]: https://docs.rs/rug/~1.25/rug/complex/trait.Prec64.html
-[flo-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html
-[flo-n-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.new_64
-[flo-p-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.prec_64
-[flo-sp-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.set_prec_64
-[flo-spr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.set_prec_round_64
-[flo-wv-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.with_val_64
-[flo-wvr-1-25]: https://docs.rs/rug/~1.25/rug/struct.Float.html#method.with_val_round_64
-[flom-1-25]: https://docs.rs/rug/~1.25/rug/float/index.html
-[flom-pmax-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_max_64.html
-[flom-pmin-1-25]: https://docs.rs/rug/~1.25/rug/float/fn.prec_min_64.html
 
 ### Other releases
 
@@ -184,7 +145,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.25"
+rug = "1.26"
 ```
 
 Rug requires rustc version 1.65.0 or later.
@@ -221,7 +182,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.25"
+version = "1.26"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -248,7 +209,7 @@ updated to an incompatible newer version.
     experimental feature once the primitives are stabilized.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.25/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.26/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
@@ -258,24 +219,24 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.25/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.25/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.25/rug/struct.Complex.html
+[`Assign::assign`]: https://docs.rs/rug/~1.26/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.26/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.26/rug/struct.Complex.html
 [`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
-[`Float`]: https://docs.rs/rug/~1.25/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.25/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.25/rug/struct.Rational.html
+[`Float`]: https://docs.rs/rug/~1.26/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.26/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.26/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.26/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
 [`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
 [`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
-[`new`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.25/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.25/rug/struct.Integer.html#method.parse
+[`new`]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.26/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.26/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.25/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.25/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.26/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.26/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
