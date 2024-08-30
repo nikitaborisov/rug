@@ -597,3 +597,22 @@ fn check_shrink() {
     i.shrink_to_fit();
     assert_eq!(i.capacity(), 0);
 }
+
+#[test]
+fn incomplete_issue_69() {
+    let two = Integer::from(2);
+
+    assert_eq!(two.clamp_ref(Integer::NEG_ONE, Integer::ONE).complete(), 1);
+    assert_eq!(Integer::ONE.invert_ref(&two).unwrap().complete(), 1);
+    assert_eq!(two.pow_mod_ref(Integer::ONE, &two).unwrap().complete(), 0);
+}
+
+#[cfg(feature = "rand")]
+#[test]
+fn incomplete_issue_69_rand() {
+    use crate::rand::RandState;
+
+    let mut rng = RandState::new();
+    assert_eq!(Integer::ONE.random_below_ref(&mut rng).complete(), 0);
+    assert_eq!(Integer::random_bits(0, &mut rng).complete(), 0);
+}
