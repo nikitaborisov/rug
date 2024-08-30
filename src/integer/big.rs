@@ -6118,6 +6118,17 @@ where
     }
 }
 
+impl<Min, Max> Complete for ClampIncomplete<'_, '_, '_, Min, Max>
+where
+    Integer: PartialOrd<Min> + PartialOrd<Max> + for<'a> Assign<&'a Min> + for<'a> Assign<&'a Max>,
+{
+    type Completed = Integer;
+    #[inline]
+    fn complete(self) -> Integer {
+        Integer::from(self)
+    }
+}
+
 ref_math_op1! { Integer; xmpz::fdiv_r_2exp; struct KeepBitsIncomplete { n: bitcnt_t } }
 ref_math_op1! { Integer; xmpz::keep_signed_bits; struct KeepSignedBitsIncomplete { n: bitcnt_t } }
 ref_math_op1! { Integer; xmpz::next_pow_of_two; struct NextPowerOfTwoIncomplete {} }
@@ -6173,6 +6184,14 @@ impl From<PowModIncomplete<'_>> for Integer {
             }
             _ => unreachable!(),
         }
+    }
+}
+
+impl Complete for PowModIncomplete<'_> {
+    type Completed = Integer;
+    #[inline]
+    fn complete(self) -> Integer {
+        Integer::from(self)
     }
 }
 
@@ -6284,6 +6303,14 @@ impl From<InvertIncomplete<'_>> for Integer {
     }
 }
 
+impl Complete for InvertIncomplete<'_> {
+    type Completed = Integer;
+    #[inline]
+    fn complete(self) -> Integer {
+        Integer::from(self)
+    }
+}
+
 #[derive(Debug)]
 pub struct RemoveFactorIncomplete<'a> {
     ref_self: &'a Integer,
@@ -6332,14 +6359,7 @@ impl Assign<RandomBitsIncomplete<'_>> for Integer {
 }
 
 #[cfg(feature = "rand")]
-impl From<RandomBitsIncomplete<'_>> for Integer {
-    #[inline]
-    fn from(src: RandomBitsIncomplete) -> Self {
-        let mut dst = Integer::new();
-        dst.assign(src);
-        dst
-    }
-}
+from_assign! { RandomBitsIncomplete<'_> => Integer }
 
 #[cfg(feature = "rand")]
 pub struct RandomBelowIncomplete<'a> {
@@ -6356,14 +6376,7 @@ impl Assign<RandomBelowIncomplete<'_>> for Integer {
 }
 
 #[cfg(feature = "rand")]
-impl From<RandomBelowIncomplete<'_>> for Integer {
-    #[inline]
-    fn from(src: RandomBelowIncomplete) -> Self {
-        let mut dst = Integer::new();
-        dst.assign(src);
-        dst
-    }
-}
+from_assign! { RandomBelowIncomplete<'_> => Integer }
 
 pub(crate) fn req_chars(i: &Integer, radix: i32, extra: usize) -> usize {
     assert!((2..=36).contains(&radix), "radix out of range");

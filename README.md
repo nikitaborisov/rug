@@ -30,11 +30,23 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.26.0 news (unreleased)
 
+  * Bug fix: [`Complete`][c-1-26] was implemented for incomplete values produced
+    by
+    <code>[Integer][int-1-26]::{[clamp\_ref][int-cr-1-26],[invert\_ref][int-ir-1-26],[pow\_mod\_ref][int-pmr-1-26],[random\_below\_ref][int-rbr-1-26],[random\_bits][int-rb-1-26]}</code>
+    ([issue 69]).
   * <code>[Float][flo-1-26]::[get\_significand][flo-gs-1-26]</code> is now
     usable in const context.
 
+[c-1-26]: https://docs.rs/rug/latest/rug/trait.Complete.html
 [flo-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html
 [flo-gs-1-26]: https://docs.rs/rug/latest/rug/struct.Float.html#method.get_significand
+[int-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html
+[int-cr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.clamp_ref
+[int-ir-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.invert_ref
+[int-pmr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.pow_mod_ref
+[int-rb-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_bits
+[int-rbr-1-26]: https://docs.rs/rug/latest/rug/struct.Integer.html#method.random_below_ref
+[issue 69]: https://gitlab.com/tspiteri/rug/-/issues/69
 
 ### Version 1.25.0 news (2024-07-18)
 
