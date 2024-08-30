@@ -823,7 +823,8 @@ pub fn get_f64_2exp(op: &Float, rnd: Round) -> (f64, c_long) {
     unsafe {
         let mut exp = MaybeUninit::uninit();
         let f = mpfr::get_d_2exp(exp.as_mut_ptr(), op.as_raw(), raw_round(rnd));
-        (f, exp.assume_init())
+        let exp = if f.is_normal() { exp.assume_init() } else { 0 };
+        (f, exp)
     }
 }
 
