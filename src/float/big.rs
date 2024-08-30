@@ -1325,6 +1325,71 @@ impl Float {
         xmpfr::get_f128(self, round)
     }
 
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f16`] and an exponent, rounding to the nearest.
+    ///
+    /// The returned [`f16`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::Float;
+    /// let zero = Float::new(64);
+    /// let (d0, exp0) = zero.to_f16_exp();
+    /// assert_eq!((d0, exp0), (0.0, 0));
+    /// let three_eighths = Float::with_val(64, 0.375);
+    /// let (d3_8, exp3_8) = three_eighths.to_f16_exp();
+    /// assert_eq!((d3_8, exp3_8), (0.75, -1));
+    /// ```
+    #[inline]
+    pub fn to_f16_exp(&self) -> (f16, i32) {
+        self.to_f16_exp_round(Round::Nearest)
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f16`] and an exponent, applying the specified rounding
+    /// method.
+    ///
+    /// The returned [`f16`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// let frac_10_3 = Float::with_val(64, 10) / 3u32;
+    /// let (f_down, exp_down) = frac_10_3.to_f16_exp_round(Round::Down);
+    /// assert_eq!((f_down, exp_down), (0.833, 2));
+    /// let (f_up, exp_up) = frac_10_3.to_f16_exp_round(Round::Up);
+    /// assert_eq!((f_up, exp_up), (0.8335, 2));
+    /// ```
+    #[inline]
+    pub fn to_f16_exp_round(&self, round: Round) -> (f16, i32) {
+        const ZERO: MiniFloat = MiniFloat::const_from_f16(0.0);
+        let mut small = ZERO;
+        // Safety: xmpfr::set will not change precision of sf, so we
+        // can use the unsafe as_nonreallocating_float function.
+        let exp;
+        unsafe {
+            xmpfr::set(small.as_nonreallocating_float(), self, round);
+            exp = small.borrow_excl().get_exp().unwrap_or(0);
+            if exp != 0 {
+                *small.as_nonreallocating_float() >>= exp;
+            }
+        }
+        (small.borrow_excl().to_f16(), exp)
+    }
+
     /// Converts to an [`f32`] and an exponent, rounding to the nearest.
     ///
     /// The returned [`f32`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
@@ -1369,15 +1434,19 @@ impl Float {
     /// ```
     #[inline]
     pub fn to_f32_exp_round(&self, round: Round) -> (f32, i32) {
-        let mut sf = MiniFloat::from(0.0f32);
-        assert_eq!(sf.borrow_excl().prec(), 24);
+        const ZERO: MiniFloat = MiniFloat::const_from_f32(0.0);
+        let mut small = ZERO;
         // Safety: xmpfr::set will not change precision of sf, so we
         // can use the unsafe as_nonreallocating_float function.
+        let exp;
         unsafe {
-            xmpfr::set(sf.as_nonreallocating_float(), self, round);
+            xmpfr::set(small.as_nonreallocating_float(), self, round);
+            exp = small.borrow_excl().get_exp().unwrap_or(0);
+            if exp != 0 {
+                *small.as_nonreallocating_float() >>= exp;
+            }
         }
-        let (f, exp) = xmpfr::get_f64_2exp(sf.borrow_excl(), Round::Zero);
-        (f as f32, exp.unwrapped_cast())
+        (small.borrow_excl().to_f32(), exp)
     }
 
     /// Converts to an [`f64`] and an exponent, rounding to the nearest.
@@ -1426,6 +1495,71 @@ impl Float {
     pub fn to_f64_exp_round(&self, round: Round) -> (f64, i32) {
         let (f, exp) = xmpfr::get_f64_2exp(self, round);
         (f, exp.unwrapped_cast())
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f128`] and an exponent, rounding to the nearest.
+    ///
+    /// The returned [`f128`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::Float;
+    /// let zero = Float::new(64);
+    /// let (d0, exp0) = zero.to_f128_exp();
+    /// assert_eq!((d0, exp0), (0.0, 0));
+    /// let three_eighths = Float::with_val(64, 0.375);
+    /// let (d3_8, exp3_8) = three_eighths.to_f128_exp();
+    /// assert_eq!((d3_8, exp3_8), (0.75, -1));
+    /// ```
+    #[inline]
+    pub fn to_f128_exp(&self) -> (f128, i32) {
+        self.to_f128_exp_round(Round::Nearest)
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f128`] and an exponent, applying the specified rounding
+    /// method.
+    ///
+    /// The returned [`f128`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// let frac_10_3 = Float::with_val(128, 10) / 3u32;
+    /// let (f_down, exp_down) = frac_10_3.to_f128_exp_round(Round::Down);
+    /// assert_eq!((f_down, exp_down), (0.8333333333333333333333333333333333, 2));
+    /// let (f_up, exp_up) = frac_10_3.to_f128_exp_round(Round::Up);
+    /// assert_eq!((f_up, exp_up), (0.8333333333333333333333333333333334, 2));
+    /// ```
+    #[inline]
+    pub fn to_f128_exp_round(&self, round: Round) -> (f128, i32) {
+        const ZERO: MiniFloat = MiniFloat::const_from_f128(0.0);
+        let mut small = ZERO;
+        // Safety: xmpfr::set will not change precision of sf, so we
+        // can use the unsafe as_nonreallocating_float function.
+        let exp;
+        unsafe {
+            xmpfr::set(small.as_nonreallocating_float(), self, round);
+            exp = small.borrow_excl().get_exp().unwrap_or(0);
+            if exp != 0 {
+                *small.as_nonreallocating_float() >>= exp;
+            }
+        }
+        (small.borrow_excl().to_f128(), exp)
     }
 
     /// Returns a string representation of `self` for the specified `radix`
