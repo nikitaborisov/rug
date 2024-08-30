@@ -660,6 +660,68 @@ pub const fn get_exp(op: &Float) -> exp_t {
     unsafe { mpfr::get_exp(op.as_raw()) }
 }
 
+#[cfg(feature = "nightly-float")]
+pub fn get_f16(op: &Float, rnd: Round) -> f16 {
+    const ZERO: MiniFloat = MiniFloat::const_from_f16(0.0);
+    let mut small = ZERO;
+    // SAFETY: we are not going to change precision.
+    let small_mut = unsafe { small.as_nonreallocating_float() };
+    let ordering = set(small_mut, op, rnd);
+    let negative = small_mut.is_sign_negative();
+    if small_mut.is_nan() {
+        let n = f16::NAN;
+        return if negative == n.is_sign_negative() {
+            n
+        } else {
+            -n
+        };
+    }
+    if small_mut.is_infinite() {
+        return if negative {
+            f16::NEG_INFINITY
+        } else {
+            f16::INFINITY
+        };
+    }
+    if small_mut.is_zero() {
+        return if negative { -0.0 } else { 0.0 };
+    }
+    let exp = small_mut.get_exp().expect("expected exponent");
+    if exp > f16::MAX_EXP {
+        return if negative {
+            f16::NEG_INFINITY
+        } else {
+            f16::INFINITY
+        };
+    }
+    let sign = if negative { 1u16 << 15 } else { 0 };
+    if exp < f16::MIN_EXP {
+        // Subnormal.
+        small_mut.subnormalize_round(f16::MIN_EXP, ordering, rnd);
+
+        // The number of significant bits is MANTISSA_DIGITS - (MIN_EXP - exp).
+        // For example, if we are just subnormal; then exp == MIN_EXP - 1, and
+        // we should have MANTISSA_DIGITS - 1 significant bits.
+        let diff = f16::MIN_EXP.abs_diff(exp);
+        if diff >= f16::MANTISSA_DIGITS {
+            return if negative { -0.0 } else { 0.0 };
+        }
+        let nsig = f16::MANTISSA_DIGITS - diff;
+        let mant = (small_mut.inner_data()[0] >> (limb_t::BITS - nsig)) as u16;
+
+        return f16::from_bits(sign | mant);
+    }
+    // Normal. MANTISSA_DIGITS significant digits.
+    let mant = (small_mut.inner_data()[0] >> (limb_t::BITS - f16::MANTISSA_DIGITS)) as u16;
+    // This includes the implicit one, which acts as 1 in the exponent.
+    // So we need to add (bias - 1) instead of bias to the exponent.
+    // For example, if exp == MIN_EXP, we need to add 0, since the biased
+    // exponent should be 1 for the smallest normal number.
+    let biased_minus_1 = (exp - f16::MIN_EXP) as u16;
+    let exp_mant = (biased_minus_1 << (f16::MANTISSA_DIGITS - 1)) + mant;
+    return f16::from_bits(sign + exp_mant);
+}
+
 pub fn get_f32(op: &Float, rnd: Round) -> f32 {
     unsafe { mpfr::get_flt(op.as_raw(), raw_round(rnd)) }
 }
@@ -667,6 +729,93 @@ pub fn get_f32(op: &Float, rnd: Round) -> f32 {
 #[inline]
 pub fn get_f64(op: &Float, rnd: Round) -> f64 {
     unsafe { mpfr::get_d(op.as_raw(), raw_round(rnd)) }
+}
+
+#[cfg(feature = "nightly-float")]
+pub fn get_f128(op: &Float, rnd: Round) -> f128 {
+    const ZERO: MiniFloat = MiniFloat::const_from_f128(0.0);
+    let mut small = ZERO;
+    // SAFETY: we are not going to change precision.
+    let small_mut = unsafe { small.as_nonreallocating_float() };
+    let ordering = set(small_mut, op, rnd);
+    let negative = small_mut.is_sign_negative();
+    if small_mut.is_nan() {
+        let n = f128::NAN;
+        return if negative == n.is_sign_negative() {
+            n
+        } else {
+            -n
+        };
+    }
+    if small_mut.is_infinite() {
+        return if negative {
+            f128::NEG_INFINITY
+        } else {
+            f128::INFINITY
+        };
+    }
+    if small_mut.is_zero() {
+        return if negative { -0.0 } else { 0.0 };
+    }
+    let exp = small_mut.get_exp().expect("expected exponent");
+    if exp > f128::MAX_EXP {
+        return if negative {
+            f128::NEG_INFINITY
+        } else {
+            f128::INFINITY
+        };
+    }
+    let sign = if negative { 1u128 << 127 } else { 0 };
+    if exp < f128::MIN_EXP {
+        // Subnormal.
+        small_mut.subnormalize_round(f128::MIN_EXP, ordering, rnd);
+
+        // The number of significant bits is MANTISSA_DIGITS - (MIN_EXP - exp).
+        // For example, if we are just subnormal; then exp == MIN_EXP - 1, and
+        // we should have MANTISSA_DIGITS - 1 significant bits.
+        let diff = f128::MIN_EXP.abs_diff(exp);
+        if diff >= f128::MANTISSA_DIGITS {
+            return if negative { -0.0 } else { 0.0 };
+        }
+        let nsig = f128::MANTISSA_DIGITS - diff;
+        let mant = {
+            let data = small_mut.inner_data();
+            #[cfg(gmp_limb_bits_64)]
+            {
+                ((data[1] as u128) << 64) | (data[0] as u128)
+            }
+            #[cfg(gmp_limb_bits_32)]
+            {
+                ((data[3] as u128) << 96)
+                    | ((data[2] as u128) << 64)
+                    | ((data[1] as u128) << 32)
+                    | (data[0] as u128)
+            }
+        } >> (128 - nsig);
+
+        return f128::from_bits(sign | mant);
+    }
+    // Normal. MANTISSA_DIGITS significant digits.
+    let mant = {
+        let data = small_mut.inner_data();
+        {
+            ((data[1] as u128) << 64) | (data[0] as u128)
+        }
+        #[cfg(gmp_limb_bits_32)]
+        {
+            ((data[3] as u128) << 96)
+                | ((data[2] as u128) << 64)
+                | ((data[1] as u128) << 32)
+                | (data[0] as u128)
+        }
+    } >> (128 - f128::MANTISSA_DIGITS);
+    // This includes the implicit one, which acts as 1 in the exponent.
+    // So we need to add (bias - 1) instead of bias to the exponent.
+    // For example, if exp == MIN_EXP, we need to add 0, since the biased
+    // exponent should be 1 for the smallest normal number.
+    let biased_minus_1 = (exp - f128::MIN_EXP) as u128;
+    let exp_mant = (biased_minus_1 << (f128::MANTISSA_DIGITS - 1)) + mant;
+    return f128::from_bits(sign + exp_mant);
 }
 
 #[inline]

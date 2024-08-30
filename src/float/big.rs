@@ -1157,6 +1157,51 @@ impl Float {
         }
     }
 
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f16`], rounding to the nearest.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::{Assign, Float};
+    /// let mut f = Float::with_val(53, 13.7);
+    /// assert_eq!(f.to_f16(), 13.7);
+    /// f.assign(1e300);
+    /// assert_eq!(f.to_f16(), f16::INFINITY);
+    /// f.assign(1e-300);
+    /// assert_eq!(f.to_f16(), 0.0);
+    /// ```
+    #[inline]
+    pub fn to_f16(&self) -> f16 {
+        self.to_f16_round(Round::Nearest)
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f16`], applying the specified rounding method.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 1.0 + (-50f64).exp2());
+    /// assert_eq!(f.to_f16_round(Round::Up), 1.0 + f16::EPSILON);
+    /// ```
+    #[inline]
+    pub fn to_f16_round(&self, round: Round) -> f16 {
+        xmpfr::get_f16(self, round)
+    }
+
     /// Converts to an [`f32`], rounding to the nearest.
     ///
     /// If the value is too small or too large for the target type, the minimum
@@ -1233,6 +1278,51 @@ impl Float {
     #[inline]
     pub fn to_f64_round(&self, round: Round) -> f64 {
         xmpfr::get_f64(self, round)
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f128`], rounding to the nearest.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::{Assign, Float};
+    /// let mut f = Float::with_val(113, 13.7f128);
+    /// assert_eq!(f.to_f128(), 13.7);
+    /// f.assign(1e4000f128);
+    /// f.square_mut();
+    /// assert_eq!(f.to_f128(), f128::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_f128(&self) -> f128 {
+        self.to_f128_round(Round::Nearest)
+    }
+
+    #[cfg(feature = "nightly-float")]
+    /// Converts to an [`f128`], applying the specified rounding method.
+    ///
+    /// If the value is too small or too large for the target type, the minimum
+    /// or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// // (2.0 ^ -190) + 1
+    /// let f: Float = Float::with_val(200, -190).exp2() + 1;
+    /// assert_eq!(f.to_f128_round(Round::Up), 1.0 + f128::EPSILON);
+    /// ```
+    #[inline]
+    pub fn to_f128_round(&self, round: Round) -> f128 {
+        xmpfr::get_f128(self, round)
     }
 
     /// Converts to an [`f32`] and an exponent, rounding to the nearest.
