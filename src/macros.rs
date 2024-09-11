@@ -1202,7 +1202,7 @@ macro_rules! ref_math_op0_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1245,7 +1245,7 @@ macro_rules! ref_math_op1_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1315,7 +1315,7 @@ macro_rules! ref_math_op1_2_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> (($Big, $Big), $Ordering) {
-                let mut val = (<$Big>::zero(prec), <$Big>::zero(prec));
+                let mut val = (<$Big>::new(prec), <$Big>::new(prec));
                 let dir = val.assign_round(self, round);
                 (val, dir)
             }
@@ -1361,7 +1361,7 @@ macro_rules! ref_math_op2_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1467,7 +1467,7 @@ macro_rules! arith_binary_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1609,7 +1609,7 @@ macro_rules! arith_forward_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
 
@@ -1620,7 +1620,7 @@ macro_rules! arith_forward_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1852,7 +1852,7 @@ macro_rules! arith_noncommut_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
 
@@ -1887,7 +1887,7 @@ macro_rules! arith_noncommut_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
 
@@ -1898,7 +1898,7 @@ macro_rules! arith_noncommut_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -1991,7 +1991,7 @@ macro_rules! arith_prim_exact_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     )* };
@@ -2256,7 +2256,7 @@ macro_rules! arith_prim_noncommut_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     )* };
@@ -2334,7 +2334,7 @@ macro_rules! mul_op_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };
@@ -2489,7 +2489,7 @@ macro_rules! mul_op_noncommut_round {
             type Ordering = $Ordering;
             #[inline]
             fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
-                <$Big>::with_prec_t(prec, self, round)
+                <$Big>::with_val_round(prec, self, round)
             }
         }
     };

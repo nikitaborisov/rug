@@ -268,7 +268,7 @@ static_assert_same_size!(Float, Option<Float>);
 macro_rules! ref_math_op0_float {
     ($($rest:tt)*) => {
         ref_math_op0_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };
@@ -277,7 +277,7 @@ macro_rules! ref_math_op0_float {
 macro_rules! ref_math_op1_float {
     ($($rest:tt)*) => {
         ref_math_op1_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };
@@ -286,7 +286,7 @@ macro_rules! ref_math_op1_float {
 macro_rules! ref_math_op1_2_float {
     ($($rest:tt)*) => {
         ref_math_op1_2_round! {
-            Float, prec_t, Round, Round::Nearest, (Ordering, Ordering);
+            Float, u32, Round, Round::Nearest, (Ordering, Ordering);
             $($rest)*
         }
     };
@@ -295,7 +295,7 @@ macro_rules! ref_math_op1_2_float {
 macro_rules! ref_math_op2_float {
     ($($rest:tt)*) => {
         ref_math_op2_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };

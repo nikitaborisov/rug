@@ -39,8 +39,6 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
-use gmp_mpfr_sys::mpfr;
-use gmp_mpfr_sys::mpfr::prec_t;
 #[cfg(feature = "std")]
 use std::error::Error;
 
@@ -161,7 +159,7 @@ static_assert_same_size!(Complex, Option<Complex>);
 macro_rules! ref_math_op0_complex {
     ($($rest:tt)*) => {
         ref_math_op0_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
@@ -170,7 +168,7 @@ macro_rules! ref_math_op0_complex {
 macro_rules! ref_math_op1_complex {
     ($($rest:tt)*) => {
         ref_math_op1_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
@@ -179,7 +177,7 @@ macro_rules! ref_math_op1_complex {
 macro_rules! ref_math_op1_2_complex {
     ($($rest:tt)*) => {
         ref_math_op1_2_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, (Ordering2, Ordering2);
+            Complex, (u32, u32), Round2, NEAREST2, (Ordering2, Ordering2);
             $($rest)*
         }
     };
@@ -188,7 +186,7 @@ macro_rules! ref_math_op1_2_complex {
 macro_rules! ref_math_op2_complex {
     ($($rest:tt)*) => {
         ref_math_op2_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
