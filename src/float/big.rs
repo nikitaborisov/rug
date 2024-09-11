@@ -269,7 +269,7 @@ static_assert_same_size!(Float, Option<Float>);
 macro_rules! ref_math_op0_float {
     ($($rest:tt)*) => {
         ref_math_op0_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };
@@ -278,7 +278,7 @@ macro_rules! ref_math_op0_float {
 macro_rules! ref_math_op1_float {
     ($($rest:tt)*) => {
         ref_math_op1_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };
@@ -287,7 +287,7 @@ macro_rules! ref_math_op1_float {
 macro_rules! ref_math_op1_2_float {
     ($($rest:tt)*) => {
         ref_math_op1_2_round! {
-            Float, prec_t, Round, Round::Nearest, (Ordering, Ordering);
+            Float, u32, Round, Round::Nearest, (Ordering, Ordering);
             $($rest)*
         }
     };
@@ -296,7 +296,7 @@ macro_rules! ref_math_op1_2_float {
 macro_rules! ref_math_op2_float {
     ($($rest:tt)*) => {
         ref_math_op2_round! {
-            Float, prec_t, Round, Round::Nearest, Ordering;
+            Float, u32, Round, Round::Nearest, Ordering;
             $($rest)*
         }
     };
@@ -614,37 +614,6 @@ impl Float {
             "precision out of range"
         );
         xmpfr::prec_round(self, prec.unwrapped_cast(), round)
-    }
-
-    #[inline]
-    pub(crate) fn with_prec_t<T>(prec: prec_t, val: T, round: Round) -> (Float, Ordering)
-    where
-        Float: AssignRound<T, Round = Round, Ordering = Ordering>,
-    {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        let ord = ret.assign_round(val, round);
-        (ret, ord)
-    }
-
-    #[inline]
-    pub(crate) fn zero(prec: prec_t) -> Float {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        xmpfr::set_special(&mut ret, Special::Zero);
-        ret
     }
 
     /// Creates a [`Float`] from an initialized [MPFR floating-point

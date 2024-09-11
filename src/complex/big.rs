@@ -39,8 +39,6 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
-use gmp_mpfr_sys::mpfr;
-use gmp_mpfr_sys::mpfr::prec_t;
 #[cfg(feature = "std")]
 use std::error::Error;
 
@@ -161,7 +159,7 @@ static_assert_same_size!(Complex, Option<Complex>);
 macro_rules! ref_math_op0_complex {
     ($($rest:tt)*) => {
         ref_math_op0_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
@@ -170,7 +168,7 @@ macro_rules! ref_math_op0_complex {
 macro_rules! ref_math_op1_complex {
     ($($rest:tt)*) => {
         ref_math_op1_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
@@ -179,7 +177,7 @@ macro_rules! ref_math_op1_complex {
 macro_rules! ref_math_op1_2_complex {
     ($($rest:tt)*) => {
         ref_math_op1_2_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, (Ordering2, Ordering2);
+            Complex, (u32, u32), Round2, NEAREST2, (Ordering2, Ordering2);
             $($rest)*
         }
     };
@@ -188,7 +186,7 @@ macro_rules! ref_math_op1_2_complex {
 macro_rules! ref_math_op2_complex {
     ($($rest:tt)*) => {
         ref_math_op2_round! {
-            Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+            Complex, (u32, u32), Round2, NEAREST2, Ordering2;
             $($rest)*
         }
     };
@@ -517,44 +515,6 @@ impl Complex {
             real.set_prec_round_64(p.0, round.0),
             imag.set_prec_round_64(p.1, round.1),
         )
-    }
-
-    #[inline]
-    pub(crate) fn with_prec_t<T>(
-        prec: (prec_t, prec_t),
-        val: T,
-        round: Round2,
-    ) -> (Complex, Ordering2)
-    where
-        Complex: AssignRound<T, Round = Round2, Ordering = Ordering2>,
-    {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
-                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, prec.0, prec.1);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        let ord = ret.assign_round(val, round);
-        (ret, ord)
-    }
-
-    #[inline]
-    pub(crate) fn zero(prec: (prec_t, prec_t)) -> Complex {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
-                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, prec.0, prec.1);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        xmpfr::set_special(ret.mut_real(), Special::Zero);
-        xmpfr::set_special(ret.mut_imag(), Special::Zero);
-        ret
     }
 
     /// Creates a [`Complex`] number from an initialized [MPC complex

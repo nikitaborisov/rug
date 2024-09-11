@@ -32,6 +32,18 @@ Version 1.26.0 (2024-08-30)
 [issue 68]: https://gitlab.com/tspiteri/rug/-/issues/68
 [issue 69]: https://gitlab.com/tspiteri/rug/-/issues/69
 
+Version 1.25.1 (2024-09-11)
+===========================
+
+  * Bug fix: implementations of [`CompleteRound`][compr-1-25] were wrongly using
+    [`prec_t`][sys-mpfr-p-1-6] instead of [`u32`] for
+    <code>[CompleteRound][compr-1-25]::[Prec][compr-p-1-25]</code> ([issue 72]).
+
+[compr-1-25]: https://docs.rs/rug/~1.25/rug/ops/trait.CompleteRound.html
+[compr-p-1-25]: https://docs.rs/rug/~1.25/rug/ops/trait.CompleteRound.html#associatedtype.Prec
+[issue 72]: https://gitlab.com/tspiteri/rug/-/issues/72
+[sys-mpfr-p-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/type.prec_t.html
+
 Version 1.25.0 (2024-07-18)
 ===========================
 
