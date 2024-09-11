@@ -615,37 +615,6 @@ impl Float {
         xmpfr::prec_round(self, prec.unwrapped_cast(), round)
     }
 
-    #[inline]
-    pub(crate) fn with_prec_t<T>(prec: prec_t, val: T, round: Round) -> (Float, Ordering)
-    where
-        Float: AssignRound<T, Round = Round, Ordering = Ordering>,
-    {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        let ord = ret.assign_round(val, round);
-        (ret, ord)
-    }
-
-    #[inline]
-    pub(crate) fn zero(prec: prec_t) -> Float {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        xmpfr::set_special(&mut ret, Special::Zero);
-        ret
-    }
-
     /// Creates a [`Float`] from an initialized [MPFR floating-point
     /// number][mpfr_t].
     ///

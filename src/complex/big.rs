@@ -517,44 +517,6 @@ impl Complex {
         )
     }
 
-    #[inline]
-    pub(crate) fn with_prec_t<T>(
-        prec: (prec_t, prec_t),
-        val: T,
-        round: Round2,
-    ) -> (Complex, Ordering2)
-    where
-        Complex: AssignRound<T, Round = Round2, Ordering = Ordering2>,
-    {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
-                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, prec.0, prec.1);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        let ord = ret.assign_round(val, round);
-        (ret, ord)
-    }
-
-    #[inline]
-    pub(crate) fn zero(prec: (prec_t, prec_t)) -> Complex {
-        assert!(
-            (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.0)
-                && (mpfr::PREC_MIN..=mpfr::PREC_MAX).contains(&prec.1),
-            "precision out of range"
-        );
-        let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, prec.0, prec.1);
-        // Safety: write_new_nan initializes ret.
-        let mut ret = unsafe { ret.assume_init() };
-        xmpfr::set_special(ret.mut_real(), Special::Zero);
-        xmpfr::set_special(ret.mut_imag(), Special::Zero);
-        ret
-    }
-
     /// Creates a [`Complex`] number from an initialized [MPC complex
     /// number][mpc_t].
     ///
