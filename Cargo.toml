@@ -6,7 +6,7 @@
 
 [package]
 name = "rug"
-version = "1.25.0"
+version = "1.25.1"
 categories = ["api-bindings", "mathematics"]
 description = """
 Arbitrary-precision integers, rational, floating-point and complex numbers based

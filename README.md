@@ -28,6 +28,18 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.25.1 news (2024-09-11)
+
+  * Bug fix: implementations of [`CompleteRound`][compr-1-25] were wrongly using
+    [`prec_t`][sys-mpfr-p-1-6] instead of [`u32`] for
+    <code>[CompleteRound][compr-1-25]::[Prec][compr-p-1-25]</code> ([issue 72]).
+
+[`u32`]: https://doc.rust-lang.org/nightly/core/primitive.u32.html
+[compr-1-25]: https://docs.rs/rug/~1.25/rug/ops/trait.CompleteRound.html
+[compr-p-1-25]: https://docs.rs/rug/~1.25/rug/ops/trait.CompleteRound.html#associatedtype.Prec
+[issue 72]: https://gitlab.com/tspiteri/rug/-/issues/72
+[sys-mpfr-p-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/type.prec_t.html
+
 ### Version 1.25.0 news (2024-07-18)
 
   * The following functions were added:
