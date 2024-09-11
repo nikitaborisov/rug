@@ -4,6 +4,18 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.26.1 (2024-09-11)
+===========================
+
+  * Bug fix: implementations of [`CompleteRound`][compr-1-26] were wrongly using
+    [`prec_t`][sys-mpfr-p-1-6] instead of [`u32`] for
+    <code>[CompleteRound][compr-1-26]::[Prec][compr-p-1-26]</code> ([issue 72]).
+
+[compr-1-26]: https://docs.rs/rug/~1.26/rug/ops/trait.CompleteRound.html
+[compr-p-1-26]: https://docs.rs/rug/~1.26/rug/ops/trait.CompleteRound.html#associatedtype.Prec
+[issue 72]: https://gitlab.com/tspiteri/rug/-/issues/72
+[sys-mpfr-p-1-6]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/mpfr/type.prec_t.html
+
 Version 1.26.0 (2024-08-30)
 ===========================
 
