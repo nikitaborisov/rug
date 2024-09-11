@@ -120,19 +120,19 @@ macro_rules! div_op {
         impl<'i> $Imp for &'i Integer {
             type Output = $Incomplete<'i>;
             #[inline]
-            fn $trunc(self, rhs: &'i Integer) -> $Incomplete<'_> {
+            fn $trunc(self, rhs: &'i Integer) -> $Incomplete<'i> {
                 $Incomplete::Trunc(self, rhs)
             }
             #[inline]
-            fn $ceil(self, rhs: &'i Integer) -> $Incomplete<'_> {
+            fn $ceil(self, rhs: &'i Integer) -> $Incomplete<'i> {
                 $Incomplete::Ceil(self, rhs)
             }
             #[inline]
-            fn $floor(self, rhs: &'i Integer) -> $Incomplete<'_> {
+            fn $floor(self, rhs: &'i Integer) -> $Incomplete<'i> {
                 $Incomplete::Floor(self, rhs)
             }
             #[inline]
-            fn $euc(self, rhs: &'i Integer) -> $Incomplete<'_> {
+            fn $euc(self, rhs: &'i Integer) -> $Incomplete<'i> {
                 $Incomplete::Euc(self, rhs)
             }
         }

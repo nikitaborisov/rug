@@ -2935,7 +2935,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn remainder_ref<'a>(&'a self, divisor: &'a Self) -> RemainderIncomplete<'_> {
+    pub fn remainder_ref<'a>(&'a self, divisor: &'a Self) -> RemainderIncomplete<'a> {
         RemainderIncomplete {
             ref_self: self,
             divisor,
@@ -4197,7 +4197,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn copysign_ref<'a>(&'a self, y: &'a Self) -> CopysignIncomplete<'_> {
+    pub fn copysign_ref<'a>(&'a self, y: &'a Self) -> CopysignIncomplete<'a> {
         CopysignIncomplete { ref_self: self, y }
     }
 
@@ -4529,7 +4529,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn min_ref<'a>(&'a self, other: &'a Self) -> MinIncomplete<'_> {
+    pub fn min_ref<'a>(&'a self, other: &'a Self) -> MinIncomplete<'a> {
         MinIncomplete {
             ref_self: self,
             other,
@@ -4610,7 +4610,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn max_ref<'a>(&'a self, other: &'a Self) -> MaxIncomplete<'_> {
+    pub fn max_ref<'a>(&'a self, other: &'a Self) -> MaxIncomplete<'a> {
         MaxIncomplete {
             ref_self: self,
             other,
@@ -4716,7 +4716,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn positive_diff_ref<'a>(&'a self, other: &'a Self) -> PositiveDiffIncomplete<'_> {
+    pub fn positive_diff_ref<'a>(&'a self, other: &'a Self) -> PositiveDiffIncomplete<'a> {
         PositiveDiffIncomplete {
             ref_self: self,
             other,
@@ -6669,7 +6669,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn atan2_ref<'a>(&'a self, x: &'a Self) -> Atan2Incomplete<'_> {
+    pub fn atan2_ref<'a>(&'a self, x: &'a Self) -> Atan2Incomplete<'a> {
         Atan2Incomplete { ref_self: self, x }
     }
 
@@ -7058,7 +7058,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn atan2_u_ref<'a>(&'a self, x: &'a Self, u: u32) -> Atan2UIncomplete<'_> {
+    pub fn atan2_u_ref<'a>(&'a self, x: &'a Self, u: u32) -> Atan2UIncomplete<'a> {
         Atan2UIncomplete {
             ref_self: self,
             x,
@@ -7397,7 +7397,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn atan2_pi_ref<'a>(&'a self, x: &'a Self) -> Atan2PiIncomplete<'_> {
+    pub fn atan2_pi_ref<'a>(&'a self, x: &'a Self) -> Atan2PiIncomplete<'a> {
         Atan2PiIncomplete { ref_self: self, x }
     }
 
@@ -9182,7 +9182,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn gamma_inc_ref<'a>(&'a self, x: &'a Self) -> GammaIncIncomplete<'_> {
+    pub fn gamma_inc_ref<'a>(&'a self, x: &'a Self) -> GammaIncIncomplete<'a> {
         GammaIncIncomplete { ref_self: self, x }
     }
 
@@ -10335,7 +10335,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn agm_ref<'a>(&'a self, other: &'a Self) -> AgmIncomplete<'_> {
+    pub fn agm_ref<'a>(&'a self, other: &'a Self) -> AgmIncomplete<'a> {
         AgmIncomplete {
             ref_self: self,
             other,
@@ -10423,7 +10423,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn hypot_ref<'a>(&'a self, other: &'a Self) -> HypotIncomplete<'_> {
+    pub fn hypot_ref<'a>(&'a self, other: &'a Self) -> HypotIncomplete<'a> {
         HypotIncomplete {
             ref_self: self,
             other,

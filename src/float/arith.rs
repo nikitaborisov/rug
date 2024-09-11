@@ -705,7 +705,7 @@ where
 impl<'a> Add for MulIncomplete<'a> {
     type Output = MulAddMulIncomplete<'a>;
     #[inline]
-    fn add(self, rhs: MulIncomplete<'a>) -> MulAddMulIncomplete<'_> {
+    fn add(self, rhs: MulIncomplete<'a>) -> MulAddMulIncomplete<'a> {
         MulAddMulIncomplete { lhs: self, rhs }
     }
 }
@@ -746,7 +746,7 @@ impl CompleteRound for MulAddMulIncomplete<'_> {
 impl<'a> Sub for MulIncomplete<'a> {
     type Output = MulSubMulIncomplete<'a>;
     #[inline]
-    fn sub(self, rhs: MulIncomplete<'a>) -> MulSubMulIncomplete<'_> {
+    fn sub(self, rhs: MulIncomplete<'a>) -> MulSubMulIncomplete<'a> {
         MulSubMulIncomplete { lhs: self, rhs }
     }
 }

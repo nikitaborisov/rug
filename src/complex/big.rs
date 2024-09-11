@@ -3775,7 +3775,7 @@ impl Complex {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn agm_ref<'a>(&'a self, other: &'a Self) -> AgmIncomplete<'_> {
+    pub fn agm_ref<'a>(&'a self, other: &'a Self) -> AgmIncomplete<'a> {
         AgmIncomplete {
             ref_self: self,
             other,

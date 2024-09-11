@@ -3094,7 +3094,7 @@ impl Integer {
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
-    pub fn modulo_ref<'a>(&'a self, divisor: &'a Self) -> ModuloIncomplete<'_> {
+    pub fn modulo_ref<'a>(&'a self, divisor: &'a Self) -> ModuloIncomplete<'a> {
         ModuloIncomplete {
             ref_self: self,
             divisor,
@@ -3175,7 +3175,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_rem_ref<'a>(&'a self, divisor: &'a Self) -> DivRemIncomplete<'_> {
+    pub fn div_rem_ref<'a>(&'a self, divisor: &'a Self) -> DivRemIncomplete<'a> {
         DivRemIncomplete {
             ref_self: self,
             divisor,
@@ -3259,7 +3259,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_rem_ceil_ref<'a>(&'a self, divisor: &'a Self) -> DivRemCeilIncomplete<'_> {
+    pub fn div_rem_ceil_ref<'a>(&'a self, divisor: &'a Self) -> DivRemCeilIncomplete<'a> {
         DivRemCeilIncomplete {
             ref_self: self,
             divisor,
@@ -3343,7 +3343,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_rem_floor_ref<'a>(&'a self, divisor: &'a Self) -> DivRemFloorIncomplete<'_> {
+    pub fn div_rem_floor_ref<'a>(&'a self, divisor: &'a Self) -> DivRemFloorIncomplete<'a> {
         DivRemFloorIncomplete {
             ref_self: self,
             divisor,
@@ -3433,7 +3433,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_rem_round_ref<'a>(&'a self, divisor: &'a Self) -> DivRemRoundIncomplete<'_> {
+    pub fn div_rem_round_ref<'a>(&'a self, divisor: &'a Self) -> DivRemRoundIncomplete<'a> {
         DivRemRoundIncomplete {
             ref_self: self,
             divisor,
@@ -3511,7 +3511,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_rem_euc_ref<'a>(&'a self, divisor: &'a Self) -> DivRemEucIncomplete<'_> {
+    pub fn div_rem_euc_ref<'a>(&'a self, divisor: &'a Self) -> DivRemEucIncomplete<'a> {
         DivRemEucIncomplete {
             ref_self: self,
             divisor,
@@ -3635,7 +3635,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn div_exact_ref<'a>(&'a self, divisor: &'a Self) -> DivExactIncomplete<'_> {
+    pub fn div_exact_ref<'a>(&'a self, divisor: &'a Self) -> DivExactIncomplete<'a> {
         DivExactIncomplete {
             ref_self: self,
             divisor,
@@ -4733,7 +4733,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn gcd_ref<'a>(&'a self, other: &'a Self) -> GcdIncomplete<'_> {
+    pub fn gcd_ref<'a>(&'a self, other: &'a Self) -> GcdIncomplete<'a> {
         GcdIncomplete {
             ref_self: self,
             other,
@@ -4992,7 +4992,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn extended_gcd_ref<'a>(&'a self, other: &'a Self) -> GcdExtIncomplete<'_> {
+    pub fn extended_gcd_ref<'a>(&'a self, other: &'a Self) -> GcdExtIncomplete<'a> {
         GcdExtIncomplete {
             ref_self: self,
             other,
@@ -5070,7 +5070,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn lcm_ref<'a>(&'a self, other: &'a Self) -> LcmIncomplete<'_> {
+    pub fn lcm_ref<'a>(&'a self, other: &'a Self) -> LcmIncomplete<'a> {
         LcmIncomplete {
             ref_self: self,
             other,
@@ -5707,7 +5707,7 @@ impl Integer {
     /// [`extended_gcd_ref`][Integer::extended_gcd_ref].
     #[deprecated(since = "1.18.0", note = "renamed to `extended_gcd_ref`")]
     #[inline]
-    pub fn gcd_cofactors_ref<'a>(&'a self, other: &'a Self) -> GcdExtIncomplete<'_> {
+    pub fn gcd_cofactors_ref<'a>(&'a self, other: &'a Self) -> GcdExtIncomplete<'a> {
         self.extended_gcd_ref(other)
     }
 }

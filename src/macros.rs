@@ -388,7 +388,7 @@ macro_rules! arith_binary_self {
         impl<'a> $Imp<&'a $Big> for &'a $Big {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
                 $Incomplete { lhs: self, rhs }
             }
         }
@@ -489,7 +489,7 @@ macro_rules! arith_binary {
         impl<'a> $Imp<&'a $T> for &'a $Big {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $T) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $T) -> $Incomplete<'a> {
                 $Incomplete { lhs: self, rhs }
             }
         }
@@ -594,7 +594,7 @@ macro_rules! arith_commut {
         impl<'a> $Imp<&'a $Big> for &'a $T {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
                 rhs.$method(self)
             }
         }
@@ -679,7 +679,7 @@ macro_rules! arith_noncommut {
         impl<'a> $Imp<&'a $Big> for &'a $T {
             type Output = $FromIncomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
                 $FromIncomplete { lhs: self, rhs }
             }
         }
@@ -1009,7 +1009,7 @@ macro_rules! mul_op {
         impl<'a> $Imp<$Mul<'a>> for &'a $Big {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: $Mul<'a>) -> $Incomplete<'_> {
+            fn $method(self, rhs: $Mul<'a>) -> $Incomplete<'a> {
                 $Incomplete { lhs: self, rhs }
             }
         }
@@ -1074,7 +1074,7 @@ macro_rules! mul_op_commut {
         impl<'a> $Imp<&'a $Big> for $Mul<'a> {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
                 rhs.$method(self)
             }
         }
@@ -1126,7 +1126,7 @@ macro_rules! mul_op_noncommut {
         impl<'a> $Imp<&'a $Big> for $Mul<'a> {
             type Output = $FromIncomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
                 $FromIncomplete { lhs: self, rhs }
             }
         }
@@ -1408,7 +1408,7 @@ macro_rules! arith_binary_round {
         impl<'a> $Imp<&'a $T> for &'a $Big {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $T) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $T) -> $Incomplete<'a> {
                 $Incomplete { lhs: self, rhs }
             }
         }
@@ -1688,7 +1688,7 @@ macro_rules! arith_commut_round {
         impl<'a> $Imp<&'a $Big> for &'a $T {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
                 rhs.$method(self)
             }
         }
@@ -1793,7 +1793,7 @@ macro_rules! arith_noncommut_round {
         impl<'a> $Imp<&'a $Big> for &'a $T {
             type Output = $FromIncomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
                 $FromIncomplete { lhs: self, rhs }
             }
         }
@@ -2291,7 +2291,7 @@ macro_rules! mul_op_round {
         impl<'a> $Imp<$Mul<'a>> for &'a $Big {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: $Mul<'a>) -> $Incomplete<'_> {
+            fn $method(self, rhs: $Mul<'a>) -> $Incomplete<'a> {
                 $Incomplete { lhs: self, rhs }
             }
         }
@@ -2380,7 +2380,7 @@ macro_rules! mul_op_commut_round {
         impl<'a> $Imp<&'a $Big> for $Mul<'a> {
             type Output = $Incomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $Incomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
                 rhs.$method(self)
             }
         }
@@ -2446,7 +2446,7 @@ macro_rules! mul_op_noncommut_round {
         impl<'a> $Imp<&'a $Big> for $Mul<'a> {
             type Output = $FromIncomplete<'a>;
             #[inline]
-            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'_> {
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
                 $FromIncomplete { lhs: self, rhs }
             }
         }
