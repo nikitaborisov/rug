@@ -226,7 +226,7 @@ arith_prim_commut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_commut_round! {
-    Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     PrimOps::add;
     Add { add }
     AddAssign { add_assign }
@@ -261,7 +261,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     PrimOps::sub, PrimOps::sub_from;
     Sub { sub }
     SubAssign { sub_assign }
@@ -296,7 +296,7 @@ arith_prim_commut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_commut_round! {
-    Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     PrimOps::mul;
     Mul { mul }
     MulAssign { mul_assign }
@@ -331,7 +331,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     PrimOps::div, PrimOps::div_from;
     Div { div }
     DivAssign { div_assign }
@@ -366,7 +366,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Complex, (prec_t, prec_t), Round2, NEAREST2, Ordering2;
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     PrimOps::pow, PrimOps::pow_from;
     Pow { pow }
     PowAssign { pow_assign }

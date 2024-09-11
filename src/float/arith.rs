@@ -283,7 +283,7 @@ arith_prim_commut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_commut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::add;
     Add { add }
     AddAssign { add_assign }
@@ -318,7 +318,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::sub, PrimOps::sub_from;
     Sub { sub }
     SubAssign { sub_assign }
@@ -353,7 +353,7 @@ arith_prim_commut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_commut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::mul;
     Mul { mul }
     MulAssign { mul_assign }
@@ -388,7 +388,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::div, PrimOps::div_from;
     Div { div }
     DivAssign { div_assign }
@@ -423,7 +423,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::rem, PrimOps::rem_from;
     Rem { rem }
     RemAssign { rem_assign }
@@ -458,7 +458,7 @@ arith_prim_noncommut_round! {
 }
 #[cfg(feature = "nightly-float")]
 arith_prim_noncommut_round! {
-    Float, prec_t, Round, Round::Nearest, Ordering;
+    Float, u32, Round, Round::Nearest, Ordering;
     PrimOps::pow, PrimOps::pow_from;
     Pow { pow }
     PowAssign { pow_assign }
