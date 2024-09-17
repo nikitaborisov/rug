@@ -719,7 +719,7 @@ pub fn get_f16(op: &Float, rnd: Round) -> f16 {
     // exponent should be 1 for the smallest normal number.
     let biased_minus_1 = (exp - f16::MIN_EXP) as u16;
     let exp_mant = (biased_minus_1 << (f16::MANTISSA_DIGITS - 1)) + mant;
-    return f16::from_bits(sign + exp_mant);
+    f16::from_bits(sign + exp_mant)
 }
 
 pub fn get_f32(op: &Float, rnd: Round) -> f32 {
@@ -816,7 +816,7 @@ pub fn get_f128(op: &Float, rnd: Round) -> f128 {
     // exponent should be 1 for the smallest normal number.
     let biased_minus_1 = (exp - f128::MIN_EXP) as u128;
     let exp_mant = (biased_minus_1 << (f128::MANTISSA_DIGITS - 1)) + mant;
-    return f128::from_bits(sign + exp_mant);
+    f128::from_bits(sign + exp_mant)
 }
 
 #[inline]
