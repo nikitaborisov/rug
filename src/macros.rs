@@ -2521,63 +2521,17 @@ macro_rules! static_assert_same_size {
 }
 
 #[cfg(any(feature = "integer", feature = "float"))]
-pub struct CastPtr<Src>(pub *const Src);
-#[cfg(any(feature = "integer", feature = "float"))]
-impl<Src> CastPtr<Src> {
-    #[inline(always)]
-    pub const fn static_check_size(&self) -> Src {
-        unreachable!()
-    }
-    #[inline(always)]
-    pub const fn get<Dst>(self) -> *const Dst {
-        debug_assert!(core::mem::align_of::<Dst>() == core::mem::align_of::<Src>());
-        self.0.cast()
-    }
-}
-
-#[cfg(any(feature = "integer", feature = "float"))]
-pub struct CastPtrMut<Src>(pub *mut Src);
-#[cfg(any(feature = "integer", feature = "float"))]
-impl<Src> CastPtrMut<Src> {
-    #[inline(always)]
-    pub fn static_check_size(&self) -> Src {
-        unreachable!()
-    }
-    #[inline(always)]
-    pub fn get<Dst>(self) -> *mut Dst {
-        debug_assert_eq!(core::mem::align_of::<Dst>(), core::mem::align_of::<Src>());
-        self.0.cast()
-    }
-}
-
-#[cfg(any(feature = "integer", feature = "float"))]
 macro_rules! cast_ptr {
-    ($src:expr, $T:ty) => {{
-        let ptr = crate::macros::CastPtr($src);
-        if false {
-            #[allow(unused_unsafe, clippy::missing_transmute_annotations)]
-            unsafe {
-                let _ = core::mem::ManuallyDrop::new(core::mem::transmute::<_, $T>(
-                    ptr.static_check_size(),
-                ));
-            }
-        }
-        ptr.get::<$T>()
-    }};
+    ($src:expr, $T:ty) => {
+        crate::misc::cast_ptr::<_, $T>($src)
+    };
 }
 
 #[cfg(any(feature = "integer", feature = "float"))]
 macro_rules! cast_ptr_mut {
-    ($src:expr, $T:ty) => {{
-        let ptr = crate::macros::CastPtrMut($src);
-        if false {
-            #[allow(unused_unsafe, clippy::missing_transmute_annotations)]
-            unsafe {
-                let _ = core::mem::transmute::<_, $T>(ptr.static_check_size());
-            }
-        }
-        ptr.get::<$T>()
-    }};
+    ($src:expr, $T:ty) => {
+        crate::misc::cast_ptr_mut::<_, $T>($src)
+    };
 }
 
 #[cfg(gmp_limb_bits_64)]
