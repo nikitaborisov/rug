@@ -72,7 +72,7 @@ impl OptInteger for () {
     }
 }
 
-impl OptInteger for & Integer {
+impl OptInteger for &Integer {
     const IS_SOME: bool = true;
     #[inline(always)]
     fn mpz(self) -> *const mpz_t {
