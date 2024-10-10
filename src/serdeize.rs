@@ -69,7 +69,7 @@ enum Field {
 
 struct FieldVisitor;
 
-impl<'de> Visitor<'de> for FieldVisitor {
+impl Visitor<'_> for FieldVisitor {
     type Value = Field;
 
     fn expecting(&self, formatter: &mut Formatter<'_>) -> FmtResult {
@@ -100,7 +100,7 @@ enum PrecField {
 
 struct PrecFieldVisitor;
 
-impl<'de> Visitor<'de> for PrecFieldVisitor {
+impl Visitor<'_> for PrecFieldVisitor {
     type Value = PrecField;
 
     fn expecting(&self, formatter: &mut Formatter<'_>) -> FmtResult {

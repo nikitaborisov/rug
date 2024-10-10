@@ -72,7 +72,7 @@ impl OptInteger for () {
     }
 }
 
-impl<'a> OptInteger for &'a Integer {
+impl OptInteger for & Integer {
     const IS_SOME: bool = true;
     #[inline(always)]
     fn mpz(self) -> *const mpz_t {
@@ -172,7 +172,7 @@ pub const fn owned_init() -> mpz_t {
 
 #[inline]
 pub unsafe fn init2(rop: *mut Integer, bits: usize) {
-    let rop = misc::cast_ptr_mut(rop);
+    let rop = misc::cast_ptr_mut(rop.cast::<i32>());
     let bits = bits.unwrapped_cast();
     unsafe {
         gmp::mpz_init2(rop, bits);
