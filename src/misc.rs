@@ -509,3 +509,35 @@ impl<T> Extend<T> for VecLike<T> {
         self.extend(iter);
     }
 }
+
+pub trait SameSizeAndAlign {
+    const CHECK_SIZE: ();
+    const CHECK_ALIGN: ();
+}
+
+impl<Src: Sized, Dst: Sized> SameSizeAndAlign for (Src, Dst) {
+    const CHECK_SIZE: () = assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
+    const CHECK_ALIGN: () = assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
+}
+
+pub const fn cast_ptr<Src, Dst>(ptr: *const Src) -> *const Dst
+where
+    (Src, Dst): SameSizeAndAlign,
+{
+    // Force the size and alignment checks to be evaluated at compile time
+    let _ = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
+    let _ = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+
+    ptr.cast()
+}
+
+pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst
+where
+    (Src, Dst): SameSizeAndAlign,
+{
+    // Force the size and alignment checks to be evaluated at compile time
+    let _ = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
+    let _ = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+
+    ptr.cast()
+}
