@@ -172,7 +172,7 @@ pub const fn owned_init() -> mpz_t {
 
 #[inline]
 pub unsafe fn init2(rop: *mut Integer, bits: usize) {
-    let rop = misc::cast_ptr_mut(rop.cast::<i32>());
+    let rop = misc::cast_ptr_mut(rop);
     let bits = bits.unwrapped_cast();
     unsafe {
         gmp::mpz_init2(rop, bits);
