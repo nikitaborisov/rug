@@ -1864,7 +1864,7 @@ impl Float {
     #[inline]
     pub const fn as_ord(&self) -> &OrdFloat {
         // Safety: OrdFloat is repr(transparent) over Float
-        unsafe { &*cast_ptr!(self, OrdFloat) }
+        unsafe { &*misc::cast_ptr(self) }
     }
 
     #[cfg(feature = "complex")]
@@ -12021,7 +12021,7 @@ impl AssignRound<ParseIncomplete> for Float {
                 raw_round(round),
             )
         };
-        let nul = cast_ptr!(c_string.as_slice().last().unwrap(), c_char);
+        let nul = misc::cast_ptr::<_, c_char>(c_string.as_slice().last().unwrap());
         assert_eq!(unsafe { c_str_end.assume_init() }.cast_const(), nul);
         ordering1(ret)
     }

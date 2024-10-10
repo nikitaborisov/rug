@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::integer::BorrowInteger;
+use crate::misc;
 use crate::misc::NegAbs;
 use crate::{Assign, Integer};
 use az::{Az, Cast, WrappingCast};
@@ -628,7 +629,7 @@ impl MiniInteger {
     pub unsafe fn as_nonreallocating_integer(&mut self) -> &mut Integer {
         // Update d to point to limbs.
         self.inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        let ptr = cast_ptr_mut!(&mut self.inner, Integer);
+        let ptr = misc::cast_ptr_mut(&mut self.inner);
         // SAFETY: since inner.d points to the limbs, it is in a consistent state.
         unsafe { &mut *ptr }
     }

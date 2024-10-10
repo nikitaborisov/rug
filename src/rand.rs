@@ -38,6 +38,7 @@ so that they can be used with methods like
 <code>[Integer]::[random\_below][Integer::random_below]</code>.
 */
 
+use crate::misc;
 use crate::Integer;
 use az::Cast;
 #[cfg(feature = "std")]
@@ -1382,7 +1383,7 @@ unsafe extern "C" fn abort_iset(_: *mut randstate_t, _: *const randstate_t) {
 unsafe extern "C" fn custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn RandGen>().as_ptr();
-    let seed = cast_ptr!(seed, Integer);
+    let seed = misc::cast_ptr(seed);
     unsafe {
         (*r_ptr).seed(&*seed);
     }
@@ -1417,7 +1418,7 @@ unsafe extern "C" fn custom_iset(dst: *mut randstate_t, src: *const randstate_t)
 unsafe extern "C" fn custom_boxed_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn RandGen>>().as_ptr();
-    let seed = cast_ptr!(seed, Integer);
+    let seed = misc::cast_ptr(seed);
     unsafe {
         (*r_ptr).seed(&*seed);
     }
@@ -1452,7 +1453,7 @@ unsafe extern "C" fn custom_boxed_iset(dst: *mut randstate_t, src: *const randst
 unsafe extern "C" fn thread_custom_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<&mut dyn ThreadRandGen>().as_ptr();
-    let seed = cast_ptr!(seed, Integer);
+    let seed = misc::cast_ptr(seed);
     unsafe {
         (*r_ptr).seed(&*seed);
     }
@@ -1491,7 +1492,7 @@ unsafe extern "C" fn thread_custom_iset(dst: *mut randstate_t, src: *const rands
 unsafe extern "C" fn thread_custom_boxed_seed(rstate: *mut randstate_t, seed: *const mpz_t) {
     let d = unsafe { (*rstate).seed.d };
     let r_ptr = d.cast::<Box<dyn ThreadRandGen>>().as_ptr();
-    let seed = cast_ptr!(seed, Integer);
+    let seed = misc::cast_ptr(seed);
     unsafe {
         (*r_ptr).seed(&*seed);
     }

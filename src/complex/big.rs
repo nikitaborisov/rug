@@ -1179,7 +1179,7 @@ impl Complex {
     #[inline]
     pub const fn as_ord(&self) -> &OrdComplex {
         // Safety: OrdComplex is repr(transparent) over Complex
-        unsafe { &*cast_ptr!(self, OrdComplex) }
+        unsafe { &*misc::cast_ptr(self) }
     }
 
     /// Returns [`true`] if both the real and imaginary parts are plus or minus

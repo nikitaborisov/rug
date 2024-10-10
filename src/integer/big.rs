@@ -27,7 +27,7 @@ use crate::rational::BorrowRational;
 use crate::{Assign, Complete};
 use az::{Az, Cast, CheckedCast, UnwrappedAs, UnwrappedCast, WrappingCast};
 use core::cmp::Ordering;
-use core::ffi::{c_char, c_uint, c_ulong};
+use core::ffi::{c_uint, c_ulong};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem;
 use core::mem::{ManuallyDrop, MaybeUninit};
@@ -6398,7 +6398,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, i: &Integer, radix: i32, to_u
     unsafe {
         let alloced = s.reserved_space();
         gmp::mpz_get_str(
-            cast_ptr_mut!(alloced.as_mut_ptr(), c_char),
+            misc::cast_ptr_mut(alloced.as_mut_ptr()),
             case_radix.cast(),
             i.as_raw(),
         );

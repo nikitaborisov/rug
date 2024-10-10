@@ -15,12 +15,12 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpz::*;
+use crate::misc;
 use crate::misc::NegAbs;
 use crate::Integer;
 use az::{CheckedCast, WrappingAs, WrappingCast};
 use core::cmp::Ordering;
 use gmp_mpfr_sys::gmp;
-use gmp_mpfr_sys::gmp::mpz_t;
 
 #[inline]
 pub fn set_u128(rop: &mut Integer, u: u128) {
@@ -79,7 +79,7 @@ pub unsafe fn init_set_u128(rop: *mut Integer, u: u128) {
         }
     } else if u <= !(u128::MAX << 96) {
         unsafe {
-            gmp::mpz_init2(cast_ptr_mut!(rop, mpz_t), 96);
+            gmp::mpz_init2(misc::cast_ptr_mut(rop), 96);
             let rop = &mut *rop;
             rop.inner_mut().size = 3;
             *limb_mut(rop, 0) = u.wrapping_cast();
@@ -88,7 +88,7 @@ pub unsafe fn init_set_u128(rop: *mut Integer, u: u128) {
         }
     } else {
         unsafe {
-            gmp::mpz_init2(cast_ptr_mut!(rop, mpz_t), 128);
+            gmp::mpz_init2(misc::cast_ptr_mut(rop), 128);
             let rop = &mut *rop;
             rop.inner_mut().size = 4;
             *limb_mut(rop, 0) = u.wrapping_cast();
@@ -107,7 +107,7 @@ pub unsafe fn init_set_u64(rop: *mut Integer, u: u64) {
         }
     } else {
         unsafe {
-            gmp::mpz_init2(cast_ptr_mut!(rop, mpz_t), 64);
+            gmp::mpz_init2(misc::cast_ptr_mut(rop), 64);
             let rop = &mut *rop;
             rop.inner_mut().size = 2;
             *limb_mut(rop, 0) = u.wrapping_cast();
@@ -118,7 +118,7 @@ pub unsafe fn init_set_u64(rop: *mut Integer, u: u64) {
 
 #[inline]
 pub unsafe fn init_set_u32(rop: *mut Integer, u: u32) {
-    let rop = cast_ptr_mut!(rop, mpz_t);
+    let rop = misc::cast_ptr_mut(rop);
     if u == 0 {
         unsafe {
             gmp::mpz_init(rop);
@@ -126,7 +126,7 @@ pub unsafe fn init_set_u32(rop: *mut Integer, u: u32) {
     } else {
         unsafe {
             gmp::mpz_init2(rop, 32);
-            let rop = &mut *cast_ptr_mut!(rop, Integer);
+            let rop = &mut *misc::cast_ptr_mut::<_, Integer>(rop);
             rop.inner_mut().size = 1;
             *limb_mut(rop, 0) = u;
         }

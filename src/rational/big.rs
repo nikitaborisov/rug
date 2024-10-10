@@ -17,6 +17,7 @@
 use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::integer::big as big_integer;
+use crate::misc;
 use crate::misc::{StringLike, VecLike};
 use crate::ops::{NegAssign, SubFrom};
 use crate::rational::arith::MulIncomplete;
@@ -238,7 +239,7 @@ impl Rational {
     pub fn new() -> Self {
         unsafe {
             let mut ret = MaybeUninit::uninit();
-            gmp::mpq_init(cast_ptr_mut!(ret.as_mut_ptr(), mpq_t));
+            gmp::mpq_init(misc::cast_ptr_mut(ret.as_mut_ptr()));
             ret.assume_init()
         }
     }

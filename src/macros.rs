@@ -2520,20 +2520,6 @@ macro_rules! static_assert_same_size {
     };
 }
 
-#[cfg(any(feature = "integer", feature = "float"))]
-macro_rules! cast_ptr {
-    ($src:expr, $T:ty) => {
-        crate::misc::cast_ptr::<_, $T>($src)
-    };
-}
-
-#[cfg(any(feature = "integer", feature = "float"))]
-macro_rules! cast_ptr_mut {
-    ($src:expr, $T:ty) => {
-        crate::misc::cast_ptr_mut::<_, $T>($src)
-    };
-}
-
 #[cfg(gmp_limb_bits_64)]
 #[cfg(any(feature = "integer", feature = "float"))]
 macro_rules! small_limbs {

@@ -17,6 +17,7 @@
 use crate::ext::xmpfr;
 use crate::float::BorrowFloat;
 use crate::float::{self, Special};
+use crate::misc;
 use crate::{Assign, Float};
 use az::{Az, WrappingCast};
 use core::ffi::c_int;
@@ -866,7 +867,7 @@ impl MiniFloat {
     pub unsafe fn as_nonreallocating_float(&mut self) -> &mut Float {
         // Update d to point to limbs.
         self.inner.d = NonNull::<[MaybeUninit<limb_t>]>::from(&self.limbs[..]).cast();
-        let ptr = cast_ptr_mut!(&mut self.inner, Float);
+        let ptr = misc::cast_ptr_mut(&mut self.inner);
         // SAFETY: since inner.d points to the limbs, it is in a consistent state.
         unsafe { &mut *ptr }
     }

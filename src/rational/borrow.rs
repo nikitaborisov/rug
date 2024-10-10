@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::misc;
 use crate::Rational;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Pointer, Result as FmtResult, UpperHex,
@@ -159,7 +160,7 @@ impl<'a> BorrowRational<'a> {
     /// ```
     #[inline]
     pub const fn const_deref<'b>(b: &'b BorrowRational<'a>) -> &'b Rational {
-        let ptr = cast_ptr!(&b.inner, Rational);
+        let ptr = misc::cast_ptr(&b.inner);
         // Safety: the inner pointer is valid for the duration of the lifetime.
         unsafe { &*ptr }
     }

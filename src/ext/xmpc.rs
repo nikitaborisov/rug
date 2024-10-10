@@ -18,6 +18,7 @@ use crate::complex::MiniComplex;
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::{ordering1, raw_round, OptFloat, EXP_ZERO};
 use crate::float::Round;
+use crate::misc;
 use crate::misc::VecLike;
 #[cfg(feature = "integer")]
 use crate::Integer;
@@ -226,7 +227,7 @@ where
 
 pub unsafe fn sum_raw(rop: *mut mpc_t, pointers: &[*const mpc_t], rnd: Round2) -> Ordering2 {
     let n = pointers.len().unwrapped_cast();
-    let tab = cast_ptr!(pointers.as_ptr(), *mut mpc_t);
+    let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round2(rnd);
     ordering2(unsafe { mpc::sum(rop, tab, n, rnd) })
 }
@@ -293,8 +294,8 @@ unsafe fn dot_raw(
 ) -> Ordering2 {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
     let n = pointers_a.len().unwrapped_cast();
-    let a = cast_ptr!(pointers_a.as_ptr(), *mut mpc_t);
-    let b = cast_ptr!(pointers_b.as_ptr(), *mut mpc_t);
+    let a = misc::cast_ptr(pointers_a.as_ptr());
+    let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round2(rnd);
     ordering2(unsafe { mpc::dot(rop, a, b, n, rnd) })
 }
@@ -363,7 +364,7 @@ unsafe fn div_2usize(rop: *mut mpc_t, op1: *const mpc_t, op2: usize, rnd: rnd_t)
 pub fn write_new_nan(dst: &mut MaybeUninit<Complex>, prec_real: prec_t, prec_imag: prec_t) {
     // Safety: we can cast pointers to/from Complex/mpc_t as they are repr(transparent).
     unsafe {
-        let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpc_t);
+        let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
         mpc::init3(inner_ptr, prec_real, prec_imag);
     }
 }
@@ -375,32 +376,32 @@ pub fn write_real_imag(dst: &mut MaybeUninit<Complex>, real: Float, imag: Float)
     //   * We can cast pointers to/from Float/mpfr_t as they are repr(transparent).
     //   * realref/imagref only offset the pointers, and can operate on uninit memory.
     unsafe {
-        let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpc_t);
-        let real_ptr = cast_ptr_mut!(mpc::realref(inner_ptr), Float);
+        let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
+        let real_ptr = misc::cast_ptr_mut::<_, Float>(mpc::realref(inner_ptr));
         real_ptr.write(real);
-        let imag_ptr = cast_ptr_mut!(mpc::imagref(inner_ptr), Float);
+        let imag_ptr = misc::cast_ptr_mut::<_, Float>(mpc::imagref(inner_ptr));
         imag_ptr.write(imag);
     }
 }
 
 #[inline]
 pub const fn realref_const(c: &Complex) -> &Float {
-    unsafe { &*cast_ptr!(mpc::realref_const(c.as_raw()), Float) }
+    unsafe { &*misc::cast_ptr(mpc::realref_const(c.as_raw())) }
 }
 
 #[inline]
 pub const fn imagref_const(c: &Complex) -> &Float {
-    unsafe { &*cast_ptr!(mpc::imagref_const(c.as_raw()), Float) }
+    unsafe { &*misc::cast_ptr(mpc::imagref_const(c.as_raw())) }
 }
 
 #[inline]
 pub fn realref(c: &mut Complex) -> &mut Float {
-    unsafe { &mut *cast_ptr_mut!(mpc::realref(c.as_raw_mut()), Float) }
+    unsafe { &mut *misc::cast_ptr_mut(mpc::realref(c.as_raw_mut())) }
 }
 
 #[inline]
 pub fn imagref(c: &mut Complex) -> &mut Float {
-    unsafe { &mut *cast_ptr_mut!(mpc::imagref(c.as_raw_mut()), Float) }
+    unsafe { &mut *misc::cast_ptr_mut(mpc::imagref(c.as_raw_mut())) }
 }
 
 #[inline]
@@ -408,8 +409,8 @@ pub fn realref_imagref(c: &mut Complex) -> (&mut Float, &mut Float) {
     let c = c.as_raw_mut();
     unsafe {
         (
-            &mut *cast_ptr_mut!(mpc::realref(c), Float),
-            &mut *cast_ptr_mut!(mpc::imagref(c), Float),
+            &mut *misc::cast_ptr_mut(mpc::realref(c)),
+            &mut *misc::cast_ptr_mut(mpc::imagref(c)),
         )
     }
 }

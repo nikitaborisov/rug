@@ -16,6 +16,7 @@
 
 use crate::ext::xmpq;
 use crate::integer::{MiniInteger, ToMini};
+use crate::misc;
 use crate::rational::BorrowRational;
 use crate::{Assign, Rational};
 use az::Cast;
@@ -254,7 +255,7 @@ impl MiniRational {
         };
         self.inner.num.d = num_d;
         self.inner.den.d = den_d;
-        let ptr = cast_ptr_mut!(&mut self.inner, Rational);
+        let ptr = misc::cast_ptr_mut(&mut self.inner);
         // SAFETY: since inner.num.d and inner.den.d point to the limbs, it is
         // in a consistent state.
         unsafe { &mut *ptr }

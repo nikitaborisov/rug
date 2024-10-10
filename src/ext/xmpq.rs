@@ -16,6 +16,7 @@
 
 use crate::ext::xmpz;
 use crate::ext::xmpz::OptInteger;
+use crate::misc;
 use crate::misc::NegAbs;
 use crate::ops::{NegAssign, SubFrom};
 use crate::rational::MiniRational;
@@ -120,7 +121,7 @@ pub fn get_f64(op: &Rational) -> f64 {
 
 #[inline]
 pub unsafe fn clear(rop: *mut Rational) {
-    let rop = cast_ptr_mut!(rop, mpq_t);
+    let rop = misc::cast_ptr_mut(rop);
     unsafe {
         gmp::mpq_clear(rop);
     }
@@ -128,11 +129,11 @@ pub unsafe fn clear(rop: *mut Rational) {
 
 #[inline]
 pub unsafe fn init_set(rop: *mut Rational, op: &Rational) {
-    let rop = cast_ptr_mut!(rop, mpq_t);
+    let rop = misc::cast_ptr_mut(rop);
     let (op_numer, op_denom) = (op.numer(), op.denom());
     unsafe {
-        let num = cast_ptr_mut!(gmp::mpq_numref(rop), Integer);
-        let den = cast_ptr_mut!(gmp::mpq_denref(rop), Integer);
+        let num = misc::cast_ptr_mut(gmp::mpq_numref(rop));
+        let den = misc::cast_ptr_mut(gmp::mpq_denref(rop));
         xmpz::init_set(num, op_numer);
         xmpz::init_set(den, op_denom);
     }
@@ -354,11 +355,11 @@ pub fn div<O: OptRational, P: OptRational>(rop: &mut Rational, op1: O, op2: P) {
 // num and den must form a canonical pair
 #[inline]
 pub unsafe fn write_num_den_unchecked(dst: &mut MaybeUninit<Rational>, num: Integer, den: Integer) {
-    let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpq_t);
+    let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
     unsafe {
-        let num_ptr = cast_ptr_mut!(gmp::mpq_numref(inner_ptr), Integer);
+        let num_ptr = misc::cast_ptr_mut::<_, Integer>(gmp::mpq_numref(inner_ptr));
         num_ptr.write(num);
-        let den_ptr = cast_ptr_mut!(gmp::mpq_denref(inner_ptr), Integer);
+        let den_ptr = misc::cast_ptr_mut::<_, Integer>(gmp::mpq_denref(inner_ptr));
         den_ptr.write(den);
     }
 }
@@ -371,10 +372,10 @@ pub fn write_num_den_canonicalize(dst: &mut MaybeUninit<Rational>, num: Integer,
     //   * We can cast pointers to/from Integer/mpz_t as they are repr(transparent).
     //   * numref/denref only offset the pointers, and can operate on uninit memory.
     unsafe {
-        let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpq_t);
-        let num_ptr = cast_ptr_mut!(gmp::mpq_numref(inner_ptr), Integer);
+        let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
+        let num_ptr = misc::cast_ptr_mut::<_, Integer>(gmp::mpq_numref(inner_ptr));
         num_ptr.write(num);
-        let den_ptr = cast_ptr_mut!(gmp::mpq_denref(inner_ptr), Integer);
+        let den_ptr = misc::cast_ptr_mut::<_, Integer>(gmp::mpq_denref(inner_ptr));
         den_ptr.write(den);
         gmp::mpq_canonicalize(inner_ptr);
     }
@@ -397,12 +398,12 @@ pub fn canonicalize(r: &mut Rational) {
 
 #[inline]
 pub const fn numref_const(r: &Rational) -> &Integer {
-    unsafe { &*cast_ptr!(gmp::mpq_numref_const(r.as_raw()), Integer) }
+    unsafe { &*misc::cast_ptr(gmp::mpq_numref_const(r.as_raw())) }
 }
 
 #[inline]
 pub const fn denref_const(r: &Rational) -> &Integer {
-    unsafe { &*cast_ptr!(gmp::mpq_denref_const(r.as_raw()), Integer) }
+    unsafe { &*misc::cast_ptr(gmp::mpq_denref_const(r.as_raw())) }
 }
 
 // unsafe because this can be used to leave Rational in a non-canonical state
@@ -411,8 +412,8 @@ pub unsafe fn numref_denref(r: &mut Rational) -> (&mut Integer, &mut Integer) {
     let r = r.as_raw_mut();
     unsafe {
         (
-            &mut *cast_ptr_mut!(gmp::mpq_numref(r), Integer),
-            &mut *cast_ptr_mut!(gmp::mpq_denref(r), Integer),
+            &mut *misc::cast_ptr_mut(gmp::mpq_numref(r)),
+            &mut *misc::cast_ptr_mut(gmp::mpq_denref(r)),
         )
     }
 }

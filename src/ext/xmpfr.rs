@@ -15,6 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::float::{MiniFloat, Round, Special};
+use crate::misc;
 use crate::misc::{NegAbs, VecLike};
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
@@ -175,7 +176,7 @@ pub fn si_pow_ui(rop: &mut Float, base: i32, exponent: u32, rnd: Round) -> Order
 pub fn write_new_nan(x: &mut MaybeUninit<Float>, prec: prec_t) {
     // Safety: we can cast pointers to/from Float/mpfr_t as they are repr(transparent).
     unsafe {
-        let inner_ptr = cast_ptr_mut!(x.as_mut_ptr(), mpfr_t);
+        let inner_ptr = misc::cast_ptr_mut(x.as_mut_ptr());
         mpfr::init2(inner_ptr, prec);
     }
 }
@@ -312,7 +313,7 @@ where
 
 pub unsafe fn sum_raw(rop: *mut mpfr_t, pointers: &[*const mpfr_t], rnd: Round) -> Ordering {
     let n = pointers.len().unwrapped_cast();
-    let tab = cast_ptr!(pointers.as_ptr(), *mut mpfr_t);
+    let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round(rnd);
     ordering1(unsafe { mpfr::sum(rop, tab, n, rnd) })
 }
@@ -371,8 +372,8 @@ unsafe fn dot_raw(
 ) -> Ordering {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
     let n = pointers_a.len().unwrapped_cast();
-    let a = cast_ptr!(pointers_a.as_ptr(), *mut mpfr_t);
-    let b = cast_ptr!(pointers_b.as_ptr(), *mut mpfr_t);
+    let a = misc::cast_ptr(pointers_a.as_ptr());
+    let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round(rnd);
     ordering1(unsafe { mpfr::dot(rop, a, b, n, rnd) })
 }

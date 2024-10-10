@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::misc;
 use crate::misc::NegAbs;
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
@@ -171,7 +172,7 @@ pub const fn owned_init() -> mpz_t {
 
 #[inline]
 pub unsafe fn init2(rop: *mut Integer, bits: usize) {
-    let rop = cast_ptr_mut!(rop, mpz_t);
+    let rop = misc::cast_ptr_mut(rop);
     let bits = bits.unwrapped_cast();
     unsafe {
         gmp::mpz_init2(rop, bits);
@@ -180,7 +181,7 @@ pub unsafe fn init2(rop: *mut Integer, bits: usize) {
 
 #[inline]
 pub unsafe fn init_set(rop: *mut Integer, op: &Integer) {
-    let rop = cast_ptr_mut!(rop, mpz_t);
+    let rop = misc::cast_ptr_mut(rop);
     let op = op.as_raw();
     unsafe {
         gmp::mpz_init_set(rop, op);
@@ -189,7 +190,7 @@ pub unsafe fn init_set(rop: *mut Integer, op: &Integer) {
 
 #[inline]
 pub unsafe fn clear(rop: *mut Integer) {
-    let rop = cast_ptr_mut!(rop, mpz_t);
+    let rop = misc::cast_ptr_mut(rop);
     unsafe {
         gmp::mpz_clear(rop);
     }

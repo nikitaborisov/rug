@@ -18,6 +18,7 @@ use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
 use crate::float;
 use crate::float::{MiniFloat, ToMini};
+use crate::misc;
 use crate::{Assign, Complex};
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -311,7 +312,7 @@ impl MiniComplex {
         };
         self.inner.re.d = re_d;
         self.inner.im.d = im_d;
-        let ptr = cast_ptr_mut!(&mut self.inner, Complex);
+        let ptr = misc::cast_ptr_mut(&mut self.inner);
         // SAFETY: since inner.re.d and inner.im.d point to the limbs, it is
         // in a consistent state.
         unsafe { &mut *ptr }

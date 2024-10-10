@@ -14,6 +14,7 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::misc;
 use crate::Float;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result as FmtResult,
@@ -151,7 +152,7 @@ impl<'a> BorrowFloat<'a> {
     /// ```
     #[inline]
     pub const fn const_deref<'b>(b: &'b BorrowFloat<'a>) -> &'b Float {
-        let ptr = cast_ptr!(&b.inner, Float);
+        let ptr = misc::cast_ptr(&b.inner);
         // Safety: the inner pointer is valid for the duration of the lifetime.
         unsafe { &*ptr }
     }

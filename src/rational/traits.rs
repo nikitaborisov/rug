@@ -16,6 +16,7 @@
 
 use crate::ext::xmpq;
 use crate::ext::xmpz;
+use crate::misc;
 use crate::misc::StringLike;
 use crate::rational::big;
 #[allow(deprecated)]
@@ -31,7 +32,6 @@ use core::mem;
 use core::mem::MaybeUninit;
 use core::str::FromStr;
 use gmp_mpfr_sys::gmp;
-use gmp_mpfr_sys::gmp::mpq_t;
 
 impl Default for Rational {
     #[inline]
@@ -45,10 +45,10 @@ impl Clone for Rational {
     fn clone(&self) -> Rational {
         unsafe {
             let mut dst = MaybeUninit::uninit();
-            let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpq_t);
-            let num = cast_ptr_mut!(gmp::mpq_numref(inner_ptr), Integer);
+            let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
+            let num = misc::cast_ptr_mut(gmp::mpq_numref(inner_ptr));
             xmpz::init_set(num, self.numer());
-            let den = cast_ptr_mut!(gmp::mpq_denref(inner_ptr), Integer);
+            let den = misc::cast_ptr_mut(gmp::mpq_denref(inner_ptr));
             xmpz::init_set(den, self.denom());
             dst.assume_init()
         }
@@ -228,10 +228,10 @@ where
         // Safety: no need to canonicalize, as denominator will be 1.
         unsafe {
             let mut dst = MaybeUninit::uninit();
-            let inner_ptr = cast_ptr_mut!(dst.as_mut_ptr(), mpq_t);
-            let num = cast_ptr_mut!(gmp::mpq_numref(inner_ptr), Integer);
+            let inner_ptr = misc::cast_ptr_mut(dst.as_mut_ptr());
+            let num = misc::cast_ptr_mut::<_, Integer>(gmp::mpq_numref(inner_ptr));
             num.write(Integer::from(src));
-            let den = cast_ptr_mut!(gmp::mpq_denref(inner_ptr), Integer);
+            let den = misc::cast_ptr_mut(gmp::mpq_denref(inner_ptr));
             xmpz::init_set_u32(den, 1);
             dst.assume_init()
         }
