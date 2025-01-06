@@ -4,6 +4,11 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.27.0 (unreleased)
+===========================
+
+  * The [*az* crate], which is a dependency, is now re-exported.
+
 Version 1.26.1 (2024-09-11)
 ===========================
 

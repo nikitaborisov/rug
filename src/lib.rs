@@ -587,6 +587,8 @@ pub use crate::complex::big::Complex;
 #[cfg(feature = "rand")]
 pub mod rand;
 
+pub use az;
+
 #[cfg(any(feature = "integer", feature = "float"))]
 mod static_assertions {
     use gmp_mpfr_sys::gmp::{limb_t, LIMB_BITS, NAIL_BITS, NUMB_BITS};

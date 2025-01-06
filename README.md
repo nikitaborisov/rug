@@ -28,6 +28,12 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.27.0 news (unreleased)
+
+  * The [*az* crate], which is a dependency, is now re-exported.
+
+[*az* crate]: https://crates.io/crates/az
+
 ### Version 1.26.1 news (2024-09-11)
 
   * Bug fix: implementations of [`CompleteRound`][compr-1-26] were wrongly using
