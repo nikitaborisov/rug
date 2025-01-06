@@ -30,7 +30,7 @@ fn check_int_conversions() {
     i <<= 4;
     assert_eq!(i.to_u32_wrapping(), 0xf000_0000u32);
     assert_eq!(i.to_i32_wrapping(), 0xf000_0000u32.wrapping_as::<i32>());
-    i = i.clone() << 32 | i;
+    i = (i.clone() << 32) | i;
     assert_eq!(i.to_u32_wrapping(), 0xf000_0000u32);
     assert_eq!(i.to_i32_wrapping(), 0xf000_0000u32.wrapping_as::<i32>());
     i.neg_assign();
@@ -156,7 +156,7 @@ fn check_float_conversions() {
     i <<= 80;
     assert_eq!(i.to_f32(), 255.0 * 2f32.powi(80));
     assert_eq!(i.to_f64(), 255.0 * 2f64.powi(80));
-    i = i.clone() << 30 | i;
+    i = (i.clone() << 30) | i;
     assert_eq!(i.to_f32(), 255.0 * 2f32.powi(110));
     assert_eq!(i.to_f64(), 255.0 * (2f64.powi(80) + 2f64.powi(110)));
     i <<= 100;

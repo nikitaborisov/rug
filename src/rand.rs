@@ -1533,7 +1533,7 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let n = u64::from(gen.gen()) | u64::from(gen.gen()) << 32;
+        let n = u64::from(gen.gen()) | (u64::from(gen.gen()) << 32);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(i) = n;
@@ -1608,7 +1608,7 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
     let (limbs, rest) = (nbits / 64, nbits % 64);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let n = u64::from(gen.gen()) | u64::from(gen.gen()) << 32;
+        let n = u64::from(gen.gen()) | (u64::from(gen.gen()) << 32);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(i) = n;

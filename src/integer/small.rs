@@ -219,10 +219,10 @@ mod tests {
         assert_eq!(*i, 0xf_0000_0006u64);
         i.assign(-0xf_0000_0006i64);
         assert_eq!(*i, -0xf_0000_0006i64);
-        i.assign(6u128 << 64 | 7u128);
-        assert_eq!(*i, 6u128 << 64 | 7u128);
-        i.assign(-6i128 << 64 | 7i128);
-        assert_eq!(*i, -6i128 << 64 | 7i128);
+        i.assign((6u128 << 64) | 7u128);
+        assert_eq!(*i, (6u128 << 64) | 7u128);
+        i.assign((-6i128 << 64) | 7i128);
+        assert_eq!(*i, (-6i128 << 64) | 7i128);
         i.assign(6usize);
         assert_eq!(*i, 6);
         i.assign(-6isize);

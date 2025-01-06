@@ -96,7 +96,7 @@ pub fn get_abs_u128(op: &Integer) -> u128 {
         match op.inner().size {
             0 => 0,
             -1 | 1 => u128::from(limb(op, 0)),
-            _ => u128::from(limb(op, 1)) << 64 | u128::from(limb(op, 0)),
+            _ => (u128::from(limb(op, 1)) << 64) | u128::from(limb(op, 0)),
         }
     }
 }
