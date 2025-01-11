@@ -511,6 +511,32 @@ unsafe_wrap! { fn shr_isize(op1: O; op2: isize) -> div_2isize }
 unsafe_wrap! { fn shl_usize(op1: O; op2: usize) -> mul_2usize }
 unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> div_2usize }
 
+pub fn remainder_quo31<O: OptFloat, P: OptFloat>(
+    rop: &mut Float,
+    op1: O,
+    op2: P,
+    rnd: Round,
+) -> (Ordering, i32) {
+    let rop = rop.as_raw_mut();
+    let op1 = op1.mpfr_or(rop);
+    let op2 = op2.mpfr_or(rop);
+    let ord;
+    let quo31;
+    unsafe {
+        let mut quo_long = MaybeUninit::<c_long>::uninit();
+        ord = mpfr::remquo(rop, quo_long.as_mut_ptr(), op1, op2, raw_round(rnd));
+        quo31 = if mpfr::nan_p(rop) == 0 {
+            let quo_long = quo_long.assume_init();
+            let lower31 = (quo_long as i32) & i32::MAX;
+            let sign = (quo_long.is_negative() as i32) << 31;
+            sign | lower31
+        } else {
+            0
+        };
+    }
+    (ordering1(ord), quo31)
+}
+
 #[cfg(feature = "nightly-float")]
 #[inline]
 pub fn set_f16(rop: &mut Float, src: f16, rnd: Round) -> Ordering {

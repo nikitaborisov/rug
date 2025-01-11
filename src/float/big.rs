@@ -2942,6 +2942,179 @@ impl Float {
         }
     }
 
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient, rounding to the nearest.
+    ///
+    /// The remainder is the value of
+    /// `self`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`divisor`, where <i>n</i>
+    /// is the integer quotient of `self`&nbsp;/&nbsp;`divisor` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the `%` operator or the [`Rem`][core::ops::Rem]
+    /// trait, where <i>n</i> is truncated instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also returned with the
+    /// sign of `self`/`divisor`. Note that `self` may be so large in magnitude
+    /// relative to `divisor` that an exact representation of the quotient is
+    /// not practical.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let num = Float::with_val(53, 589.4);
+    /// let den = Float::with_val(53, 100);
+    /// let (remainder, quo31) = num.remainder_quo31(&den);
+    /// let expected = -10.6_f64;
+    /// assert!((remainder - expected).abs() < 0.0001);
+    /// assert_eq!(quo31, 6);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn remainder_quo31(mut self, divisor: &Self) -> (Self, i32) {
+        let (_, quo31) = self.remainder_quo31_round(divisor, Round::Nearest);
+        (self, quo31)
+    }
+
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient, rounding to the nearest.
+    ///
+    /// The remainder is the value of
+    /// `self`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`divisor`, where <i>n</i>
+    /// is the integer quotient of `self`&nbsp;/&nbsp;`divisor` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the `%=` operator or the
+    /// [`RemAssign`][core::ops::RemAssign] trait, where <i>n</i> is truncated
+    /// instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also returned with the
+    /// sign of `self`/`divisor`. Note that `self` may be so large in magnitude
+    /// relative to `divisor` that an exact representation of the quotient is
+    /// not practical.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let mut f = Float::with_val(53, 589.4);
+    /// let g = Float::with_val(53, 100);
+    /// let quo31 = f.remainder_quo31_mut(&g);
+    /// let expected = -10.6_f64;
+    /// assert!((f - expected).abs() < 0.0001);
+    /// assert_eq!(quo31, 6);
+    /// ```
+    #[inline]
+    pub fn remainder_quo31_mut(&mut self, divisor: &Self) -> i32 {
+        let (_, quo31) = self.remainder_quo31_round(divisor, Round::Nearest);
+        quo31
+    }
+
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient, applying the specified rounding method.
+    ///
+    /// The remainder is the value of
+    /// `self`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`divisor`, where <i>n</i>
+    /// is the integer quotient of `self`&nbsp;/&nbsp;`divisor` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the
+    /// [`RemAssignRound`][crate::ops::RemAssignRound] trait, where <i>n</i> is
+    /// truncated instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also returned with the
+    /// sign of `self`/`divisor`. Note that `self` may be so large in magnitude
+    /// relative to `divisor` that an exact representation of the quotient is
+    /// not practical.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut f = Float::with_val(4, 128);
+    /// let g = Float::with_val(6, 49);
+    /// // remainder of 128 / 49 is 128 - 3 × 49 = -19
+    /// // using 4 significant bits: -20
+    /// let (dir, quo31) = f.remainder_quo31_round(&g, Round::Nearest);
+    /// assert_eq!(f, -20.0);
+    /// assert_eq!(dir, Ordering::Less);
+    /// assert_eq!(quo31, 3);
+    /// ```
+    #[inline]
+    pub fn remainder_quo31_round(&mut self, divisor: &Self, round: Round) -> (Ordering, i32) {
+        xmpfr::remainder_quo31(self, (), divisor, round)
+    }
+
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient, rounding to the nearest.
+    ///
+    /// The remainder is the value of
+    /// `dividend`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`self`, where <i>n</i>
+    /// is the integer quotient of `dividend`&nbsp;/&nbsp;`self` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the [`RemFrom`] trait, where <i>n</i> is
+    /// truncated instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also returned with the
+    /// sign of `dividend`/`self`. Note that `dividend` may be so large in
+    /// magnitude relative to `self` that an exact representation of the
+    /// quotient is not practical.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 589.4);
+    /// let mut g = Float::with_val(53, 100);
+    /// let quo31 = g.remainder_quo31_from(&f);
+    /// let expected = -10.6_f64;
+    /// assert!((g - expected).abs() < 0.0001);
+    /// assert_eq!(quo31, 6);
+    /// ```
+    ///
+    /// [`RemFrom`]: `crate::ops::RemFrom`
+    #[inline]
+    pub fn remainder_quo31_from(&mut self, dividend: &Self) -> i32 {
+        let (_, quo31) = self.remainder_quo31_from_round(dividend, Round::Nearest);
+        quo31
+    }
+
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient, applying the specified rounding method.
+    ///
+    /// The remainder is the value of
+    /// `dividend`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`self`, where <i>n</i>
+    /// is the integer quotient of `dividend`&nbsp;/&nbsp;`self` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the [`RemFromRound`][crate::ops::RemFromRound]
+    /// trait, where <i>n</i> is truncated instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also returned with the
+    /// sign of `dividend`/`self`. Note that `dividend` may be so large in
+    /// magnitude relative to `self` that an exact representation of the
+    /// quotient is not practical.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Float;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let f = Float::with_val(8, 171);
+    /// let mut g = Float::with_val(4, 64);
+    /// // remainder of 171 / 64 is 171 - 3 × 64 = -21
+    /// // using 4 significant bits: -20
+    /// let (dir, quo31) = g.remainder_quo31_from_round(&f, Round::Nearest);
+    /// assert_eq!(g, -20.0);
+    /// assert_eq!(dir, Ordering::Greater);
+    /// assert_eq!(quo31, 3);
+    /// ```
+    #[inline]
+    pub fn remainder_quo31_from_round(&mut self, dividend: &Self, round: Round) -> (Ordering, i32) {
+        xmpfr::remainder_quo31(self, dividend, (), round)
+    }
+
     /// Multiplies and adds in one fused operation, rounding to the nearest with
     /// only one rounding error.
     ///
