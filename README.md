@@ -32,6 +32,8 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
   * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
   * The following methods were added to [`Float`][flo-1-27]:
+     * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
+       [`frexp_ref`][flo-fr-1-27] ([issue 76])
      * [`remainder_quo31`][flo-rq-1-27], [`remainder_quo31_mut`][flo-rqm-1-27],
        [`remainder_quo31_round`][flo-rqr-1-27] ([issue 76])
      * [`remainder_quo31_from`][flo-rqf-1-27],
@@ -40,6 +42,9 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 [*az* crate]: https://crates.io/crates/az
 [flo-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
+[flo-f-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp
+[flo-fm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp_mut
+[flo-fr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp_ref
 [flo-rq-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31
 [flo-rqf-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_from
 [flo-rqfr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_from_round

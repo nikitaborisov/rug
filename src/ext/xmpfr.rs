@@ -538,6 +538,25 @@ pub fn remainder_quo31<O: OptFloat, P: OptFloat>(
     (ordering1(ord), quo31)
 }
 
+#[inline]
+pub fn frexp<O: OptFloat>(rop: &mut Float, op: O, rnd: Round) -> (Ordering, i32) {
+    let rop = rop.as_raw_mut();
+    let op = op.mpfr_or(rop);
+    let ord;
+    let exp32;
+    unsafe {
+        let mut exp = MaybeUninit::<exp_t>::uninit();
+        ord = mpfr::frexp(exp.as_mut_ptr(), rop, op, raw_round(rnd));
+        exp32 = if mpfr::number_p(rop) != 0 {
+            let exp = exp.assume_init();
+            exp.unwrapped_cast()
+        } else {
+            0
+        };
+    }
+    (ordering1(ord), exp32)
+}
+
 #[cfg(feature = "nightly-float")]
 #[inline]
 pub fn set_f16(rop: &mut Float, src: f16, rnd: Round) -> Ordering {

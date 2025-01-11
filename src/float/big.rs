@@ -3162,6 +3162,78 @@ impl Float {
         }
     }
 
+    /// Decomposes number into significand and exponent, rounding to the nearest.
+    ///
+    /// The significand is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let three_eighths = Float::with_val(53, 0.375);
+    /// let (f, exp) = three_eighths.frexp();
+    /// assert_eq!(f, 0.75);
+    /// assert_eq!(exp, -1);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn frexp(mut self) -> (Self, i32) {
+        let exp = self.frexp_mut();
+        (self, exp)
+    }
+
+    /// Decomposes number into significand and exponent, rounding to the nearest.
+    ///
+    /// The significand is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let mut f = Float::with_val(53, 0.375);
+    /// let exp = f.frexp_mut();
+    /// assert_eq!(f, 0.75);
+    /// assert_eq!(exp, -1);
+    /// ```
+    #[inline]
+    pub fn frexp_mut(&mut self) -> i32 {
+        let (dir, exp) = xmpfr::frexp(self, (), Round::Nearest);
+        debug_assert_eq!(dir, Ordering::Equal);
+        exp
+    }
+
+    /// Decomposes number into significand and exponent.
+    ///
+    /// The significand is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [(][tuple][Float][], [i32][][)][tuple]</code>
+    ///   * <code>[Assign]\<Src> for [(][tuple]\&mut [Float], \&mut [i32][][)][tuple]</code>
+    ///   * <code>[AssignRound]\<Src> for [(][tuple][Float][], [i32][][)][tuple]</code>
+    ///   * <code>[AssignRound]\<Src> for [(][tuple]\&mut [Float], \&mut [i32][][)][tuple]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [(][tuple][Float][], [i32][][)][tuple]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::{Assign, Float};
+    /// let f = Float::with_val(53, 0.38);
+    /// // 0.38 is 0.76 with exp -1; with two bits of precision 0.76 is rounded to 0.75
+    /// let frexp = f.frexp_ref();
+    /// let mut significand = Float::new(2);
+    /// let mut exp = 0i32;
+    /// (&mut significand, &mut exp).assign(frexp);
+    /// assert_eq!(significand, 0.75);
+    /// assert_eq!(exp, -1);
+    /// ```
+    ///
+    /// [icv]: crate#incomplete-computation-values
+    #[inline]
+    pub fn frexp_ref(&self) -> FrexpIncomplete<'_> {
+        FrexpIncomplete { ref_self: self }
+    }
+
     /// Multiplies and adds in one fused operation, rounding to the nearest with
     /// only one rounding error.
     ///
@@ -11751,6 +11823,58 @@ impl AssignRound<RemainderQuo31Incomplete<'_>> for (&mut Float, &mut i32) {
 }
 
 impl CompleteRound for RemainderQuo31Incomplete<'_> {
+    type Completed = (Float, i32);
+    type Prec = u32;
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn complete_round(self, prec: u32, round: Round) -> ((Float, i32), Ordering) {
+        let mut ret = (Float::new(prec), 0i32);
+        let dir = ret.assign_round(self, round);
+        (ret, dir)
+    }
+}
+
+#[derive(Debug)]
+pub struct FrexpIncomplete<'a> {
+    ref_self: &'a Float,
+}
+
+impl Assign<FrexpIncomplete<'_>> for (Float, i32) {
+    #[inline]
+    fn assign(&mut self, src: FrexpIncomplete) {
+        self.assign_round(src, Round::Nearest);
+    }
+}
+
+impl Assign<FrexpIncomplete<'_>> for (&mut Float, &mut i32) {
+    #[inline]
+    fn assign(&mut self, src: FrexpIncomplete) {
+        self.assign_round(src, Round::Nearest);
+    }
+}
+
+impl AssignRound<FrexpIncomplete<'_>> for (Float, i32) {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: FrexpIncomplete<'_>, round: Round) -> Ordering {
+        (&mut self.0, &mut self.1).assign_round(src, round)
+    }
+}
+
+impl AssignRound<FrexpIncomplete<'_>> for (&mut Float, &mut i32) {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: FrexpIncomplete<'_>, round: Round) -> Ordering {
+        let (dir, exp) = xmpfr::frexp(self.0, src.ref_self, round);
+        *(self.1) = exp;
+        dir
+    }
+}
+
+impl CompleteRound for FrexpIncomplete<'_> {
     type Completed = (Float, i32);
     type Prec = u32;
     type Round = Round;
