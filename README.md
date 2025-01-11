@@ -32,6 +32,10 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
   * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
   * The following methods were added to [`Float`][flo-1-27]:
+     * [`to_integer_in_place`][flo-tiip-1-27],
+       [`to_integer_round_in_place`][flo-tirip-1-27],
+       [`to_integer_exp_in_place`][flo-tieip-1-27] ([issue 75])
+     * [`to_rational_in_place`][flo-trip-1-27] ([issue 75])
      * [`remainder_quo31`][flo-rq-1-27], [`remainder_quo31_mut`][flo-rqm-1-27],
        [`remainder_quo31_round`][flo-rqr-1-27] ([issue 76])
      * [`remainder_quo31_from`][flo-rqf-1-27],
@@ -51,7 +55,12 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 [flo-rqm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_mut
 [flo-rqr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_round
 [flo-rqref-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_ref
+[flo-tieip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_exp_in_place
+[flo-tiip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_in_place
+[flo-tirip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_round_in_place
+[flo-trip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_rational_in_place
 [issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
+[issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
 [issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
 
 ### Version 1.26.1 news (2024-09-11)

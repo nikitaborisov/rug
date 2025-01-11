@@ -1038,6 +1038,152 @@ impl Float {
         self.checked_cast()
     }
 
+    #[cfg(feature = "integer")]
+    /// If the value is a [finite number][Float::is_finite], converts it to an
+    /// [`Integer`] rounding to the nearest.
+    ///
+    /// This method is similar to [`to_integer`][Float::to_integer] but does not
+    /// create a new [`Integer`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::{Float, Integer};
+    /// let f = Float::with_val(53, 13.7);
+    /// let mut i = Integer::new();
+    /// let is_finite = f.to_integer_in_place(&mut i);
+    /// assert!(is_finite);
+    /// assert_eq!(i, 14);
+    /// ```
+    #[inline]
+    pub fn to_integer_in_place(&self, i: &mut Integer) -> bool {
+        self.to_integer_round_in_place(i, Round::Nearest).is_some()
+    }
+
+    #[cfg(feature = "integer")]
+    /// If the value is a [finite number][Float::is_finite], converts it to an
+    /// [`Integer`] applying the specified rounding method.
+    ///
+    /// This method is similar to [`to_integer_round`][Float::to_integer_round]
+    /// but does not create a new [`Integer`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::{Float, Integer};
+    /// let f = Float::with_val(53, 13.7);
+    /// let mut i = Integer::new();
+    /// let dir = f.to_integer_round_in_place(&mut i, Round::Down).unwrap();
+    /// assert_eq!(i, 13);
+    /// assert_eq!(dir, Ordering::Less);
+    /// ```
+    #[inline]
+    pub fn to_integer_round_in_place(&self, i: &mut Integer, round: Round) -> Option<Ordering> {
+        if !self.is_finite() {
+            return None;
+        }
+        let dir = unsafe { mpfr::get_z(i.as_raw_mut(), self.as_raw(), raw_round(round)) };
+        Some(ordering1(dir))
+    }
+
+    #[cfg(feature = "integer")]
+    /// If the value is a [finite number][Float::is_finite], returns an
+    /// [`Integer`] and exponent such that it is exactly equal to the integer
+    /// multiplied by two raised to the power of the exponent.
+    ///
+    /// This method is similar to [`to_integer_exp`][Float::to_integer_exp] but
+    /// does not create a new [`Integer`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::{Float, Integer};
+    /// let float = Float::with_val(16, 6.5);
+    /// let mut int = Integer::new();
+    /// // 6.5 in binary is 110.1
+    /// // Since the precision is 16 bits, this becomes
+    /// // 1101_0000_0000_0000 times two to the power of -12
+    /// let exp = float.to_integer_exp_in_place(&mut int).unwrap();
+    /// assert_eq!(int, 0b1101_0000_0000_0000);
+    /// assert_eq!(exp, -13);
+    #[inline]
+    pub fn to_integer_exp_in_place(&self, i: &mut Integer) -> Option<i32> {
+        if !self.is_finite() {
+            return None;
+        }
+        let exp = unsafe { mpfr::get_z_2exp(i.as_raw_mut(), self.as_raw()) };
+        // Do not panic if i is zero and minimum exponent is smaller than i32::MIN.
+        let exp = if i.is_zero() {
+            exp.saturating_cast()
+        } else {
+            exp.unwrapped_cast()
+        };
+        Some(exp)
+    }
+
+    #[cfg(feature = "rational")]
+    /// If the value is a [finite number][Float::is_finite], returns a
+    /// [`Rational`] number preserving all the precision of the value.
+    ///
+    /// This method is similar to [`to_rational`][Float::to_rational] but does
+    /// not create a new [`Rational`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use core::str::FromStr;
+    /// use rug::float::Round;
+    /// use rug::{Float, Rational};
+    ///
+    /// // Consider the number 123,456,789 / 10,000,000,000.
+    /// let parse = Float::parse("0.0123456789").unwrap();
+    /// let (f, f_rounding) = Float::with_val_round(35, parse, Round::Down);
+    /// assert_eq!(f_rounding, Ordering::Less);
+    /// let r = Rational::from_str("123456789/10000000000").unwrap();
+    /// // Set fr to the value of f exactly.
+    /// let mut fr = Rational::new();
+    /// let is_finite = f.to_rational_in_place(&mut fr);
+    /// assert!(is_finite);
+    /// // Since f == fr and f was rounded down, r != fr.
+    /// assert_ne!(r, fr);
+    /// let (frf, frf_rounding) = Float::with_val_round(35, &fr, Round::Down);
+    /// assert_eq!(frf_rounding, Ordering::Equal);
+    /// assert_eq!(frf, f);
+    /// assert_eq!(format!("{:.9}", frf), "1.23456789e-2");
+    /// ```
+    ///
+    /// In the following example, the [`Float`] values can be represented
+    /// exactly.
+    ///
+    /// ```rust
+    /// use rug::{Float, Rational};
+    ///
+    /// let large_f = Float::with_val(16, 6.5);
+    /// let mut large_r = Rational::new();
+    /// let is_finite = large_f.to_rational_in_place(&mut large_r);
+    /// assert!(is_finite);
+    /// let small_f = Float::with_val(16, -0.125);
+    /// let mut small_r = Rational::new();
+    /// let is_finite = small_f.to_rational_in_place(&mut small_r);
+    /// assert!(is_finite);
+    ///
+    /// assert_eq!(*large_r.numer(), 13);
+    /// assert_eq!(*large_r.denom(), 2);
+    /// assert_eq!(*small_r.numer(), -1);
+    /// assert_eq!(*small_r.denom(), 8);
+    /// ```
+    #[inline]
+    pub fn to_rational_in_place(&self, r: &mut Rational) -> bool {
+        if !self.is_finite() {
+            return false;
+        }
+        xmpfr::get_q(r, self);
+        true
+    }
+
     /// Converts to an [`i32`], rounding to the nearest.
     ///
     /// If the value is too small or too large for the target type, the minimum
