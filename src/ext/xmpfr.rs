@@ -25,7 +25,7 @@ use crate::Float;
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
-use az::{CheckedAs, UnwrappedCast};
+use az::{CheckedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem::MaybeUninit;
@@ -528,8 +528,8 @@ pub fn remainder_quo31<O: OptFloat, P: OptFloat>(
         ord = mpfr::remquo(rop, quo_long.as_mut_ptr(), op1, op2, raw_round(rnd));
         quo31 = if mpfr::nan_p(rop) == 0 {
             let quo_long = quo_long.assume_init();
-            let lower31 = (quo_long as i32) & i32::MAX;
-            let sign = (quo_long.is_negative() as i32) << 31;
+            let lower31 = quo_long.wrapping_as::<i32>() & i32::MAX;
+            let sign = quo_long.is_negative().wrapping_as::<i32>() << 31;
             sign | lower31
         } else {
             0
