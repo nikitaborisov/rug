@@ -139,16 +139,16 @@ pub fn get_abs_u128(op: &Integer) -> u128 {
         match op.inner().size {
             0 => 0,
             -1 | 1 => u128::from(limb(op, 0)),
-            -2 | 2 => u128::from(limb(op, 1)) << 32 | u128::from(limb(op, 0)),
+            -2 | 2 => (u128::from(limb(op, 1)) << 32) | u128::from(limb(op, 0)),
             -3 | 3 => {
-                u128::from(limb(op, 2)) << 64
-                    | u128::from(limb(op, 1)) << 32
+                (u128::from(limb(op, 2)) << 64)
+                    | (u128::from(limb(op, 1)) << 32)
                     | u128::from(limb(op, 0))
             }
             _ => {
-                u128::from(limb(op, 3)) << 96
-                    | u128::from(limb(op, 2)) << 64
-                    | u128::from(limb(op, 1)) << 32
+                (u128::from(limb(op, 3)) << 96)
+                    | (u128::from(limb(op, 2)) << 64)
+                    | (u128::from(limb(op, 1)) << 32)
                     | u128::from(limb(op, 0))
             }
         }
@@ -161,7 +161,7 @@ pub fn get_abs_u64(op: &Integer) -> u64 {
         match op.inner().size {
             0 => 0,
             -1 | 1 => u64::from(limb(op, 0)),
-            _ => u64::from(limb(op, 1)) << 32 | u64::from(limb(op, 0)),
+            _ => (u64::from(limb(op, 1)) << 32) | u64::from(limb(op, 0)),
         }
     }
 }
