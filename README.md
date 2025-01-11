@@ -30,9 +30,10 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.27.0 news (unreleased)
 
-  * The [*az* crate], which is a dependency, is now re-exported.
+  * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
 
 [*az* crate]: https://crates.io/crates/az
+[issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
 
 ### Version 1.26.1 news (2024-09-11)
 

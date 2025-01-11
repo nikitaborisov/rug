@@ -7,7 +7,9 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.27.0 (unreleased)
 ===========================
 
-  * The [*az* crate], which is a dependency, is now re-exported.
+  * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
+
+[issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
 
 Version 1.26.1 (2024-09-11)
 ===========================
