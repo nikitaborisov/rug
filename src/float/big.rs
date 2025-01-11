@@ -3115,6 +3115,53 @@ impl Float {
         xmpfr::remainder_quo31(self, dividend, (), round)
     }
 
+    /// Computes the remainder and the 31 least significant bits of the
+    /// quotient.
+    ///
+    /// The remainder is the value of
+    /// `self`&nbsp;&minus;&nbsp;<i>n</i>&nbsp;×&nbsp;`divisor`, where <i>n</i>
+    /// is the integer quotient of `self`&nbsp;/&nbsp;`divisor` rounded to the
+    /// nearest integer (ties rounded to even). This is different from the
+    /// remainder obtained using the `%` operator or the [`Rem`][core::ops::Rem]
+    /// trait, where <i>n</i> is truncated instead of rounded to the nearest.
+    ///
+    /// The 31 least significant bits of the quotient are also computed with the
+    /// sign of `dividend`/`divisor`. Note that `dividend` may be so large in
+    /// magnitude relative to `divisor` that an exact representation of the
+    /// quotient is not practical.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [(][tuple][Float][], [i32][][)][tuple]</code>
+    ///   * <code>[Assign]\<Src> for [(][tuple]\&mut [Float], \&mut [i32][][)][tuple]</code>
+    ///   * <code>[AssignRound]\<Src> for [(][tuple][Float][], [i32][][)][tuple]</code>
+    ///   * <code>[AssignRound]\<Src> for [(][tuple]\&mut [Float], \&mut [i32][][)][tuple]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [(][tuple][Float][], [i32][][)][tuple]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::{Assign, Float};
+    /// let f = Float::with_val(53, 589.4);
+    /// let g = Float::with_val(53, 100);
+    /// let rem_quo31 = f.remainder_quo31_ref(&g);
+    /// let mut remainder = Float::new(53);
+    /// let mut quo31 = 0i32;
+    /// (&mut remainder, &mut quo31).assign(rem_quo31);
+    /// let expected = -10.6_f64;
+    /// assert!((remainder - expected).abs() < 0.0001);
+    /// assert_eq!(quo31, 6);
+    /// ```
+    ///
+    /// [icv]: crate#incomplete-computation-values
+    #[inline]
+    pub fn remainder_quo31_ref<'a>(&'a self, divisor: &'a Self) -> RemainderQuo31Incomplete<'a> {
+        RemainderQuo31Incomplete {
+            ref_self: self,
+            divisor,
+        }
+    }
+
     /// Multiplies and adds in one fused operation, rounding to the nearest with
     /// only one rounding error.
     ///
@@ -11662,6 +11709,60 @@ where
 }
 
 ref_math_op2_float! { xmpfr::remainder; struct RemainderIncomplete { divisor } }
+
+#[derive(Debug)]
+pub struct RemainderQuo31Incomplete<'a> {
+    ref_self: &'a Float,
+    divisor: &'a Float,
+}
+
+impl Assign<RemainderQuo31Incomplete<'_>> for (Float, i32) {
+    #[inline]
+    fn assign(&mut self, src: RemainderQuo31Incomplete) {
+        self.assign_round(src, Round::Nearest);
+    }
+}
+
+impl Assign<RemainderQuo31Incomplete<'_>> for (&mut Float, &mut i32) {
+    #[inline]
+    fn assign(&mut self, src: RemainderQuo31Incomplete) {
+        self.assign_round(src, Round::Nearest);
+    }
+}
+
+impl AssignRound<RemainderQuo31Incomplete<'_>> for (Float, i32) {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: RemainderQuo31Incomplete<'_>, round: Round) -> Ordering {
+        (&mut self.0, &mut self.1).assign_round(src, round)
+    }
+}
+
+impl AssignRound<RemainderQuo31Incomplete<'_>> for (&mut Float, &mut i32) {
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn assign_round(&mut self, src: RemainderQuo31Incomplete<'_>, round: Round) -> Ordering {
+        let (dir, quo31) = xmpfr::remainder_quo31(self.0, src.ref_self, src.divisor, round);
+        *(self.1) = quo31;
+        dir
+    }
+}
+
+impl CompleteRound for RemainderQuo31Incomplete<'_> {
+    type Completed = (Float, i32);
+    type Prec = u32;
+    type Round = Round;
+    type Ordering = Ordering;
+    #[inline]
+    fn complete_round(self, prec: u32, round: Round) -> ((Float, i32), Ordering) {
+        let mut ret = (Float::new(prec), 0i32);
+        let dir = ret.assign_round(self, round);
+        (ret, dir)
+    }
+}
+
 ref_math_op0_float! { xmpfr::ui_2exp; struct UExpIncomplete { u: u32, exp: i32 } }
 ref_math_op0_float! { xmpfr::si_2exp; struct IExpIncomplete { i: i32, exp: i32 } }
 ref_math_op0_float! { xmpfr::ui_pow_ui; struct UPowUIncomplete { base: u32, exponent: u32 } }

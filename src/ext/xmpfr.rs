@@ -511,6 +511,7 @@ unsafe_wrap! { fn shr_isize(op1: O; op2: isize) -> div_2isize }
 unsafe_wrap! { fn shl_usize(op1: O; op2: usize) -> mul_2usize }
 unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> div_2usize }
 
+#[inline]
 pub fn remainder_quo31<O: OptFloat, P: OptFloat>(
     rop: &mut Float,
     op1: O,
