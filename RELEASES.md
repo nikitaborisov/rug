@@ -9,13 +9,13 @@ Version 1.27.0 (unreleased)
 
   * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
   * The following methods were added to [`Float`][flo-1-27]:
-     * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
-       [`frexp_ref`][flo-fr-1-27] ([issue 76])
      * [`remainder_quo31`][flo-rq-1-27], [`remainder_quo31_mut`][flo-rqm-1-27],
        [`remainder_quo31_round`][flo-rqr-1-27] ([issue 76])
      * [`remainder_quo31_from`][flo-rqf-1-27],
        [`remainder_quo31_from_round`][flo-rqfr-1-27]
      * [`remainder_quo31_ref`][flo-rqref-1-27]
+     * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
+       [`frexp_ref`][flo-fr-1-27] ([issue 76])
 
 [flo-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-f-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp
