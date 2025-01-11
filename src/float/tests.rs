@@ -357,7 +357,7 @@ struct OnesZerosRand {
 #[cfg(feature = "std")]
 #[cfg(feature = "rand")]
 impl RandGen for OnesZerosRand {
-    fn gen(&mut self) -> u32 {
+    fn r#gen(&mut self) -> u32 {
         if self.one_words > 0 {
             self.one_words -= 1;
             !0

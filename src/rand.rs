@@ -242,7 +242,7 @@ impl RandState<'_> {
     /// use rug::Integer;
     /// struct Seed;
     /// impl RandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -288,7 +288,7 @@ impl RandState<'_> {
     /// use rug::Integer;
     /// struct Seed;
     /// impl RandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -460,7 +460,7 @@ impl RandState<'_> {
     /// use rug::rand::{RandGen, RandState};
     /// struct Seed;
     /// impl RandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -468,7 +468,7 @@ impl RandState<'_> {
     /// let seed = Box::new(Seed);
     /// let rand = RandState::new_custom_boxed(seed);
     /// let mut back_to_seed = rand.into_custom_boxed().unwrap();
-    /// assert_eq!(back_to_seed.gen(), 0x8CEF_7310);
+    /// assert_eq!(back_to_seed.r#gen(), 0x8CEF_7310);
     /// ```
     ///
     /// [`new_custom_boxed`]: RandState::new_custom_boxed
@@ -572,14 +572,14 @@ This is similar to [`RandState`] but can only be used in a single thread.
 use rug::rand::ThreadRandState;
 # struct Gen { _dummy: *const i32, seed: u64 }
 # impl rug::rand::ThreadRandGen for Gen {
-#     fn gen(&mut self) -> u32 {
+#     fn r#gen(&mut self) -> u32 {
 #         self.seed = self.seed.wrapping_mul(0x5851_F42D_4C95_7F2D).wrapping_add(1);
 #         (self.seed >> 32) as u32
 #     }
 # }
 # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-let mut gen = create_generator();
-let mut rand = ThreadRandState::new_custom(&mut gen);
+let mut gener = create_generator();
+let mut rand = ThreadRandState::new_custom(&mut gener);
 let u = rand.bits(32);
 println!("32 random bits: {:032b}", u);
 ```
@@ -635,7 +635,7 @@ impl ThreadRandState<'_> {
     /// // dummy pointer field to ensure Seed is not Send and not Sync
     /// struct Seed { _unused_ptr: *const () }
     /// impl ThreadRandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -681,7 +681,7 @@ impl ThreadRandState<'_> {
     /// // dummy pointer field to ensure Seed is not Send and not Sync
     /// struct Seed { _unused_ptr: *const () }
     /// impl ThreadRandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -779,14 +779,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::ThreadRandState;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// # }
     /// # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let gen = Box::new(create_generator());
-    /// let rand = ThreadRandState::new_custom_boxed(gen);
+    /// let gener = Box::new(create_generator());
+    /// let rand = ThreadRandState::new_custom_boxed(gener);
     /// let mut raw = rand.into_raw();
     /// unsafe {
     ///     let u = gmp::urandomb_ui(&mut raw, 32) as u32;
@@ -824,14 +824,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::ThreadRandState;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// # }
     /// # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let mut gen = create_generator();
-    /// let mut rand = ThreadRandState::new_custom(&mut gen);
+    /// let mut gener = create_generator();
+    /// let mut rand = ThreadRandState::new_custom(&mut gener);
     /// let raw_ptr = rand.as_raw();
     /// // There is not much you can do with an immutable randstate_t pointer.
     /// println!("pointer: {:p}", raw_ptr);
@@ -858,14 +858,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::ThreadRandState;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// # }
     /// # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let mut gen = create_generator();
-    /// let mut rand = ThreadRandState::new_custom(&mut gen);
+    /// let mut gener = create_generator();
+    /// let mut rand = ThreadRandState::new_custom(&mut gener);
     /// let raw_ptr = rand.as_raw_mut();
     /// unsafe {
     ///     let u1 = gmp::urandomb_ui(raw_ptr, 32) as u32;
@@ -898,7 +898,7 @@ impl ThreadRandState<'_> {
     /// use rug::rand::{ThreadRandGen, ThreadRandState};
     /// struct Seed;
     /// impl ThreadRandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // not really random
     ///         0x8CEF_7310
     ///     }
@@ -906,7 +906,7 @@ impl ThreadRandState<'_> {
     /// let seed = Box::new(Seed);
     /// let rand = ThreadRandState::new_custom_boxed(seed);
     /// let mut back_to_seed = rand.into_custom_boxed().unwrap();
-    /// assert_eq!(back_to_seed.gen(), 0x8CEF_7310);
+    /// assert_eq!(back_to_seed.r#gen(), 0x8CEF_7310);
     /// ```
     ///
     /// [`new_custom_boxed`]: ThreadRandState::new_custom_boxed
@@ -935,16 +935,16 @@ impl ThreadRandState<'_> {
     /// # use az::WrappingCast;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// #     fn seed(&mut self, seed: &Integer) { self.seed = seed.wrapping_cast() }
     /// # }
     /// # fn create_generator_with_seed() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let mut gen = create_generator_with_seed();
+    /// let mut gener = create_generator_with_seed();
     /// let seed = Integer::from(123456);
-    /// let mut rand = ThreadRandState::new_custom(&mut gen);
+    /// let mut rand = ThreadRandState::new_custom(&mut gener);
     /// rand.seed(&seed);
     /// let u1a = rand.bits(32);
     /// let u1b = rand.bits(32);
@@ -976,14 +976,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::ThreadRandState;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// # }
     /// # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let mut gen = create_generator();
-    /// let mut rand = ThreadRandState::new_custom(&mut gen);
+    /// let mut gener = create_generator();
+    /// let mut rand = ThreadRandState::new_custom(&mut gener);
     /// let u = rand.bits(16);
     /// assert!(u < (1 << 16));
     /// println!("16 random bits: {:016b}", u);
@@ -1008,14 +1008,14 @@ impl ThreadRandState<'_> {
     /// use rug::rand::ThreadRandState;
     /// # struct Gen { _dummy: *const i32, seed: u64 }
     /// # impl rug::rand::ThreadRandGen for Gen {
-    /// #     fn gen(&mut self) -> u32 {
+    /// #     fn r#gen(&mut self) -> u32 {
     /// #         self.seed = self.seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
     /// #         (self.seed >> 32) as u32
     /// #     }
     /// # }
     /// # fn create_generator() -> Gen { Gen { _dummy: &0i32, seed: 1 } }
-    /// let mut gen = create_generator();
-    /// let mut rand = ThreadRandState::new_custom(&mut gen);
+    /// let mut gener = create_generator();
+    /// let mut rand = ThreadRandState::new_custom(&mut gener);
     /// let u = rand.below(10000);
     /// assert!(u < 10000);
     /// println!("0 ≤ {} < 10000", u);
@@ -1043,7 +1043,7 @@ struct SimpleGenerator {
     seed: u64,
 }
 impl RandGen for SimpleGenerator {
-    fn gen(&mut self) -> u32 {
+    fn r#gen(&mut self) -> u32 {
         // linear congruential algorithm with m = 64
         const A: u64 = 0x5851_F42D_4C95_7F2D;
         const C: u64 = 1;
@@ -1054,8 +1054,8 @@ impl RandGen for SimpleGenerator {
         self.seed = seed.to_u64_wrapping();
     }
 }
-let mut gen = SimpleGenerator { seed: 1 };
-let mut state = RandState::new_custom(&mut gen);
+let mut gener = SimpleGenerator { seed: 1 };
+let mut state = RandState::new_custom(&mut gener);
 assert_eq!(state.bits(32), 0x5851_F42D);
 assert_eq!(state.bits(32), 0xC0B1_8CCF);
 ```
@@ -1071,7 +1071,7 @@ pub trait RandGen: Send + Sync {
     ///     seed: u64,
     /// }
     /// impl RandGen for SimpleGenerator {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // linear congruential algorithm with m = 64
     ///         const A: u64 = 0x5851_F42D_4C95_7F2D;
     ///         const C: u64 = 1;
@@ -1080,17 +1080,17 @@ pub trait RandGen: Send + Sync {
     ///     }
     /// }
     /// let mut rand = SimpleGenerator { seed: 1 };
-    /// assert_eq!(rand.gen(), 0x5851_F42D);
+    /// assert_eq!(rand.r#gen(), 0x5851_F42D);
     /// assert_eq!(rand.seed, 0x5851_F42D_4C95_7F2E);
-    /// assert_eq!(rand.gen(), 0xC0B1_8CCF);
+    /// assert_eq!(rand.r#gen(), 0xC0B1_8CCF);
     /// assert_eq!(rand.seed, 0xC0B1_8CCF_4E25_2D17);
     /// ```
-    fn gen(&mut self) -> u32;
+    fn r#gen(&mut self) -> u32;
 
     /// Gets up to 32 random bits.
     ///
-    /// The default implementation simply calls the [`gen`] method once and
-    /// returns the most significant required bits.
+    /// The default implementation simply calls the [`gen`][RandGen::gen] method
+    /// once and returns the most significant required bits.
     ///
     /// This method can be overridden to store any unused bits for later use.
     /// This can be useful for example if the random number generation process
@@ -1106,7 +1106,7 @@ pub trait RandGen: Send + Sync {
     ///     len: u32,
     /// }
     /// impl RandGen for SimpleGenerator {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // linear congruential algorithm with m = 64
     ///         const A: u64 = 0x5851_F42D_4C95_7F2D;
     ///         const C: u64 = 1;
@@ -1117,13 +1117,13 @@ pub trait RandGen: Send + Sync {
     ///         let mut bits = match bits {
     ///             0 => return 0,
     ///             1..=31 => bits,
-    ///             _ => return self.gen(),
+    ///             _ => return self.r#gen(),
     ///         };
     ///         let mut ret = 0;
     ///         if bits > self.len {
     ///             bits -= self.len;
     ///             ret |= self.buffer << bits;
-    ///             self.buffer = self.gen();
+    ///             self.buffer = self.r#gen();
     ///             self.len = 32;
     ///         }
     ///         self.len -= bits;
@@ -1142,14 +1142,12 @@ pub trait RandGen: Send + Sync {
     /// assert_eq!(rand.gen_bits(24), ((first_32 & 0xFF) << 16) | (second_32 >> 16));
     /// assert_eq!(rand.gen_bits(16), second_32 & 0xFFFF);
     /// ```
-    ///
-    /// [`gen`]: RandGen::gen
     fn gen_bits(&mut self, bits: u32) -> u32 {
-        let gen = self.gen();
+        let gener = self.r#gen();
         match bits {
             0 => 0,
-            1..=31 => gen >> (32 - bits),
-            _ => gen,
+            1..=31 => gener >> (32 - bits),
+            _ => gener,
         }
     }
 
@@ -1170,7 +1168,7 @@ pub trait RandGen: Send + Sync {
     ///     inner: Integer,
     /// }
     /// impl RandGen for Seed {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         self.inner.to_u32_wrapping()
     ///     }
     ///     fn seed(&mut self, seed: &Integer) {
@@ -1204,7 +1202,7 @@ pub trait RandGen: Send + Sync {
     ///     seed: u64,
     /// }
     /// impl RandGen for SimpleGenerator {
-    ///     fn gen(&mut self) -> u32 {
+    ///     fn r#gen(&mut self) -> u32 {
     ///         // linear congruential algorithm with m = 64
     ///         const A: u64 = 0x5851_F42D_4C95_7F2D;
     ///         const C: u64 = 1;
@@ -1218,12 +1216,12 @@ pub trait RandGen: Send + Sync {
     ///     }
     /// }
     /// let mut rand = SimpleGenerator { seed: 1 };
-    /// assert_eq!(rand.gen(), 0x5851_F42D);
+    /// assert_eq!(rand.r#gen(), 0x5851_F42D);
     /// assert_eq!(rand.seed, 0x5851_F42D_4C95_7F2E);
     /// let mut other = rand.boxed_clone().unwrap();
-    /// assert_eq!(rand.gen(), 0xC0B1_8CCF);
+    /// assert_eq!(rand.r#gen(), 0xC0B1_8CCF);
     /// assert_eq!(rand.seed, 0xC0B1_8CCF_4E25_2D17);
-    /// assert_eq!(other.gen(), 0xC0B1_8CCF);
+    /// assert_eq!(other.r#gen(), 0xC0B1_8CCF);
     /// ```
     #[cfg(feature = "std")]
     #[inline]
@@ -1258,7 +1256,7 @@ use rand::RngCore;
 use rug::rand::{ThreadRandGen, ThreadRandState};
 struct Generator(ThreadRng);
 impl ThreadRandGen for Generator {
-    fn gen(&mut self) -> u32 {
+    fn r#gen(&mut self) -> u32 {
         self.0.next_u32()
     }
 }
@@ -1286,7 +1284,7 @@ use rand::RngCore;
 use rug::rand::RandGen;
 struct Generator(ThreadRng);
 impl RandGen for Generator {
-    fn gen(&mut self) -> u32 {
+    fn r#gen(&mut self) -> u32 {
         self.0.next_u32()
     }
 }
@@ -1296,12 +1294,12 @@ pub trait ThreadRandGen {
     /// Gets a random 32-bit unsigned integer.
     ///
     /// This is similar to <code>[RandGen]::[gen][RandGen::gen]</code>.
-    fn gen(&mut self) -> u32;
+    fn r#gen(&mut self) -> u32;
 
     /// Gets up to 32 random bits.
     ///
-    /// The default implementation simply calls the [`gen`] method once and
-    /// returns the most significant required bits.
+    /// The default implementation simply calls the [`gen`][ThreadRandGen::gen]
+    /// method once and returns the most significant required bits.
     ///
     /// This method can be overridden to store any unused bits for later use.
     /// This can be useful for example if the random number generation process
@@ -1309,14 +1307,12 @@ pub trait ThreadRandGen {
     ///
     /// This method is similar to
     /// <code>[RandGen]::[gen\_bits][RandGen::gen_bits]</code>.
-    ///
-    /// [`gen`]: ThreadRandGen::gen
     fn gen_bits(&mut self, bits: u32) -> u32 {
-        let gen = self.gen();
+        let gener = self.r#gen();
         match bits {
             0 => 0,
-            1..=32 => gen >> (32 - bits),
-            _ => gen,
+            1..=32 => gener >> (32 - bits),
+            _ => gener,
         }
     }
 
@@ -1529,21 +1525,21 @@ unsafe extern "C" fn thread_custom_boxed_iset(dst: *mut randstate_t, src: *const
 
 #[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_64)]
-unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
+unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let n = u64::from(gen.gen()) | (u64::from(gen.gen()) << 32);
+        let n = u64::from(gener.r#gen()) | (u64::from(gener.r#gen()) << 32);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(i) = n;
         }
     }
     if rest >= 32 {
-        let mut n = u64::from(gen.gen());
+        let mut n = u64::from(gener.r#gen());
         if rest > 32 {
             let mask = !(!0 << (rest - 32));
-            n |= u64::from(gen.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
+            n |= u64::from(gener.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
         }
         let n = n.unwrapped_cast();
         unsafe {
@@ -1551,7 +1547,7 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
         }
     } else if rest > 0 {
         let mask = !(!0 << rest);
-        let n = u64::from(gen.gen_bits(rest.unwrapped_cast()) & mask);
+        let n = u64::from(gener.gen_bits(rest.unwrapped_cast()) & mask);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(limbs) = n;
@@ -1561,18 +1557,18 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
 
 #[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_32)]
-unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
+unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let val = gen.gen().unwrapped_cast();
+        let val = gener.r#gen().unwrapped_cast();
         unsafe {
             *dest.offset(i) = val;
         }
     }
     if rest > 0 {
         let mask = !(!0 << rest);
-        let val = (gen.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
+        let val = (gener.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
         unsafe {
             *dest.offset(limbs) = val;
         }
@@ -1580,10 +1576,10 @@ unsafe fn gen_bits(gen: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
 }
 
 #[cfg(feature = "std")]
-unsafe fn gen_copy(gen: &dyn RandGen, dst: *mut randstate_t) {
+unsafe fn gen_copy(gener: &dyn RandGen, dst: *mut randstate_t) {
     // Do not panic here if boxed_clone returns None, as panics cannot
     // cross FFI boundaries. Instead, set dst_ptr.seed.d to null.
-    let (dst_r_ptr, funcs) = if let Some(other) = gen.boxed_clone() {
+    let (dst_r_ptr, funcs) = if let Some(other) = gener.boxed_clone() {
         let b = Box::<Box<dyn RandGen>>::new(other);
         let dst_r_ptr = NonNull::<Box<dyn RandGen>>::from(Box::leak(b));
         (dst_r_ptr, &CUSTOM_BOXED_FUNCS)
@@ -1604,21 +1600,21 @@ unsafe fn gen_copy(gen: &dyn RandGen, dst: *mut randstate_t) {
 
 #[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_64)]
-unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
+unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let n = u64::from(gen.gen()) | (u64::from(gen.gen()) << 32);
+        let n = u64::from(gener.r#gen()) | (u64::from(gener.r#gen()) << 32);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(i) = n;
         }
     }
     if rest >= 32 {
-        let mut n = u64::from(gen.gen());
+        let mut n = u64::from(gener.r#gen());
         if rest > 32 {
             let mask = !(!0 << (rest - 32));
-            n |= u64::from(gen.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
+            n |= u64::from(gener.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
         }
         let n = n.unwrapped_cast();
         unsafe {
@@ -1626,7 +1622,7 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
         }
     } else if rest > 0 {
         let mask = !(!0 << rest);
-        let n = u64::from(gen.gen_bits(rest.unwrapped_cast()) & mask);
+        let n = u64::from(gener.gen_bits(rest.unwrapped_cast()) & mask);
         let n = n.unwrapped_cast();
         unsafe {
             *dest.offset(limbs) = n;
@@ -1636,18 +1632,18 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
 
 #[cfg(feature = "std")]
 #[cfg(gmp_limb_bits_32)]
-unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
+unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
     let limbs = limbs.unwrapped_as::<isize>();
     for i in 0..limbs {
-        let val = gen.gen().unwrapped_cast();
+        let val = gener.r#gen().unwrapped_cast();
         unsafe {
             *dest.offset(i) = val;
         }
     }
     if rest > 0 {
         let mask = !(!0 << rest);
-        let val = (gen.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
+        let val = (gener.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
         unsafe {
             *dest.offset(limbs) = val;
         }
@@ -1655,10 +1651,10 @@ unsafe fn thread_gen_bits(gen: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits:
 }
 
 #[cfg(feature = "std")]
-unsafe fn thread_gen_copy(gen: &dyn ThreadRandGen, dst: *mut randstate_t) {
+unsafe fn thread_gen_copy(gener: &dyn ThreadRandGen, dst: *mut randstate_t) {
     // Do not panic here if boxed_clone returns None, as panics cannot
     // cross FFI boundaries. Instead, set dst_ptr.seed.d to null.
-    let (dst_r_ptr, funcs) = if let Some(other) = gen.boxed_clone() {
+    let (dst_r_ptr, funcs) = if let Some(other) = gener.boxed_clone() {
         let b = Box::<Box<dyn ThreadRandGen>>::new(other);
         let dst_r_ptr = NonNull::<Box<dyn ThreadRandGen>>::from(Box::leak(b));
         (dst_r_ptr, &THREAD_CUSTOM_BOXED_FUNCS)
@@ -1770,7 +1766,7 @@ mod tests {
 
     #[cfg(feature = "std")]
     impl RandGen for SimpleGenerator {
-        fn gen(&mut self) -> u32 {
+        fn r#gen(&mut self) -> u32 {
             self.seed = self
                 .seed
                 .wrapping_mul(6_364_136_223_846_793_005)
@@ -1788,10 +1784,10 @@ mod tests {
     #[cfg(feature = "std")]
     #[test]
     fn check_custom_clone() {
-        let mut gen = SimpleGenerator { seed: 1 };
+        let mut gener = SimpleGenerator { seed: 1 };
         let third2;
         {
-            let mut rand1 = RandState::new_custom(&mut gen);
+            let mut rand1 = RandState::new_custom(&mut gener);
             let mut rand2 = rand1.clone();
             let first1 = rand1.bits(32);
             let first2 = rand2.bits(32);
@@ -1803,7 +1799,7 @@ mod tests {
             third2 = rand2.bits(32);
             assert_ne!(second2, third2);
         }
-        let mut rand3 = RandState::new_custom_boxed(Box::new(gen));
+        let mut rand3 = RandState::new_custom_boxed(Box::new(gener));
         let mut rand4 = rand3.clone();
         let third3 = rand3.bits(32);
         let third4 = rand4.bits(32);
@@ -1816,7 +1812,7 @@ mod tests {
 
     #[cfg(feature = "std")]
     impl RandGen for NoCloneGenerator {
-        fn gen(&mut self) -> u32 {
+        fn r#gen(&mut self) -> u32 {
             0
         }
     }
@@ -1825,8 +1821,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "`RandGen::boxed_clone` returned `None`")]
     fn check_custom_no_clone() {
-        let mut gen = NoCloneGenerator;
-        let rand1 = RandState::new_custom(&mut gen);
+        let mut gener = NoCloneGenerator;
+        let rand1 = RandState::new_custom(&mut gener);
         let _ = rand1.clone();
     }
 
@@ -1834,8 +1830,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "cannot convert custom `RandState` into raw")]
     fn check_custom_into_raw() {
-        let mut gen = NoCloneGenerator;
-        let rand1 = RandState::new_custom(&mut gen);
+        let mut gener = NoCloneGenerator;
+        let rand1 = RandState::new_custom(&mut gener);
         let _ = rand1.into_raw();
     }
 
@@ -1848,7 +1844,7 @@ mod tests {
 
     #[cfg(feature = "std")]
     impl ThreadRandGen for ThreadSimpleGenerator {
-        fn gen(&mut self) -> u32 {
+        fn r#gen(&mut self) -> u32 {
             self.seed = self
                 .seed
                 .wrapping_mul(6_364_136_223_846_793_005)
@@ -1869,13 +1865,13 @@ mod tests {
     #[cfg(feature = "std")]
     #[test]
     fn thread_check_custom_clone() {
-        let mut gen = ThreadSimpleGenerator {
+        let mut gener = ThreadSimpleGenerator {
             _dummy: ptr::null(),
             seed: 1,
         };
         let third2;
         {
-            let mut rand1 = ThreadRandState::new_custom(&mut gen);
+            let mut rand1 = ThreadRandState::new_custom(&mut gener);
             let mut rand2 = rand1.clone();
             let first1 = rand1.bits(32);
             let first2 = rand2.bits(32);
@@ -1887,7 +1883,7 @@ mod tests {
             third2 = rand2.bits(32);
             assert_ne!(second2, third2);
         }
-        let mut rand3 = ThreadRandState::new_custom_boxed(Box::new(gen));
+        let mut rand3 = ThreadRandState::new_custom_boxed(Box::new(gener));
         let mut rand4 = rand3.clone();
         let third3 = rand3.bits(32);
         let third4 = rand4.bits(32);
@@ -1900,7 +1896,7 @@ mod tests {
 
     #[cfg(feature = "std")]
     impl ThreadRandGen for ThreadNoCloneGenerator {
-        fn gen(&mut self) -> u32 {
+        fn r#gen(&mut self) -> u32 {
             0
         }
     }
@@ -1909,8 +1905,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "`ThreadRandGen::boxed_clone` returned `None`")]
     fn thread_check_custom_no_clone() {
-        let mut gen = ThreadNoCloneGenerator;
-        let rand1 = ThreadRandState::new_custom(&mut gen);
+        let mut gener = ThreadNoCloneGenerator;
+        let rand1 = ThreadRandState::new_custom(&mut gener);
         let _ = rand1.clone();
     }
 
@@ -1918,8 +1914,8 @@ mod tests {
     #[test]
     #[should_panic(expected = "cannot convert custom `ThreadRandState` into raw")]
     fn thread_check_custom_into_raw() {
-        let mut gen = ThreadNoCloneGenerator;
-        let rand1 = ThreadRandState::new_custom(&mut gen);
+        let mut gener = ThreadNoCloneGenerator;
+        let rand1 = ThreadRandState::new_custom(&mut gener);
         let _ = rand1.into_raw();
     }
 
