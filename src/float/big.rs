@@ -2750,7 +2750,7 @@ impl Float {
                     tie.inner.exp = sub_exp_min - 1;
                     tie.inner.sign = if is_negative { -1 } else { 1 };
                     let cmp_tie = (*self)
-                        .partial_cmp(&*tie.borrow_excl())
+                        .partial_cmp(tie.borrow_excl())
                         .unwrap()
                         .then(prev_rounding.reverse());
                     if is_negative {
