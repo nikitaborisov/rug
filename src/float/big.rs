@@ -2665,17 +2665,14 @@ impl Float {
 
     /// Emulate subnormal numbers, rounding to the nearest.
     ///
-    /// Subnormalization is only performed when the exponent lies within the
-    /// subnormal range, that is when
+    /// Subnormalization is only performed when the exponent is
+    /// <&nbsp;`normal_exp_min`.
     ///
-    /// `normal_exp_min` &minus; <i>precision</i> + 1 ≤ <i>exponent</i> <
-    /// `normal_exp_min`
+    /// For example, for IEEE 754 single precision, `normal_exp_min` is
+    /// &minus;125, so this method performs subnormalization only for normal
+    /// numbers with <i>exponent</i>&nbsp;<&nbsp;&minus;125.
     ///
-    /// For example, for IEEE 754 single precision, the precision is 24 and
-    /// `normal_exp_min` is &minus;125, so the subnormal range would be
-    /// &minus;148&nbsp;≤&nbsp;<i>exponent</i>&nbsp;<&nbsp;&minus;125.
-    ///
-    /// This method has no effect if the value is not in the subnormal range.
+    /// This method has no effect if the value is not in this subnormal range.
     ///
     /// # Examples
     ///
@@ -2699,18 +2696,15 @@ impl Float {
 
     /// Emulate subnormal numbers, applying the specified rounding method.
     ///
-    /// Subnormalization is only performed when the exponent lies within the
-    /// subnormal range, that is when
+    /// Subnormalization is only performed when the exponent is
+    /// <&nbsp;`normal_exp_min`.
     ///
-    /// `normal_exp_min` &minus; <i>precision</i> + 1 ≤ <i>exponent</i> <
-    /// `normal_exp_min`
+    /// For example, for IEEE 754 single precision, `normal_exp_min` is
+    /// &minus;125, so this method performs subnormalization only for normal
+    /// numbers with <i>exponent</i>&nbsp;<&nbsp;&minus;125.
     ///
-    /// For example, for IEEE 754 single precision, the precision is 24 and
-    /// `normal_exp_min` is &minus;125, so the subnormal range would be
-    /// &minus;148&nbsp;≤&nbsp;<i>exponent</i>&nbsp;<&nbsp;&minus;125.
-    ///
-    /// This method simply propagates `prev_rounding` if the value is not in the
-    /// subnormal range.
+    /// This method simply propagates `prev_rounding` if the value is not in
+    /// this subnormal range.
     ///
     /// # Examples
     ///

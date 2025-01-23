@@ -21,6 +21,17 @@ Version 1.27.0 (unreleased)
      * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
        [`frexp_ref`][flo-fr-1-27] ([issue 76])
 
+Compatibility note
+------------------
+
+  * These subnormalization methods for [`Float`][flo-1-27] now handle numbers with
+    exponents smaller than subnormals by rounding them to either 0 or a
+    subnormal with the minimum nonzero magnitude ([issue 78]):
+      * [`subnormalize_ieee`][flo-si-1-27],
+        [`subnormalize_ieee_round`][flo-sir-1-27]
+      * [`subnormalize`][flo-s-1-27],
+        [`subnormalize_round`][flo-sr-1-27]
+
 [flo-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-f-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp
 [flo-fm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp_mut
@@ -31,6 +42,10 @@ Version 1.27.0 (unreleased)
 [flo-rqm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_mut
 [flo-rqr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_round
 [flo-rqref-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_ref
+[flo-s-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize
+[flo-si-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_ieee
+[flo-sir-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_ieee_round
+[flo-sr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_round
 [flo-tieip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_exp_in_place
 [flo-tiip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_in_place
 [flo-tirip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_round_in_place
@@ -38,6 +53,7 @@ Version 1.27.0 (unreleased)
 [issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
 [issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
 [issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
+[issue 78]: https://gitlab.com/tspiteri/rug/-/issues/78
 
 Version 1.26.1 (2024-09-11)
 ===========================
