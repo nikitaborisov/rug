@@ -678,6 +678,12 @@ pub fn set_u128(rop: &mut Float, val: u128, rnd: Round) -> Ordering {
 }
 
 #[inline]
+pub fn si_2exp_t(rop: &mut Float, si: i32, exponent: exp_t, rnd: Round) -> Ordering {
+    let rop = rop.as_raw_mut();
+    ordering1(unsafe { mpfr::set_si_2exp(rop, si.into(), exponent, raw_round(rnd)) })
+}
+
+#[inline]
 pub fn nexttoward(rop: &mut Float, op: &Float) {
     unsafe { mpfr::nexttoward(rop.as_raw_mut(), op.as_raw()) }
 }

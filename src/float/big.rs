@@ -2743,8 +2743,51 @@ impl Float {
             .checked_sub((self.prec() - 1).unwrapped_as::<exp_t>())
             .expect("overflow");
         let exp = xmpfr::get_exp(self);
-        if exp < sub_exp_min || exp >= exp_min {
+        if exp >= exp_min {
             return prev_rounding;
+        }
+        if exp < sub_exp_min {
+            // smaller than the smallest subnormal
+            let is_negative = xmpfr::signbit(self);
+            let round_up = match round {
+                Round::Nearest => {
+                    let mut tie = MiniFloat::from(true);
+                    debug_assert_eq!(tie.inner.exp, 1);
+                    tie.inner.exp = sub_exp_min - 1;
+                    tie.inner.sign = if is_negative { -1 } else { 1 };
+                    let cmp_tie = (*self)
+                        .partial_cmp(&*tie.borrow_excl())
+                        .unwrap()
+                        .then(prev_rounding.reverse());
+                    if is_negative {
+                        cmp_tie.is_ge()
+                    } else {
+                        cmp_tie.is_gt()
+                    }
+                }
+                Round::Zero => is_negative,
+                Round::Up => true,
+                Round::Down => false,
+                Round::AwayZero => !is_negative,
+            };
+            match (is_negative, round_up) {
+                (false, false) => {
+                    xmpfr::set_special(self, Special::Zero);
+                    return Ordering::Less;
+                }
+                (false, true) => {
+                    xmpfr::si_2exp_t(self, 1, sub_exp_min - 1, Round::Nearest);
+                    return Ordering::Greater;
+                }
+                (true, false) => {
+                    xmpfr::si_2exp_t(self, -1, sub_exp_min - 1, Round::Nearest);
+                    return Ordering::Less;
+                }
+                (true, true) => {
+                    xmpfr::set_special(self, Special::NegZero);
+                    return Ordering::Greater;
+                }
+            }
         }
         let prev = match prev_rounding {
             Ordering::Less => -1,
