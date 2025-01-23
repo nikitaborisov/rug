@@ -529,11 +529,10 @@ pub fn remainder_quo31<O: OptFloat, P: OptFloat>(
         quo31 = if mpfr::nan_p(rop) == 0 {
             let quo_long = quo_long.assume_init();
             let lower31 = quo_long.wrapping_as::<i32>() & i32::MAX;
-            if quo_long.is_negative() {
-                -lower31
-            } else {
-                lower31
-            }
+            // Do not add sign if lower31 is 0, otherwise we end up with
+            // i32::MIN which has one extra significant bit.
+            let sign = (quo_long.is_negative() && lower31 != 0).wrapping_as::<i32>() << 31;
+            sign | lower31
         } else {
             0
         };

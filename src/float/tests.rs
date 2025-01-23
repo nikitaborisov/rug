@@ -510,12 +510,20 @@ fn check_issue_56() {
 }
 
 #[test]
-fn check_remquo_i32_min() {
-    let num = Float::with_val(100, 1) << 31u32;
+fn check_remainder_quo31() {
+    let num = Float::with_val(100, 1u32 << 31);
     let den = Float::with_val(100, -1);
-    // quotient should be 0, not 1<<31, as it should be 31 significant bits only
-    let (_remainder, quo31) = num.remainder_quo31(&den);
+    // remainder should be 0, quotient should be 0, not -1<<31, as it should be
+    // 31 significant bits only
+    let (remainder, quo31) = num.remainder_quo31(&den);
+    assert_eq!(remainder, 0);
     assert_eq!(quo31, 0);
+
+    let num = Float::with_val(100, 1);
+    let den = Float::with_val(100, -1);
+    let (remainder, quo31) = num.remainder_quo31(&den);
+    assert_eq!(remainder, 0);
+    assert_eq!(quo31, -1);
 }
 
 #[track_caller]
