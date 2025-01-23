@@ -38,6 +38,7 @@ so that they can be used with methods like
 <code>[Integer]::[random\_below][Integer::random_below]</code>.
 */
 
+#[cfg(feature = "std")]
 use crate::misc;
 use crate::Integer;
 use az::Cast;
