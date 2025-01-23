@@ -508,3 +508,12 @@ fn check_issue_56() {
     let rounded = x.to_f32_round(Round::Up);
     assert!(rounded >= x);
 }
+
+#[test]
+fn check_remquo_i32_min() {
+    let num = Float::with_val(100, 1) << 31u32;
+    let den = Float::with_val(100, -1);
+    // quotient should be 0, not 1<<31, as it should be 31 significant bits only
+    let (_remainder, quo31) = num.remainder_quo31(&den);
+    assert_eq!(quo31, 0);
+}
