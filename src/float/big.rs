@@ -1129,6 +1129,7 @@ impl Float {
     /// assert!(exp.is_none());
     /// // i is not changed as inf is not finite.
     /// assert_eq!(i, 13);
+    /// ```
     #[inline]
     pub fn to_integer_exp_in_place(&self, i: &mut Integer) -> Option<i32> {
         if !self.is_finite() {
