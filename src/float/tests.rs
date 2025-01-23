@@ -517,3 +517,87 @@ fn check_remquo_i32_min() {
     let (_remainder, quo31) = num.remainder_quo31(&den);
     assert_eq!(quo31, 0);
 }
+
+#[track_caller]
+fn check_sub(factor: f64, prev_ord: Ordering, round: Round, expected: f64, ord: Ordering) {
+    let mut f = Float::with_val(53, f64::from_bits(1)) * factor;
+    assert_eq!(f.subnormalize_ieee_round(prev_ord, round), ord);
+    assert_eq!(f, expected);
+    assert_eq!(f.is_sign_negative(), expected.is_sign_negative());
+}
+
+#[track_caller]
+fn check_sub_exact(factor: f64, expected: f64) {
+    use Ordering::*;
+    use Round::*;
+
+    for prev_ord in [Less, Equal, Greater] {
+        for round in [Nearest, Down, Up, Zero, AwayZero] {
+            check_sub(factor, prev_ord, round, expected, prev_ord);
+        }
+    }
+}
+
+#[track_caller]
+fn check_sub_up_down(factor: f64, expected_up: f64, expected_down: f64) {
+    use Ordering::*;
+    use Round::*;
+
+    let (expected_zero, dir_zero, expected_away, dir_away) = if factor.is_sign_negative() {
+        (expected_up, Greater, expected_down, Less)
+    } else {
+        (expected_down, Less, expected_up, Greater)
+    };
+    for prev_ord in [Less, Equal, Greater] {
+        check_sub(factor, prev_ord, Down, expected_down, Less);
+        check_sub(factor, prev_ord, Up, expected_up, Greater);
+        check_sub(factor, prev_ord, Zero, expected_zero, dir_zero);
+        check_sub(factor, prev_ord, AwayZero, expected_away, dir_away);
+    }
+}
+
+#[test]
+fn check_subnormalize_tiny() {
+    use Ordering::*;
+    use Round::*;
+
+    let sub = f64::from_bits(1);
+
+    check_sub_exact(1.0, sub);
+
+    check_sub_up_down(0.75, sub, 0.0);
+    check_sub(0.75, Less, Nearest, sub, Greater);
+    check_sub(0.75, Equal, Nearest, sub, Greater);
+    check_sub(0.75, Greater, Nearest, sub, Greater);
+
+    check_sub_up_down(0.5, sub, 0.0);
+    check_sub(0.5, Less, Nearest, sub, Greater);
+    check_sub(0.5, Equal, Nearest, 0.0, Less);
+    check_sub(0.5, Greater, Nearest, 0.0, Less);
+
+    check_sub_up_down(0.25, sub, 0.0);
+    check_sub(0.25, Less, Nearest, 0.0, Less);
+    check_sub(0.25, Equal, Nearest, 0.0, Less);
+    check_sub(0.25, Greater, Nearest, 0.0, Less);
+
+    check_sub_exact(0.0, 0.0);
+
+    check_sub_exact(-0.0, -0.0);
+
+    check_sub_up_down(-0.25, -0.0, -sub);
+    check_sub(-0.25, Less, Nearest, -0.0, Greater);
+    check_sub(-0.25, Equal, Nearest, -0.0, Greater);
+    check_sub(-0.25, Greater, Nearest, -0.0, Greater);
+
+    check_sub_up_down(-0.5, -0.0, -sub);
+    check_sub(-0.5, Less, Nearest, -0.0, Greater);
+    check_sub(-0.5, Equal, Nearest, -0.0, Greater);
+    check_sub(-0.5, Greater, Nearest, -sub, Less);
+
+    check_sub_up_down(-0.75, -0.0, -sub);
+    check_sub(-0.75, Less, Nearest, -sub, Less);
+    check_sub(-0.75, Equal, Nearest, -sub, Less);
+    check_sub(-0.75, Greater, Nearest, -sub, Less);
+
+    check_sub_exact(-1.0, -sub);
+}
