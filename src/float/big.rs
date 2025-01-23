@@ -1039,8 +1039,8 @@ impl Float {
     }
 
     #[cfg(feature = "integer")]
-    /// If the value is a [finite number][Float::is_finite], converts it to an
-    /// [`Integer`] rounding to the nearest.
+    /// If the value is [finite][Float::is_finite], converts it to an
+    /// [`Integer`] rounding to the nearest and returns [`true`].
     ///
     /// This method is similar to [`to_integer`][Float::to_integer] but does not
     /// create a new [`Integer`].
@@ -1054,6 +1054,13 @@ impl Float {
     /// let is_finite = f.to_integer_in_place(&mut i);
     /// assert!(is_finite);
     /// assert_eq!(i, 14);
+    ///
+    /// let inf = Float::with_val(53, f64::INFINITY);
+    /// let mut i = Integer::from(13);
+    /// let is_finite = inf.to_integer_in_place(&mut i);
+    /// assert!(!is_finite);
+    /// // i is not changed as inf is not finite.
+    /// assert_eq!(i, 13);
     /// ```
     #[inline]
     pub fn to_integer_in_place(&self, i: &mut Integer) -> bool {
@@ -1061,8 +1068,8 @@ impl Float {
     }
 
     #[cfg(feature = "integer")]
-    /// If the value is a [finite number][Float::is_finite], converts it to an
-    /// [`Integer`] applying the specified rounding method.
+    /// If the value is [finite][Float::is_finite], converts it to an
+    /// [`Integer`] applying the specified rounding method and returns [`true`].
     ///
     /// This method is similar to [`to_integer_round`][Float::to_integer_round]
     /// but does not create a new [`Integer`].
@@ -1075,9 +1082,16 @@ impl Float {
     /// use rug::{Float, Integer};
     /// let f = Float::with_val(53, 13.7);
     /// let mut i = Integer::new();
-    /// let dir = f.to_integer_round_in_place(&mut i, Round::Down).unwrap();
+    /// let dir = f.to_integer_round_in_place(&mut i, Round::Down);
+    /// assert_eq!(dir, Some(Ordering::Less));
     /// assert_eq!(i, 13);
-    /// assert_eq!(dir, Ordering::Less);
+    ///
+    /// let inf = Float::with_val(53, f64::INFINITY);
+    /// let mut i = Integer::from(13);
+    /// let dir = inf.to_integer_round_in_place(&mut i, Round::Down);
+    /// assert!(dir.is_none());
+    /// // i is not changed as inf is not finite.
+    /// assert_eq!(i, 13);
     /// ```
     #[inline]
     pub fn to_integer_round_in_place(&self, i: &mut Integer, round: Round) -> Option<Ordering> {
@@ -1089,9 +1103,9 @@ impl Float {
     }
 
     #[cfg(feature = "integer")]
-    /// If the value is a [finite number][Float::is_finite], returns an
-    /// [`Integer`] and exponent such that it is exactly equal to the integer
-    /// multiplied by two raised to the power of the exponent.
+    /// If the value is [finite][Float::is_finite], converts it to an
+    /// [`Integer`] and returns an exponent such that the value is exactly equal
+    /// to the integer multiplied by two raised to the power of the exponent.
     ///
     /// This method is similar to [`to_integer_exp`][Float::to_integer_exp] but
     /// does not create a new [`Integer`].
@@ -1105,9 +1119,16 @@ impl Float {
     /// // 6.5 in binary is 110.1
     /// // Since the precision is 16 bits, this becomes
     /// // 1101_0000_0000_0000 times two to the power of -12
-    /// let exp = float.to_integer_exp_in_place(&mut int).unwrap();
+    /// let exp = float.to_integer_exp_in_place(&mut int);
+    /// assert_eq!(exp, Some(-13));
     /// assert_eq!(int, 0b1101_0000_0000_0000);
-    /// assert_eq!(exp, -13);
+    ///
+    /// let inf = Float::with_val(16, f64::INFINITY);
+    /// let mut i = Integer::from(13);
+    /// let exp = inf.to_integer_exp_in_place(&mut i);
+    /// assert!(exp.is_none());
+    /// // i is not changed as inf is not finite.
+    /// assert_eq!(i, 13);
     #[inline]
     pub fn to_integer_exp_in_place(&self, i: &mut Integer) -> Option<i32> {
         if !self.is_finite() {
@@ -1124,8 +1145,9 @@ impl Float {
     }
 
     #[cfg(feature = "rational")]
-    /// If the value is a [finite number][Float::is_finite], returns a
-    /// [`Rational`] number preserving all the precision of the value.
+    /// If the value is [finite][Float::is_finite], converts it to a
+    /// [`Rational`] number preserving all the precision of the value and
+    /// returns [`true`].
     ///
     /// This method is similar to [`to_rational`][Float::to_rational] but does
     /// not create a new [`Rational`].
@@ -1140,7 +1162,7 @@ impl Float {
     ///
     /// // Consider the number 123,456,789 / 10,000,000,000.
     /// let parse = Float::parse("0.0123456789").unwrap();
-    /// let (f, f_rounding) = Float::with_val_round(35, parse, Round::Down);
+    /// let (f, f_rounding) = Float::with_val_round(53, parse, Round::Down);
     /// assert_eq!(f_rounding, Ordering::Less);
     /// let r = Rational::from_str("123456789/10000000000").unwrap();
     /// // Set fr to the value of f exactly.
@@ -1149,10 +1171,17 @@ impl Float {
     /// assert!(is_finite);
     /// // Since f == fr and f was rounded down, r != fr.
     /// assert_ne!(r, fr);
-    /// let (frf, frf_rounding) = Float::with_val_round(35, &fr, Round::Down);
+    /// let (frf, frf_rounding) = Float::with_val_round(53, &fr, Round::Down);
     /// assert_eq!(frf_rounding, Ordering::Equal);
     /// assert_eq!(frf, f);
     /// assert_eq!(format!("{:.9}", frf), "1.23456789e-2");
+    ///
+    /// let inf = Float::with_val(53, f64::INFINITY);
+    /// let mut r = Rational::from((1, 3));
+    /// let is_finite = inf.to_rational_in_place(&mut r);
+    /// assert!(!is_finite);
+    /// // r is not changed as inf is not finite.
+    /// assert_eq!(r, Rational::from((1, 3)));
     /// ```
     ///
     /// In the following example, the [`Float`] values can be represented
