@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.27.0 (unreleased)
+Version 1.27.0 (2025-01-24)
 ===========================
 
   * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
@@ -32,24 +32,24 @@ Compatibility note
       * [`subnormalize`][flo-s-1-27],
         [`subnormalize_round`][flo-sr-1-27]
 
-[flo-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
-[flo-f-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp
-[flo-fm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp_mut
-[flo-fr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.frexp_ref
-[flo-rq-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31
-[flo-rqf-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_from
-[flo-rqfr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_from_round
-[flo-rqm-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_mut
-[flo-rqr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_round
-[flo-rqref-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.remainder_quo31_ref
-[flo-s-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize
-[flo-si-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_ieee
-[flo-sir-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_ieee_round
-[flo-sr-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.subnormalize_round
-[flo-tieip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_exp_in_place
-[flo-tiip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_in_place
-[flo-tirip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_integer_round_in_place
-[flo-trip-1-27]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.to_rational_in_place
+[flo-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html
+[flo-f-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp
+[flo-fm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_mut
+[flo-fr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_ref
+[flo-rq-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31
+[flo-rqf-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from
+[flo-rqfr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from_round
+[flo-rqm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_mut
+[flo-rqr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_round
+[flo-rqref-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_ref
+[flo-s-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize
+[flo-si-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee
+[flo-sir-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee_round
+[flo-sr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_round
+[flo-tieip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_exp_in_place
+[flo-tiip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_in_place
+[flo-tirip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_round_in_place
+[flo-trip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_rational_in_place
 [issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
 [issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
 [issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
