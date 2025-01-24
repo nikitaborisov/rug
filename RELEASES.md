@@ -20,6 +20,9 @@ Version 1.27.0 (2025-01-24)
      * [`remainder_quo31_ref`][flo-rqref-1-27]
      * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
        [`frexp_ref`][flo-fr-1-27] ([issue 76])
+  * Bug fix: <code>[Float][flo-1-27]::[to\_f16][flo-tf16-1-27]</code> and
+    <code>[Float][flo-1-27]::[to\_f128][flo-tf128-1-27]</code> were giving bad
+    results for some subnormal numbers ([issue 80]).
 
 Compatibility note
 ------------------
@@ -46,6 +49,8 @@ Compatibility note
 [flo-si-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee
 [flo-sir-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee_round
 [flo-sr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_round
+[flo-tf128-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f128
+[flo-tf16-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f16
 [flo-tieip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_exp_in_place
 [flo-tiip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_in_place
 [flo-tirip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_round_in_place
@@ -54,6 +59,7 @@ Compatibility note
 [issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
 [issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
 [issue 78]: https://gitlab.com/tspiteri/rug/-/issues/78
+[issue 80]: https://gitlab.com/tspiteri/rug/-/issues/80
 
 Version 1.26.1 (2024-09-11)
 ===========================
