@@ -63,4 +63,4 @@ fail-on-warnings = []
 gmp-mpfr-sys = ["dep:gmp-mpfr-sys"]
 
 [package.metadata.docs.rs]
-features = ["num-traits", "serde"]
+features = ["num-traits", "serde", "nightly-float"]

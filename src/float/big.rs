@@ -1305,6 +1305,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f16`], rounding to the nearest.
     ///
     /// If the value is too small or too large for the target type, the minimum
@@ -1329,6 +1332,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f16`], applying the specified rounding method.
     ///
     /// If the value is too small or too large for the target type, the minimum
@@ -1428,6 +1434,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f128`], rounding to the nearest.
     ///
     /// If the value is too small or too large for the target type, the minimum
@@ -1451,6 +1460,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f128`], applying the specified rounding method.
     ///
     /// If the value is too small or too large for the target type, the minimum
@@ -1473,6 +1485,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f16`] and an exponent, rounding to the nearest.
     ///
     /// The returned [`f16`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
@@ -1499,6 +1514,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f16`] and an exponent, applying the specified rounding
     /// method.
     ///
@@ -1645,6 +1663,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f128`] and an exponent, rounding to the nearest.
     ///
     /// The returned [`f128`] is in the range 0.5&nbsp;≤&nbsp;<i>x</i>&nbsp;<&nbsp;1.
@@ -1671,6 +1692,9 @@ impl Float {
     }
 
     #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features].
+    ///
     /// Converts to an [`f128`] and an exponent, applying the specified rounding
     /// method.
     ///
