@@ -21,7 +21,7 @@ use crate::{Assign, Integer};
 use az::{CheckedCast, UnwrappedCast};
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
 use num_traits::cast::{FromPrimitive, ToPrimitive};
-use num_traits::identities::{One, Zero};
+use num_traits::identities::{ConstZero, One, Zero};
 use num_traits::ops::checked::{CheckedDiv, CheckedRem};
 use num_traits::ops::euclid::{CheckedEuclid, Euclid};
 use num_traits::ops::mul_add::{MulAdd, MulAddAssign};
@@ -43,6 +43,10 @@ impl Zero for Integer {
     fn set_zero(&mut self) {
         xmpz::set_0(self);
     }
+}
+
+impl ConstZero for Integer {
+    const ZERO: Integer = Integer::ZERO;
 }
 
 impl One for Integer {
@@ -349,6 +353,14 @@ impl NumInteger for Integer {
             self - i
         }
     }
+    #[inline]
+    fn dec(&mut self) {
+        *self -= 1u32;
+    }
+    #[inline]
+    fn inc(&mut self) {
+        *self += 1u32;
+    }
 }
 
 impl Roots for Integer {
@@ -396,6 +408,10 @@ impl Euclid for Integer {
     fn rem_euclid(&self, v: &Self) -> Self {
         Integer::from(RemRounding::rem_euc(self, v))
     }
+
+    fn div_rem_euclid(&self, v: &Self) -> (Self, Self) {
+        <(Integer, Integer)>::from(self.div_rem_euc_ref(v))
+    }
 }
 
 impl CheckedEuclid for Integer {
@@ -412,6 +428,14 @@ impl CheckedEuclid for Integer {
             None
         } else {
             Some(Integer::from(RemRounding::rem_euc(self, v)))
+        }
+    }
+
+    fn checked_div_rem_euclid(&self, v: &Self) -> Option<(Self, Self)> {
+        if v.is_zero() {
+            None
+        } else {
+            Some(<(Integer, Integer)>::from(self.div_rem_euc_ref(v)))
         }
     }
 }

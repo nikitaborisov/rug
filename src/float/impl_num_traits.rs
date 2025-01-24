@@ -14,9 +14,15 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::{Float, Integer};
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "integer")]
 use az::{CheckedAs, CheckedCast};
+use core::cmp::Ordering;
+#[cfg(feature = "integer")]
 use num_traits::cast::ToPrimitive;
+use num_traits::float::TotalOrder;
 use num_traits::ops::inv::Inv;
 use num_traits::ops::mul_add::{MulAdd, MulAddAssign};
 
@@ -61,6 +67,7 @@ impl MulAddAssign<&Float, &Float> for Float {
     }
 }
 
+#[cfg(feature = "integer")]
 impl ToPrimitive for Float {
     #[inline]
     fn to_i64(&self) -> Option<i64> {
@@ -129,5 +136,12 @@ impl ToPrimitive for Float {
     #[inline]
     fn to_f64(&self) -> Option<f64> {
         Some(self.to_f64())
+    }
+}
+
+impl TotalOrder for Float {
+    #[inline]
+    fn total_cmp(&self, other: &Self) -> Ordering {
+        self.total_cmp(other)
     }
 }

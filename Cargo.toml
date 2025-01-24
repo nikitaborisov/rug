@@ -30,13 +30,13 @@ serde = { optional = true, version = "1.0.25" }
 default-features = false
 features = ["i128"]
 optional = true
-version = "0.1.45"
+version = "0.1.46"
 
 [dependencies.num-traits]
 default-features = false
 features = ["i128", "std"]
 optional = true
-version = "0.2.15"
+version = "0.2.18"
 
 [dev-dependencies]
 bincode = "1"
@@ -56,12 +56,11 @@ std = []
 
 # experimental features
 nightly-float = []
-num-traits = ["dep:num-traits", "num-integer"]
+num-traits = ["dep:num-traits", "dep:num-integer"]
 
 # undocumented features
 fail-on-warnings = []
 gmp-mpfr-sys = ["dep:gmp-mpfr-sys"]
-num-integer = ["dep:num-integer"]
 
 [package.metadata.docs.rs]
 features = ["num-traits", "serde"]
