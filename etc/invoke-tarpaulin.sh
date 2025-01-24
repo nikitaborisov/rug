@@ -7,6 +7,7 @@
 # notice are preserved. This file is offered as-is, without any warranty.
 
 set -e
+set -o pipefail
 shopt -s globstar
 
 FILTER_SCRIPT='
@@ -26,10 +27,8 @@ FILTER_SCRIPT='
 p                       # print the line(s) as sed is invoked with -e
 '
 
-if [ -z "$1" ]; then
-    REQ_COV=""
-else
-    REQ_COV="--fail-under $1"
-fi
+# prepend "+" if TOOLCHAIN is set
+TOOLCHAIN=${TOOLCHAIN:++$TOOLCHAIN}
+
 EXCLUDE="--exclude-files build.rs src/ext/xmpz32.rs"
-cargo tarpaulin -v --features "num-traits serde nightly-float" --ignore-tests $REQ_COV $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
+cargo $TOOLCHAIN tarpaulin -v --features "num-traits serde nightly-float" --ignore-tests "$@" $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"

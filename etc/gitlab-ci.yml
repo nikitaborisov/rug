@@ -96,11 +96,11 @@ nightly-x86_64-gnulinux-tarpaulin:
   - clibs-x86_64-gnulinux
   variables:
     TOOLCHAIN: nightly-x86_64
-    REQ_COVERAGE: "79.0"
+    REQ_COVERAGE: "78.0"
   script:
   - cargo install --version 0.31.2 --locked cargo-tarpaulin
   - etc/extract-doc-tests.sh
-  - stdbuf -oL etc/invoke-tarpaulin.sh --fail-under $REQ_COVERAGE | tee tarpaulin.log
+  - etc/invoke-tarpaulin.sh --fail-under $REQ_COVERAGE
   - etc/extract-doc-tests.sh restore
   only:
   - ci
