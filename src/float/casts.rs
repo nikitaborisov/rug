@@ -557,6 +557,8 @@ mod tests {
         assert_eq!(x.to_f16(), f16::MIN_POSITIVE);
         x *= 0.5;
         assert_eq!(x.to_f16(), f16::MIN_POSITIVE / 2.0);
+        x >>= f16::MANTISSA_DIGITS;
+        assert_eq!(x.to_f16(), 0f16);
 
         let x = f128::MIN_POSITIVE * (2.0 - f128::EPSILON);
         let mut x = Float::with_val(f128::MANTISSA_DIGITS, x);
@@ -564,5 +566,7 @@ mod tests {
         assert_eq!(x.to_f128(), f128::MIN_POSITIVE);
         x *= 0.5;
         assert_eq!(x.to_f128(), f128::MIN_POSITIVE / 2.0);
+        x >>= f128::MANTISSA_DIGITS;
+        assert_eq!(x.to_f128(), 0f128);
     }
 }

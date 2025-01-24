@@ -753,6 +753,14 @@ pub fn get_f16(op: &Float, rnd: Round) -> f16 {
     if exp < f16::MIN_EXP {
         // Subnormal.
         small_mut.subnormalize_round(f16::MIN_EXP, ordering, rnd);
+    }
+    // Subnormalization may change exp because of rounding, so update it.
+    if small_mut.is_zero() {
+        return if negative { -0.0 } else { 0.0 };
+    }
+    let exp = small_mut.get_exp().expect("expected exponent");
+    if exp < f16::MIN_EXP {
+        // Still subnormal.
 
         // The number of significant bits is MANTISSA_DIGITS - (MIN_EXP - exp).
         // For example, if we are just subnormal; then exp == MIN_EXP - 1, and
@@ -824,6 +832,14 @@ pub fn get_f128(op: &Float, rnd: Round) -> f128 {
     if exp < f128::MIN_EXP {
         // Subnormal.
         small_mut.subnormalize_round(f128::MIN_EXP, ordering, rnd);
+    }
+    // Subnormalization may change exp because of rounding, so update it.
+    if small_mut.is_zero() {
+        return if negative { -0.0 } else { 0.0 };
+    }
+    let exp = small_mut.get_exp().expect("expected exponent");
+    if exp < f128::MIN_EXP {
+        // Still subnormal.
 
         // The number of significant bits is MANTISSA_DIGITS - (MIN_EXP - exp).
         // For example, if we are just subnormal; then exp == MIN_EXP - 1, and
