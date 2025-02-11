@@ -9,7 +9,12 @@ Version 1.28.0 (unreleased)
 
   * The following methods were added to [`Float`][flo-1-28]:
      * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
+  * The following methods were added to [`Complex`][com-1-28]:
+     * [`as_shl`][com-ashl-1-28], [`as_shr`][com-ashr-1-28]
 
+[com-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html
+[com-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shl
+[com-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shr
 [flo-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shl
 [flo-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shr

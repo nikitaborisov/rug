@@ -23,7 +23,7 @@ use crate::float;
 use crate::float::big::{
     self as big_float, ExpFormat, Format as FloatFormat, ParseIncomplete as FloatParseIncomplete,
 };
-use crate::float::{ParseFloatError, Round, Special};
+use crate::float::{BorrowFloat, ParseFloatError, Round, Special};
 use crate::misc;
 use crate::misc::StringLike;
 use crate::ops::{
@@ -1144,6 +1144,88 @@ impl Complex {
         } else {
             raw.re.sign = -raw.re.sign;
         }
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowComplex::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Complex`] number multiplied by
+    /// 2<sup>`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponents of the parts.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// part is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned part
+    /// is infinite.
+    ///
+    /// Unlike implementations of [`Shl`] and [`ShlAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let f = Complex::with_val(53, (13, -12));
+    /// let shifted_f = f.as_shl(4);
+    /// assert_eq!(*shifted_f, (13 << 4, -12 << 4));
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shl(2);
+    /// assert_eq!(*reshifted_f, (13 << 6, -12 << 6));
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShlAssign`]: core::ops::ShlAssign
+    /// [`Shl`]: core::ops::Shl
+    pub fn as_shl(&self, shift: i32) -> BorrowComplex<'_> {
+        let raw = mpc_t {
+            re: BorrowFloat::into_raw(self.real().as_shl(shift)),
+            im: BorrowFloat::into_raw(self.imag().as_shl(shift)),
+        };
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowComplex::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Complex`] number multiplied by
+    /// 2<sup>&minus;`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponents of the parts.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// part is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned part
+    /// is infinite.
+    ///
+    /// Unlike implementations of [`Shr`] and [`ShrAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let f = Complex::with_val(53, (13, -12));
+    /// let shifted_f = f.as_shr(4);
+    /// assert_eq!(*shifted_f, (13.0 / 16.0, -12.0 / 16.0));
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shr(2);
+    /// assert_eq!(*reshifted_f, (13.0 / 64.0, -12.0 / 64.0));
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShrAssign`]: core::ops::ShrAssign
+    /// [`Shr`]: core::ops::Shr
+    pub fn as_shr(&self, shift: i32) -> BorrowComplex<'_> {
+        let raw = mpc_t {
+            re: BorrowFloat::into_raw(self.real().as_shr(shift)),
+            im: BorrowFloat::into_raw(self.imag().as_shr(shift)),
+        };
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowComplex::from_raw(raw) }
     }

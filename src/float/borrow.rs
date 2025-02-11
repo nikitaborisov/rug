@@ -80,6 +80,10 @@ impl<'a> BorrowFloat<'a> {
         }
     }
 
+    pub(crate) const fn into_raw(b: BorrowFloat<'a>) -> mpfr_t {
+        b.inner
+    }
+
     /// Gets a reference to [`Float`] from a `BorrowFloat`.
     ///
     /// This is equivalent to taking the reference of the dereferencing operator
