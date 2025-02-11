@@ -37,6 +37,7 @@ pub(crate) mod small;
 pub(crate) mod tests;
 mod traits;
 
+use crate::ext::xmpfr;
 pub use crate::float::big::ParseFloatError;
 pub use crate::float::borrow::BorrowFloat;
 pub use crate::float::mini::{MiniFloat, ToMini};
@@ -59,7 +60,7 @@ println!("Minimum exponent is {}", float::exp_min());
 */
 #[inline]
 pub fn exp_min() -> i32 {
-    unsafe { mpfr::get_emin() }.saturating_cast()
+    xmpfr::get_emin().saturating_cast()
 }
 
 /**
@@ -74,7 +75,7 @@ println!("Maximum exponent is {}", float::exp_max());
 */
 #[inline]
 pub fn exp_max() -> i32 {
-    unsafe { mpfr::get_emax() }.saturating_cast()
+    xmpfr::get_emax().saturating_cast()
 }
 
 /**

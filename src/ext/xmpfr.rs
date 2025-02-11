@@ -103,6 +103,16 @@ pub fn ordering1(ord: c_int) -> Ordering {
 }
 
 #[inline]
+pub fn get_emin() -> exp_t {
+    unsafe { mpfr::get_emin() }
+}
+
+#[inline]
+pub fn get_emax() -> exp_t {
+    unsafe { mpfr::get_emax() }
+}
+
+#[inline]
 fn ordering2(ord: c_int) -> (Ordering, Ordering) {
     // ord == first + 4 * second
     let first = match ord & 3 {

@@ -16,6 +16,7 @@
 
 #![allow(clippy::float_cmp)]
 
+use crate::ext::xmpfr;
 use crate::float;
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
@@ -378,9 +379,8 @@ fn check_nan_random_bits() {
     for i in 0..2 {
         let mut zeros_ones = OnesZerosRand { one_words: 2 };
         let mut rand = RandState::new_custom(&mut zeros_ones);
-        let save_emin;
+        let save_emin = xmpfr::get_emin();
         unsafe {
-            save_emin = mpfr::get_emin();
             mpfr::set_emin(-192 + i);
         }
         let f = Float::with_val(256, Float::random_bits(&mut rand));

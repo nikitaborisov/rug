@@ -2475,11 +2475,11 @@ impl Float {
         exp_max: i32,
     ) -> Option<Ordering> {
         unsafe {
-            let save_emin = mpfr::get_emin();
+            let save_emin = xmpfr::get_emin();
             if mpfr::set_emin(exp_min.checked_cast()?) != 0 {
                 return None;
             }
-            let save_emax = mpfr::get_emax();
+            let save_emax = xmpfr::get_emax();
             if exp_max
                 .checked_cast()
                 .map_or(true, |x| mpfr::set_emax(x) != 0)
@@ -2842,10 +2842,10 @@ impl Float {
             Ordering::Equal => 0,
             Ordering::Greater => 1,
         };
+        let save_emin = xmpfr::get_emin();
+        let save_emax = xmpfr::get_emax();
+        assert!(save_emax >= exp_min, "`normal_exp_min` too large");
         unsafe {
-            let save_emin = mpfr::get_emin();
-            let save_emax = mpfr::get_emax();
-            assert!(save_emax >= exp_min, "`normal_exp_min` too large");
             mpfr::set_emin(sub_exp_min);
             mpfr::set_emax(exp_min);
             let ret = mpfr::subnormalize(self.as_raw_mut(), prev, raw_round(round));
