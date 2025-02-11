@@ -28,6 +28,15 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.28.0 news (unreleased)
+
+  * The following methods were added to [`Float`][flo-1-28]:
+     * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
+
+[flo-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
+[flo-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shl
+[flo-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shr
+
 ### Version 1.27.0 news (2025-01-24)
 
   * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).

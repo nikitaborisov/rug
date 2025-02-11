@@ -2028,6 +2028,110 @@ impl Float {
         unsafe { BorrowFloat::from_raw(raw) }
     }
 
+    /// Borrows a copy of the [`Float`] multiplied by 2<sup>`shift`</sup>,
+    /// rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Float]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponent.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// number is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned
+    /// number is infinite.
+    ///
+    /// Unlike implementations of [`Shl`] and [`ShlAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 13);
+    /// let shifted_f = f.as_shl(4);
+    /// assert_eq!(*shifted_f, 13 << 4);
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shl(2);
+    /// assert_eq!(*reshifted_f, 13 << 6);
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShlAssign`]: core::ops::ShlAssign
+    /// [`Shl`]: core::ops::Shl
+    pub fn as_shl(&self, shift: i32) -> BorrowFloat<'_> {
+        let mut raw = self.inner;
+        if self.is_normal() {
+            let shift = shift.unwrapped_as::<exp_t>();
+            raw.exp = if let Some(exp) = raw
+                .exp
+                .checked_add(shift)
+                .filter(|&x| xmpfr::get_emin() <= x && x <= xmpfr::get_emax())
+            {
+                exp
+            } else if shift.is_negative() {
+                xmpfr::EXP_ZERO
+            } else {
+                xmpfr::EXP_INF
+            };
+        }
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowFloat::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Float`] multiplied by
+    /// 2<sup>&minus;`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Float]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponent.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// number is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned
+    /// number is infinite.
+    ///
+    /// Unlike implementations of [`Shr`] and [`ShrAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 13);
+    /// let shifted_f = f.as_shr(4);
+    /// assert_eq!(*shifted_f, 13.0 / 16.0);
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shr(2);
+    /// assert_eq!(*reshifted_f, 13.0 / 64.0);
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShrAssign`]: core::ops::ShrAssign
+    /// [`Shr`]: core::ops::Shr
+    pub fn as_shr(&self, shift: i32) -> BorrowFloat<'_> {
+        let mut raw = self.inner;
+        if self.is_normal() {
+            let shift = shift.unwrapped_as::<exp_t>();
+            raw.exp = if let Some(exp) = raw
+                .exp
+                .checked_sub(shift)
+                .filter(|&x| xmpfr::get_emin() <= x && x <= xmpfr::get_emax())
+            {
+                exp
+            } else if shift.is_negative() {
+                xmpfr::EXP_ZERO
+            } else {
+                xmpfr::EXP_INF
+            };
+        }
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowFloat::from_raw(raw) }
+    }
+
     /// Borrows the [`Float`] as an ordered floating-point number of type
     /// [`OrdFloat`].
     ///
