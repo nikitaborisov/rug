@@ -31,7 +31,7 @@ impl Serialize for Rational {
             };
         let value = self.to_string_radix(radix);
         let data = Data { prec, radix, value };
-        serdeize::serialize("Rational", &data, serializer)
+        serdeize::serde::serialize("Rational", &data, serializer)
     }
 }
 
@@ -55,12 +55,12 @@ impl<'de> Deserialize<'de> for Rational {
 
 fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(i32, String), D::Error> {
     let Data { prec, radix, value } =
-        serdeize::deserialize("Rational", PrecReq::Zero, deserializer)?;
+        serdeize::serde::deserialize("Rational", PrecReq::Zero, deserializer)?;
     match prec {
         PrecVal::Zero => {}
         _ => unreachable!(),
     }
-    serdeize::check_range("radix", radix, 2, 36)?;
+    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
     Ok((radix, value))
 }
 

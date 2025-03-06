@@ -34,7 +34,7 @@ impl Serialize for Float {
         let prec = PrecVal::One(prec);
         let value = self.to_string_radix(radix, None);
         let data = Data { prec, radix, value };
-        serdeize::serialize("Float", &data, serializer)
+        serdeize::serde::serialize("Float", &data, serializer)
     }
 }
 
@@ -58,12 +58,14 @@ impl<'de> Deserialize<'de> for Float {
 }
 
 fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(u32, i32, String), D::Error> {
-    let Data { prec, radix, value } = serdeize::deserialize("Float", PrecReq::One, deserializer)?;
+    let Data { prec, radix, value } =
+        serdeize::serde::deserialize("Float", PrecReq::One, deserializer)?;
     let PrecVal::One(prec) = prec else {
         unreachable!();
     };
-    serdeize::check_range("precision", prec, float::prec_min(), float::prec_max())?;
-    serdeize::check_range("radix", radix, 2, 36)?;
+    serdeize::check_range("precision", prec, float::prec_min(), float::prec_max())
+        .map_err(serde::de::Error::custom)?;
+    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
     Ok((prec, radix, value))
 }
 

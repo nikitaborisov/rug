@@ -30,7 +30,7 @@ impl Serialize for Integer {
         };
         let value = self.to_string_radix(radix);
         let data = Data { prec, radix, value };
-        serdeize::serialize("Integer", &data, serializer)
+        serdeize::serde::serialize("Integer", &data, serializer)
     }
 }
 
@@ -54,12 +54,12 @@ impl<'de> Deserialize<'de> for Integer {
 
 fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(i32, String), D::Error> {
     let Data { prec, radix, value } =
-        serdeize::deserialize("Integer", PrecReq::Zero, deserializer)?;
+        serdeize::serde::deserialize("Integer", PrecReq::Zero, deserializer)?;
     match prec {
         PrecVal::Zero => {}
         _ => unreachable!(),
     }
-    serdeize::check_range("radix", radix, 2, 36)?;
+    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
     Ok((radix, value))
 }
 

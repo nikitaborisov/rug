@@ -37,7 +37,7 @@ impl Serialize for Complex {
         let prec = PrecVal::Two(prec);
         let value = self.to_string_radix(radix, None);
         let data = Data { prec, radix, value };
-        serdeize::serialize("Complex", &data, serializer)
+        serdeize::serde::serialize("Complex", &data, serializer)
     }
 }
 
@@ -64,7 +64,8 @@ impl<'de> Deserialize<'de> for Complex {
 fn de_data<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<((u32, u32), i32, String), D::Error> {
-    let Data { prec, radix, value } = serdeize::deserialize("Complex", PrecReq::Two, deserializer)?;
+    let Data { prec, radix, value } =
+        serdeize::serde::deserialize("Complex", PrecReq::Two, deserializer)?;
     let PrecVal::Two(prec) = prec else {
         unreachable!();
     };
@@ -73,14 +74,16 @@ fn de_data<'de, D: Deserializer<'de>>(
         prec.0,
         float::prec_min(),
         float::prec_max(),
-    )?;
+    )
+    .map_err(serde::de::Error::custom)?;
     serdeize::check_range(
         "imaginary precision",
         prec.1,
         float::prec_min(),
         float::prec_max(),
-    )?;
-    serdeize::check_range("radix", radix, 2, 36)?;
+    )
+    .map_err(serde::de::Error::custom)?;
+    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
     Ok((prec, radix, value))
 }
 
