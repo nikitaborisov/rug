@@ -15,30 +15,22 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::serdeize;
-use crate::serdeize::{Data, PrecReq, PrecVal};
+use crate::serdeize::{Data, PrecReq};
 use crate::{Assign, Rational};
 use serde::de::{Deserialize, Deserializer, Error as DeError};
 use serde::ser::{Serialize, Serializer};
 
 impl Serialize for Rational {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let prec = PrecVal::Zero;
-        let radix =
-            if self.numer().significant_bits() <= 32 && self.denom().significant_bits() <= 32 {
-                10
-            } else {
-                16
-            };
-        let value = self.to_string_radix(radix);
-        let data = Data { prec, radix, value };
+        let data: Data = self.into();
         serdeize::serde::serialize("Rational", &data, serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for Rational {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Rational, D::Error> {
-        let (radix, value) = de_data(deserializer)?;
-        let p = Rational::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data = serdeize::serde::deserialize("Rational", PrecReq::Zero, deserializer)?;
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         Ok(Rational::from(p))
     }
 
@@ -46,22 +38,11 @@ impl<'de> Deserialize<'de> for Rational {
         deserializer: D,
         place: &mut Rational,
     ) -> Result<(), D::Error> {
-        let (radix, value) = de_data(deserializer)?;
-        let p = Rational::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data = serdeize::serde::deserialize("Rational", PrecReq::Zero, deserializer)?;
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         place.assign(p);
         Ok(())
     }
-}
-
-fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(i32, String), D::Error> {
-    let Data { prec, radix, value } =
-        serdeize::serde::deserialize("Rational", PrecReq::Zero, deserializer)?;
-    match prec {
-        PrecVal::Zero => {}
-        _ => unreachable!(),
-    }
-    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
-    Ok((radix, value))
 }
 
 #[cfg(test)]
