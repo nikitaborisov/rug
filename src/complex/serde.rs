@@ -16,7 +16,6 @@
 
 use crate::complex::OrdComplex;
 use crate::ext::xmpfr;
-use crate::float;
 use crate::serdeize;
 use crate::serdeize::{Data, PrecReq, PrecVal};
 use crate::{Assign, Complex};
@@ -26,25 +25,19 @@ use serde::ser::{Serialize, Serializer};
 
 impl Serialize for Complex {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let prec = self.prec();
-        let radix = if (prec.0 <= 32 || !self.real().is_normal())
-            && (prec.1 <= 32 || !self.imag().is_normal())
-        {
-            10
-        } else {
-            16
-        };
-        let prec = PrecVal::Two(prec);
-        let value = self.to_string_radix(radix, None);
-        let data = Data { prec, radix, value };
+        let data: Data = self.into();
         serdeize::serde::serialize("Complex", &data, serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for Complex {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Complex, D::Error> {
-        let (prec, radix, value) = de_data(deserializer)?;
-        let p = Complex::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Complex", PrecReq::Two, deserializer)?;
+        let prec = match &data.prec {
+            PrecVal::Two(prec) => *prec,
+            _ => unreachable!(),
+        };
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         Ok(Complex::with_val(prec, p))
     }
 
@@ -52,39 +45,17 @@ impl<'de> Deserialize<'de> for Complex {
         deserializer: D,
         place: &mut Complex,
     ) -> Result<(), D::Error> {
-        let (prec, radix, value) = de_data(deserializer)?;
-        let p = Complex::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Complex", PrecReq::Two, deserializer)?;
+        let prec = match &data.prec {
+            PrecVal::Two(prec) => *prec,
+            _ => unreachable!(),
+        };
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         xmpfr::set_prec_nan(place.mut_real(), prec.0.unwrapped_cast());
         xmpfr::set_prec_nan(place.mut_imag(), prec.1.unwrapped_cast());
         place.assign(p);
         Ok(())
     }
-}
-
-fn de_data<'de, D: Deserializer<'de>>(
-    deserializer: D,
-) -> Result<((u32, u32), i32, String), D::Error> {
-    let Data { prec, radix, value } =
-        serdeize::serde::deserialize("Complex", PrecReq::Two, deserializer)?;
-    let PrecVal::Two(prec) = prec else {
-        unreachable!();
-    };
-    serdeize::check_range(
-        "real precision",
-        prec.0,
-        float::prec_min(),
-        float::prec_max(),
-    )
-    .map_err(serde::de::Error::custom)?;
-    serdeize::check_range(
-        "imaginary precision",
-        prec.1,
-        float::prec_min(),
-        float::prec_max(),
-    )
-    .map_err(serde::de::Error::custom)?;
-    serdeize::check_range("radix", radix, 2, 36).map_err(serde::de::Error::custom)?;
-    Ok((prec, radix, value))
 }
 
 impl Serialize for OrdComplex {
