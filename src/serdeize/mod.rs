@@ -17,26 +17,11 @@
 #[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
 pub mod serde;
 
-#[allow(dead_code)]
-pub enum PrecReq {
-    Zero,
-    One,
-    Two,
-}
+#[cfg(all(feature = "borsh", any(feature = "integer", feature = "float")))]
+pub mod borsh;
 
-#[allow(dead_code)]
-pub enum PrecVal {
-    Zero,
-    One(u32),
-    Two((u32, u32)),
-}
-
-#[allow(dead_code)]
-pub struct Data {
-    pub prec: PrecVal,
-    pub radix: i32,
-    pub value: String,
-}
+pub mod data;
+pub use data::{Data, PrecReq, PrecVal};
 
 #[allow(dead_code)]
 pub fn check_range<T>(name: &'static str, val: T, min: T, max: T) -> Result<(), String>
@@ -54,6 +39,18 @@ where
 
 #[cfg(test)]
 pub mod test {
-    #[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
+    #[cfg(feature = "serde")]
     pub use super::serde::test::*;
+
+    #[cfg(feature = "borsh")]
+    pub use super::borsh::test::*;
+
+    pub fn assert_eq_float_handle_nan(a: &crate::Float, b: &crate::Float) {
+        if a.is_nan() || b.is_nan() {
+            assert!(a.is_nan());
+            assert!(b.is_nan());
+        } else {
+            assert_eq!(a, b);
+        }
+    }
 }

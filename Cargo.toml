@@ -21,6 +21,7 @@ rust-version = "1.65"
 
 [dependencies]
 az = "1.1"
+borsh = { version = "1.5.5", default-features = false, features = ["derive"], optional = true }
 gmp-mpfr-sys = { default-features = false, optional = true, version = "~1.6" }
 libc = { default-features = false, version = "0.2.44" }
 libm = "0.2"
@@ -52,6 +53,7 @@ integer = ["gmp-mpfr-sys"]
 rand = ["integer"]
 rational = ["integer"]
 serde = ["dep:serde", "std"]
+borsh = ["dep:borsh"]
 std = []
 
 # experimental features
@@ -63,4 +65,4 @@ fail-on-warnings = []
 gmp-mpfr-sys = ["dep:gmp-mpfr-sys"]
 
 [package.metadata.docs.rs]
-features = ["num-traits", "serde", "nightly-float"]
+features = ["num-traits", "serde", "borsh", "nightly-float"]
