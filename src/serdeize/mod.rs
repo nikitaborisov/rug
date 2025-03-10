@@ -17,10 +17,11 @@
 #[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
 pub mod serde;
 
-#[cfg(all(feature = "borsh", any(feature = "integer", feature = "float")))]
+#[cfg(feature = "borsh")]
 pub mod borsh;
 
 pub mod data;
+#[allow(unused_imports)]
 pub use data::{Data, PrecReq, PrecVal};
 
 #[allow(dead_code)]
@@ -45,6 +46,7 @@ pub mod test {
     #[cfg(feature = "borsh")]
     pub use super::borsh::test::*;
 
+    #[cfg(any(feature = "serde", feature = "borsh"))]
     pub fn assert_eq_float_handle_nan(a: &crate::Float, b: &crate::Float) {
         if a.is_nan() || b.is_nan() {
             assert!(a.is_nan());
