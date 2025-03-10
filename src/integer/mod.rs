@@ -42,6 +42,8 @@ assert_eq!(int, 15);
 pub(crate) mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
 mod casts;
 mod cmp;
 mod division;
