@@ -17,13 +17,13 @@ Version 1.28.0 (2025-08-21)
   * The experimental feature [`borsh`][feat-exp-1-28] was added ([merge request
     6]).
 
-[com-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html
-[com-ashl-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html#method.as_shl
-[com-ashr-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html#method.as_shr
+[com-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html
+[com-ashl-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html#method.as_shl
+[com-ashr-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html#method.as_shr
 [feat-exp-1-28]: https://docs.rs/rug/~1.28/rug/index.html#experimental-optional-features
-[flo-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html
-[flo-ashl-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html#method.as_shl
-[flo-ashr-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html#method.as_shr
+[flo-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html
+[flo-ashl-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.as_shl
+[flo-ashr-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.as_shr
 [issue 84]: https://gitlab.com/tspiteri/rug/-/issues/84
 [merge request 6]: https://gitlab.com/tspiteri/rug/-/merge_requests/6
 
