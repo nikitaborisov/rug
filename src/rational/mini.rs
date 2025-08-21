@@ -281,7 +281,7 @@ impl MiniRational {
     /// assert_eq!(*abs_ref.denom(), 5);
     /// ```
     #[inline]
-    pub const fn borrow(&self) -> BorrowRational {
+    pub const fn borrow(&self) -> BorrowRational<'_> {
         let first_d: *const Limbs = &self.first_limbs;
         let last_d: *const Limbs = &self.last_limbs;
         let (num_d, den_d) = if self.num_is_first() {

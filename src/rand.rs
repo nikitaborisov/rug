@@ -1728,7 +1728,7 @@ mod hide {
     #[repr(transparent)]
     pub struct Private<'a>(pub(crate) &'a mut randstate_t);
     pub trait SealedMutRandState {
-        fn private(&mut self) -> Private;
+        fn private(&mut self) -> Private<'_>;
     }
 }
 use self::hide::{Private, SealedMutRandState};
@@ -1736,14 +1736,14 @@ use self::hide::{Private, SealedMutRandState};
 impl MutRandState for RandState<'_> {}
 impl SealedMutRandState for RandState<'_> {
     #[inline]
-    fn private(&mut self) -> Private {
+    fn private(&mut self) -> Private<'_> {
         Private(&mut self.inner)
     }
 }
 impl MutRandState for ThreadRandState<'_> {}
 impl SealedMutRandState for ThreadRandState<'_> {
     #[inline]
-    fn private(&mut self) -> Private {
+    fn private(&mut self) -> Private<'_> {
         Private(&mut self.inner)
     }
 }

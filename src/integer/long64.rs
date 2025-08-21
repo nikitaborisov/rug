@@ -418,7 +418,7 @@ pub trait IntegerExt64: Sealed {
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
-    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete;
+    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete<'_>;
 
     /// Keeps the <i>n</i> least significant bits only, producing a negative
     /// result if the <i>n</i>th least significant bit is one.
@@ -1351,7 +1351,7 @@ pub trait IntegerExt64: Sealed {
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
-    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete;
+    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_>;
 }
 
 impl IntegerExt64 for Integer {
@@ -1456,7 +1456,7 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete {
+    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete<'_> {
         let n = n.unwrapped_cast();
         KeepBitsIncomplete { ref_self: self, n }
     }
@@ -1678,7 +1678,7 @@ impl IntegerExt64 for Integer {
 
     #[cfg(feature = "rand")]
     #[inline]
-    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         let bits = bits.unwrapped_cast();
         RandomBitsIncomplete { bits, rng }
     }

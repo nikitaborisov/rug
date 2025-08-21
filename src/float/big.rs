@@ -11711,7 +11711,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         RandomBitsIncomplete { rng }
     }
 
@@ -11756,7 +11756,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete {
+    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete<'_> {
         RandomContIncomplete { rng }
     }
 
@@ -11785,7 +11785,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_normal(rng: &mut dyn MutRandState) -> RandomNormalIncomplete {
+    pub fn random_normal(rng: &mut dyn MutRandState) -> RandomNormalIncomplete<'_> {
         RandomNormalIncomplete { rng }
     }
 
@@ -11814,7 +11814,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_exp(rng: &mut dyn MutRandState) -> RandomExpIncomplete {
+    pub fn random_exp(rng: &mut dyn MutRandState) -> RandomExpIncomplete<'_> {
         RandomExpIncomplete { rng }
     }
 }

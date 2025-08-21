@@ -891,7 +891,7 @@ impl MiniFloat {
     /// assert_eq!(Float::with_val(53, abs_ref), 13);
     /// ```
     #[inline]
-    pub const fn borrow(&self) -> BorrowFloat {
+    pub const fn borrow(&self) -> BorrowFloat<'_> {
         // SAFETY: Since d points to the limbs, the mpfr_t is in a consistent
         // state. Also, the lifetime of the BorrowFloat is the lifetime of self,
         // which covers the limbs.

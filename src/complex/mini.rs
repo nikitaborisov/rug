@@ -338,7 +338,7 @@ impl MiniComplex {
     /// assert_eq!(*conj.imag(), -5.5);
     /// ```
     #[inline]
-    pub const fn borrow(&self) -> BorrowComplex {
+    pub const fn borrow(&self) -> BorrowComplex<'_> {
         let first_d: *const Limbs = &self.first_limbs;
         let last_d: *const Limbs = &self.last_limbs;
         let (re_d, im_d) = if self.re_is_first() {

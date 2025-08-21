@@ -2638,7 +2638,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn abs_ref(&self) -> AbsIncomplete {
+    pub fn abs_ref(&self) -> AbsIncomplete<'_> {
         AbsIncomplete { ref_self: self }
     }
 
@@ -2707,7 +2707,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn signum_ref(&self) -> SignumIncomplete {
+    pub fn signum_ref(&self) -> SignumIncomplete<'_> {
         SignumIncomplete { ref_self: self }
     }
 
@@ -2872,7 +2872,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn keep_bits_ref(&self, n: u32) -> KeepBitsIncomplete {
+    pub fn keep_bits_ref(&self, n: u32) -> KeepBitsIncomplete<'_> {
         let n = n.into();
         KeepBitsIncomplete { ref_self: self, n }
     }
@@ -5598,7 +5598,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_bits(bits: u32, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(bits: u32, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         let bits = bits.into();
         RandomBitsIncomplete { bits, rng }
     }

@@ -3907,7 +3907,7 @@ impl Complex {
     ///
     /// [icv]: `crate`#incomplete-computation-values
     #[inline]
-    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         RandomBitsIncomplete { rng }
     }
 
@@ -3963,7 +3963,7 @@ impl Complex {
     ///
     /// [icv]: `crate`#incomplete-computation-values
     #[inline]
-    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete {
+    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete<'_> {
         RandomContIncomplete { rng }
     }
 
