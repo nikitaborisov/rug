@@ -12,13 +12,17 @@ Version 1.28.0 (unreleased)
      * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
   * The following methods were added to [`Complex`][com-1-28]:
      * [`as_shl`][com-ashl-1-28], [`as_shr`][com-ashr-1-28]
+  * The experimental feature [`borsh`][feat-exp-1-28] was added ([merge request
+    6]).
 
 [com-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html
 [com-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shl
 [com-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shr
+[feat-exp-1-28]: https://docs.rs/rug/~1.28/rug/index.html#experimental-optional-features
 [flo-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shl
 [flo-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shr
+[merge request 6]: https://gitlab.com/tspiteri/rug/-/merge_requests/6
 
 Version 1.27.0 (2025-01-24)
 ===========================
