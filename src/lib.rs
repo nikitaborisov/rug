@@ -334,16 +334,21 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
- 2. `nightly-float`, disabled by default. This requires the nightly compiler,
+ 2. `num-complex`, disabled by default. This adds explicit conversipon methods
+    to and from complex floats as provided by the [*num-complex* crate]. (The
+    plan is to promote this to an optional feature once the [*num-complex*
+    crate] reaces version 1.0.0.)
+ 3. `nightly-float`, disabled by default. This requires the nightly compiler,
     and implements some operations with the experimental [`f16`] and [`f128`]
     primitives. (The plan is to always implement the operations and remove this
     experimental feature once the primitives are stabilized.)
- 3. `borsh`, disabled by default. This provides serialization support using the
+ 4. `borsh`, disabled by default. This provides serialization support using the
     [*borsh* crate]. (The plan is to promote this to an optional feature.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: #incomplete-computation-values
 [*borsh* crate]: https://crates.io/crates/borsh
+[*num-complex* crate]: https://crates.io/crates/num-complex
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
 [GMP]: https://gmplib.org/

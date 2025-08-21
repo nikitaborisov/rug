@@ -12,6 +12,8 @@ Version 1.28.0 (unreleased)
      * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
   * The following methods were added to [`Complex`][com-1-28]:
      * [`as_shl`][com-ashl-1-28], [`as_shr`][com-ashr-1-28]
+  * The experimental feature [`num-complex`][feat-exp-1-28] was added ([issue
+    84]).
   * The experimental feature [`borsh`][feat-exp-1-28] was added ([merge request
     6]).
 
@@ -22,6 +24,7 @@ Version 1.28.0 (unreleased)
 [flo-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
 [flo-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shl
 [flo-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shr
+[issue 84]: https://gitlab.com/tspiteri/rug/-/issues/84
 [merge request 6]: https://gitlab.com/tspiteri/rug/-/merge_requests/6
 
 Version 1.27.0 (2025-01-24)
