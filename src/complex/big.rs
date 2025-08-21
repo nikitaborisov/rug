@@ -40,6 +40,8 @@ use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
+#[cfg(feature = "num-complex")]
+use num_complex::Complex as NumComplex;
 
 /**
 A multi-precision complex number with arbitrarily large precision and correct
@@ -770,6 +772,238 @@ impl Complex {
         radix: i32,
     ) -> Result<ParseIncomplete, ParseComplexError> {
         parse(src.as_ref(), radix)
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f16]></code>, rounding to
+    /// the nearest.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (13.7, 1e300));
+    /// let nc = c.to_c16();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f16::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c16(&self) -> NumComplex<f16> {
+        self.to_c16_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f16]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let val = 1.0 + (-50f64).exp2();
+    /// let c = Complex::with_val(53, (val, val));
+    /// let nc = c.to_c16_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f16::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c16_round(&self, round: Round2) -> NumComplex<f16> {
+        NumComplex::new(
+            self.real().to_f16_round(round.0),
+            self.imag().to_f16_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f32]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (13.7, 1e300));
+    /// let nc = c.to_c32();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f32::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c32(&self) -> NumComplex<f32> {
+        self.to_c32_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f32]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let val = 1.0 + (-50f64).exp2();
+    /// let c = Complex::with_val(53, (val, val));
+    /// let nc = c.to_c32_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f32::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c32_round(&self, round: Round2) -> NumComplex<f32> {
+        NumComplex::new(
+            self.real().to_f32_round(round.0),
+            self.imag().to_f32_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f64]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (13.7, 1e300));
+    /// c.mut_imag().square_mut();
+    /// let nc = c.to_c64();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f64::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c64(&self) -> NumComplex<f64> {
+        self.to_c64_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f64]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::Round;
+    /// use rug::{Complex, Float};
+    /// // (2.0 ^ -90) + 1
+    /// let val: Float = Float::with_val(100, -90).exp2() + 1;
+    /// let c = Complex::with_val(100, (val.clone(), val));
+    /// let nc = c.to_c64_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f64::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c64_round(&self, round: Round2) -> NumComplex<f64> {
+        NumComplex::new(
+            self.real().to_f64_round(round.0),
+            self.imag().to_f64_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f128]></code>, rounding to
+    /// the nearest.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(113, (13.7f128, 1e4000_f128));
+    /// c.mut_imag().square_mut();
+    /// let nc = c.to_c128();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f128::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c128(&self) -> NumComplex<f128> {
+        self.to_c128_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f128]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::{Complex, Float};
+    /// // (2.0 ^ -190) + 1
+    /// let val: Float = Float::with_val(200, -190).exp2() + 1;
+    /// let c = Complex::with_val(200, (val.clone(), val));
+    /// let nc = c.to_c128_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f128::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c128_round(&self, round: Round2) -> NumComplex<f128> {
+        NumComplex::new(
+            self.real().to_f128_round(round.0),
+            self.imag().to_f128_round(round.1),
+        )
     }
 
     /// Returns a string representation of the value for the specified `radix`
