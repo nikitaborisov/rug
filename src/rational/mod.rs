@@ -24,6 +24,8 @@ This module provides support for arbitrary-precision rational numbers of type
 mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
 mod casts;
 mod cmp;
 #[cfg(feature = "num-traits")]

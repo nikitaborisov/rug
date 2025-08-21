@@ -458,7 +458,6 @@ mod ext;
 #[cfg(any(feature = "integer", feature = "float"))]
 mod misc;
 mod ops_prim;
-#[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
 mod serdeize;
 
 pub mod ops;

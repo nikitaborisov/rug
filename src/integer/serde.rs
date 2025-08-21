@@ -15,29 +15,22 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::serdeize;
-use crate::serdeize::{Data, PrecReq, PrecVal};
+use crate::serdeize::{Data, PrecReq};
 use crate::{Assign, Integer};
 use serde::de::{Deserialize, Deserializer, Error as DeError};
 use serde::ser::{Serialize, Serializer};
 
 impl Serialize for Integer {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let prec = PrecVal::Zero;
-        let radix = if self.significant_bits() <= 32 {
-            10
-        } else {
-            16
-        };
-        let value = self.to_string_radix(radix);
-        let data = Data { prec, radix, value };
-        serdeize::serialize("Integer", &data, serializer)
+        let data: Data = self.into();
+        serdeize::serde::serialize("Integer", &data, serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for Integer {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Integer, D::Error> {
-        let (radix, value) = de_data(deserializer)?;
-        let p = Integer::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Integer", PrecReq::Zero, deserializer)?;
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         Ok(Integer::from(p))
     }
 
@@ -45,22 +38,11 @@ impl<'de> Deserialize<'de> for Integer {
         deserializer: D,
         place: &mut Integer,
     ) -> Result<(), D::Error> {
-        let (radix, value) = de_data(deserializer)?;
-        let p = Integer::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Integer", PrecReq::Zero, deserializer)?;
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         place.assign(p);
         Ok(())
     }
-}
-
-fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(i32, String), D::Error> {
-    let Data { prec, radix, value } =
-        serdeize::deserialize("Integer", PrecReq::Zero, deserializer)?;
-    match prec {
-        PrecVal::Zero => {}
-        _ => unreachable!(),
-    }
-    serdeize::check_range("radix", radix, 2, 36)?;
-    Ok((radix, value))
 }
 
 #[cfg(test)]

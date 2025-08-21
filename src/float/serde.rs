@@ -15,7 +15,6 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpfr;
-use crate::float;
 use crate::float::OrdFloat;
 use crate::serdeize::{self, Data, PrecReq, PrecVal};
 use crate::{Assign, Float};
@@ -25,23 +24,19 @@ use serde::ser::{Serialize, Serializer};
 
 impl Serialize for Float {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let prec = self.prec();
-        let radix = if prec <= 32 || !self.is_normal() {
-            10
-        } else {
-            16
-        };
-        let prec = PrecVal::One(prec);
-        let value = self.to_string_radix(radix, None);
-        let data = Data { prec, radix, value };
-        serdeize::serialize("Float", &data, serializer)
+        let data: Data = self.into();
+        serdeize::serde::serialize("Float", &data, serializer)
     }
 }
 
 impl<'de> Deserialize<'de> for Float {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Float, D::Error> {
-        let (prec, radix, value) = de_data(deserializer)?;
-        let p = Float::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Float", PrecReq::One, deserializer)?;
+        let prec = match &data.prec {
+            PrecVal::One(prec) => *prec,
+            _ => unreachable!(),
+        };
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         Ok(Float::with_val(prec, p))
     }
 
@@ -49,22 +44,16 @@ impl<'de> Deserialize<'de> for Float {
         deserializer: D,
         place: &mut Float,
     ) -> Result<(), D::Error> {
-        let (prec, radix, value) = de_data(deserializer)?;
-        let p = Float::parse_radix(value, radix).map_err(DeError::custom)?;
+        let data: Data = serdeize::serde::deserialize("Float", PrecReq::One, deserializer)?;
+        let prec = match &data.prec {
+            PrecVal::One(prec) => *prec,
+            _ => unreachable!(),
+        };
+        let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
         xmpfr::set_prec_nan(place, prec.unwrapped_cast());
         place.assign(p);
         Ok(())
     }
-}
-
-fn de_data<'de, D: Deserializer<'de>>(deserializer: D) -> Result<(u32, i32, String), D::Error> {
-    let Data { prec, radix, value } = serdeize::deserialize("Float", PrecReq::One, deserializer)?;
-    let PrecVal::One(prec) = prec else {
-        unreachable!();
-    };
-    serdeize::check_range("precision", prec, float::prec_min(), float::prec_max())?;
-    serdeize::check_range("radix", radix, 2, 36)?;
-    Ok((prec, radix, value))
 }
 
 impl Serialize for OrdFloat {
