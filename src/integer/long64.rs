@@ -1445,7 +1445,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn keep_bits_64(mut self, n: u64) -> Self {
         self.keep_bits_64_mut(n);
         self
@@ -1463,7 +1462,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn keep_signed_bits_64(mut self, n: u64) -> Self {
         self.keep_signed_bits_64_mut(n);
         self
@@ -1486,7 +1484,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn div_exact_u64(mut self, divisor: u64) -> Self {
         self.div_exact_u64_mut(divisor);
         self
@@ -1516,7 +1513,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn root_64(mut self, n: u64) -> Self {
         self.root_64_mut(n);
         self
@@ -1551,7 +1547,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn gcd_u64(mut self, other: u64) -> Self {
         self.gcd_u64_mut(other);
         self
@@ -1571,7 +1566,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn lcm_u64(mut self, other: u64) -> Self {
         self.lcm_u64_mut(other);
         self
@@ -1635,7 +1629,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn binomial_64(mut self, k: u64) -> Self {
         self.binomial_64_mut(k);
         self
