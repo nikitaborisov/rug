@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2025 Kartik Soneji
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,10 +17,13 @@
 #[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
 pub mod serde;
 
-#[cfg(feature = "borsh")]
+#[cfg(all(feature = "borsh", any(feature = "integer", feature = "float")))]
 pub mod borsh;
 
+#[cfg(any(feature = "integer", feature = "float"))]
 pub mod data;
+
+#[cfg(any(feature = "integer", feature = "float"))]
 #[allow(unused_imports)]
 pub use data::{Data, PrecReq, PrecVal};
 
@@ -39,6 +42,7 @@ where
 }
 
 #[cfg(test)]
+#[cfg(any(feature = "integer", feature = "float"))]
 pub mod test {
     #[cfg(feature = "serde")]
     pub use super::serde::test::*;
@@ -46,7 +50,7 @@ pub mod test {
     #[cfg(feature = "borsh")]
     pub use super::borsh::test::*;
 
-    #[cfg(any(feature = "serde", feature = "borsh"))]
+    #[cfg(all(feature = "borsh", feature = "complex"))]
     pub fn assert_eq_float_handle_nan(a: &crate::Float, b: &crate::Float) {
         if a.is_nan() || b.is_nan() {
             assert!(a.is_nan());

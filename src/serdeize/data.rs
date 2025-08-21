@@ -1,7 +1,30 @@
+// Copyright © 2016–2025 Trevor Spiteri, Kartik Soneji
+
+// This program is free software: you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License as published by the Free
+// Software Foundation, either version 3 of the License, or (at your option) any
+// later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+// details.
+//
+// You should have received a copy of the GNU Lesser General Public License and
+// a copy of the GNU General Public License along with this program. If not, see
+// <https://www.gnu.org/licenses/>.
+
 #![allow(dead_code)]
 
 use crate::serdeize::check_range;
-use crate::{Complex, Float, Integer, Rational};
+#[cfg(feature = "complex")]
+use crate::Complex;
+#[cfg(feature = "float")]
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 
 pub enum PrecReq {
     Zero,
@@ -29,6 +52,7 @@ pub struct Data {
     pub value: String,
 }
 
+#[cfg(feature = "complex")]
 impl From<&Complex> for Data {
     fn from(value: &Complex) -> Self {
         let prec = value.prec();
@@ -45,6 +69,7 @@ impl From<&Complex> for Data {
     }
 }
 
+#[cfg(feature = "complex")]
 impl TryFrom<Data> for crate::complex::big::ParseIncomplete {
     type Error = String;
 
@@ -72,6 +97,7 @@ impl TryFrom<Data> for crate::complex::big::ParseIncomplete {
     }
 }
 
+#[cfg(feature = "float")]
 impl From<&Float> for Data {
     fn from(value: &Float) -> Self {
         let prec = value.prec();
@@ -86,6 +112,7 @@ impl From<&Float> for Data {
     }
 }
 
+#[cfg(feature = "float")]
 impl TryFrom<Data> for crate::float::big::ParseIncomplete {
     type Error = String;
 
@@ -101,6 +128,7 @@ impl TryFrom<Data> for crate::float::big::ParseIncomplete {
     }
 }
 
+#[cfg(feature = "integer")]
 impl From<&Integer> for Data {
     fn from(value: &Integer) -> Self {
         let prec = PrecVal::Zero;
@@ -114,6 +142,7 @@ impl From<&Integer> for Data {
     }
 }
 
+#[cfg(feature = "integer")]
 impl TryFrom<Data> for crate::integer::big::ParseIncomplete {
     type Error = String;
 
@@ -127,6 +156,7 @@ impl TryFrom<Data> for crate::integer::big::ParseIncomplete {
     }
 }
 
+#[cfg(feature = "rational")]
 impl From<&Rational> for Data {
     fn from(value: &Rational) -> Self {
         let prec = PrecVal::Zero;
@@ -141,6 +171,7 @@ impl From<&Rational> for Data {
     }
 }
 
+#[cfg(feature = "rational")]
 impl TryFrom<Data> for crate::rational::big::ParseIncomplete {
     type Error = String;
 
