@@ -30,6 +30,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ### Version 1.28.0 news (unreleased)
 
+  * The crate now requires rustc version 1.83.0 or later.
   * The following methods were added to [`Float`][flo-1-28]:
      * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
   * The following methods were added to [`Complex`][com-1-28]:
@@ -191,7 +192,7 @@ a dependency inside [*Cargo.toml*]:
 rug = "1.27"
 ```
 
-Rug requires rustc version 1.65.0 or later.
+Rug requires rustc version 1.83.0 or later.
 
 Rug also depends on the [GMP], [MPFR] and [MPC] libraries through the low-level
 FFI bindings in the [gmp-mpfr-sys crate][sys crate], which needs some setup to

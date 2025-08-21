@@ -7,6 +7,7 @@ notice are preserved. This file is offered as-is, without any warranty. -->
 Version 1.28.0 (unreleased)
 ===========================
 
+  * The crate now requires rustc version 1.83.0 or later.
   * The following methods were added to [`Float`][flo-1-28]:
      * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
   * The following methods were added to [`Complex`][com-1-28]:
