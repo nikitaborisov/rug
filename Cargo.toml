@@ -12,12 +12,12 @@ description = """
 Arbitrary-precision integers, rational, floating-point and complex numbers based
 on GMP, MPFR and MPC."""
 documentation = "https://docs.rs/rug"
-edition = "2021"
+edition = "2024"
 keywords = ["bignum", "gmp", "math", "numerics"]
 license = "LGPL-3.0+"
 readme = "README.md"
 repository = "https://gitlab.com/tspiteri/rug"
-rust-version = "1.83"
+rust-version = "1.85"
 
 [dependencies]
 az = "1.1"

@@ -5,7 +5,7 @@
 # notice are preserved. This file is offered as-is, without any warranty.
 
 variables:
-  MSRV: 1.83.0
+  MSRV: 1.85.0
 
 stages:
   - clibs

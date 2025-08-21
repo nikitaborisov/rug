@@ -11,7 +11,7 @@ branches:
     - www
 
 environment:
-  MSRV: 1.83.0
+  MSRV: 1.85.0
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
   TARGET: x86_64-pc-windows-gnu
