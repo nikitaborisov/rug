@@ -2586,7 +2586,7 @@ impl Float {
             let save_emax = xmpfr::get_emax();
             if exp_max
                 .checked_cast()
-                .map_or(true, |x| mpfr::set_emax(x) != 0)
+                .is_none_or(|x| mpfr::set_emax(x) != 0)
             {
                 mpfr::set_emin(save_emin);
                 return None;
