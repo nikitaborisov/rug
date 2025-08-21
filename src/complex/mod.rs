@@ -26,6 +26,8 @@ pub(crate) mod big;
 mod borrow;
 #[cfg(feature = "borsh")]
 mod borsh;
+#[cfg(feature = "num-complex")]
+mod casts;
 mod cmp;
 #[cfg(feature = "num-traits")]
 mod impl_num_traits;
