@@ -1202,7 +1202,7 @@ macro_rules! from_float {
             const MANT_MASK: $Uns = IMPLICIT - 1;
             const EXP_MASK: $Uns = !(SIGN_MASK | MANT_MASK);
 
-            let val: $Uns = unsafe { mem::transmute(val) };
+            let val: $Uns = $Float::to_bits(val);
             let prec = $Float::MANTISSA_DIGITS as prec_t;
             let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
             let exp_bits = val & EXP_MASK;
