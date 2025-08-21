@@ -14,13 +14,13 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::ext::xmpfr;
-use crate::float::mini;
-use crate::float::{MiniFloat, Round};
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::ext::xmpfr;
+use crate::float::mini;
+use crate::float::{MiniFloat, Round};
 use crate::{Assign, Float};
 use az::{Cast, CheckedAs, CheckedCast, SaturatingCast, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;

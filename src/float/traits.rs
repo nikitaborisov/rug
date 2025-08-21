@@ -14,19 +14,19 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[cfg(feature = "integer")]
+use crate::Integer;
 use crate::ext::xmpfr;
-use crate::float::big;
-use crate::float::big::{ExpFormat, Format};
 #[allow(deprecated)]
 use crate::float::SmallFloat;
+use crate::float::big;
+use crate::float::big::{ExpFormat, Format};
 use crate::float::{Constant, MiniFloat, OrdFloat, Round, Special};
 use crate::misc::StringLike;
 use crate::ops::AssignRound;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::{rational::TryFromFloatError, Rational};
 use crate::{Assign, Float};
+#[cfg(feature = "rational")]
+use crate::{Rational, rational::TryFromFloatError};
 #[cfg(feature = "rational")]
 use az::CheckedCast;
 use az::{UnwrappedAs, UnwrappedCast};

@@ -14,6 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Assign;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 #[cfg(feature = "complex")]
 use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
@@ -33,17 +38,12 @@ use crate::ops::{
 };
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use crate::Assign;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
 use core::error::Error;
 #[cfg(feature = "integer")]
 use core::ffi::c_int;
-use core::ffi::{c_char, CStr};
+use core::ffi::{CStr, c_char};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::num::FpCategory;
@@ -12591,11 +12591,7 @@ pub(crate) fn req_chars(f: &Float, format: Format, extra: usize) -> usize {
     let size_no_sign = if f.is_zero() {
         1
     } else if f.is_infinite() || f.is_nan() {
-        if format.radix > 10 {
-            5
-        } else {
-            3
-        }
+        if format.radix > 10 { 5 } else { 3 }
     } else {
         use core::f64::consts::LOG10_2;
         let digits = req_digits(f, format);
@@ -13054,11 +13050,7 @@ fn ieee_storage_bits_for_prec(prec: u32) -> Option<u32> {
     {
         p = k - libm::round(libm::log2(f64::from(k)) * 4.0).unwrapped_as::<u32>() + 13;
     }
-    if p == prec {
-        Some(k)
-    } else {
-        None
-    }
+    if p == prec { Some(k) } else { None }
 }
 
 impl PartialOrd<UExpIncomplete> for Float {

@@ -17,7 +17,7 @@
 use crate::complex::arith::{AddMulIncomplete, SubMulFromIncomplete};
 use crate::complex::{BorrowComplex, OrdComplex, Prec, Prec64};
 use crate::ext::xmpc;
-use crate::ext::xmpc::{Ordering2, Round2, NEAREST2};
+use crate::ext::xmpc::{NEAREST2, Ordering2, Round2};
 use crate::ext::xmpfr;
 use crate::float;
 use crate::float::big::{

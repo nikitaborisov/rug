@@ -14,6 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::OptFloat;
 use crate::float::{MiniFloat, Round};
@@ -23,11 +28,6 @@ use crate::ops::{
     PowFrom, PowFromRound, RemAssignRound, RemFrom, RemFromRound, SubAssignRound, SubFrom,
     SubFromRound,
 };
-use crate::Float;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use az::CheckedCast;
 use core::cmp::Ordering;
 use core::ffi::{c_long, c_ulong};
@@ -801,14 +801,14 @@ fn mul_sub<O: OptFloat>(rop: &mut Float, mul: MulIncomplete<'_>, sub: O, rnd: Ro
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use crate::float;
-    use crate::float::{FreeCache, Special};
-    use crate::ops::Pow;
     use crate::Float;
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::float;
+    use crate::float::{FreeCache, Special};
+    use crate::ops::Pow;
     #[cfg(feature = "integer")]
     use core::str::FromStr;
 
@@ -951,7 +951,7 @@ pub(crate) mod tests {
     #[test]
     fn check_arith_others() {
         use crate::tests::{
-            F32, F64, I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE,
+            F32, F64, I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE,
         };
         let large = [
             Float::with_val(20, Special::Zero),

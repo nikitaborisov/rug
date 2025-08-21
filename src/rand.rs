@@ -38,9 +38,9 @@ so that they can be used with methods like
 <code>[Integer]::[random\_below][Integer::random_below]</code>.
 */
 
+use crate::Integer;
 #[cfg(feature = "std")]
 use crate::misc;
-use crate::Integer;
 use az::Cast;
 #[cfg(feature = "std")]
 use az::{UnwrappedAs, UnwrappedCast};

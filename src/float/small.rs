@@ -209,9 +209,9 @@ impl Assign for SmallFloat {
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
+    use crate::Assign;
     use crate::float;
     use crate::float::{FreeCache, SmallFloat, Special};
-    use crate::Assign;
 
     #[test]
     fn check_assign() {

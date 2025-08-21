@@ -16,8 +16,8 @@
 
 use crate::ext::xmpq;
 use crate::ext::xmpq::OptRational;
-use crate::integer::arith::AsLong;
 use crate::integer::MiniInteger;
+use crate::integer::arith::AsLong;
 use crate::ops::{AddFrom, DivFrom, MulFrom, NegAssign, Pow, PowAssign, SubFrom};
 use crate::{Assign, Complete, Integer, Rational};
 use az::{CheckedAs, CheckedCast};
@@ -496,7 +496,7 @@ mod tests {
 
     #[test]
     fn check_arith_u_s() {
-        use crate::tests::{I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE};
+        use crate::tests::{I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE};
         let large = [(1, 3, 100), (-11, 5, 200), (33, 79, -150)];
         let against = (large.iter().map(|&(n, d, s)| Rational::from((n, d)) << s))
             .chain(num_den(I32))

@@ -14,12 +14,12 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Integer;
 use crate::misc;
 use crate::misc::NegAbs;
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use crate::Integer;
 use az::{Az, UnwrappedAs, UnwrappedCast, WrappingAs, WrappingCast};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_uint, c_ulong};
@@ -1003,11 +1003,7 @@ pub fn mulsub_si(rop: &mut Integer, op1: &Integer, op2: c_long) {
 
 #[inline]
 fn bitcount_check_not_max(bits: bitcnt_t) -> Option<bitcnt_t> {
-    if bits == !0 {
-        None
-    } else {
-        Some(bits)
-    }
+    if bits == !0 { None } else { Some(bits) }
 }
 
 #[inline]
@@ -1181,11 +1177,7 @@ pub fn start_invert(op: &Integer, modulo: &Integer) -> Option<Integer> {
         return None;
     }
     let (gcd, sinverse) = <(Integer, Integer)>::from(op.extended_gcd_ref(modulo));
-    if is_1(&gcd) {
-        Some(sinverse)
-    } else {
-        None
-    }
+    if is_1(&gcd) { Some(sinverse) } else { None }
 }
 
 #[inline]

@@ -14,16 +14,16 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::MiniComplex;
-use crate::ext::xmpfr;
-use crate::ext::xmpfr::{ordering1, raw_round, OptFloat, EXP_ZERO};
-use crate::float::Round;
-use crate::misc;
-use crate::misc::VecLike;
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::complex::MiniComplex;
+use crate::ext::xmpfr;
+use crate::ext::xmpfr::{EXP_ZERO, OptFloat, ordering1, raw_round};
+use crate::float::Round;
+use crate::misc;
+use crate::misc::VecLike;
 use crate::{Complex, Float};
 use az::UnwrappedCast;
 use core::cmp::Ordering;

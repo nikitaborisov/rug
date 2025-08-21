@@ -224,10 +224,10 @@ impl Assign for SmallComplex {
 
 #[cfg(test)]
 mod tests {
+    use crate::Assign;
     use crate::complex::SmallComplex;
     use crate::float;
     use crate::float::FreeCache;
-    use crate::Assign;
 
     #[test]
     fn check_assign() {

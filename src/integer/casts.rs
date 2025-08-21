@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Integer;
 use crate::ext::xmpz;
 use crate::misc;
 use crate::ops::NegAssign;
-use crate::Integer;
 use az::{
     Az, Cast, CheckedCast, OverflowingCast, Round, SaturatingCast, UnwrappedCast, WrappingCast,
 };

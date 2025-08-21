@@ -598,7 +598,7 @@ pub use az;
 
 #[cfg(any(feature = "integer", feature = "float"))]
 mod static_assertions {
-    use gmp_mpfr_sys::gmp::{limb_t, LIMB_BITS, NAIL_BITS, NUMB_BITS};
+    use gmp_mpfr_sys::gmp::{LIMB_BITS, NAIL_BITS, NUMB_BITS, limb_t};
 
     static_assert!(NAIL_BITS == 0);
     static_assert!(NUMB_BITS == LIMB_BITS);

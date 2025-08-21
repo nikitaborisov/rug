@@ -226,9 +226,9 @@ cmp_f! { f32 f64 }
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::MiniRational;
-    use crate::tests::{I128, I32, I64, U128, U32, U64};
     use crate::Rational;
+    use crate::rational::MiniRational;
+    use crate::tests::{I32, I64, I128, U32, U64, U128};
     use az::{Az, Cast};
     use core::cmp::Ordering;
     use core::ops::Neg;

@@ -166,10 +166,10 @@ impl AsMut<Complex> for OrdComplex {
 #[allow(clippy::eq_op)]
 #[cfg(test)]
 mod tests {
+    use crate::Complex;
     use crate::complex::OrdComplex;
     use crate::float;
     use crate::float::{FreeCache, Special};
-    use crate::Complex;
     use core::hash::{Hash, Hasher};
     use core::ptr;
     use std::collections::hash_map::DefaultHasher;

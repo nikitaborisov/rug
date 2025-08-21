@@ -14,16 +14,16 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::ext::xmpfr;
-use crate::float::big::{IExpIncomplete, UExpIncomplete};
-#[allow(deprecated)]
-use crate::float::SmallFloat;
-use crate::float::{MiniFloat, Special};
 use crate::Float;
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::ext::xmpfr;
+#[allow(deprecated)]
+use crate::float::SmallFloat;
+use crate::float::big::{IExpIncomplete, UExpIncomplete};
+use crate::float::{MiniFloat, Special};
 use az::Cast;
 use core::cmp::Ordering;
 
@@ -262,12 +262,12 @@ cmp! { IExpIncomplete }
 
 #[cfg(test)]
 mod tests {
-    use crate::float;
-    use crate::float::{FreeCache, Special};
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::float;
+    use crate::float::{FreeCache, Special};
     use crate::{Assign, Float};
     use core::cmp::Ordering;
     #[cfg(feature = "integer")]
@@ -312,7 +312,7 @@ mod tests {
 
     #[test]
     fn check_cmp_others() {
-        use crate::tests::{F32, F64, I128, I32, I64, U128, U32, U64};
+        use crate::tests::{F32, F64, I32, I64, I128, U32, U64, U128};
         let large = [
             Float::with_val(20, Special::Zero),
             Float::with_val(20, Special::NegZero),

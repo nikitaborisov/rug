@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::big;
-use crate::complex::big::Format;
 #[allow(deprecated)]
 use crate::complex::SmallComplex;
+use crate::complex::big;
+use crate::complex::big::Format;
 use crate::complex::{MiniComplex, OrdComplex};
 use crate::ext::xmpc;
 use crate::ext::xmpc::{Ordering2, Round2};

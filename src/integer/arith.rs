@@ -581,8 +581,8 @@ fn rhs_has_more_alloc(lhs: &Integer, rhs: &Integer) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::ops::{AddFrom, Pow, SubFrom};
     use crate::Integer;
+    use crate::ops::{AddFrom, Pow, SubFrom};
     use core::ops::{AddAssign, SubAssign};
 
     macro_rules! test_op {
@@ -596,7 +596,7 @@ mod tests {
 
     #[test]
     fn check_arith() {
-        use crate::tests::{I128, I32, I64, ISIZE, U128, U32, U64, USIZE};
+        use crate::tests::{I32, I64, I128, ISIZE, U32, U64, U128, USIZE};
         let large = [(1, 100), (-11, 200), (33, 150)];
         let all = (large.iter().map(|&(n, s)| Integer::from(n) << s))
             .chain(U32.iter().map(|&x| Integer::from(x)))
@@ -656,7 +656,7 @@ mod tests {
 
     #[test]
     fn check_arith_u_s() {
-        use crate::tests::{I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE};
+        use crate::tests::{I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE};
         let large = [(1, 100), (-11, 200), (33, 150)];
         let against = (large.iter().map(|&(n, s)| Integer::from(n) << s))
             .chain(U32.iter().map(|&x| Integer::from(x)))

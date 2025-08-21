@@ -15,7 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::float;
-use crate::float::tests::{clear_nanflag, nanflag, Cmp};
+use crate::float::tests::{Cmp, clear_nanflag, nanflag};
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
 use crate::{Assign, Complex, Float};

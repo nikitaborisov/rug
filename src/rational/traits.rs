@@ -18,9 +18,9 @@ use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::misc;
 use crate::misc::StringLike;
-use crate::rational::big;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
+use crate::rational::big;
 use crate::rational::{MiniRational, ParseRationalError, TryFromFloatError};
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;

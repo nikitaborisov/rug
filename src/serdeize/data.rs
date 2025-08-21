@@ -16,7 +16,6 @@
 
 #![allow(dead_code)]
 
-use crate::serdeize::check_range;
 #[cfg(feature = "complex")]
 use crate::Complex;
 #[cfg(feature = "float")]
@@ -25,6 +24,7 @@ use crate::Float;
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::serdeize::check_range;
 
 pub enum PrecReq {
     Zero,

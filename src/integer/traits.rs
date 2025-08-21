@@ -15,9 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpz;
-use crate::integer::big;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
+use crate::integer::big;
 use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
 use crate::misc::StringLike;
 use crate::{Assign, Integer};

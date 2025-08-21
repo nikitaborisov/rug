@@ -14,11 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Integer;
 use crate::ext::xmpz;
 use crate::integer::MiniInteger;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
-use crate::Integer;
 use az::UnwrappedAs;
 use core::cmp::Ordering;
 
@@ -224,8 +224,8 @@ impl PartialOrd<Integer> for f64 {
 #[cfg(test)]
 mod tests {
     use crate::{
-        tests::{I128, I32, I64, U128, U32, U64},
         Integer,
+        tests::{I32, I64, I128, U32, U64, U128},
     };
     use core::cmp::Ordering;
     use core::ops::Neg;

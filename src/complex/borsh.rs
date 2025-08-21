@@ -14,8 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::serdeize::{Data, PrecVal};
 use crate::Complex;
+use crate::serdeize::{Data, PrecVal};
 use borsh::io::{Error, ErrorKind, Read, Result, Write};
 use borsh::{BorshDeserialize, BorshSerialize};
 
@@ -44,7 +44,7 @@ impl BorshDeserialize for Complex {
 mod tests {
     use crate::float::{FreeCache, Special};
     use crate::serdeize::test::*;
-    use crate::{float, Assign, Complex};
+    use crate::{Assign, Complex, float};
     use az::UnwrappedCast;
 
     fn assert(a: &Complex, b: &Complex) {

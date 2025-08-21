@@ -14,19 +14,19 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 use crate::complex::MiniComplex;
 use crate::ext::xmpc;
-use crate::ext::xmpc::{OptComplex, Ordering2, Round2, NEAREST2};
+use crate::ext::xmpc::{NEAREST2, OptComplex, Ordering2, Round2};
 use crate::float::MiniFloat;
 use crate::ops::{
     AddAssignRound, AddFrom, AddFromRound, AssignRound, CompleteRound, DivAssignRound, DivFrom,
     DivFromRound, MulAssignRound, MulFrom, MulFromRound, NegAssign, Pow, PowAssign, PowAssignRound,
     PowFrom, PowFromRound, SubAssignRound, SubFrom, SubFromRound,
 };
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use crate::{Complex, Float};
 use az::{CheckedAs, CheckedCast};
 use core::ffi::{c_long, c_ulong};
@@ -768,14 +768,14 @@ fn mul_sub<O: OptComplex>(
 
 #[cfg(test)]
 mod tests {
-    use crate::float;
-    use crate::float::arith::tests as float_tests;
-    use crate::float::{FreeCache, Special};
-    use crate::ops::{NegAssign, Pow};
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::float;
+    use crate::float::arith::tests as float_tests;
+    use crate::float::{FreeCache, Special};
+    use crate::ops::{NegAssign, Pow};
     use crate::{Complex, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
@@ -904,7 +904,7 @@ mod tests {
     #[test]
     fn check_arith_others() {
         use crate::tests::{
-            F32, F64, I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE,
+            F32, F64, I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE,
         };
         let large = [
             Complex::with_val(20, (Special::Zero, 1.0)),

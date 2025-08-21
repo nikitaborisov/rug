@@ -191,8 +191,8 @@ impl Assign for SmallInteger {
 
 #[cfg(test)]
 mod tests {
-    use crate::integer::SmallInteger;
     use crate::Assign;
+    use crate::integer::SmallInteger;
 
     #[test]
     fn check_assign() {
