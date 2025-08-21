@@ -234,10 +234,10 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
- 2. `num-complex`, disabled by default. This adds explicit conversipon methods
-    to and from complex floats as provided by the [*num-complex* crate]. (The
-    plan is to promote this to an optional feature once the [*num-complex*
-    crate] reaces version 1.0.0.)
+ 2. `num-complex`, disabled by default. This adds conversion methods to and from
+    complex floats as provided by the [*num-complex* crate]. (The plan is to
+    promote this to an optional feature once the [*num-complex* crate] reaces
+    version 1.0.0.)
  3. `nightly-float`, disabled by default. This requires the nightly compiler,
     and implements some operations with the experimental [`f16`] and [`f128`]
     primitives. (The plan is to always implement the operations and remove this
