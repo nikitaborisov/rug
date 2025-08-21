@@ -22,7 +22,6 @@ use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
 use crate::misc::StringLike;
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
-#[cfg(feature = "std")]
 use core::error::Error;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
