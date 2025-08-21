@@ -1105,7 +1105,7 @@ pub fn realloc_for_mpn_set_str(rop: &mut Integer, len: usize, radix: i32) {
     let bits = (libm::log2f(radix.az()) * len.az::<f32>()).az::<usize>() + 2;
     // add 1 because mpn_set_str requires an extra limb
     let limb_bits = gmp::LIMB_BITS.az::<usize>();
-    let limbs = (bits + limb_bits - 1) / limb_bits + 1;
+    let limbs = bits.div_ceil(limb_bits) + 1;
     unsafe {
         gmp::_mpz_realloc(rop.as_raw_mut(), limbs.unwrapped_cast());
     }

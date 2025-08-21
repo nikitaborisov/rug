@@ -16,7 +16,6 @@
 
 #![allow(clippy::float_cmp)]
 
-use crate::ext::xmpfr;
 use crate::float;
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
@@ -372,6 +371,8 @@ impl RandGen for OnesZerosRand {
 #[cfg(feature = "rand")]
 #[test]
 fn check_nan_random_bits() {
+    use crate::ext::xmpfr;
+
     // Least significant 64 bits (two 32-bit words) of mantissa
     // will be ones, all others will be zeros. With 256 bits of
     // precision, the "random" number will be 0.0{192}1{64}. This

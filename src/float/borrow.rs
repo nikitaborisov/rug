@@ -80,6 +80,7 @@ impl<'a> BorrowFloat<'a> {
         }
     }
 
+    #[cfg(feature = "complex")]
     pub(crate) const fn into_raw(b: BorrowFloat<'a>) -> mpfr_t {
         b.inner
     }
