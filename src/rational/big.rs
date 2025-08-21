@@ -25,13 +25,12 @@ use crate::rational::BorrowRational;
 use crate::{Assign, Complete, Integer};
 use az::{Cast, CheckedCast, UnwrappedAs, UnwrappedCast};
 use core::cmp::Ordering;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::mpq_t;
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An arbitrary-precision rational number.
@@ -3213,7 +3212,6 @@ impl Display for ParseRationalError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseRationalError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

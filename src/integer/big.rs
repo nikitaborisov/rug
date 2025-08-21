@@ -27,6 +27,7 @@ use crate::rational::BorrowRational;
 use crate::{Assign, Complete};
 use az::{Az, Cast, CheckedCast, UnwrappedAs, UnwrappedCast, WrappingCast};
 use core::cmp::Ordering;
+use core::error::Error;
 use core::ffi::{c_uint, c_ulong};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem;
@@ -39,8 +40,6 @@ use gmp_mpfr_sys::gmp;
 #[cfg(feature = "rational")]
 use gmp_mpfr_sys::gmp::mpq_t;
 use gmp_mpfr_sys::gmp::{bitcnt_t, limb_t, mpz_t};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An arbitrary-precision integer.
@@ -6534,7 +6533,6 @@ impl Display for ParseIntegerError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

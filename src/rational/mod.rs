@@ -43,9 +43,8 @@ pub use crate::rational::borrow::BorrowRational;
 pub use crate::rational::mini::MiniRational;
 #[allow(deprecated)]
 pub use crate::rational::small::SmallRational;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An error which can be returned when a checked conversion from a floating-point
@@ -82,7 +81,6 @@ impl Display for TryFromFloatError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for TryFromFloatError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

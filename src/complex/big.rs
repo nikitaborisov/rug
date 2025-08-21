@@ -34,13 +34,12 @@ use crate::rand::MutRandState;
 use crate::{Assign, Float};
 use az::UnwrappedCast;
 use core::cmp::Ordering;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 A multi-precision complex number with arbitrarily large precision and correct
@@ -4692,7 +4691,6 @@ impl Display for ParseComplexError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseComplexError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

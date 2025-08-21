@@ -22,6 +22,8 @@ use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
 use crate::misc::StringLike;
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
+#[cfg(feature = "std")]
+use core::error::Error;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
 };
@@ -30,8 +32,6 @@ use core::mem;
 use core::mem::MaybeUninit;
 use core::str::FromStr;
 use gmp_mpfr_sys::gmp::limb_t;
-#[cfg(feature = "std")]
-use std::error::Error;
 
 impl Default for Integer {
     #[inline]
@@ -378,7 +378,6 @@ impl Display for TryFromIntegerError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for TryFromIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

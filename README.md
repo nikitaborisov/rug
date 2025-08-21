@@ -218,8 +218,7 @@ The Rug crate has six optional features:
  5. `rand`, enabled by default. Required for the [`RandState`] type and its
     supporting features. This feature requires the `integer` feature.
  6. `std`, enabled by default. This is for features that are not possible under
-    `no_std`, such as methods that return [`String`] or the implementation of
-    the [`Error`] trait.
+    `no_std`, such as methods that return [`String`].
  7. `serde`, disabled by default. This provides serialization support for the
     [`Integer`], [`Rational`], [`Float`] and [`Complex`] number types, providing
     that they are enabled. This feature requires the `std` feature and the

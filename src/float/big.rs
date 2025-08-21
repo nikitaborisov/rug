@@ -40,6 +40,7 @@ use crate::Integer;
 use crate::Rational;
 use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
+use core::error::Error;
 #[cfg(feature = "integer")]
 use core::ffi::c_int;
 use core::ffi::{c_char, CStr};
@@ -56,8 +57,6 @@ use gmp_mpfr_sys::gmp::mpz_t;
 use gmp_mpfr_sys::mpc::mpc_t;
 use gmp_mpfr_sys::mpfr;
 use gmp_mpfr_sys::mpfr::{exp_t, mpfr_t, prec_t};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 A multi-precision floating-point number with arbitrarily large precision and
@@ -13012,7 +13011,6 @@ impl Display for ParseFloatError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseFloatError {
     #[allow(deprecated)]
     fn description(&self) -> &str {
