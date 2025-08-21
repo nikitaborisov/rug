@@ -33,6 +33,8 @@ use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::limb_t;
 use gmp_mpfr_sys::mpc::mpc_t;
 use gmp_mpfr_sys::mpfr::{mpfr_t, prec_t};
+#[cfg(feature = "num-complex")]
+use num_complex::Complex as NumComplex;
 
 const LIMBS_IN_SMALL: usize = (128 / gmp::LIMB_BITS) as usize;
 type Limbs = [MaybeUninit<limb_t>; LIMBS_IN_SMALL];
@@ -479,6 +481,26 @@ impl<Re: ToMini, Im: ToMini> From<(Re, Im)> for MiniComplex {
     fn from(src: (Re, Im)) -> Self {
         let re = MiniFloat::from(src.0);
         let im = MiniFloat::from(src.1);
+        MiniComplex::const_from_parts(re, im)
+    }
+}
+
+#[cfg(feature = "num-complex")]
+impl<T: ToMini> Assign<NumComplex<T>> for MiniComplex {
+    fn assign(&mut self, src: NumComplex<T>) {
+        // make re is first
+        self.inner.im.d = self.inner.re.d;
+        src.re.copy(&mut self.inner.re, &mut self.first_limbs);
+        src.im.copy(&mut self.inner.im, &mut self.last_limbs);
+    }
+}
+
+#[cfg(feature = "num-complex")]
+impl<T: ToMini> From<NumComplex<T>> for MiniComplex {
+    #[inline]
+    fn from(src: NumComplex<T>) -> Self {
+        let re = MiniFloat::from(src.re);
+        let im = MiniFloat::from(src.im);
         MiniComplex::const_from_parts(re, im)
     }
 }
