@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.28.0 news (unreleased)
+### Version 1.28.0 news (2025-08-21)
 
   * The crate now requires rustc version 1.85.0 or later.
   * The following methods were added to [`Float`][flo-1-28]:
@@ -40,34 +40,15 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
   * The experimental feature [`borsh`][feat-exp-1-28] was added ([merge request
     6]).
 
-[com-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html
-[com-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shl
-[com-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Complex.html#method.as_shr
+[com-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html
+[com-ashl-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html#method.as_shl
+[com-ashr-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Complex.html#method.as_shr
 [feat-exp-1-28]: https://docs.rs/rug/~1.28/rug/index.html#experimental-optional-features
-[flo-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html
-[flo-ashl-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shl
-[flo-ashr-1-28]: https://tspiteri.gitlab.io/rug/dev/rug/struct.Float.html#method.as_shr
+[flo-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html
+[flo-ashl-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html#method.as_shl
+[flo-ashr-1-28]: https://docs.rs/rug/~1.28/rug/dev/rug/struct.Float.html#method.as_shr
 [issue 84]: https://gitlab.com/tspiteri/rug/-/issues/84
 [merge request 6]: https://gitlab.com/tspiteri/rug/-/merge_requests/6
-
-### Version 1.27.0 news (2025-01-24)
-
-  * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
-  * The following methods were added to [`Float`][flo-1-27]:
-     * [`to_integer_in_place`][flo-tiip-1-27],
-       [`to_integer_round_in_place`][flo-tirip-1-27],
-       [`to_integer_exp_in_place`][flo-tieip-1-27] ([issue 75])
-     * [`to_rational_in_place`][flo-trip-1-27] ([issue 75])
-     * [`remainder_quo31`][flo-rq-1-27], [`remainder_quo31_mut`][flo-rqm-1-27],
-       [`remainder_quo31_round`][flo-rqr-1-27] ([issue 76])
-     * [`remainder_quo31_from`][flo-rqf-1-27],
-       [`remainder_quo31_from_round`][flo-rqfr-1-27]
-     * [`remainder_quo31_ref`][flo-rqref-1-27]
-     * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
-       [`frexp_ref`][flo-fr-1-27] ([issue 76])
-  * Bug fix: <code>[Float][flo-1-27]::[to\_f16][flo-tf16-1-27]</code> and
-    <code>[Float][flo-1-27]::[to\_f128][flo-tf128-1-27]</code> were giving bad
-    results for some subnormal numbers ([issue 80]).
 
 #### Compatibility note
 
@@ -80,26 +61,26 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
         [`subnormalize_round`][flo-sr-1-27]
 
 [*az* crate]: https://crates.io/crates/az
-[flo-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html
-[flo-f-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp
-[flo-fm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_mut
-[flo-fr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_ref
-[flo-rq-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31
-[flo-rqf-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from
-[flo-rqfr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from_round
-[flo-rqm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_mut
-[flo-rqr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_round
-[flo-rqref-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_ref
-[flo-s-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize
-[flo-si-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee
-[flo-sir-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee_round
-[flo-sr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_round
-[flo-tf128-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f128
-[flo-tf16-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f16
-[flo-tieip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_exp_in_place
-[flo-tiip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_in_place
-[flo-tirip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_round_in_place
-[flo-trip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_rational_in_place
+[flo-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html
+[flo-f-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.frexp
+[flo-fm-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.frexp_mut
+[flo-fr-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.frexp_ref
+[flo-rq-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31
+[flo-rqf-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31_from
+[flo-rqfr-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31_from_round
+[flo-rqm-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31_mut
+[flo-rqr-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31_round
+[flo-rqref-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.remainder_quo31_ref
+[flo-s-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.subnormalize
+[flo-si-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.subnormalize_ieee
+[flo-sir-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.subnormalize_ieee_round
+[flo-sr-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.subnormalize_round
+[flo-tf128-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_f128
+[flo-tf16-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_f16
+[flo-tieip-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_integer_exp_in_place
+[flo-tiip-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_integer_in_place
+[flo-tirip-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_integer_round_in_place
+[flo-trip-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.to_rational_in_place
 [issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
 [issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
 [issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
@@ -196,7 +177,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.27"
+rug = "1.28"
 ```
 
 Rug requires rustc version 1.85.0 or later.
@@ -232,7 +213,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.27"
+version = "1.28"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -265,7 +246,7 @@ updated to an incompatible newer version.
     [*borsh* crate]. (The plan is to promote this to an optional feature.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.27/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.28/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
 [*borsh* crate]: https://crates.io/crates/borsh
 [*num-complex* crate]: https://crates.io/crates/num-complex
@@ -277,24 +258,24 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.27/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.27/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.27/rug/struct.Complex.html
+[`Assign::assign`]: https://docs.rs/rug/~1.28/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.28/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.28/rug/struct.Complex.html
 [`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
-[`Float`]: https://docs.rs/rug/~1.27/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.27/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.27/rug/struct.Rational.html
+[`Float`]: https://docs.rs/rug/~1.28/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.28/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.28/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.28/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
 [`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
 [`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
-[`new`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.27/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.parse
+[`new`]: https://docs.rs/rug/~1.28/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.28/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.28/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.28/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.27/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.27/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.28/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.28/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
