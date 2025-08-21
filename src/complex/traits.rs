@@ -33,6 +33,8 @@ use core::fmt::{
 };
 use core::mem::MaybeUninit;
 use gmp_mpfr_sys::mpc;
+#[cfg(feature = "num-complex")]
+use num_complex::Complex as NumComplex;
 
 impl Clone for Complex {
     #[inline]
@@ -302,6 +304,36 @@ where
     fn assign_round(&mut self, src: &'a (Re, Im), round: Round2) -> Ordering2 {
         let real_ord = self.mut_real().assign_round(&src.0, round.0);
         let imag_ord = self.mut_imag().assign_round(&src.1, round.1);
+        (real_ord, imag_ord)
+    }
+}
+
+#[cfg(feature = "num-complex")]
+impl<T> AssignRound<NumComplex<T>> for Complex
+where
+    Float: AssignRound<T, Round = Round, Ordering = Ordering>,
+{
+    type Round = Round2;
+    type Ordering = Ordering2;
+    #[inline]
+    fn assign_round(&mut self, src: NumComplex<T>, round: Round2) -> Ordering2 {
+        let real_ord = self.mut_real().assign_round(src.re, round.0);
+        let imag_ord = self.mut_imag().assign_round(src.im, round.1);
+        (real_ord, imag_ord)
+    }
+}
+
+#[cfg(feature = "num-complex")]
+impl<'a, T> AssignRound<&'a NumComplex<T>> for Complex
+where
+    Float: AssignRound<&'a T, Round = Round, Ordering = Ordering>,
+{
+    type Round = Round2;
+    type Ordering = Ordering2;
+    #[inline]
+    fn assign_round(&mut self, src: &'a NumComplex<T>, round: Round2) -> Ordering2 {
+        let real_ord = self.mut_real().assign_round(&src.re, round.0);
+        let imag_ord = self.mut_imag().assign_round(&src.im, round.1);
         (real_ord, imag_ord)
     }
 }
