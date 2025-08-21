@@ -47,15 +47,17 @@ before_test:
   - pacman -S --needed --noconfirm diffutils m4 make %MINGW_PACKAGE_PREFIX%-%CC%
 
 test_script:
-  - cargo +beta-%TARGET% test --features "fail-on-warnings num-traits serde"
-  - cargo +beta-%TARGET% test --release --features "fail-on-warnings num-traits serde"
+  - cargo +beta-%TARGET% test --features "fail-on-warnings num-complex num-traits serde borsh"
+  - cargo +beta-%TARGET% test --release --features "fail-on-warnings num-complex num-traits serde borsh"
   - cargo +beta-%TARGET% fmt -- --check
-  - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings num-traits serde"
+  - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings num-complex num-traits serde borsh"
   - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings"
+  - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings num-complex"
   - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings num-traits"
   - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings serde"
+  - cargo +beta-%TARGET% clippy --all-targets --features "fail-on-warnings borsh"
   - rm Cargo.lock
-  - cargo +%MSRV%-%TARGET% check --features "fail-on-warnings num-traits serde"
+  - cargo +%MSRV%-%TARGET% check --features "fail-on-warnings num-complex num-traits serde borsh"
 
 after_test:
   # ugh, appveyor can't handle percentage signs, so we need to use $(sed 's/\.crate$//' <<< $s)

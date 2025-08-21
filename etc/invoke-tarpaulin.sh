@@ -31,4 +31,4 @@ p                       # print the line(s) as sed is invoked with -e
 TOOLCHAIN=${TOOLCHAIN:++$TOOLCHAIN}
 
 EXCLUDE="--exclude-files build.rs src/ext/xmpz32.rs"
-cargo $TOOLCHAIN tarpaulin -v --features "num-traits serde nightly-float" --ignore-tests "$@" $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
+cargo $TOOLCHAIN tarpaulin -v --features "num-complex num-traits serde borsh nightly-float" --ignore-tests "$@" $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
