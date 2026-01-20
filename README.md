@@ -28,6 +28,14 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.28.1 news (unreleased)
+
+  * Bug fix: incorrect underflow when dividng [`Rational`][rat-1-28] by
+    [`Float`][flo-1-28] ([issue 85]).
+
+[issue 85]: https://gitlab.com/tspiteri/rug/-/issues/85
+[rat-1-28]: https://docs.rs/rug/~1.28/rug/struct.Rational.html
+
 ### Version 1.28.0 news (2025-08-21)
 
   * The crate now requires rustc version 1.85.0 or later.

@@ -4,6 +4,15 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.28.1 (unreleased)
+===========================
+
+  * Bug fix: incorrect underflow when dividng [`Rational`][rat-1-28] by
+    [`Float`][flo-1-28] ([issue 85]).
+
+[issue 85]: https://gitlab.com/tspiteri/rug/-/issues/85
+[rat-1-28]: https://docs.rs/rug/~1.28/rug/struct.Rational.html
+
 Version 1.28.0 (2025-08-21)
 ===========================
 
