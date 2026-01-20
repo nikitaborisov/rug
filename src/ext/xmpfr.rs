@@ -14,17 +14,19 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::Float;
-#[cfg(feature = "integer")]
-use crate::Integer;
 #[cfg(feature = "rational")]
-use crate::Rational;
+use crate::float::BorrowFloat;
 use crate::float::{MiniFloat, Round, Special};
 use crate::misc;
 use crate::misc::{NegAbs, VecLike};
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 use az::{CheckedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
@@ -1281,14 +1283,53 @@ pub fn div_q<O: OptFloat>(rop: &mut Float, op1: O, op2: &Rational, rnd: Round) -
 
 #[cfg(feature = "rational")]
 pub fn q_div<O: OptFloat>(rop: &mut Float, op1: &Rational, op2: O, rnd: Round) -> Ordering {
-    let denom = {
-        let op1_den = op1.denom();
-        let op2 = op2.unwrap_or(rop);
-        let prec = op1_den
+    if op1.is_zero() {
+        return ui_div(rop, 0, op2, rnd);
+    }
+
+    let op1_num = op1.numer();
+    let op1_den = op1.denom();
+    let op2_u = op2.unwrap_or(rop);
+
+    // Multiply op1_den to op2 to get our denominator. But we need to check that
+    // this product does not overflow if op2 has a large exponent (issue 85).
+    if op2_u.is_normal() {
+        let denom_prec = op1_den
             .significant_bits()
-            .checked_add(op2.prec())
+            .checked_add(op2_u.prec())
             .expect("overflow");
-        Float::with_val(prec, op1_den * op2)
-    };
-    z_div(rop, op1.numer(), &denom, rnd)
+
+        let mut op2_raw = *op2_u.inner();
+        let mut deferred_exp = 0;
+        if op2_raw.exp > 0 {
+            deferred_exp = op2_raw.exp;
+            op2_raw.exp = 0;
+        }
+        let normalized_denom = {
+            // Safety: normalized_op2 lives long enough
+            let normalized_op2 = unsafe { BorrowFloat::from_raw(op2_raw) };
+            Float::with_val(denom_prec, op1_den * &*normalized_op2)
+        };
+        let ordering_div = z_div(rop, op1_num, &normalized_denom, rnd);
+        if deferred_exp > 0 {
+            debug_assert!(rop.is_normal());
+            let ordering_shift = {
+                let rop = rop.as_raw_mut();
+                unsafe { mpfr::div_2si(rop, rop, deferred_exp, rnd_t::RNDZ) }
+            };
+            if rop.is_normal() {
+                // shifting was exact
+                ordering_div
+            } else {
+                // shifting caused underflow, which is more significant than the division
+                ordering1(ordering_shift)
+            }
+        } else {
+            ordering_div
+        }
+    } else {
+        // Any non-normal number multiplied by a positive integer is itself,
+        // so the denominator = positive integer * op2 = op2
+        z_div(rop, op1_num, op2, rnd)
+    }
 }
