@@ -4,7 +4,7 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
-Version 1.28.1 (unreleased)
+Version 1.28.1 (2026-01-21)
 ===========================
 
   * Bug fix: incorrect underflow when dividng [`Rational`][rat-1-28] by

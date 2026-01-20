@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.28.1 news (unreleased)
+### Version 1.28.1 news (2026-01-21)
 
   * Bug fix: incorrect underflow when dividng [`Rational`][rat-1-28] by
     [`Float`][flo-1-28] ([issue 85]).
