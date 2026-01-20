@@ -364,7 +364,10 @@ fn check_unwind_safety() {
     panic::catch_unwind(AssertUnwindSafe(|| {
         Complex::mutate_real_imag(&mut real, &mut Float::new(53), |c| {
             let new_val = Float::new(53);
-            new_data = new_val.inner().d;
+            #[allow(unused_assignments)]
+            {
+                new_data = new_val.inner().d;
+            }
             // drop old value
             *c.mut_real() = new_val;
             panic!();
