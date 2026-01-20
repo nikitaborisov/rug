@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Integer;
 use crate::ext::xmpz::*;
 use crate::misc;
 use crate::misc::NegAbs;
-use crate::Integer;
 use az::{CheckedCast, WrappingAs, WrappingCast};
 use core::cmp::Ordering;
 use gmp_mpfr_sys::gmp;

@@ -14,6 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 #[cfg(feature = "rational")]
 use crate::float::BorrowFloat;
 use crate::float::{MiniFloat, Round, Special};
@@ -22,11 +27,6 @@ use crate::misc::{NegAbs, VecLike};
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use crate::Float;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use az::{CheckedAs, UnwrappedCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
