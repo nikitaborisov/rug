@@ -1055,4 +1055,14 @@ pub(crate) mod tests {
         assert_eq!(neg.clone() >> 10u32, neg.clone() >> 10isize);
         assert_eq!(neg.clone() >> 10u32, neg.clone() << -10isize);
     }
+
+    #[cfg(feature = "rational")]
+    #[test]
+    fn check_issue_85() {
+        let x = Rational::from((1, 2));
+        let y = Float::with_val(1, 1) << 0x3fff_fffe_u32;
+
+        let non_zero = x / y;
+        assert!(!non_zero.is_zero());
+    }
 }
