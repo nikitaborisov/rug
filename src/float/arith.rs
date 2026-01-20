@@ -1060,7 +1060,7 @@ pub(crate) mod tests {
     #[test]
     fn check_issue_85() {
         let x = Rational::from((1, 2));
-        let y = Float::with_val(1, 1) << 0x3fff_fffe_u32;
+        let y = Float::with_val(1, 1) << (float::exp_max() - 1);
 
         let non_zero = x / y;
         assert!(!non_zero.is_zero());
