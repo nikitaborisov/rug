@@ -111,7 +111,7 @@ where
 {
     #[inline]
     fn unwrapped_cast(self) -> NumComplex<T> {
-        (&self).strict_cast()
+        (&self).unwrapped_cast()
     }
 }
 
@@ -122,6 +122,6 @@ where
 {
     #[inline]
     fn unwrapped_cast(self) -> NumComplex<T> {
-        self.strict_cast()
+        NumComplex::new(self.real().unwrapped_cast(), self.imag().unwrapped_cast())
     }
 }
