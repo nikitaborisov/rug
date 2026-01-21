@@ -19,7 +19,7 @@ use crate::ext::xmpz;
 use crate::integer::MiniInteger;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
-use az::UnwrappedAs;
+use az::StrictAs;
 use core::cmp::Ordering;
 
 impl Eq for Integer {}
@@ -142,21 +142,21 @@ macro_rules! cmp_cast {
         impl PartialEq<$New> for Integer {
             #[inline]
             fn eq(&self, other: &$New) -> bool {
-                self.partial_cmp(&(*other).unwrapped_as::<$Existing>()) == Some(Ordering::Equal)
+                self.partial_cmp(&(*other).strict_as::<$Existing>()) == Some(Ordering::Equal)
             }
         }
 
         impl PartialEq<Integer> for $New {
             #[inline]
             fn eq(&self, other: &Integer) -> bool {
-                other.partial_cmp(&(*self).unwrapped_as::<$Existing>()) == Some(Ordering::Equal)
+                other.partial_cmp(&(*self).strict_as::<$Existing>()) == Some(Ordering::Equal)
             }
         }
 
         impl PartialOrd<$New> for Integer {
             #[inline]
             fn partial_cmp(&self, other: &$New) -> Option<Ordering> {
-                self.partial_cmp(&(*other).unwrapped_as::<$Existing>())
+                self.partial_cmp(&(*other).strict_as::<$Existing>())
             }
         }
 
@@ -164,7 +164,7 @@ macro_rules! cmp_cast {
             #[inline]
             fn partial_cmp(&self, other: &Integer) -> Option<Ordering> {
                 other
-                    .partial_cmp(&(*self).unwrapped_as::<$Existing>())
+                    .partial_cmp(&(*self).strict_as::<$Existing>())
                     .map(Ordering::reverse)
             }
         }

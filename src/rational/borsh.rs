@@ -39,7 +39,7 @@ impl BorshDeserialize for Rational {
 #[cfg(test)]
 mod tests {
     use crate::{Assign, Rational};
-    use az::UnwrappedCast;
+    use az::StrictCast;
 
     fn assert(a: &Rational, b: &Rational) {
         assert_eq!(a, b);
@@ -61,7 +61,7 @@ mod tests {
             bytes.write_u8(0).unwrap();
             bytes.write_i32::<LittleEndian>(radix).unwrap();
             bytes
-                .write_u32::<LittleEndian>(value.len().unwrapped_cast())
+                .write_u32::<LittleEndian>(value.len().strict_cast())
                 .unwrap();
             bytes.write_all(value.as_bytes()).unwrap();
             match self {

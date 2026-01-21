@@ -20,7 +20,7 @@ use crate::misc::NegAbs;
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use az::{Az, UnwrappedAs, UnwrappedCast, WrappingAs, WrappingCast};
+use az::{Az, StrictAs, StrictCast, WrappingAs, WrappingCast};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_uint, c_ulong};
 use core::mem::MaybeUninit;
@@ -173,7 +173,7 @@ pub const fn owned_init() -> mpz_t {
 #[inline]
 pub unsafe fn init2(rop: *mut Integer, bits: usize) {
     let rop = misc::cast_ptr_mut(rop);
-    let bits = bits.unwrapped_cast();
+    let bits = bits.strict_cast();
     unsafe {
         gmp::mpz_init2(rop, bits);
     }
@@ -239,7 +239,7 @@ pub fn next_pow_of_two<O: OptInteger>(rop: &mut Integer, op: O) {
         set_1(rop);
         return;
     }
-    let significant = significant_bits(op).unwrapped_cast();
+    let significant = significant_bits(op).strict_cast();
     let first_one = unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) };
     let bit = if first_one == significant - 1 {
         if !O::IS_SOME {
@@ -789,7 +789,7 @@ pub fn shr_isize<O: OptInteger>(rop: &mut Integer, op1: O, op2: isize) {
 
 #[inline]
 unsafe fn mpz_mul_2exp_usize(rop: *mut mpz_t, op1: *const mpz_t, op2: usize) {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe {
         gmp::mpz_mul_2exp(rop, op1, op2);
     }
@@ -797,7 +797,7 @@ unsafe fn mpz_mul_2exp_usize(rop: *mut mpz_t, op1: *const mpz_t, op2: usize) {
 
 #[inline]
 unsafe fn mpz_fdiv_q_2exp_usize(rop: *mut mpz_t, op1: *const mpz_t, op2: usize) {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe {
         gmp::mpz_fdiv_q_2exp(rop, op1, op2);
     }
@@ -1025,7 +1025,7 @@ pub fn zerocount(op: &Integer) -> Option<bitcnt_t> {
     if size >= 0 {
         return None;
     }
-    let abs_size = (size.wrapping_neg() as c_uint).unwrapped_as::<size_t>();
+    let abs_size = (size.wrapping_neg() as c_uint).strict_as::<size_t>();
     let d = op.inner().d.as_ptr();
     // examples:
     // -1 (...1111 == -1): abs_popcount = 1, first_one = 0, return 1 + 0 - 1 = 0
@@ -1060,14 +1060,13 @@ pub fn significant_bits(op: &Integer) -> usize {
         return 0;
     }
     let size = size.neg_abs().1;
-    unsafe { gmp::mpn_sizeinbase(op.inner().d.as_ptr(), size.unwrapped_cast(), 2) }
+    unsafe { gmp::mpn_sizeinbase(op.inner().d.as_ptr(), size.strict_cast(), 2) }
 }
 
 pub fn signed_bits(op: &Integer) -> usize {
     let significant = significant_bits(op);
     if op.is_negative() {
-        let first_one =
-            (unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) }).unwrapped_as::<usize>();
+        let first_one = (unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) }).strict_as::<usize>();
         if first_one == significant - 1 {
             return significant;
         }
@@ -1080,7 +1079,7 @@ pub fn power_of_two_p(op: &Integer) -> bool {
         return false;
     }
     let significant = significant_bits(op);
-    let first_one = (unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) }).unwrapped_as::<usize>();
+    let first_one = (unsafe { gmp::mpn_scan1(op.inner().d.as_ptr(), 0) }).strict_as::<usize>();
     first_one == significant - 1
 }
 
@@ -1103,7 +1102,7 @@ pub fn realloc_for_mpn_set_str(rop: &mut Integer, len: usize, radix: i32) {
     let limb_bits = gmp::LIMB_BITS.az::<usize>();
     let limbs = bits.div_ceil(limb_bits) + 1;
     unsafe {
-        gmp::_mpz_realloc(rop.as_raw_mut(), limbs.unwrapped_cast());
+        gmp::_mpz_realloc(rop.as_raw_mut(), limbs.strict_cast());
     }
 }
 
@@ -1130,7 +1129,7 @@ pub fn realloc_for_mpn_set_str(rop: &mut Integer, len: usize, radix: i32) {
         limbs = libm::ceil(bits / f64::from(gmp::LIMB_BITS)) + 1.0;
     }
     unsafe {
-        gmp::_mpz_realloc(rop.as_raw_mut(), limbs.unwrapped_cast());
+        gmp::_mpz_realloc(rop.as_raw_mut(), limbs.strict_cast());
     }
 }
 
@@ -1147,7 +1146,7 @@ pub fn round_away(rem: &Integer, divisor: &Integer) -> bool {
     }
 
     let mut rem_limb = if s_rem == s_divisor {
-        let rem_next_limb = unsafe { limb(rem, (s_rem - 1).unwrapped_cast()) };
+        let rem_next_limb = unsafe { limb(rem, (s_rem - 1).strict_cast()) };
         if (rem_next_limb >> (gmp::LIMB_BITS - 1)) != 0 {
             return true;
         }
@@ -1156,8 +1155,8 @@ pub fn round_away(rem: &Integer, divisor: &Integer) -> bool {
         0
     };
     for i in (1..s_divisor).rev() {
-        let div_limb = unsafe { limb(divisor, i.unwrapped_cast()) };
-        let rem_next_limb = unsafe { limb(rem, (i - 1).unwrapped_cast()) };
+        let div_limb = unsafe { limb(divisor, i.strict_cast()) };
+        let rem_next_limb = unsafe { limb(rem, (i - 1).strict_cast()) };
         rem_limb |= (rem_next_limb >> (gmp::LIMB_BITS - 1)) & 1;
         if rem_limb > div_limb {
             return true;

@@ -18,7 +18,7 @@ use crate::ext::xmpz;
 use crate::integer::ParseIntegerError;
 use crate::ops::{DivRounding, RemRounding};
 use crate::{Assign, Integer};
-use az::{CheckedCast, UnwrappedCast};
+use az::{CheckedCast, StrictCast};
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
 use num_traits::Num;
 use num_traits::cast::{FromPrimitive, ToPrimitive};
@@ -71,7 +71,7 @@ impl Num for Integer {
 
     #[inline]
     fn from_str_radix(src: &str, radix: u32) -> Result<Self, ParseIntegerError> {
-        Integer::from_str_radix(src, radix.unwrapped_cast())
+        Integer::from_str_radix(src, radix.strict_cast())
     }
 }
 

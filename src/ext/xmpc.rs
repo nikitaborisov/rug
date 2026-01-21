@@ -25,7 +25,7 @@ use crate::float::Round;
 use crate::misc;
 use crate::misc::VecLike;
 use crate::{Complex, Float};
-use az::UnwrappedCast;
+use az::StrictCast;
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem::MaybeUninit;
@@ -226,7 +226,7 @@ where
 }
 
 pub unsafe fn sum_raw(rop: *mut mpc_t, pointers: &[*const mpc_t], rnd: Round2) -> Ordering2 {
-    let n = pointers.len().unwrapped_cast();
+    let n = pointers.len().strict_cast();
     let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round2(rnd);
     ordering2(unsafe { mpc::sum(rop, tab, n, rnd) })
@@ -293,7 +293,7 @@ unsafe fn dot_raw(
     rnd: Round2,
 ) -> Ordering2 {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
-    let n = pointers_a.len().unwrapped_cast();
+    let n = pointers_a.len().strict_cast();
     let a = misc::cast_ptr(pointers_a.as_ptr());
     let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round2(rnd);
@@ -338,25 +338,25 @@ unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> div_2usize }
 
 #[inline]
 unsafe fn mul_2isize(rop: *mut mpc_t, op1: *const mpc_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::mul_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2isize(rop: *mut mpc_t, op1: *const mpc_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::div_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn mul_2usize(rop: *mut mpc_t, op1: *const mpc_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::mul_2ui(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2usize(rop: *mut mpc_t, op1: *const mpc_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::div_2ui(rop, op1, op2, rnd) }
 }
 

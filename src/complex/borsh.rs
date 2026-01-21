@@ -45,7 +45,7 @@ mod tests {
     use crate::float::{FreeCache, Special};
     use crate::serdeize::test::*;
     use crate::{Assign, Complex, float};
-    use az::UnwrappedCast;
+    use az::StrictCast;
 
     fn assert(a: &Complex, b: &Complex) {
         assert_eq_float_handle_nan(a.real(), b.real());
@@ -73,7 +73,7 @@ mod tests {
             bytes.write_u32::<LittleEndian>(prec.1).unwrap();
             bytes.write_i32::<LittleEndian>(radix).unwrap();
             bytes
-                .write_u32::<LittleEndian>(value.len().unwrapped_cast())
+                .write_u32::<LittleEndian>(value.len().strict_cast())
                 .unwrap();
             bytes.write_all(value.as_bytes()).unwrap();
 

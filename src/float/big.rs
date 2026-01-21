@@ -38,7 +38,7 @@ use crate::ops::{
 };
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
+use az::{Az, CheckedCast, SaturatingCast, StrictAs, StrictCast, WrappingAs};
 use core::cmp::Ordering;
 use core::error::Error;
 #[cfg(feature = "integer")]
@@ -251,7 +251,7 @@ impl Float {
     #[inline]
     pub(crate) fn inner_data(&self) -> &[limb_t] {
         if self.is_normal() {
-            let prec = self.inner.prec.unwrapped_as::<usize>();
+            let prec = self.inner.prec.strict_as::<usize>();
             let limbs = DivRounding::div_ceil(prec, gmp::LIMB_BITS.az::<usize>());
             unsafe { slice::from_raw_parts(self.inner.d.as_ptr(), limbs) }
         } else {
@@ -387,7 +387,7 @@ impl Float {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec.unwrapped_cast());
+        xmpfr::write_new_nan(&mut ret, prec.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -459,7 +459,7 @@ impl Float {
             (float::prec_min()..=float::prec_max()).contains(&prec),
             "precision out of range"
         );
-        xmpfr::prec_round(self, prec.unwrapped_cast(), round)
+        xmpfr::prec_round(self, prec.strict_cast(), round)
     }
 
     /// Create a new [`Float`] with the specified precision and with value 0.
@@ -547,7 +547,7 @@ impl Float {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec.unwrapped_cast());
+        xmpfr::write_new_nan(&mut ret, prec.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -612,7 +612,7 @@ impl Float {
             (float::prec_min_64()..=float::prec_max_64()).contains(&prec),
             "precision out of range"
         );
-        xmpfr::prec_round(self, prec.unwrapped_cast(), round)
+        xmpfr::prec_round(self, prec.strict_cast(), round)
     }
 
     /// Creates a [`Float`] from an initialized [MPFR floating-point
@@ -972,7 +972,7 @@ impl Float {
         let exp = if i.is_zero() {
             exp.saturating_cast()
         } else {
-            exp.unwrapped_cast()
+            exp.strict_cast()
         };
         Some((i, exp))
     }
@@ -1139,7 +1139,7 @@ impl Float {
         let exp = if i.is_zero() {
             exp.saturating_cast()
         } else {
-            exp.unwrapped_cast()
+            exp.strict_cast()
         };
         Some(exp)
     }
@@ -1658,7 +1658,7 @@ impl Float {
     #[inline]
     pub fn to_f64_exp_round(&self, round: Round) -> (f64, i32) {
         let (f, exp) = xmpfr::get_f64_2exp(self, round);
-        (f, exp.unwrapped_cast())
+        (f, exp.strict_cast())
     }
 
     #[cfg(feature = "nightly-float")]
@@ -1940,7 +1940,7 @@ impl Float {
             let c_buf = mpfr::get_str(
                 write_ptr,
                 maybe_exp.as_mut_ptr(),
-                format.radix.unwrapped_cast(),
+                format.radix.strict_cast(),
                 digits,
                 f.as_raw(),
                 raw_round(format.round),
@@ -1952,7 +1952,7 @@ impl Float {
             assert!(c_len < size, "buffer overflow");
             vec.set_len(c_len);
         }
-        let exp = exp.unwrapped_cast();
+        let exp = exp.strict_cast();
         (sign, s, Some(exp))
     }
 
@@ -2062,7 +2062,7 @@ impl Float {
     pub fn as_shl(&self, shift: i32) -> BorrowFloat<'_> {
         let mut raw = self.inner;
         if self.is_normal() {
-            let shift = shift.unwrapped_as::<exp_t>();
+            let shift = shift.strict_as::<exp_t>();
             raw.exp = if let Some(exp) = raw
                 .exp
                 .checked_add(shift)
@@ -2114,7 +2114,7 @@ impl Float {
     pub fn as_shr(&self, shift: i32) -> BorrowFloat<'_> {
         let mut raw = self.inner;
         if self.is_normal() {
-            let shift = shift.unwrapped_as::<exp_t>();
+            let shift = shift.strict_as::<exp_t>();
             raw.exp = if let Some(exp) = raw
                 .exp
                 .checked_sub(shift)
@@ -2891,7 +2891,7 @@ impl Float {
         }
         let exp_min = exp_t::from(normal_exp_min);
         let sub_exp_min = exp_min
-            .checked_sub((self.prec() - 1).unwrapped_as::<exp_t>())
+            .checked_sub((self.prec() - 1).strict_as::<exp_t>())
             .expect("overflow");
         let exp = xmpfr::get_exp(self);
         if exp >= exp_min {
@@ -12675,7 +12675,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
         let c_buf = mpfr::get_str(
             write_ptr,
             maybe_exp.as_mut_ptr(),
-            radix_with_case.unwrapped_cast(),
+            radix_with_case.strict_cast(),
             digits,
             f.as_raw(),
             raw_round(format.round),
@@ -12689,7 +12689,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
         let added_digits = c_len - usize::from(added_sign);
         let digits_before_point = if format.exp == ExpFormat::Exp
             || exp <= 0
-            || exp.unwrapped_as::<usize>() > added_digits
+            || exp.strict_as::<usize>() > added_digits
         {
             exp = exp.checked_sub(1).expect("overflow");
             1
@@ -12703,7 +12703,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
             // no point
             s.increase_len(c_len);
         } else {
-            let point_ptr = write_ptr.offset(bytes_before_point.unwrapped_as());
+            let point_ptr = write_ptr.offset(bytes_before_point.strict_as());
             point_ptr.copy_to(point_ptr.offset(1), c_len - bytes_before_point);
             *point_ptr = b'.' as c_char;
             s.increase_len(c_len + 1);
@@ -12751,7 +12751,7 @@ impl AssignRound<ParseIncomplete> for Float {
                 self.as_raw_mut(),
                 c_string.as_slice().as_ptr().cast(),
                 c_str_end.as_mut_ptr(),
-                radix.unwrapped_cast(),
+                radix.strict_cast(),
                 raw_round(round),
             )
         };
@@ -12780,7 +12780,7 @@ macro_rules! parse_error {
 
 fn parse(mut bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseFloatError> {
     assert!((2..=36).contains(&radix), "radix {radix} out of range");
-    let bradix = radix.unwrapped_as::<u8>();
+    let bradix = radix.strict_as::<u8>();
     let small_bound = b'a' - 10 + bradix;
     let capital_bound = b'A' - 10 + bradix;
     let digit_bound = b'0' + bradix;
@@ -13044,11 +13044,11 @@ fn ieee_storage_bits_for_prec(prec: u32) -> Option<u32> {
     let p;
     #[cfg(feature = "std")]
     {
-        p = k - (f64::from(k).log2() * 4.0).round().unwrapped_as::<u32>() + 13;
+        p = k - (f64::from(k).log2() * 4.0).round().strict_as::<u32>() + 13;
     }
     #[cfg(not(feature = "std"))]
     {
-        p = k - libm::round(libm::log2(f64::from(k)) * 4.0).unwrapped_as::<u32>() + 13;
+        p = k - libm::round(libm::log2(f64::from(k)) * 4.0).strict_as::<u32>() + 13;
     }
     if p == prec { Some(k) } else { None }
 }

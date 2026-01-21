@@ -27,7 +27,7 @@ use crate::misc::{NegAbs, VecLike};
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use az::{CheckedAs, UnwrappedCast, WrappingAs};
+use az::{CheckedAs, StrictCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem::MaybeUninit;
@@ -324,7 +324,7 @@ where
 }
 
 pub unsafe fn sum_raw(rop: *mut mpfr_t, pointers: &[*const mpfr_t], rnd: Round) -> Ordering {
-    let n = pointers.len().unwrapped_cast();
+    let n = pointers.len().strict_cast();
     let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round(rnd);
     ordering1(unsafe { mpfr::sum(rop, tab, n, rnd) })
@@ -383,7 +383,7 @@ unsafe fn dot_raw(
     rnd: Round,
 ) -> Ordering {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
-    let n = pointers_a.len().unwrapped_cast();
+    let n = pointers_a.len().strict_cast();
     let a = misc::cast_ptr(pointers_a.as_ptr());
     let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round(rnd);
@@ -563,7 +563,7 @@ pub fn frexp<O: OptFloat>(rop: &mut Float, op: O, rnd: Round) -> (Ordering, i32)
         ord = mpfr::frexp(exp.as_mut_ptr(), rop, op, raw_round(rnd));
         exp32 = if mpfr::number_p(rop) != 0 {
             let exp = exp.assume_init();
-            exp.unwrapped_cast()
+            exp.strict_cast()
         } else {
             0
         };
@@ -586,25 +586,25 @@ pub fn set_f128(rop: &mut Float, src: f128, rnd: Round) -> Ordering {
 
 #[inline]
 unsafe fn mul_2isize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::mul_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2isize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::div_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn mul_2usize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::mul_2ui(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2usize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::div_2ui(rop, op1, op2, rnd) }
 }
 

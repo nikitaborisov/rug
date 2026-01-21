@@ -16,7 +16,7 @@
 
 #![allow(dead_code)]
 
-use az::{Az, UnwrappedAs, WrappingCast};
+use az::{Az, StrictAs, WrappingCast};
 use core::ffi::c_char;
 use core::fmt::Write;
 use core::mem;
@@ -250,7 +250,7 @@ impl StringLike {
         // returned by malloc/realloc with non-zero size.
         unsafe {
             ptr.cast::<u8>()
-                .offset((*len).unwrapped_as())
+                .offset((*len).strict_as())
                 .copy_from_nonoverlapping(s.as_ptr(), s.len());
             self.increase_len(s.len());
         }
@@ -266,7 +266,7 @@ impl StringLike {
                 // a dangling pointer created with NonNull::dangling, or a
                 // pointer returned by malloc/realloc with non-zero size.
                 unsafe {
-                    let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).strict_as());
                     str::from_utf8_unchecked(s)
                 }
             }
@@ -283,7 +283,7 @@ impl StringLike {
                 // a dangling pointer created with NonNull::dangling, or a
                 // pointer returned by malloc/realloc with non-zero size.
                 unsafe {
-                    let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).strict_as());
                     str::from_utf8_unchecked_mut(s)
                 }
             }
@@ -298,7 +298,7 @@ impl StringLike {
             }
             StringLike::Malloc { ptr, cap, len } => {
                 let new_cap = len
-                    .checked_add(additional.unwrapped_as::<size_t>())
+                    .checked_add(additional.strict_as::<size_t>())
                     .expect("overflow");
                 if new_cap > *cap {
                     let new_ptr = if *cap == 0 {
@@ -325,7 +325,7 @@ impl StringLike {
                 // obtained from String::as_mut_ptr.
                 unsafe {
                     slice::from_raw_parts_mut(
-                        mu_ptr.offset(s.len().unwrapped_as()),
+                        mu_ptr.offset(s.len().strict_as()),
                         s.capacity() - s.len(),
                     )
                 }
@@ -337,8 +337,8 @@ impl StringLike {
                 // a pointer returned by malloc/realloc with non-zero size.
                 unsafe {
                     slice::from_raw_parts_mut(
-                        mu_ptr.offset((*len).unwrapped_as()),
-                        (*cap - *len).unwrapped_as(),
+                        mu_ptr.offset((*len).strict_as()),
+                        (*cap - *len).strict_as(),
                     )
                 }
             }
@@ -363,7 +363,7 @@ impl StringLike {
                 len,
             } => {
                 let new_len = len
-                    .checked_add(increment.unwrapped_as::<size_t>())
+                    .checked_add(increment.strict_as::<size_t>())
                     .expect("overflow");
                 *len = new_len;
             }
@@ -433,7 +433,7 @@ impl<T> VecLike<T> {
             let bytes_cap = new_cap
                 .checked_mul(mem::size_of::<T>())
                 .expect("overflow")
-                .unwrapped_as();
+                .strict_as();
             let new_ptr = if self.cap == 0 {
                 // cannot use realloc, as for empty slice self.ptr is dangling
                 // to satisfy slice::from_raw_parts_mut, which does not allow
@@ -453,7 +453,7 @@ impl<T> VecLike<T> {
         }
         debug_assert!(self.cap > self.len);
         unsafe {
-            self.ptr.offset(self.len.unwrapped_as()).write(elem);
+            self.ptr.offset(self.len.strict_as()).write(elem);
         }
         self.len += 1;
     }

@@ -45,7 +45,7 @@ mod tests {
     use crate::float;
     use crate::float::{FreeCache, Special};
     use crate::{Assign, Float};
-    use az::UnwrappedCast;
+    use az::StrictCast;
 
     fn assert(a: &Float, b: &Float) {
         assert_eq!(a.prec(), b.prec());
@@ -72,7 +72,7 @@ mod tests {
             bytes.write_u32::<LittleEndian>(prec).unwrap();
             bytes.write_i32::<LittleEndian>(radix).unwrap();
             bytes
-                .write_u32::<LittleEndian>(value.len().unwrapped_cast())
+                .write_u32::<LittleEndian>(value.len().strict_cast())
                 .unwrap();
             bytes.write_all(value.as_bytes()).unwrap();
             match self {

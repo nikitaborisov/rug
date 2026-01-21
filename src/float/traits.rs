@@ -29,7 +29,7 @@ use crate::{Assign, Float};
 use crate::{Rational, rational::TryFromFloatError};
 #[cfg(feature = "rational")]
 use az::CheckedCast;
-use az::{UnwrappedAs, UnwrappedCast};
+use az::{StrictAs, StrictCast};
 use core::cmp::Ordering;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -49,7 +49,7 @@ impl Clone for Float {
 
     #[inline]
     fn clone_from(&mut self, source: &Float) {
-        xmpfr::set_prec_nan(self, source.prec().unwrapped_cast());
+        xmpfr::set_prec_nan(self, source.prec().strict_cast());
         if !source.is_nan() {
             self.assign(source);
         }
@@ -311,7 +311,7 @@ macro_rules! conv_ops_cast {
             type Ordering = Ordering;
             #[inline]
             fn assign_round(&mut self, src: $New, round: Round) -> Ordering {
-                self.assign_round(src.unwrapped_as::<$Existing>(), round)
+                self.assign_round(src.strict_as::<$Existing>(), round)
             }
         }
 

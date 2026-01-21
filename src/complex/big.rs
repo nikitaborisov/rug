@@ -32,7 +32,7 @@ use crate::ops::{
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
 use crate::{Assign, Float};
-use az::UnwrappedCast;
+use az::StrictCast;
 use core::cmp::Ordering;
 use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
@@ -203,7 +203,7 @@ impl Complex {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, p.0.unwrapped_cast(), p.1.unwrapped_cast());
+        xmpc::write_new_nan(&mut ret, p.0.strict_cast(), p.1.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -365,7 +365,7 @@ impl Complex {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, p.0.unwrapped_cast(), p.1.unwrapped_cast());
+        xmpc::write_new_nan(&mut ret, p.0.strict_cast(), p.1.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }

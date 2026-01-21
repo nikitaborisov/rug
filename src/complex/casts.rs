@@ -15,7 +15,9 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::{Complex, Float};
-use az::{Cast, CheckedCast, SaturatingCast, UnwrappedCast};
+#[allow(deprecated)]
+use az::UnwrappedCast;
+use az::{Cast, CheckedCast, SaturatingCast, StrictCast};
 use num_complex::Complex as NumComplex;
 
 impl<T> Cast<NumComplex<T>> for Complex
@@ -82,22 +84,44 @@ where
     }
 }
 
+impl<T> StrictCast<NumComplex<T>> for Complex
+where
+    for<'a> &'a Float: StrictCast<T>,
+{
+    #[inline]
+    fn strict_cast(self) -> NumComplex<T> {
+        (&self).strict_cast()
+    }
+}
+
+impl<T> StrictCast<NumComplex<T>> for &'_ Complex
+where
+    for<'a> &'a Float: StrictCast<T>,
+{
+    #[inline]
+    fn strict_cast(self) -> NumComplex<T> {
+        NumComplex::new(self.real().strict_cast(), self.imag().strict_cast())
+    }
+}
+
+#[allow(deprecated)]
 impl<T> UnwrappedCast<NumComplex<T>> for Complex
 where
     for<'a> &'a Float: UnwrappedCast<T>,
 {
     #[inline]
     fn unwrapped_cast(self) -> NumComplex<T> {
-        (&self).unwrapped_cast()
+        (&self).strict_cast()
     }
 }
 
+#[allow(deprecated)]
 impl<T> UnwrappedCast<NumComplex<T>> for &'_ Complex
 where
     for<'a> &'a Float: UnwrappedCast<T>,
 {
     #[inline]
     fn unwrapped_cast(self) -> NumComplex<T> {
-        NumComplex::new(self.real().unwrapped_cast(), self.imag().unwrapped_cast())
+        self.strict_cast()
     }
 }

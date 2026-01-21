@@ -48,7 +48,7 @@ impl<'de> Deserialize<'de> for Rational {
 #[cfg(test)]
 mod tests {
     use crate::{Assign, Rational};
-    use az::UnwrappedCast;
+    use az::StrictCast;
     use serde_json::json;
 
     fn assert(a: &Rational, b: &Rational) {
@@ -85,7 +85,7 @@ mod tests {
             let mut bincode = Vec::<u8>::new();
             bincode.write_i32::<LittleEndian>(radix).unwrap();
             bincode
-                .write_u64::<LittleEndian>(value.len().unwrapped_cast())
+                .write_u64::<LittleEndian>(value.len().strict_cast())
                 .unwrap();
             bincode.write_all(value.as_bytes()).unwrap();
             match self {

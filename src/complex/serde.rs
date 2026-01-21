@@ -19,7 +19,7 @@ use crate::ext::xmpfr;
 use crate::serdeize;
 use crate::serdeize::{Data, PrecReq, PrecVal};
 use crate::{Assign, Complex};
-use az::UnwrappedCast;
+use az::StrictCast;
 use serde::de::{Deserialize, Deserializer, Error as DeError};
 use serde::ser::{Serialize, Serializer};
 
@@ -51,8 +51,8 @@ impl<'de> Deserialize<'de> for Complex {
             _ => unreachable!(),
         };
         let p: super::big::ParseIncomplete = data.try_into().map_err(DeError::custom)?;
-        xmpfr::set_prec_nan(place.mut_real(), prec.0.unwrapped_cast());
-        xmpfr::set_prec_nan(place.mut_imag(), prec.1.unwrapped_cast());
+        xmpfr::set_prec_nan(place.mut_real(), prec.0.strict_cast());
+        xmpfr::set_prec_nan(place.mut_imag(), prec.1.strict_cast());
         place.assign(p);
         Ok(())
     }
@@ -82,7 +82,7 @@ mod tests {
     use crate::float;
     use crate::float::{FreeCache, Special};
     use crate::{Assign, Complex};
-    use az::UnwrappedCast;
+    use az::StrictCast;
     use serde_json::json;
 
     fn assert(a: &Complex, b: &Complex) {
@@ -132,7 +132,7 @@ mod tests {
             bincode.write_u32::<LittleEndian>(prec.1).unwrap();
             bincode.write_i32::<LittleEndian>(radix).unwrap();
             bincode
-                .write_u64::<LittleEndian>(value.len().unwrapped_cast())
+                .write_u64::<LittleEndian>(value.len().strict_cast())
                 .unwrap();
             bincode.write_all(value.as_bytes()).unwrap();
             match self {
