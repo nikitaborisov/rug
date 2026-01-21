@@ -4,6 +4,13 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.29.0 (unreleased)
+===========================
+
+  * The [*az* crate] dependency was updated to [version 1.3][az-1-3].
+
+[az-1-3]: https://docs.rs/az/~1.3/az/index.html
+
 Version 1.28.1 (2026-01-21)
 ===========================
 

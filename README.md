@@ -28,6 +28,13 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
+### Version 1.29.0 news (unreleased)
+
+  * The [*az* crate] dependency was updated to [version 1.3][az-1-3].
+
+[*az* crate]: https://crates.io/crates/az
+[az-1-3]: https://docs.rs/az/~1.3/az/index.html
+
 ### Version 1.28.1 news (2026-01-21)
 
   * Bug fix: incorrect underflow when dividng [`Rational`][rat-1-28] by
@@ -68,7 +75,6 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
       * [`subnormalize`][flo-s-1-27],
         [`subnormalize_round`][flo-sr-1-27]
 
-[*az* crate]: https://crates.io/crates/az
 [flo-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html
 [flo-f-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.frexp
 [flo-fm-1-27]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.frexp_mut
