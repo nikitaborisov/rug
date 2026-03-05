@@ -306,8 +306,11 @@ unsafe_wrap! { fn sqr(op: O) -> mpc::sqr }
 unsafe_wrap! { fn sqrt(op: O) -> mpc::sqrt }
 unsafe_wrap! { fn conj(op: O) -> mpc::conj }
 unsafe_wrap! { fn log(op: O) -> mpc::log }
+unsafe_wrap! { fn log2(op: O) -> mpc::log2 }
 unsafe_wrap! { fn log10(op: O) -> mpc::log10 }
 unsafe_wrap! { fn exp(op: O) -> mpc::exp }
+unsafe_wrap! { fn exp2(op: O) -> mpc::exp2 }
+unsafe_wrap! { fn exp10(op: O) -> mpc::exp10 }
 unsafe_wrap! { fn sin(op: O) -> mpc::sin }
 unsafe_wrap! { fn cos(op: O) -> mpc::cos }
 unsafe_wrap! { fn tan(op: O) -> mpc::tan }

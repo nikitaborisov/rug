@@ -8,8 +8,30 @@ Version 1.29.0 (unreleased)
 ===========================
 
   * The [*az* crate] dependency was updated to [version 1.3][az-1-3].
+  * The [gmp-mpfr-sys] dependency was updated to [version 1.7][sys-1-7].
+  * The following methods were added to [`Complex`][com-1-29]:
+     * [`exp2`][com-e2-1-29], [`exp2_mut`][com-e2m-1-29],
+       [`exp2_round`][com-e2ro-1-29], [`exp2_ref`][com-e2re-1-29]
+     * [`exp10`][com-e10-1-29], [`exp10_mut`][com-e10m-1-29],
+       [`exp10_round`][com-e10ro-1-29], [`exp10_ref`][com-e10re-1-29]
+     * [`log2`][com-l2-1-29], [`log2_mut`][com-l2m-1-29],
+       [`log2_round`][com-l2ro-1-29], [`log2_ref`][com-l2re-1-29]
 
 [az-1-3]: https://docs.rs/az/~1.3/az/index.html
+[com-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html
+[com-e10-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10
+[com-e10m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_mut
+[com-e10re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_ref
+[com-e10ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_round
+[com-e2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2
+[com-e2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_mut
+[com-e2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_ref
+[com-e2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_round
+[com-l2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2
+[com-l2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_mut
+[com-l2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_ref
+[com-l2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_round
+[sys-1-7]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html
 
 Version 1.28.1 (2026-01-21)
 ===========================

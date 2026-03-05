@@ -2745,6 +2745,86 @@ impl Complex {
         LnIncomplete { ref_self: self }
     }
 
+    /// Computes the logarithm to base 2, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (1.5, -0.5));
+    /// let log2 = c.log2();
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(log2 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn log2(mut self) -> Self {
+        self.log2_round(NEAREST2);
+        self
+    }
+
+    /// Computes the logarithm to base 2, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (1.5, -0.5));
+    /// c.log2_mut();
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn log2_mut(&mut self) {
+        self.log2_round(NEAREST2);
+    }
+
+    /// Computes the logarithm to base 2, applying the specified rounding
+    /// method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (1.5, -0.5));
+    /// // log2(1.5 - 0.5i) = (0.6610 - 0.4642i)
+    /// // using 4 significant bits: (0.6875 - 0.46875i)
+    /// let dir = c.log2_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (0.6875, -0.46875));
+    /// assert_eq!(dir, (Ordering::Greater, Ordering::Less));
+    /// ```
+    #[inline]
+    pub fn log2_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::log2(self, (), round)
+    }
+
+    /// Computes the logarithm to base 2.
+    ///
+    /// The following are implemented with the returned
+    /// [incomplete-computation value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (1.5, -0.5));
+    /// let log2 = Complex::with_val(53, c.log2_ref());
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(log2 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn log2_ref(&self) -> Log2Incomplete<'_> {
+        Log2Incomplete { ref_self: self }
+    }
+
     /// Computes the logarithm to base 10, rounding to the nearest.
     ///
     /// # Examples
@@ -2930,6 +3010,164 @@ impl Complex {
     #[inline]
     pub fn exp_ref(&self) -> ExpIncomplete<'_> {
         ExpIncomplete { ref_self: self }
+    }
+
+    /// Computes 2 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp2 = c.exp2();
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(exp2 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn exp2(mut self) -> Self {
+        self.exp2_round(NEAREST2);
+        self
+    }
+
+    /// Computes 2 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (0.5, -0.75));
+    /// c.exp2_mut();
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn exp2_mut(&mut self) {
+        self.exp2_round(NEAREST2);
+    }
+
+    /// Computes 2 to the power of `self`, applying the specified rounding method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (0.5, -0.75));
+    /// // exp2(0.5 - 0.75i) = (1.2274 - 0.7025i)
+    /// // using 4 significant bits: (1.25 - 0.6875i)
+    /// let dir = c.exp2_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (1.25, -0.6875));
+    /// assert_eq!(dir, (Ordering::Greater, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn exp2_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::exp2(self, (), round)
+    }
+
+    /// Computes 2 to the power of `self`.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp2 = Complex::with_val(53, c.exp2_ref());
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(exp2 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn exp2_ref(&self) -> Exp2Incomplete<'_> {
+        Exp2Incomplete { ref_self: self }
+    }
+
+    /// Computes 10 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp10 = c.exp10();
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(exp10 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn exp10(mut self) -> Self {
+        self.exp10_round(NEAREST2);
+        self
+    }
+
+    /// Computes 10 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (0.5, -0.75));
+    /// c.exp10_mut();
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn exp10_mut(&mut self) {
+        self.exp10_round(NEAREST2);
+    }
+
+    /// Computes 10 to the power of `self`, applying the specified rounding method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (0.5, -0.75));
+    /// // exp10(0.5 - 0.75i) = (-0.4918 - 3.1238i)
+    /// // using 4 significant bits: (-0.5 - 3i)
+    /// let dir = c.exp10_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (-0.5, -3));
+    /// assert_eq!(dir, (Ordering::Less, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn exp10_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::exp10(self, (), round)
+    }
+
+    /// Computes 10 to the power of `self`.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp10 = Complex::with_val(53, c.exp10_ref());
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(exp10 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn exp10_ref(&self) -> Exp10Incomplete<'_> {
+        Exp10Incomplete { ref_self: self }
     }
 
     /// Computes the sine, rounding to the nearest.
@@ -4592,9 +4830,12 @@ impl CompleteRound for NormIncomplete<'_> {
 }
 
 ref_math_op1_complex! { xmpc::log; struct LnIncomplete {} }
+ref_math_op1_complex! { xmpc::log2; struct Log2Incomplete {} }
 ref_math_op1_complex! { xmpc::log10; struct Log10Incomplete {} }
 ref_math_op0_complex! { xmpc::rootofunity; struct RootOfUnityIncomplete { n: u32, k: u32 } }
 ref_math_op1_complex! { xmpc::exp; struct ExpIncomplete {} }
+ref_math_op1_complex! { xmpc::exp2; struct Exp2Incomplete {} }
+ref_math_op1_complex! { xmpc::exp10; struct Exp10Incomplete {} }
 ref_math_op1_complex! { xmpc::sin; struct SinIncomplete {} }
 ref_math_op1_complex! { xmpc::cos; struct CosIncomplete {} }
 ref_math_op1_2_complex! { xmpc::sin_cos; struct SinCosIncomplete {} }
