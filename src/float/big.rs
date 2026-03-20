@@ -1497,8 +1497,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f16)]
-    ///
     /// use rug::Float;
     /// let zero = Float::new(64);
     /// let (d0, exp0) = zero.to_f16_exp();
@@ -1527,8 +1525,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f16)]
-    ///
     /// use rug::float::Round;
     /// use rug::Float;
     /// let frac_10_3 = Float::with_val(64, 10) / 3u32;
@@ -1675,8 +1671,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f128)]
-    ///
     /// use rug::Float;
     /// let zero = Float::new(64);
     /// let (d0, exp0) = zero.to_f128_exp();
@@ -1705,8 +1699,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f128)]
-    ///
     /// use rug::float::Round;
     /// use rug::Float;
     /// let frac_10_3 = Float::with_val(128, 10) / 3u32;
