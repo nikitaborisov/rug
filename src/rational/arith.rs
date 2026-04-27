@@ -19,6 +19,7 @@ use crate::ext::xmpq::OptRational;
 use crate::integer::MiniInteger;
 use crate::integer::arith::AsLong;
 use crate::ops::{AddFrom, DivFrom, MulFrom, NegAssign, Pow, PowAssign, SubFrom};
+use crate::rational::MiniRational;
 use crate::{Assign, Complete, Integer, Rational};
 use az::{CheckedAs, CheckedCast};
 use core::ffi::{c_long, c_ulong};
@@ -70,6 +71,41 @@ arith_binary_self! {
     DivFrom { div_from }
     DivIncomplete;
     rhs_has_more_alloc
+}
+
+arith_mini_commut! {
+    Rational;
+    Add { add }
+    AddAssign { add_assign }
+    AddFrom { add_from }
+    MiniRational;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Rational;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubFrom { sub_from }
+    MiniRational;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Rational;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulFrom { mul_from }
+    MiniRational;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Rational;
+    Div { div }
+    DivAssign { div_assign }
+    DivFrom { div_from }
+    MiniRational;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
 }
 
 arith_commut! {
