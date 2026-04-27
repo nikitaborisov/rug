@@ -4,6 +4,24 @@
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
 
+Version 1.30.0 (unreleased)
+===========================
+
+  * Arithmetic operators are now overloaded to work between:
+     * [`Integer`][int-1-30] and [`MiniInteger`][mi-1-30]
+     * [`Rational`][rat-1-30] and [`MiniRational`][mr-1-30]
+     * [`Float`][flo-1-30] and [`MiniFloat`][mf-1-30]
+     * [`Complex`][com-1-30] and [`MiniComplex`][mc-1-30]
+
+[com-1-30]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
+[flo-1-30]: https://docs.rs/rug/~1.30/rug/struct.Float.html
+[int-1-30]: https://docs.rs/rug/~1.30/rug/struct.Integer.html
+[mc-1-30]: https://docs.rs/rug/~1.30/rug/complex/struct.MiniComplex.html
+[mf-1-30]: https://docs.rs/rug/~1.30/rug/float/struct.MiniFloat.html
+[mi-1-30]: https://docs.rs/rug/~1.30/rug/integer/struct.MiniInteger.html
+[mr-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html
+[rat-1-30]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
+
 Version 1.29.0 (2026-03-20)
 ===========================
 
