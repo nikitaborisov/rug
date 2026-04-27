@@ -117,6 +117,74 @@ arith_binary_self! {
     rhs_has_more_alloc
 }
 
+arith_mini_commut! {
+    Integer;
+    Add { add }
+    AddAssign { add_assign }
+    AddFrom { add_from }
+    MiniInteger;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubFrom { sub_from }
+    MiniInteger;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulFrom { mul_from }
+    MiniInteger;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Div { div }
+    DivAssign { div_assign }
+    DivFrom { div_from }
+    MiniInteger;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Rem { rem }
+    RemAssign { rem_assign }
+    RemFrom { rem_from }
+    MiniInteger;
+    RemMiniIncomplete, RemOwnedMiniIncomplete;
+    RemFromMiniIncomplete, RemFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitAnd { bitand }
+    BitAndAssign { bitand_assign }
+    BitAndFrom { bitand_from }
+    MiniInteger;
+    BitAndMiniIncomplete, BitAndOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitOr { bitor }
+    BitOrAssign { bitor_assign }
+    BitOrFrom { bitor_from }
+    MiniInteger;
+    BitOrMiniIncomplete, BitOrOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitXor { bitxor }
+    BitXorAssign { bitxor_assign }
+    BitXorFrom { bitxor_from }
+    MiniInteger;
+    BitXorMiniIncomplete, BitXorOwnedMiniIncomplete
+}
+
 arith_prim_commut! {
     Integer;
     PrimOps::add;
