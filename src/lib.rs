@@ -596,6 +596,12 @@ pub mod rand;
 
 pub use az;
 
+#[cfg(any())]
+#[doc(hidden)]
+pub mod private {
+    pub use crate::misc::{cast_ptr, cast_ptr_mut};
+}
+
 #[cfg(any(feature = "integer", feature = "float"))]
 mod static_assertions {
     use gmp_mpfr_sys::gmp::{LIMB_BITS, NAIL_BITS, NUMB_BITS, limb_t};

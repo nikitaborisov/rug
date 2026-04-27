@@ -509,36 +509,102 @@ impl<T> Extend<T> for VecLike<T> {
     }
 }
 
-pub trait SameSizeAndAlign {
-    const CHECK_SIZE: ();
-    const CHECK_ALIGN: ();
-}
-
-impl<Src, Dst> SameSizeAndAlign for (Src, Dst) {
-    const CHECK_SIZE: () = assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
-    const CHECK_ALIGN: () = assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
-}
-
-#[allow(clippy::let_unit_value)]
-pub const fn cast_ptr<Src, Dst>(ptr: *const Src) -> *const Dst
-where
-    (Src, Dst): SameSizeAndAlign,
-{
-    // Force the size and alignment checks to be evaluated at compile time
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+/// Casts a const pointer ensuring the size and alignment match.
+pub const fn cast_ptr<Src, Dst>(ptr: *const Src) -> *const Dst {
+    const {
+        assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
+        assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
+    }
 
     ptr.cast()
 }
 
-#[allow(clippy::let_unit_value)]
-pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst
-where
-    (Src, Dst): SameSizeAndAlign,
-{
-    // Force the size and alignment checks to be evaluated at compile time
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+/// Casts a mutable pointer ensuring the size and alignment match.
+pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst {
+    const {
+        assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
+        assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
+    }
 
     ptr.cast()
 }
+
+#[cfg(any())]
+/// These are doc tests that should not appear in the docs, but are useful as
+/// doc tests can check to ensure compilation failure.
+///
+/// The first two snippets succeed, and act as a control.
+///
+/// The cfg(any()) line above must be commented out for these test to be active.
+///
+/// ```rust
+/// use rug::private::cast_ptr;
+///
+/// #[repr(transparent)]
+/// #[derive(Debug, PartialEq)]
+/// struct Wrapper(u32);
+///
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let casted: *const Wrapper = cast_ptr::<u32, Wrapper>(ptr);
+/// unsafe {
+///     assert_eq!((*casted).0, 123);
+/// }
+/// ```
+///
+/// ```rust
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(transparent)]
+/// #[derive(Debug, PartialEq)]
+/// struct Wrapper(u32);
+///
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let casted: *mut Wrapper = cast_ptr_mut::<u32, Wrapper>(ptr);
+/// unsafe {
+///     (*casted).0 = 456;
+/// }
+/// assert_eq!(value, 456);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr;
+///
+/// #[repr(C)]
+/// struct Words([u32; 2]);
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let _size_mismatch = cast_ptr::<u32, Words>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr;
+///
+/// #[repr(C)]
+/// struct Bytes([u8; 4]);
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let _alignment_mismatch = cast_ptr::<u32, Bytes>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(C)]
+/// struct Words([u32; 2]);
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let _size_mismatch = cast_ptr_mut::<u32, Words>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(C)]
+/// struct Bytes([u8; 4]);
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let _alignment_mismatch = cast_ptr_mut::<u32, Bytes>(ptr);
+/// ```
+fn _compile_fail_tests() {}
