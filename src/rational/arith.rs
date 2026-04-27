@@ -560,6 +560,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn check_mini_ops() {
         let big = Rational::from((10, 3));
         let mini = MiniRational::from((3, 2));

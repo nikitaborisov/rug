@@ -1176,6 +1176,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn check_mini_ops() {
         let big = Complex::with_val(53, (10.5, -2.5));
         let mini = MiniComplex::from((3.25f32, 1.5f32));

@@ -862,6 +862,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn check_mini_ops() {
         let big = Integer::from(10);
         let mini = MiniInteger::from(3);

@@ -1122,6 +1122,7 @@ pub(crate) mod tests {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn check_mini_ops() {
         let big = Float::with_val(53, 10.5);
         let mini = MiniFloat::from(3.25f32);
