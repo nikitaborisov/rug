@@ -596,9 +596,10 @@ pub mod rand;
 
 pub use az;
 
-#[cfg(any())]
+// Used by doc tests. Not public API.
 #[doc(hidden)]
 pub mod private {
+    #[cfg(any(feature = "integer", feature = "float"))]
     pub use crate::misc::{cast_ptr, cast_ptr_mut};
 }
 

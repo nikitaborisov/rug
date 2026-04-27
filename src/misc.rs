@@ -529,13 +529,10 @@ pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst {
     ptr.cast()
 }
 
-#[cfg(any())]
 /// These are doc tests that should not appear in the docs, but are useful as
 /// doc tests can check to ensure compilation failure.
 ///
 /// The first two snippets succeed, and act as a control.
-///
-/// The cfg(any()) line above must be commented out for these test to be active.
 ///
 /// ```rust
 /// use rug::private::cast_ptr;
