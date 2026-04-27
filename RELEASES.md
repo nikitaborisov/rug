@@ -12,6 +12,8 @@ Version 1.30.0 (unreleased)
      * [`Rational`][rat-1-30] and [`MiniRational`][mr-1-30]
      * [`Float`][flo-1-30] and [`MiniFloat`][mf-1-30]
      * [`Complex`][com-1-30] and [`MiniComplex`][mc-1-30]
+  * The following method was added to [`MiniRational`][mr-1-30]:
+     * [`const_from_canonical`][mr-cfc-1-30]
 
 [com-1-30]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
 [flo-1-30]: https://docs.rs/rug/~1.30/rug/struct.Float.html
@@ -20,6 +22,7 @@ Version 1.30.0 (unreleased)
 [mf-1-30]: https://docs.rs/rug/~1.30/rug/float/struct.MiniFloat.html
 [mi-1-30]: https://docs.rs/rug/~1.30/rug/integer/struct.MiniInteger.html
 [mr-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html
+[mr-cfc-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html#method.const_from_canonical
 [rat-1-30]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
 
 Version 1.29.0 (2026-03-20)

@@ -207,6 +207,59 @@ impl MiniRational {
         }
     }
 
+    /// Creates a [`MiniRational`] from a numerator [`MiniInteger`] and a
+    /// denominator [`MiniInteger`], assuming they are in canonical form.
+    ///
+    /// # Planned deprecation
+    ///
+    /// This method will be deprecated when the
+    /// [`from_canonical`][Self::from_canonical] method is usable in constant
+    /// context.
+    ///
+    /// # Safety
+    ///
+    /// This method leads to undefined behavior if `den` is zero or negative, or
+    /// if `num` and `den` have common factors.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::integer::MiniInteger;
+    /// use rug::rational::{BorrowRational, MiniRational};
+    /// use rug::Rational;
+    ///
+    /// const NEG_TWO_INT: MiniInteger = MiniInteger::const_from_i8(-2);
+    /// const THREE_INT: MiniInteger = MiniInteger::const_from_i8(3);
+    /// const NEG_TWO_THIRDS_MINI: MiniRational = unsafe {
+    ///     MiniRational::const_from_canonical(NEG_TWO_INT, THREE_INT)
+    /// };
+    /// const NEG_TWO_THIRDS_BORROW: BorrowRational = NEG_TWO_THIRDS_MINI.borrow();
+    /// const NEG_TWO_THIRDS: &Rational = BorrowRational::const_deref(&NEG_TWO_THIRDS_BORROW);
+    /// assert_eq!(*NEG_TWO_THIRDS, MiniRational::from((-2, 3)));
+    /// ```
+    pub const unsafe fn const_from_canonical(num: MiniInteger, den: MiniInteger) -> Self {
+        let MiniInteger {
+            inner: mut num_inner,
+            limbs: num_limbs,
+        } = num;
+        let MiniInteger {
+            inner: mut den_inner,
+            limbs: den_limbs,
+        } = den;
+        let d = NonNull::dangling();
+        // remove d pointer relation
+        num_inner.d = d;
+        den_inner.d = d;
+        MiniRational {
+            inner: mpq_t {
+                num: num_inner,
+                den: den_inner,
+            },
+            first_limbs: num_limbs,
+            last_limbs: den_limbs,
+        }
+    }
+
     /// Returns a mutable reference to a [`Rational`] number for simple
     /// operations that do not need to allocate more space for the numerator or
     /// denominator.
