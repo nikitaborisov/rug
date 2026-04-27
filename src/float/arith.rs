@@ -866,14 +866,14 @@ fn mul_sub<O: OptFloat>(rop: &mut Float, mul: MulIncomplete<'_>, sub: O, rnd: Ro
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use crate::Float;
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
     use crate::float;
-    use crate::float::{FreeCache, Special};
-    use crate::ops::Pow;
+    use crate::float::{FreeCache, MiniFloat, Special};
+    use crate::ops::{AddFrom, Pow, SubFrom};
+    use crate::{Assign, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
 
@@ -1119,6 +1119,72 @@ pub(crate) mod tests {
         assert_eq!(neg.clone() >> 10u32, neg.clone() >> 10usize);
         assert_eq!(neg.clone() >> 10u32, neg.clone() >> 10isize);
         assert_eq!(neg.clone() >> 10u32, neg.clone() << -10isize);
+    }
+
+    #[test]
+    fn check_mini_ops() {
+        let big = Float::with_val(53, 10.5);
+        let mini = MiniFloat::from(3.25f32);
+        let mut bm = Float::new(53);
+
+        // commutative
+        assert_eq!(big.clone() + mini, Float::with_val(53, 13.75));
+        assert_eq!(big.clone() + &mini, Float::with_val(53, 13.75));
+        assert_eq!(Float::with_val(53, &big + mini), Float::with_val(53, 13.75));
+        assert_eq!(
+            Float::with_val(53, &big + &mini),
+            Float::with_val(53, 13.75)
+        );
+
+        bm.assign(big.clone());
+        bm += mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+        bm.assign(big.clone());
+        bm += &mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+
+        assert_eq!(mini + big.clone(), Float::with_val(53, 13.75));
+        assert_eq!(&mini + big.clone(), Float::with_val(53, 13.75));
+        assert_eq!(Float::with_val(53, mini + &big), Float::with_val(53, 13.75));
+        assert_eq!(
+            Float::with_val(53, &mini + &big),
+            Float::with_val(53, 13.75)
+        );
+
+        bm.assign(big.clone());
+        bm.add_from(mini);
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+        bm.assign(big.clone());
+        bm.add_from(&mini);
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+
+        // non-commutative
+        assert_eq!(big.clone() - mini, Float::with_val(53, 7.25));
+        assert_eq!(big.clone() - &mini, Float::with_val(53, 7.25));
+        assert_eq!(Float::with_val(53, &big - mini), Float::with_val(53, 7.25));
+        assert_eq!(Float::with_val(53, &big - &mini), Float::with_val(53, 7.25));
+
+        bm.assign(big.clone());
+        bm -= mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 7.25));
+        bm.assign(big.clone());
+        bm -= &mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 7.25));
+
+        assert_eq!(mini - big.clone(), Float::with_val(53, -7.25));
+        assert_eq!(&mini - big.clone(), Float::with_val(53, -7.25));
+        assert_eq!(Float::with_val(53, mini - &big), Float::with_val(53, -7.25));
+        assert_eq!(
+            Float::with_val(53, &mini - &big),
+            Float::with_val(53, -7.25)
+        );
+
+        bm.assign(big.clone());
+        bm.sub_from(mini);
+        assert_eq!(bm.clone(), Float::with_val(53, -7.25));
+        bm.assign(big.clone());
+        bm.sub_from(&mini);
+        assert_eq!(bm.clone(), Float::with_val(53, -7.25));
     }
 
     #[cfg(feature = "rational")]
