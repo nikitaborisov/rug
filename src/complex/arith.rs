@@ -826,11 +826,12 @@ mod tests {
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::complex::MiniComplex;
     use crate::float;
     use crate::float::arith::tests as float_tests;
     use crate::float::{FreeCache, Special};
-    use crate::ops::{NegAssign, Pow};
-    use crate::{Complex, Float};
+    use crate::ops::{AddFrom, NegAssign, Pow, SubFrom};
+    use crate::{Assign, Complex, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
 
@@ -1172,5 +1173,65 @@ mod tests {
         assert_eq!(c.clone() >> 10u32, c.clone() >> 10usize);
         assert_eq!(c.clone() >> 10u32, c.clone() >> 10isize);
         assert_eq!(c.clone() >> 10u32, c.clone() << -10isize);
+    }
+
+    #[test]
+    fn check_mini_ops() {
+        let big = Complex::with_val(53, (10.5, -2.5));
+        let mini = MiniComplex::from((3.25f32, 1.5f32));
+        let mut bm = Complex::new(53);
+
+        // commutative
+        let sum = MiniComplex::from((13.75, -1.0));
+        assert_eq!(big.clone() + mini, sum);
+        assert_eq!(big.clone() + &mini, sum);
+        assert_eq!(Complex::with_val(53, &big + mini), sum);
+        assert_eq!(Complex::with_val(53, &big + &mini), sum);
+
+        bm.assign(big.clone());
+        bm += mini;
+        assert_eq!(bm.clone(), sum);
+        bm.assign(big.clone());
+        bm += &mini;
+        assert_eq!(bm.clone(), sum);
+
+        assert_eq!(mini + big.clone(), sum);
+        assert_eq!(&mini + big.clone(), sum);
+        assert_eq!(Complex::with_val(53, mini + &big), sum);
+        assert_eq!(Complex::with_val(53, &mini + &big), sum);
+
+        bm.assign(big.clone());
+        bm.add_from(mini);
+        assert_eq!(bm.clone(), sum);
+        bm.assign(big.clone());
+        bm.add_from(&mini);
+        assert_eq!(bm.clone(), sum);
+
+        // non-commutative
+        let diff1 = MiniComplex::from((7.25, -4.0));
+        assert_eq!(big.clone() - mini, diff1);
+        assert_eq!(big.clone() - &mini, diff1);
+        assert_eq!(Complex::with_val(53, &big - mini), diff1);
+        assert_eq!(Complex::with_val(53, &big - &mini), diff1);
+
+        bm.assign(big.clone());
+        bm -= mini;
+        assert_eq!(bm.clone(), diff1);
+        bm.assign(big.clone());
+        bm -= &mini;
+        assert_eq!(bm.clone(), diff1);
+
+        let diff2 = MiniComplex::from((-7.25, 4.0));
+        assert_eq!(mini - big.clone(), diff2);
+        assert_eq!(&mini - big.clone(), diff2);
+        assert_eq!(Complex::with_val(53, mini - &big), diff2);
+        assert_eq!(Complex::with_val(53, &mini - &big), diff2);
+
+        bm.assign(big.clone());
+        bm.sub_from(mini);
+        assert_eq!(bm.clone(), diff2);
+        bm.assign(big.clone());
+        bm.sub_from(&mini);
+        assert_eq!(bm.clone(), diff2);
     }
 }
