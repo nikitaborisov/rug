@@ -730,6 +730,290 @@ macro_rules! arith_noncommut {
     };
 }
 
+// big # mini -> Big
+// big # &mini -> Big
+// &big # mini -> OwnedIncomplete
+// &big # &mini -> Incomplete
+// big #= mini
+// big #= &mini
+// struct OwnedIncomplete
+// Big = OwnedIncomplete
+// OwnedIncomplete -> Big
+// struct Incomplete
+// Big = Incomplete
+// Incomplete -> Big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        impl $Imp<$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Mini) -> $Big {
+                self.$method(rhs.borrow_excl())
+            }
+        }
+
+        impl $Imp<&$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: &$Mini) -> $Big {
+                self.$method(&*rhs.borrow())
+            }
+        }
+
+        impl<'a> $Imp<$Mini> for &'a $Big {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: $Mini) -> $OwnedIncomplete<'a> {
+                $OwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl<'a> $Imp<&'a $Mini> for &'a $Big {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Mini) -> $Incomplete<'a> {
+                $Incomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpAssign<$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, mut rhs: $Mini) {
+                self.$method_assign(rhs.borrow_excl());
+            }
+        }
+
+        impl $ImpAssign<&$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, rhs: &$Mini) {
+                self.$method_assign(&*rhs.borrow());
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $Incomplete<'a> {
+            lhs: &'a $Big,
+            rhs: &'a $Mini,
+        }
+
+        impl Assign<$Incomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, src: $Incomplete<'_>) {
+                self.assign(src.lhs.$method(&*src.rhs.borrow()))
+            }
+        }
+
+        from_assign! { $Incomplete<'_> => $Big }
+
+        #[derive(Debug)]
+        pub struct $OwnedIncomplete<'a> {
+            lhs: &'a $Big,
+            rhs: $Mini,
+        }
+
+        impl Assign<$OwnedIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, mut src: $OwnedIncomplete<'_>) {
+                self.assign(src.lhs.$method(src.rhs.borrow_excl()))
+            }
+        }
+
+        from_assign! { $OwnedIncomplete<'_> => $Big }
+    }
+}
+
+// arith_mini!
+// mini # big -> Big
+// mini # &big -> OwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> Incomplete
+// mini #-> big
+// &mini #-> big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini_commut {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        arith_mini! {
+            $Big;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: $Big) -> $Big {
+                rhs.$method(self)
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $OwnedIncomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: $Big) -> $Big {
+                rhs.$method(self)
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: $Mini) {
+                self.$method_assign(lhs);
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_assign(lhs);
+            }
+        }
+    };
+}
+
+// arith_mini!
+// mini # big -> Big
+// mini # &big -> FromOwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> FromIncomplete
+// mini #-> big
+// &mini #-> big
+// struct FromIncomplete
+// Big = FromIncomplete
+// FromIncomplete -> Big
+// struct FromOwnedIncomplete
+// Big = FromOwnedIncomplete
+// FromOwnedIncomplete -> Big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini_noncommut {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident;
+        $FromIncomplete:ident, $FromOwnedIncomplete:ident
+    ) => {
+        arith_mini! {
+            $Big;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(mut self, mut rhs: $Big) -> $Big {
+                rhs.$method_from(self.borrow_excl());
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $FromOwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &$Big) -> $FromOwnedIncomplete<'_> {
+                $FromOwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Big) -> $Big {
+                rhs.$method_from(&*self.borrow());
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $FromIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
+                $FromIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, mut lhs: $Mini) {
+                self.$method_from(lhs.borrow_excl());
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_from(&*lhs.borrow())
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $FromIncomplete<'a> {
+            lhs: &'a $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl Assign<$FromIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, src: $FromIncomplete<'_>) {
+                self.assign((&*src.lhs.borrow()).$method(src.rhs))
+            }
+        }
+
+        from_assign! { $FromIncomplete<'_> => $Big }
+
+        #[derive(Debug)]
+        pub struct $FromOwnedIncomplete<'a> {
+            lhs: $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl Assign<$FromOwnedIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, mut src: $FromOwnedIncomplete<'_>) {
+                self.assign(src.lhs.borrow_excl().$method(src.rhs))
+            }
+        }
+
+        from_assign! { $FromOwnedIncomplete<'_> => $Big }
+    };
+}
+
 // big # prim -> Big
 // big # &prim -> Big
 // &big # prim -> Incomplete
