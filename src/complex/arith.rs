@@ -135,6 +135,60 @@ arith_binary_self_round! {
     PowIncomplete
 }
 
+arith_mini_commut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Add { add }
+    AddAssign { add_assign }
+    AddAssignRound { add_assign_round }
+    AddFrom { add_from }
+    AddFromRound { add_from_round }
+    MiniComplex;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubAssignRound { sub_assign_round }
+    SubFrom { sub_from }
+    SubFromRound { sub_from_round }
+    MiniComplex;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulAssignRound { mul_assign_round }
+    MulFrom { mul_from }
+    MulFromRound { mul_from_round }
+    MiniComplex;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Div { div }
+    DivAssign { div_assign }
+    DivAssignRound { div_assign_round }
+    DivFrom { div_from }
+    DivFromRound { div_from_round }
+    MiniComplex;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Pow { pow }
+    PowAssign { pow_assign }
+    PowAssignRound { pow_assign_round }
+    PowFrom { pow_from }
+    PowFromRound { pow_from_round }
+    MiniComplex;
+    PowMiniIncomplete, PowOwnedMiniIncomplete;
+    PowFromMiniIncomplete, PowFromOwnedMiniIncomplete
+}
+
 arith_commut_round! {
     Complex, (u32, u32), Round2, NEAREST2, Ordering2;
     xmpc::add_fr;
