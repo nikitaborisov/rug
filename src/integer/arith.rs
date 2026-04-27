@@ -649,9 +649,9 @@ fn rhs_has_more_alloc(lhs: &Integer, rhs: &Integer) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Assign, Complete, Integer};
     use crate::integer::MiniInteger;
     use crate::ops::{AddFrom, Pow, SubFrom};
+    use crate::{Assign, Complete, Integer};
     use core::ops::{AddAssign, SubAssign};
 
     macro_rules! test_op {
