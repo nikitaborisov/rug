@@ -100,7 +100,9 @@ nightly-x86_64-gnulinux-tarpaulin:
   script:
   - cargo install --version 0.35.2 --locked cargo-tarpaulin
   - etc/extract-doc-tests.sh
+  - "echo Required coverage: $REQ_COVERAGE"
   - etc/invoke-tarpaulin.sh --fail-under $REQ_COVERAGE
+  - "echo Required coverage: $REQ_COVERAGE"
   - etc/extract-doc-tests.sh restore
   only:
   - ci
