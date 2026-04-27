@@ -146,6 +146,71 @@ arith_binary_self_round! {
     PowIncomplete
 }
 
+arith_mini_commut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Add { add }
+    AddAssign { add_assign }
+    AddAssignRound { add_assign_round }
+    AddFrom { add_from }
+    AddFromRound { add_from_round }
+    MiniFloat;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubAssignRound { sub_assign_round }
+    SubFrom { sub_from }
+    SubFromRound { sub_from_round }
+    MiniFloat;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulAssignRound { mul_assign_round }
+    MulFrom { mul_from }
+    MulFromRound { mul_from_round }
+    MiniFloat;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Div { div }
+    DivAssign { div_assign }
+    DivAssignRound { div_assign_round }
+    DivFrom { div_from }
+    DivFromRound { div_from_round }
+    MiniFloat;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Rem { rem }
+    RemAssign { rem_assign }
+    RemAssignRound { rem_assign_round }
+    RemFrom { rem_from }
+    RemFromRound { rem_from_round }
+    MiniFloat;
+    RemMiniIncomplete, RemOwnedMiniIncomplete;
+    RemFromMiniIncomplete, RemFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Pow { pow }
+    PowAssign { pow_assign }
+    PowAssignRound { pow_assign_round }
+    PowFrom { pow_from }
+    PowFromRound { pow_from_round }
+    MiniFloat;
+    PowMiniIncomplete, PowOwnedMiniIncomplete;
+    PowFromMiniIncomplete, PowFromOwnedMiniIncomplete
+}
+
 #[cfg(feature = "integer")]
 arith_commut_round! {
     Float, u32, Round, Round::Nearest, Ordering;
