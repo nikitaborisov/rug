@@ -649,7 +649,8 @@ fn rhs_has_more_alloc(lhs: &Integer, rhs: &Integer) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::Integer;
+    use crate::{Assign, Complete, Integer};
+    use crate::integer::MiniInteger;
     use crate::ops::{AddFrom, Pow, SubFrom};
     use core::ops::{AddAssign, SubAssign};
 
@@ -858,6 +859,63 @@ mod tests {
         assert_eq!(neg.clone() << 10, Integer::from(-33) << 60);
         assert_eq!(neg.clone() << -100, neg.clone() >> 100);
         assert_eq!(neg.clone() << -100, -1);
+    }
+
+    #[test]
+    fn check_mini_ops() {
+        let big = Integer::from(10);
+        let mini = MiniInteger::from(3);
+        let mut bm = Integer::new();
+
+        // commutative
+        assert_eq!(big.clone() + mini, 13);
+        assert_eq!(big.clone() + &mini, 13);
+        assert_eq!((&big + mini).complete(), 13);
+        assert_eq!((&big + &mini).complete(), 13);
+
+        bm.assign(&big);
+        bm += mini;
+        assert_eq!(bm, 13);
+        bm.assign(&big);
+        bm += &mini;
+        assert_eq!(bm, 13);
+
+        assert_eq!(mini + big.clone(), 13);
+        assert_eq!(&mini + big.clone(), 13);
+        assert_eq!((mini + &big).complete(), 13);
+        assert_eq!((&mini + &big).complete(), 13);
+
+        bm.assign(&big);
+        bm.add_from(mini);
+        assert_eq!(bm, 13);
+        bm.assign(&big);
+        bm.add_from(&mini);
+        assert_eq!(bm, 13);
+
+        // non-commutative
+        assert_eq!(big.clone() - mini, 7);
+        assert_eq!(big.clone() - &mini, 7);
+        assert_eq!((&big - mini).complete(), 7);
+        assert_eq!((&big - &mini).complete(), 7);
+
+        bm.assign(&big);
+        bm -= mini;
+        assert_eq!(bm, 7);
+        bm.assign(&big);
+        bm -= &mini;
+        assert_eq!(bm, 7);
+
+        assert_eq!(mini - big.clone(), -7);
+        assert_eq!(&mini - big.clone(), -7);
+        assert_eq!((mini - &big).complete(), -7);
+        assert_eq!((&mini - &big).complete(), -7);
+
+        bm.assign(&big);
+        bm.sub_from(mini);
+        assert_eq!(bm, -7);
+        bm.assign(&big);
+        bm.sub_from(&mini);
+        assert_eq!(bm, -7);
     }
 
     fn check_single_addmul<F, T>(i: &mut Integer, j: &mut i32, f: F, u: i32)
