@@ -403,8 +403,9 @@ fn rhs_has_more_alloc(lhs: &Rational, rhs: &Rational) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::ops::Pow;
+    use crate::ops::{AddFrom, SubFrom};
     use crate::rational::MiniRational;
-    use crate::{Integer, Rational};
+    use crate::{Assign, Complete, Integer, Rational};
 
     macro_rules! test_ref_op {
         ($first:expr, $second:expr) => {
@@ -556,6 +557,66 @@ mod tests {
         check_u_s!(U32, against);
         check_u_s!(U64, against);
         check_u_s!(USIZE, against);
+    }
+
+    #[test]
+    fn check_mini_ops() {
+        let big = Rational::from((10, 3));
+        let mini = MiniRational::from((3, 2));
+        let mut bm = Rational::new();
+
+        // commutative
+        let sum = MiniRational::from((29, 6));
+        assert_eq!(big.clone() + mini, sum);
+        assert_eq!(big.clone() + &mini, sum);
+        assert_eq!((&big + mini).complete(), sum);
+        assert_eq!((&big + &mini).complete(), sum);
+
+        bm.assign(&big);
+        bm += mini;
+        assert_eq!(bm, sum);
+        bm.assign(&big);
+        bm += &mini;
+        assert_eq!(bm, sum);
+
+        assert_eq!(mini + big.clone(), sum);
+        assert_eq!(&mini + big.clone(), sum);
+        assert_eq!((mini + &big).complete(), sum);
+        assert_eq!((&mini + &big).complete(), sum);
+
+        bm.assign(&big);
+        bm.add_from(mini);
+        assert_eq!(bm, sum);
+        bm.assign(&big);
+        bm.add_from(&mini);
+        assert_eq!(bm, sum);
+
+        // non-commutative
+        let diff1 = MiniRational::from((11, 6));
+        assert_eq!(big.clone() - mini, diff1);
+        assert_eq!(big.clone() - &mini, diff1);
+        assert_eq!((&big - mini).complete(), diff1);
+        assert_eq!((&big - &mini).complete(), diff1);
+
+        bm.assign(&big);
+        bm -= mini;
+        assert_eq!(bm, diff1);
+        bm.assign(&big);
+        bm -= &mini;
+        assert_eq!(bm, diff1);
+
+        let diff2 = MiniRational::from((-11, 6));
+        assert_eq!(mini - big.clone(), diff2);
+        assert_eq!(&mini - big.clone(), diff2);
+        assert_eq!((mini - &big).complete(), diff2);
+        assert_eq!((&mini - &big).complete(), diff2);
+
+        bm.assign(&big);
+        bm.sub_from(mini);
+        assert_eq!(bm, diff2);
+        bm.assign(&big);
+        bm.sub_from(&mini);
+        assert_eq!(bm, diff2);
     }
 
     #[test]
