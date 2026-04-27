@@ -28,7 +28,7 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.30.0 news (unreleased)
+### Version 1.30.0 news (2026-04-27)
 
   * Arithmetic operators are now overloaded to work between:
      * [`Integer`][int-1-30] and [`MiniInteger`][mi-1-30]
@@ -168,7 +168,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.29"
+rug = "1.30"
 ```
 
 Rug requires rustc version 1.85.0 or later.
@@ -204,7 +204,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.29"
+version = "1.30"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -237,7 +237,7 @@ updated to an incompatible newer version.
     [*borsh* crate]. (The plan is to promote this to an optional feature.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.29/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.30/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
 [*borsh* crate]: https://crates.io/crates/borsh
 [*num-complex* crate]: https://crates.io/crates/num-complex
@@ -249,28 +249,28 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.29/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.29/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.29/rug/struct.Complex.html
+[`Assign::assign`]: https://docs.rs/rug/~1.30/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.30/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
 [`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
-[`Float`]: https://docs.rs/rug/~1.29/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.29/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.29/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.29/rug/struct.Rational.html
+[`Float`]: https://docs.rs/rug/~1.30/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.30/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
 [`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
 [`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
-[`new`]: https://docs.rs/rug/~1.29/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.29/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.29/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.29/rug/struct.Integer.html#method.parse
+[`new`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.30/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.29/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.29/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.30/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.30/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
-[sys gnu]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-gnulinux
-[sys mac]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-macos
-[sys win]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-windows
-[sys]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html
+[sys gnu]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-gnulinux
+[sys mac]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-macos
+[sys win]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-windows
+[sys]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html

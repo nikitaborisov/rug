@@ -276,7 +276,7 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.29"
+rug = "1.30"
 ```
 
 Rug requires rustc version 1.85.0 or later.
@@ -313,7 +313,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.29"
+version = "1.30"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -370,7 +370,7 @@ updated to an incompatible newer version.
 */
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![warn(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/rug/~1.29")]
+#![doc(html_root_url = "https://docs.rs/rug/~1.30")]
 #![doc(html_logo_url = "data:image/svg+xml;base64,
 PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzMuODY3IDMzLjg2NyIgeG1s
 bnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0yNjMuMTMpIj48Y2lyY2xl
