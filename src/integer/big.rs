@@ -2287,7 +2287,7 @@ impl Integer {
     /// assert_eq!(Integer::from(-7).significant_bits(), 3); // “111”
     /// ```
     #[inline]
-    pub fn significant_bits(&self) -> u32 {
+    pub fn significant_bits(&self) -> u64 {
         xmpz::significant_bits(self).unwrapped_cast()
     }
 
@@ -2390,7 +2390,7 @@ impl Integer {
     /// ```
     #[inline]
     #[doc(alias = "trailing_zeros")]
-    pub fn find_one(&self, start: u32) -> Option<u32> {
+    pub fn find_one(&self, start: u64) -> Option<u64> {
         xmpz::scan1(self, start.into()).map(UnwrappedCast::unwrapped_cast)
     }
 
@@ -2407,7 +2407,7 @@ impl Integer {
     /// assert_eq!(*i.set_bit(11, true), 0x8ff);
     /// ```
     #[inline]
-    pub fn set_bit(&mut self, index: u32, val: bool) -> &mut Self {
+    pub fn set_bit(&mut self, index: u64, val: bool) -> &mut Self {
         if val {
             xmpz::setbit(self, index.into());
         } else {
@@ -2431,7 +2431,7 @@ impl Integer {
     /// assert!(neg.get_bit(1000));
     /// ```
     #[inline]
-    pub fn get_bit(&self, index: u32) -> bool {
+    pub fn get_bit(&self, index: u64) -> bool {
         xmpz::tstbit(self, index.into())
     }
 
@@ -2446,7 +2446,7 @@ impl Integer {
     /// assert_eq!(i, 0b101);
     /// ```
     #[inline]
-    pub fn toggle_bit(&mut self, index: u32) -> &mut Self {
+    pub fn toggle_bit(&mut self, index: u64) -> &mut Self {
         xmpz::combit(self, index.into());
         self
     }
@@ -2466,7 +2466,7 @@ impl Integer {
     /// assert_eq!(Integer::from(-13).hamming_dist(&i), Some(2));
     /// ```
     #[inline]
-    pub fn hamming_dist(&self, other: &Self) -> Option<u32> {
+    pub fn hamming_dist(&self, other: &Self) -> Option<u64> {
         xmpz::hamdist(self, other).map(UnwrappedCast::unwrapped_cast)
     }
 
@@ -2830,7 +2830,7 @@ impl Integer {
     /// ```
     #[inline]
     #[must_use]
-    pub fn keep_bits(mut self, n: u32) -> Self {
+    pub fn keep_bits(mut self, n: u64) -> Self {
         self.keep_bits_mut(n);
         self
     }
@@ -2847,7 +2847,7 @@ impl Integer {
     /// assert_eq!(i, 0xff);
     /// ```
     #[inline]
-    pub fn keep_bits_mut(&mut self, n: u32) {
+    pub fn keep_bits_mut(&mut self, n: u64) {
         xmpz::fdiv_r_2exp(self, (), n.into());
     }
 
@@ -2872,7 +2872,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn keep_bits_ref(&self, n: u32) -> KeepBitsIncomplete {
+    pub fn keep_bits_ref(&self, n: u64) -> KeepBitsIncomplete {
         let n = n.into();
         KeepBitsIncomplete { ref_self: self, n }
     }
@@ -2893,7 +2893,7 @@ impl Integer {
     /// ```
     #[inline]
     #[must_use]
-    pub fn keep_signed_bits(mut self, n: u32) -> Self {
+    pub fn keep_signed_bits(mut self, n: u64) -> Self {
         self.keep_signed_bits_mut(n);
         self
     }
@@ -2913,7 +2913,7 @@ impl Integer {
     /// assert_eq!(j, 15);
     /// ```
     #[inline]
-    pub fn keep_signed_bits_mut(&mut self, n: u32) {
+    pub fn keep_signed_bits_mut(&mut self, n: u64) {
         xmpz::keep_signed_bits(self, (), n.into());
     }
 
@@ -2938,7 +2938,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn keep_signed_bits_ref(&self, n: u32) -> KeepSignedBitsIncomplete<'_> {
+    pub fn keep_signed_bits_ref(&self, n: u64) -> KeepSignedBitsIncomplete<'_> {
         let n = n.into();
         KeepSignedBitsIncomplete { ref_self: self, n }
     }
@@ -3540,7 +3540,7 @@ impl Integer {
     /// assert_eq!(neg.mod_u(100), 77);
     /// ```
     #[inline]
-    pub fn mod_u(&self, modulo: u32) -> u32 {
+    pub fn mod_u(&self, modulo: u64) -> u64 {
         xmpz::fdiv_ui(self, modulo.into()).wrapping_cast()
     }
 
@@ -5598,7 +5598,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_bits(bits: u32, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
         let bits = bits.into();
         RandomBitsIncomplete { bits, rng }
     }

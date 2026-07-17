@@ -1214,7 +1214,7 @@ pub fn z_div<O: OptFloat>(rop: &mut Float, op1: &Integer, op2: O, rnd: Round) ->
     if let Some(op1) = op1.to_i32() {
         si_div(rop, op1.into(), op2, rnd)
     } else {
-        let op1 = Float::with_val(op1.significant_bits(), op1);
+        let op1 = Float::with_val(op1.significant_bits() as u32, op1);
         div(rop, &op1, op2, rnd)
     }
 }
@@ -1274,10 +1274,7 @@ pub fn q_div<O: OptFloat>(rop: &mut Float, op1: &Rational, op2: O, rnd: Round) -
     let denom = {
         let op1_den = op1.denom();
         let op2 = op2.unwrap_or(rop);
-        let prec = op1_den
-            .significant_bits()
-            .checked_add(op2.prec())
-            .expect("overflow");
+        let prec = (op1_den.significant_bits() as u32).checked_add(op2.prec()).expect("overflow");
         Float::with_val(prec, op1_den * op2)
     };
     z_div(rop, op1.numer(), &denom, rnd)

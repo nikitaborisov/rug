@@ -339,8 +339,8 @@ mod float_conv {
         if let Some(zeros) = abs.find_one(0) {
             prec -= zeros;
         }
-        prec = prec.max(float::prec_min());
-        Float::with_val(prec, i)
+        prec = prec.max(float::prec_min() as u64);
+        Float::with_val(prec as u32, i)
     }
 
     impl LowerExp for Integer {
