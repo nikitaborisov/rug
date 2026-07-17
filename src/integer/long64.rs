@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -20,7 +20,7 @@ use crate::misc::NegAbs;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
 use crate::{Assign, Complete, Integer};
-use az::{CheckedCast, UnwrappedCast};
+use az::{CheckedCast, StrictCast};
 use core::ffi::c_ulong;
 use gmp_mpfr_sys::gmp::bitcnt_t;
 
@@ -418,7 +418,7 @@ pub trait IntegerExt64: Sealed {
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
-    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete;
+    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete<'_>;
 
     /// Keeps the <i>n</i> least significant bits only, producing a negative
     /// result if the <i>n</i>th least significant bit is one.
@@ -1351,7 +1351,7 @@ pub trait IntegerExt64: Sealed {
     /// ```
     ///
     /// [icv]: crate#incomplete-computation-values
-    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete;
+    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_>;
 }
 
 impl IntegerExt64 for Integer {
@@ -1365,37 +1365,37 @@ impl IntegerExt64 for Integer {
     #[inline]
     fn to_f64_exp64(&self) -> (f64, u64) {
         let (f, exp) = xmpz::get_f64_2exp(self);
-        (f, exp.unwrapped_cast())
+        (f, exp.strict_cast())
     }
 
     #[inline]
     fn is_divisible_u64(&self, divisor: u64) -> bool {
-        xmpz::divisible_ui_p(self, divisor.unwrapped_cast())
+        xmpz::divisible_ui_p(self, divisor.strict_cast())
     }
 
     #[inline]
     fn is_divisible_2pow_64(&self, b: u64) -> bool {
-        xmpz::divisible_2exp_p(self, b.unwrapped_cast())
+        xmpz::divisible_2exp_p(self, b.strict_cast())
     }
 
     #[inline]
     fn is_congruent_u64(&self, c: u64, divisor: u64) -> bool {
-        xmpz::congruent_ui_p(self, c.unwrapped_cast(), divisor.unwrapped_cast())
+        xmpz::congruent_ui_p(self, c.strict_cast(), divisor.strict_cast())
     }
 
     #[inline]
     fn is_congruent_2pow_64(&self, c: &Self, b: u64) -> bool {
-        xmpz::congruent_2exp_p(self, c, b.unwrapped_cast())
+        xmpz::congruent_2exp_p(self, c, b.strict_cast())
     }
 
     #[inline]
     fn significant_bits_64(&self) -> u64 {
-        xmpz::significant_bits(self).unwrapped_cast()
+        xmpz::significant_bits(self).strict_cast()
     }
 
     #[inline]
     fn signed_bits_64(&self) -> u64 {
-        xmpz::signed_bits(self).unwrapped_cast()
+        xmpz::signed_bits(self).strict_cast()
     }
 
     #[inline]
@@ -1410,32 +1410,32 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn find_zero_64(&self, start: u64) -> Option<u64> {
-        xmpz::scan0(self, start.unwrapped_cast()).map(From::from)
+        xmpz::scan0(self, start.strict_cast()).map(From::from)
     }
 
     #[inline]
     fn find_one_64(&self, start: u64) -> Option<u64> {
-        xmpz::scan1(self, start.unwrapped_cast()).map(From::from)
+        xmpz::scan1(self, start.strict_cast()).map(From::from)
     }
 
     #[inline]
     fn set_bit_64(&mut self, index: u64, val: bool) -> &mut Self {
         if val {
-            xmpz::setbit(self, index.unwrapped_cast());
+            xmpz::setbit(self, index.strict_cast());
         } else {
-            xmpz::clrbit(self, index.unwrapped_cast());
+            xmpz::clrbit(self, index.strict_cast());
         }
         self
     }
 
     #[inline]
     fn get_bit_64(&self, index: u64) -> bool {
-        xmpz::tstbit(self, index.unwrapped_cast())
+        xmpz::tstbit(self, index.strict_cast())
     }
 
     #[inline]
     fn toggle_bit_64(&mut self, index: u64) -> &mut Self {
-        xmpz::combit(self, index.unwrapped_cast());
+        xmpz::combit(self, index.strict_cast());
         self
     }
 
@@ -1445,7 +1445,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn keep_bits_64(mut self, n: u64) -> Self {
         self.keep_bits_64_mut(n);
         self
@@ -1453,17 +1452,16 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn keep_bits_64_mut(&mut self, n: u64) {
-        xmpz::fdiv_r_2exp(self, (), n.unwrapped_cast());
+        xmpz::fdiv_r_2exp(self, (), n.strict_cast());
     }
 
     #[inline]
-    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete {
-        let n = n.unwrapped_cast();
+    fn keep_bits_64_ref(&self, n: u64) -> KeepBitsIncomplete<'_> {
+        let n = n.strict_cast();
         KeepBitsIncomplete { ref_self: self, n }
     }
 
     #[inline]
-    #[must_use]
     fn keep_signed_bits_64(mut self, n: u64) -> Self {
         self.keep_signed_bits_64_mut(n);
         self
@@ -1471,22 +1469,21 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn keep_signed_bits_64_mut(&mut self, n: u64) {
-        xmpz::keep_signed_bits(self, (), n.unwrapped_cast());
+        xmpz::keep_signed_bits(self, (), n.strict_cast());
     }
 
     #[inline]
     fn keep_signed_bits_64_ref(&self, n: u64) -> KeepSignedBitsIncomplete<'_> {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         KeepSignedBitsIncomplete { ref_self: self, n }
     }
 
     #[inline]
     fn mod_u64(&self, modulo: u64) -> u64 {
-        xmpz::fdiv_ui(self, modulo.unwrapped_cast()).into()
+        xmpz::fdiv_ui(self, modulo.strict_cast()).into()
     }
 
     #[inline]
-    #[must_use]
     fn div_exact_u64(mut self, divisor: u64) -> Self {
         self.div_exact_u64_mut(divisor);
         self
@@ -1516,7 +1513,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn root_64(mut self, n: u64) -> Self {
         self.root_64_mut(n);
         self
@@ -1524,12 +1520,12 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn root_64_mut(&mut self, n: u64) {
-        xmpz::root(self, (), n.unwrapped_cast());
+        xmpz::root(self, (), n.strict_cast());
     }
 
     #[inline]
     fn root_64_ref(&self, n: u64) -> RootIncomplete<'_> {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         RootIncomplete { ref_self: self, n }
     }
 
@@ -1541,17 +1537,16 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn root_rem_64_mut(&mut self, remainder: &mut Self, n: u64) {
-        xmpz::rootrem(self, remainder, (), n.unwrapped_cast());
+        xmpz::rootrem(self, remainder, (), n.strict_cast());
     }
 
     #[inline]
     fn root_rem_64_ref(&self, n: u64) -> RootRemIncomplete<'_> {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         RootRemIncomplete { ref_self: self, n }
     }
 
     #[inline]
-    #[must_use]
     fn gcd_u64(mut self, other: u64) -> Self {
         self.gcd_u64_mut(other);
         self
@@ -1571,7 +1566,6 @@ impl IntegerExt64 for Integer {
     }
 
     #[inline]
-    #[must_use]
     fn lcm_u64(mut self, other: u64) -> Self {
         self.lcm_u64_mut(other);
         self
@@ -1611,31 +1605,30 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn factorial_64(n: u64) -> FactorialIncomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         FactorialIncomplete { n }
     }
 
     #[inline]
     fn factorial_2_64(n: u64) -> Factorial2Incomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         Factorial2Incomplete { n }
     }
 
     #[inline]
     fn factorial_m_64(n: u64, m: u64) -> FactorialMIncomplete {
-        let n = n.unwrapped_cast();
-        let m = m.unwrapped_cast();
+        let n = n.strict_cast();
+        let m = m.strict_cast();
         FactorialMIncomplete { n, m }
     }
 
     #[inline]
     fn primorial_64(n: u64) -> PrimorialIncomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         PrimorialIncomplete { n }
     }
 
     #[inline]
-    #[must_use]
     fn binomial_64(mut self, k: u64) -> Self {
         self.binomial_64_mut(k);
         self
@@ -1643,50 +1636,50 @@ impl IntegerExt64 for Integer {
 
     #[inline]
     fn binomial_64_mut(&mut self, k: u64) {
-        xmpz::bin_ui(self, (), k.unwrapped_cast());
+        xmpz::bin_ui(self, (), k.strict_cast());
     }
 
     #[inline]
     fn binomial_64_ref(&self, k: u64) -> BinomialIncomplete<'_> {
-        let k = k.unwrapped_cast();
+        let k = k.strict_cast();
         BinomialIncomplete { ref_self: self, k }
     }
 
     #[inline]
     fn binomial_u64(n: u64, k: u64) -> BinomialUIncomplete {
-        let n = n.unwrapped_cast();
-        let k = k.unwrapped_cast();
+        let n = n.strict_cast();
+        let k = k.strict_cast();
         BinomialUIncomplete { n, k }
     }
 
     #[inline]
     fn fibonacci_64(n: u64) -> FibonacciIncomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         FibonacciIncomplete { n }
     }
 
     #[inline]
     fn fibonacci_2_64(n: u64) -> Fibonacci2Incomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         Fibonacci2Incomplete { n }
     }
 
     #[inline]
     fn lucas_64(n: u64) -> LucasIncomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         LucasIncomplete { n }
     }
 
     #[inline]
     fn lucas_2_64(n: u64) -> Lucas2Incomplete {
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         Lucas2Incomplete { n }
     }
 
     #[cfg(feature = "rand")]
     #[inline]
-    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
-        let bits = bits.unwrapped_cast();
+    fn random_bits_64(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
+        let bits = bits.strict_cast();
         RandomBitsIncomplete { bits, rng }
     }
 }

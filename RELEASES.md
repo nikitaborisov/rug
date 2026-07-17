@@ -1,8 +1,90 @@
-<!-- Copyright © 2016–2025 Trevor Spiteri -->
+<!-- Copyright © 2016–2026 Trevor Spiteri -->
 
 <!-- Copying and distribution of this file, with or without modification, are
 permitted in any medium without royalty provided the copyright notice and this
 notice are preserved. This file is offered as-is, without any warranty. -->
+
+Version 1.30.0 (2026-04-27)
+===========================
+
+  * Arithmetic operators are now overloaded to work between:
+     * [`Integer`][int-1-30] and [`MiniInteger`][mi-1-30]
+     * [`Rational`][rat-1-30] and [`MiniRational`][mr-1-30]
+     * [`Float`][flo-1-30] and [`MiniFloat`][mf-1-30]
+     * [`Complex`][com-1-30] and [`MiniComplex`][mc-1-30]
+  * The following method was added to [`MiniRational`][mr-1-30]:
+     * [`const_from_canonical`][mr-cfc-1-30]
+
+[com-1-30]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
+[flo-1-30]: https://docs.rs/rug/~1.30/rug/struct.Float.html
+[int-1-30]: https://docs.rs/rug/~1.30/rug/struct.Integer.html
+[mc-1-30]: https://docs.rs/rug/~1.30/rug/complex/struct.MiniComplex.html
+[mf-1-30]: https://docs.rs/rug/~1.30/rug/float/struct.MiniFloat.html
+[mi-1-30]: https://docs.rs/rug/~1.30/rug/integer/struct.MiniInteger.html
+[mr-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html
+[mr-cfc-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html#method.const_from_canonical
+[rat-1-30]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
+
+Version 1.29.0 (2026-03-20)
+===========================
+
+  * The [*az* crate] dependency was updated to [version 1.3][az-1-3].
+  * The [gmp-mpfr-sys] dependency was updated to [version 1.7][sys-1-7].
+  * The following methods were added to [`Complex`][com-1-29]:
+     * [`exp2`][com-e2-1-29], [`exp2_mut`][com-e2m-1-29],
+       [`exp2_round`][com-e2ro-1-29], [`exp2_ref`][com-e2re-1-29]
+     * [`exp10`][com-e10-1-29], [`exp10_mut`][com-e10m-1-29],
+       [`exp10_round`][com-e10ro-1-29], [`exp10_ref`][com-e10re-1-29]
+     * [`log2`][com-l2-1-29], [`log2_mut`][com-l2m-1-29],
+       [`log2_round`][com-l2ro-1-29], [`log2_ref`][com-l2re-1-29]
+
+[az-1-3]: https://docs.rs/az/~1.3/az/index.html
+[com-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html
+[com-e10-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10
+[com-e10m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_mut
+[com-e10re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_ref
+[com-e10ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_round
+[com-e2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2
+[com-e2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_mut
+[com-e2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_ref
+[com-e2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_round
+[com-l2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2
+[com-l2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_mut
+[com-l2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_ref
+[com-l2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_round
+[sys-1-7]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html
+
+Version 1.28.1 (2026-01-21)
+===========================
+
+  * Bug fix: incorrect underflow when dividing [`Rational`][rat-1-28] by
+    [`Float`][flo-1-28] ([issue 85]).
+
+[issue 85]: https://gitlab.com/tspiteri/rug/-/issues/85
+[rat-1-28]: https://docs.rs/rug/~1.28/rug/struct.Rational.html
+
+Version 1.28.0 (2025-08-21)
+===========================
+
+  * The crate now requires rustc version 1.85.0 or later.
+  * The following methods were added to [`Float`][flo-1-28]:
+     * [`as_shl`][flo-ashl-1-28], [`as_shr`][flo-ashr-1-28]
+  * The following methods were added to [`Complex`][com-1-28]:
+     * [`as_shl`][com-ashl-1-28], [`as_shr`][com-ashr-1-28]
+  * The experimental feature [`num-complex`][feat-exp-1-28] was added ([issue
+    84]).
+  * The experimental feature [`borsh`][feat-exp-1-28] was added ([merge request
+    6]).
+
+[com-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html
+[com-ashl-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html#method.as_shl
+[com-ashr-1-28]: https://docs.rs/rug/~1.28/rug/struct.Complex.html#method.as_shr
+[feat-exp-1-28]: https://docs.rs/rug/~1.28/rug/index.html#experimental-optional-features
+[flo-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html
+[flo-ashl-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.as_shl
+[flo-ashr-1-28]: https://docs.rs/rug/~1.28/rug/struct.Float.html#method.as_shr
+[issue 84]: https://gitlab.com/tspiteri/rug/-/issues/84
+[merge request 6]: https://gitlab.com/tspiteri/rug/-/merge_requests/6
 
 Version 1.27.0 (2025-01-24)
 ===========================

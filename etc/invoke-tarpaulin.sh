@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright © 2016–2025 Trevor Spiteri
+# Copyright © 2016–2026 Trevor Spiteri
 
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and this
@@ -31,4 +31,4 @@ p                       # print the line(s) as sed is invoked with -e
 TOOLCHAIN=${TOOLCHAIN:++$TOOLCHAIN}
 
 EXCLUDE="--exclude-files build.rs src/ext/xmpz32.rs"
-cargo $TOOLCHAIN tarpaulin -v --features "num-traits serde nightly-float" --ignore-tests "$@" $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"
+cargo $TOOLCHAIN tarpaulin -v --features "num-complex num-traits serde borsh nightly-float" --ignore-tests "$@" $EXCLUDE |& sed -n -e "$FILTER_SCRIPT"

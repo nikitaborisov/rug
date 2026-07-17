@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,7 +17,9 @@
 use crate::ext::xmpq;
 use crate::misc;
 use crate::{Integer, Rational};
-use az::{Az, Cast, CheckedCast, UnwrappedCast};
+#[allow(deprecated)]
+use az::UnwrappedCast;
+use az::{Az, Cast, CheckedCast, StrictCast};
 
 macro_rules! cast_int {
     ($Prim:ty) => {
@@ -68,10 +70,18 @@ impl CheckedCast<Rational> for f32 {
     }
 }
 
+impl StrictCast<Rational> for f32 {
+    #[inline]
+    fn strict_cast(self) -> Rational {
+        self.checked_cast().expect("not finite")
+    }
+}
+
+#[allow(deprecated)]
 impl UnwrappedCast<Rational> for f32 {
     #[inline]
     fn unwrapped_cast(self) -> Rational {
-        self.checked_cast().expect("not finite")
+        self.strict_cast()
     }
 }
 
@@ -109,10 +119,18 @@ impl CheckedCast<Rational> for f64 {
     }
 }
 
+impl StrictCast<Rational> for f64 {
+    #[inline]
+    fn strict_cast(self) -> Rational {
+        self.checked_cast().expect("not finite")
+    }
+}
+
+#[allow(deprecated)]
 impl UnwrappedCast<Rational> for f64 {
     #[inline]
     fn unwrapped_cast(self) -> Rational {
-        self.checked_cast().expect("not finite")
+        self.strict_cast()
     }
 }
 
@@ -151,7 +169,7 @@ mod tests {
     use crate::{Integer, Rational};
     use az::{
         Az, Cast, CheckedAs, CheckedCast, OverflowingAs, OverflowingCast, SaturatingAs,
-        SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs, WrappingCast,
+        SaturatingCast, StrictAs, StrictCast, WrappingAs, WrappingCast,
     };
     use core::borrow::Borrow;
     use core::fmt::Debug;
@@ -173,7 +191,7 @@ mod tests {
             + SaturatingCast<T>
             + WrappingCast<T>
             + OverflowingCast<T>
-            + UnwrappedCast<T>,
+            + StrictCast<T>,
     {
         let (min_int, denom) = min.az::<Rational>().into_numer_denom();
         assert_eq!(denom, 1);
@@ -190,8 +208,8 @@ mod tests {
         assert_eq!(max_int.borrow().wrapping_as::<T>(), max);
         assert_eq!(min_int.borrow().overflowing_as::<T>(), (min, false));
         assert_eq!(max_int.borrow().overflowing_as::<T>(), (max, false));
-        assert_eq!(min_int.borrow().unwrapped_as::<T>(), min);
-        assert_eq!(max_int.borrow().unwrapped_as::<T>(), max);
+        assert_eq!(min_int.borrow().strict_as::<T>(), min);
+        assert_eq!(max_int.borrow().strict_as::<T>(), max);
     }
 
     #[test]
@@ -220,9 +238,9 @@ mod tests {
         let f64_max: Rational = Rational::from((1u64 << 53) - 1) << (1023 - 52);
 
         assert_eq!(f32::NAN.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f32::NAN.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f32::NAN.strict_as::<Rational>()).is_err());
         assert_eq!(f32::NEG_INFINITY.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f32::NEG_INFINITY.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f32::NEG_INFINITY.strict_as::<Rational>()).is_err());
         assert_eq!((-f32::MAX).az::<Rational>(), *f32_max.as_neg());
         assert_eq!((-2f32).az::<Rational>(), -2);
         assert_eq!((-1.75f32).az::<Rational>(), MiniRational::from((-7, 4)));
@@ -244,12 +262,12 @@ mod tests {
         assert_eq!(2f32.az::<Rational>(), 2);
         assert_eq!(f32::MAX.az::<Rational>(), f32_max);
         assert_eq!(f32::INFINITY.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f32::INFINITY.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f32::INFINITY.strict_as::<Rational>()).is_err());
 
         assert_eq!(f64::NAN.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f64::NAN.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f64::NAN.strict_as::<Rational>()).is_err());
         assert_eq!(f64::NEG_INFINITY.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f64::NEG_INFINITY.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f64::NEG_INFINITY.strict_as::<Rational>()).is_err());
         assert_eq!((-f64::MAX).az::<Rational>(), *f64_max.as_neg());
         assert_eq!((-2f64).az::<Rational>(), -2);
         assert_eq!((-1.75f64).az::<Rational>(), MiniRational::from((-7, 4)));
@@ -271,7 +289,7 @@ mod tests {
         assert_eq!(2f64.az::<Rational>(), 2);
         assert_eq!(f64::MAX.az::<Rational>(), f64_max);
         assert_eq!(f64::INFINITY.checked_as::<Rational>(), None);
-        assert!(panic::catch_unwind(|| f64::INFINITY.unwrapped_as::<Rational>()).is_err());
+        assert!(panic::catch_unwind(|| f64::INFINITY.strict_as::<Rational>()).is_err());
 
         let zero: Rational = Rational::new();
         let one: Rational = Rational::from(1);

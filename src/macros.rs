@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -723,6 +723,290 @@ macro_rules! arith_noncommut {
             #[inline]
             fn assign(&mut self, src: $FromOwnedIncomplete<'_>) {
                 $func_from(self, &src.lhs, src.rhs);
+            }
+        }
+
+        from_assign! { $FromOwnedIncomplete<'_> => $Big }
+    };
+}
+
+// big # mini -> Big
+// big # &mini -> Big
+// &big # mini -> OwnedIncomplete
+// &big # &mini -> Incomplete
+// big #= mini
+// big #= &mini
+// struct OwnedIncomplete
+// Big = OwnedIncomplete
+// OwnedIncomplete -> Big
+// struct Incomplete
+// Big = Incomplete
+// Incomplete -> Big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        impl $Imp<$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Mini) -> $Big {
+                self.$method(rhs.borrow_excl())
+            }
+        }
+
+        impl $Imp<&$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: &$Mini) -> $Big {
+                self.$method(&*rhs.borrow())
+            }
+        }
+
+        impl<'a> $Imp<$Mini> for &'a $Big {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: $Mini) -> $OwnedIncomplete<'a> {
+                $OwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl<'a> $Imp<&'a $Mini> for &'a $Big {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Mini) -> $Incomplete<'a> {
+                $Incomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpAssign<$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, mut rhs: $Mini) {
+                self.$method_assign(rhs.borrow_excl());
+            }
+        }
+
+        impl $ImpAssign<&$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, rhs: &$Mini) {
+                self.$method_assign(&*rhs.borrow());
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $Incomplete<'a> {
+            lhs: &'a $Big,
+            rhs: &'a $Mini,
+        }
+
+        impl Assign<$Incomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, src: $Incomplete<'_>) {
+                self.assign(src.lhs.$method(&*src.rhs.borrow()))
+            }
+        }
+
+        from_assign! { $Incomplete<'_> => $Big }
+
+        #[derive(Debug)]
+        pub struct $OwnedIncomplete<'a> {
+            lhs: &'a $Big,
+            rhs: $Mini,
+        }
+
+        impl Assign<$OwnedIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, mut src: $OwnedIncomplete<'_>) {
+                self.assign(src.lhs.$method(src.rhs.borrow_excl()))
+            }
+        }
+
+        from_assign! { $OwnedIncomplete<'_> => $Big }
+    };
+}
+
+// arith_mini!
+// mini # big -> Big
+// mini # &big -> OwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> Incomplete
+// mini #-> big
+// &mini #-> big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini_commut {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        arith_mini! {
+            $Big;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: $Big) -> $Big {
+                rhs.$method(self)
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $OwnedIncomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, rhs: $Big) -> $Big {
+                rhs.$method(self)
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: $Mini) {
+                self.$method_assign(lhs);
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_assign(lhs);
+            }
+        }
+    };
+}
+
+// arith_mini!
+// mini # big -> Big
+// mini # &big -> FromOwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> FromIncomplete
+// mini #-> big
+// &mini #-> big
+// struct FromIncomplete
+// Big = FromIncomplete
+// FromIncomplete -> Big
+// struct FromOwnedIncomplete
+// Big = FromOwnedIncomplete
+// FromOwnedIncomplete -> Big
+#[cfg(feature = "integer")]
+macro_rules! arith_mini_noncommut {
+    (
+        $Big:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident;
+        $FromIncomplete:ident, $FromOwnedIncomplete:ident
+    ) => {
+        arith_mini! {
+            $Big;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(mut self, mut rhs: $Big) -> $Big {
+                rhs.$method_from(self.borrow_excl());
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $FromOwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &$Big) -> $FromOwnedIncomplete<'_> {
+                $FromOwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Big) -> $Big {
+                rhs.$method_from(&*self.borrow());
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $FromIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
+                $FromIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, mut lhs: $Mini) {
+                self.$method_from(lhs.borrow_excl());
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_from(&*lhs.borrow())
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $FromIncomplete<'a> {
+            lhs: &'a $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl Assign<$FromIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, src: $FromIncomplete<'_>) {
+                self.assign((&*src.lhs.borrow()).$method(src.rhs))
+            }
+        }
+
+        from_assign! { $FromIncomplete<'_> => $Big }
+
+        #[derive(Debug)]
+        pub struct $FromOwnedIncomplete<'a> {
+            lhs: $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl Assign<$FromOwnedIncomplete<'_>> for $Big {
+            #[inline]
+            fn assign(&mut self, mut src: $FromOwnedIncomplete<'_>) {
+                self.assign(src.lhs.borrow_excl().$method(src.rhs))
             }
         }
 
@@ -1892,6 +2176,405 @@ macro_rules! arith_noncommut_round {
         }
 
         impl CompleteRound for &$FromOwnedIncomplete<'_> {
+            type Completed = $Big;
+            type Prec = $Prec;
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
+                <$Big>::with_val_round(prec, self, round)
+            }
+        }
+    };
+}
+
+// big # mini -> Big
+// big # &mini -> Big
+// &big # mini -> OwnedIncomplete
+// &big # &mini -> Incomplete
+// big #= mini
+// big #= &mini
+// big #= mini, Round -> Ordering
+// big #= &mini, Round -> Ordering
+// struct OwnedIncomplete
+// Big = OwnedIncomplete
+// struct Incomplete
+// Big = Incomplete
+#[cfg(feature = "float")]
+macro_rules! arith_mini_round {
+    (
+        $Big:ty, $Prec:ty, $Round:ty, $Nearest:expr, $Ordering:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpAssignRound:ident { $method_assign_round:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        impl $Imp<$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(mut self, mut rhs: $Mini) -> $Big {
+                self.$method_assign_round(rhs.borrow_excl(), $Nearest);
+                self
+            }
+        }
+
+        impl $Imp<&$Mini> for $Big {
+            type Output = $Big;
+            #[inline]
+            fn $method(mut self, rhs: &$Mini) -> $Big {
+                self.$method_assign_round(&*rhs.borrow(), $Nearest);
+                self
+            }
+        }
+
+        impl<'a> $Imp<$Mini> for &'a $Big {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: $Mini) -> $OwnedIncomplete<'a> {
+                $OwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl<'a> $Imp<&'a $Mini> for &'a $Big {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Mini) -> $Incomplete<'a> {
+                $Incomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpAssign<$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, mut rhs: $Mini) {
+                self.$method_assign_round(rhs.borrow_excl(), $Nearest);
+            }
+        }
+
+        impl $ImpAssign<&$Mini> for $Big {
+            #[inline]
+            fn $method_assign(&mut self, rhs: &$Mini) {
+                self.$method_assign_round(&*rhs.borrow(), $Nearest);
+            }
+        }
+
+        impl $ImpAssignRound<$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_assign_round(&mut self, mut rhs: $Mini, round: $Round) -> $Ordering {
+                self.$method_assign_round(rhs.borrow_excl(), round)
+            }
+        }
+
+        impl $ImpAssignRound<&$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_assign_round(&mut self, rhs: &$Mini, round: $Round) -> $Ordering {
+                self.$method_assign_round(&*rhs.borrow(), round)
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $Incomplete<'a> {
+            lhs: &'a $Big,
+            rhs: &'a $Mini,
+        }
+
+        impl AssignRound<$Incomplete<'_>> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn assign_round(&mut self, src: $Incomplete<'_>, round: $Round) -> $Ordering {
+                self.assign_round(src.lhs.$method(&*src.rhs.borrow()), round)
+            }
+        }
+
+        impl CompleteRound for $Incomplete<'_> {
+            type Completed = $Big;
+            type Prec = $Prec;
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
+                <$Big>::with_val_round(prec, self, round)
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $OwnedIncomplete<'a> {
+            lhs: &'a $Big,
+            rhs: $Mini,
+        }
+
+        impl AssignRound<$OwnedIncomplete<'_>> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn assign_round(&mut self, mut src: $OwnedIncomplete<'_>, round: $Round) -> $Ordering {
+                self.assign_round(src.lhs.$method(src.rhs.borrow_excl()), round)
+            }
+        }
+
+        impl CompleteRound for $OwnedIncomplete<'_> {
+            type Completed = $Big;
+            type Prec = $Prec;
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
+                <$Big>::with_val_round(prec, self, round)
+            }
+        }
+    };
+}
+
+// arith_mini_round!
+// mini # big -> Big
+// mini # &big -> OwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> Incomplete
+// mini #-> big
+// &mini #-> big
+// mini #-> big, Round -> Ordering
+// &mini #-> big, Round -> Ordering
+#[cfg(feature = "float")]
+macro_rules! arith_mini_commut_round {
+    (
+        $Big:ty, $Prec:ty, $Round:ty, $Nearest:expr, $Ordering:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpAssignRound:ident { $method_assign_round:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $ImpFromRound:ident { $method_from_round:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident
+    ) => {
+        arith_mini_round! {
+            $Big, $Prec, $Round, $Nearest, $Ordering;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $ImpAssignRound { $method_assign_round }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Big) -> $Big {
+                rhs.$method_assign_round(self, $Nearest);
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $OwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $OwnedIncomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Big) -> $Big {
+                rhs.$method_assign_round(self, $Nearest);
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $Incomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $Incomplete<'a> {
+                rhs.$method(self)
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: $Mini) {
+                self.$method_assign_round(lhs, $Nearest);
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_assign_round(lhs, $Nearest);
+            }
+        }
+
+        impl $ImpFromRound<$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_from_round(&mut self, lhs: $Mini, round: $Round) -> $Ordering {
+                self.$method_assign_round(lhs, round)
+            }
+        }
+
+        impl $ImpFromRound<&$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_from_round(&mut self, lhs: &$Mini, round: $Round) -> $Ordering {
+                self.$method_assign_round(lhs, round)
+            }
+        }
+    };
+}
+
+// arith_mini_round!
+// mini # big -> Big
+// mini # &big -> FromOwnedIncomplete
+// &mini # big -> Big
+// &mini # &big -> FromIncomplete
+// mini #-> big
+// &mini #-> big
+// mini #-> big, Round -> Ordering
+// &mini #-> big, Round -> Ordering
+// struct FromIncomplete
+// Big = FromIncomplete
+// struct FromOwnedIncomplete
+// Big = FromOwnedIncomplete
+#[cfg(feature = "float")]
+macro_rules! arith_mini_noncommut_round {
+    (
+        $Big:ty, $Prec:ty, $Round:ty, $Nearest:expr, $Ordering:ty;
+        $Imp:ident { $method:ident }
+        $ImpAssign:ident { $method_assign:ident }
+        $ImpAssignRound:ident { $method_assign_round:ident }
+        $ImpFrom:ident { $method_from:ident }
+        $ImpFromRound:ident { $method_from_round:ident }
+        $Mini:ty;
+        $Incomplete:ident, $OwnedIncomplete:ident;
+        $FromIncomplete:ident, $FromOwnedIncomplete:ident
+    ) => {
+        arith_mini_round! {
+            $Big, $Prec, $Round, $Nearest, $Ordering;
+            $Imp { $method }
+            $ImpAssign { $method_assign }
+            $ImpAssignRound { $method_assign_round }
+            $Mini;
+            $Incomplete, $OwnedIncomplete
+        }
+
+        impl $Imp<$Big> for $Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(mut self, mut rhs: $Big) -> $Big {
+                rhs.$method_from_round(self.borrow_excl(), $Nearest);
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for $Mini {
+            type Output = $FromOwnedIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &$Big) -> $FromOwnedIncomplete<'_> {
+                $FromOwnedIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $Imp<$Big> for &$Mini {
+            type Output = $Big;
+            #[inline]
+            fn $method(self, mut rhs: $Big) -> $Big {
+                rhs.$method_from_round(&*self.borrow(), $Nearest);
+                rhs
+            }
+        }
+
+        impl<'a> $Imp<&'a $Big> for &'a $Mini {
+            type Output = $FromIncomplete<'a>;
+            #[inline]
+            fn $method(self, rhs: &'a $Big) -> $FromIncomplete<'a> {
+                $FromIncomplete { lhs: self, rhs }
+            }
+        }
+
+        impl $ImpFrom<$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, mut lhs: $Mini) {
+                self.$method_from_round(lhs.borrow_excl(), $Nearest);
+            }
+        }
+
+        impl $ImpFrom<&$Mini> for $Big {
+            #[inline]
+            fn $method_from(&mut self, lhs: &$Mini) {
+                self.$method_from_round(&*lhs.borrow(), $Nearest);
+            }
+        }
+
+        impl $ImpFromRound<$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_from_round(&mut self, mut lhs: $Mini, round: $Round) -> $Ordering {
+                self.$method_from_round(lhs.borrow_excl(), round)
+            }
+        }
+
+        impl $ImpFromRound<&$Mini> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn $method_from_round(&mut self, lhs: &$Mini, round: $Round) -> $Ordering {
+                self.$method_from_round(&*lhs.borrow(), round)
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $FromIncomplete<'a> {
+            lhs: &'a $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl AssignRound<$FromIncomplete<'_>> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn assign_round(&mut self, src: $FromIncomplete<'_>, round: $Round) -> $Ordering {
+                self.assign_round((&*src.lhs.borrow()).$method(src.rhs), round)
+            }
+        }
+
+        impl CompleteRound for $FromIncomplete<'_> {
+            type Completed = $Big;
+            type Prec = $Prec;
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn complete_round(self, prec: $Prec, round: $Round) -> ($Big, $Ordering) {
+                <$Big>::with_val_round(prec, self, round)
+            }
+        }
+
+        #[derive(Debug)]
+        pub struct $FromOwnedIncomplete<'a> {
+            lhs: $Mini,
+            rhs: &'a $Big,
+        }
+
+        impl AssignRound<$FromOwnedIncomplete<'_>> for $Big {
+            type Round = $Round;
+            type Ordering = $Ordering;
+            #[inline]
+            fn assign_round(
+                &mut self,
+                mut src: $FromOwnedIncomplete<'_>,
+                round: $Round,
+            ) -> $Ordering {
+                self.assign_round(src.lhs.borrow_excl().$method(src.rhs), round)
+            }
+        }
+
+        impl CompleteRound for $FromOwnedIncomplete<'_> {
             type Completed = $Big;
             type Prec = $Prec;
             type Round = $Round;

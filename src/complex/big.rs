@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -17,13 +17,13 @@
 use crate::complex::arith::{AddMulIncomplete, SubMulFromIncomplete};
 use crate::complex::{BorrowComplex, OrdComplex, Prec, Prec64};
 use crate::ext::xmpc;
-use crate::ext::xmpc::{Ordering2, Round2, NEAREST2};
+use crate::ext::xmpc::{NEAREST2, Ordering2, Round2};
 use crate::ext::xmpfr;
 use crate::float;
 use crate::float::big::{
     self as big_float, ExpFormat, Format as FloatFormat, ParseIncomplete as FloatParseIncomplete,
 };
-use crate::float::{ParseFloatError, Round, Special};
+use crate::float::{BorrowFloat, ParseFloatError, Round, Special};
 use crate::misc;
 use crate::misc::StringLike;
 use crate::ops::{
@@ -32,15 +32,16 @@ use crate::ops::{
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
 use crate::{Assign, Float};
-use az::UnwrappedCast;
+use az::StrictCast;
 use core::cmp::Ordering;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Sub, SubAssign};
 use core::slice;
 use gmp_mpfr_sys::mpc::mpc_t;
-#[cfg(feature = "std")]
-use std::error::Error;
+#[cfg(feature = "num-complex")]
+use num_complex::Complex as NumComplex;
 
 /**
 A multi-precision complex number with arbitrarily large precision and correct
@@ -202,7 +203,7 @@ impl Complex {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, p.0.unwrapped_cast(), p.1.unwrapped_cast());
+        xmpc::write_new_nan(&mut ret, p.0.strict_cast(), p.1.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -364,7 +365,7 @@ impl Complex {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpc::write_new_nan(&mut ret, p.0.unwrapped_cast(), p.1.unwrapped_cast());
+        xmpc::write_new_nan(&mut ret, p.0.strict_cast(), p.1.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -773,6 +774,238 @@ impl Complex {
         parse(src.as_ref(), radix)
     }
 
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f16]></code>, rounding to
+    /// the nearest.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (13.7, 1e300));
+    /// let nc = c.to_c16();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f16::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c16(&self) -> NumComplex<f16> {
+        self.to_c16_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f16]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f16)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let val = 1.0 + (-50f64).exp2();
+    /// let c = Complex::with_val(53, (val, val));
+    /// let nc = c.to_c16_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f16::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c16_round(&self, round: Round2) -> NumComplex<f16> {
+        NumComplex::new(
+            self.real().to_f16_round(round.0),
+            self.imag().to_f16_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f32]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (13.7, 1e300));
+    /// let nc = c.to_c32();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f32::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c32(&self) -> NumComplex<f32> {
+        self.to_c32_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f32]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// let val = 1.0 + (-50f64).exp2();
+    /// let c = Complex::with_val(53, (val, val));
+    /// let nc = c.to_c32_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f32::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c32_round(&self, round: Round2) -> NumComplex<f32> {
+        NumComplex::new(
+            self.real().to_f32_round(round.0),
+            self.imag().to_f32_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f64]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (13.7, 1e300));
+    /// c.mut_imag().square_mut();
+    /// let nc = c.to_c64();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f64::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c64(&self) -> NumComplex<f64> {
+        self.to_c64_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    /// 🔬 This is experimental API and requires the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f64]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::float::Round;
+    /// use rug::{Complex, Float};
+    /// // (2.0 ^ -90) + 1
+    /// let val: Float = Float::with_val(100, -90).exp2() + 1;
+    /// let c = Complex::with_val(100, (val.clone(), val));
+    /// let nc = c.to_c64_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f64::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c64_round(&self, round: Round2) -> NumComplex<f64> {
+        NumComplex::new(
+            self.real().to_f64_round(round.0),
+            self.imag().to_f64_round(round.1),
+        )
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f128]></code>, rounding to
+    /// the nearest.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(113, (13.7f128, 1e4000_f128));
+    /// c.mut_imag().square_mut();
+    /// let nc = c.to_c128();
+    /// assert_eq!(nc.re, 13.7);
+    /// assert_eq!(nc.im, f128::INFINITY);
+    /// ```
+    #[inline]
+    pub fn to_c128(&self) -> NumComplex<f128> {
+        self.to_c128_round(NEAREST2)
+    }
+
+    #[cfg(feature = "num-complex")]
+    #[cfg(feature = "nightly-float")]
+    /// 🔬 This is experimental API and requires the [`nightly-float`
+    /// feature][crate#experimental-optional-features] and the [`num-complex`
+    /// feature][crate#experimental-optional-features].
+    ///
+    /// Converts to a <code>[Complex][NumComplex]\<[f128]></code>, applying the
+    /// specified rounding method.
+    ///
+    /// If the value of a part is too small or too large for the target type,
+    /// the minimum or maximum value allowed is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// #![feature(f128)]
+    ///
+    /// use rug::float::Round;
+    /// use rug::{Complex, Float};
+    /// // (2.0 ^ -190) + 1
+    /// let val: Float = Float::with_val(200, -190).exp2() + 1;
+    /// let c = Complex::with_val(200, (val.clone(), val));
+    /// let nc = c.to_c128_round((Round::Up, Round::Down));
+    /// assert_eq!(nc.re, 1.0 + f128::EPSILON);
+    /// assert_eq!(nc.im, 1.0);
+    /// ```
+    #[inline]
+    pub fn to_c128_round(&self, round: Round2) -> NumComplex<f128> {
+        NumComplex::new(
+            self.real().to_f128_round(round.0),
+            self.imag().to_f128_round(round.1),
+        )
+    }
+
     /// Returns a string representation of the value for the specified `radix`
     /// rounding to the nearest.
     ///
@@ -1144,6 +1377,88 @@ impl Complex {
         } else {
             raw.re.sign = -raw.re.sign;
         }
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowComplex::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Complex`] number multiplied by
+    /// 2<sup>`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponents of the parts.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// part is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned part
+    /// is infinite.
+    ///
+    /// Unlike implementations of [`Shl`] and [`ShlAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let f = Complex::with_val(53, (13, -12));
+    /// let shifted_f = f.as_shl(4);
+    /// assert_eq!(*shifted_f, (13 << 4, -12 << 4));
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shl(2);
+    /// assert_eq!(*reshifted_f, (13 << 6, -12 << 6));
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShlAssign`]: core::ops::ShlAssign
+    /// [`Shl`]: core::ops::Shl
+    pub fn as_shl(&self, shift: i32) -> BorrowComplex<'_> {
+        let raw = mpc_t {
+            re: BorrowFloat::into_raw(self.real().as_shl(shift)),
+            im: BorrowFloat::into_raw(self.imag().as_shl(shift)),
+        };
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowComplex::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Complex`] number multiplied by
+    /// 2<sup>&minus;`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Complex]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponents of the parts.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// part is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned part
+    /// is infinite.
+    ///
+    /// Unlike implementations of [`Shr`] and [`ShrAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let f = Complex::with_val(53, (13, -12));
+    /// let shifted_f = f.as_shr(4);
+    /// assert_eq!(*shifted_f, (13.0 / 16.0, -12.0 / 16.0));
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shr(2);
+    /// assert_eq!(*reshifted_f, (13.0 / 64.0, -12.0 / 64.0));
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShrAssign`]: core::ops::ShrAssign
+    /// [`Shr`]: core::ops::Shr
+    pub fn as_shr(&self, shift: i32) -> BorrowComplex<'_> {
+        let raw = mpc_t {
+            re: BorrowFloat::into_raw(self.real().as_shr(shift)),
+            im: BorrowFloat::into_raw(self.imag().as_shr(shift)),
+        };
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowComplex::from_raw(raw) }
     }
@@ -2430,6 +2745,86 @@ impl Complex {
         LnIncomplete { ref_self: self }
     }
 
+    /// Computes the logarithm to base 2, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (1.5, -0.5));
+    /// let log2 = c.log2();
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(log2 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn log2(mut self) -> Self {
+        self.log2_round(NEAREST2);
+        self
+    }
+
+    /// Computes the logarithm to base 2, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (1.5, -0.5));
+    /// c.log2_mut();
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn log2_mut(&mut self) {
+        self.log2_round(NEAREST2);
+    }
+
+    /// Computes the logarithm to base 2, applying the specified rounding
+    /// method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (1.5, -0.5));
+    /// // log2(1.5 - 0.5i) = (0.6610 - 0.4642i)
+    /// // using 4 significant bits: (0.6875 - 0.46875i)
+    /// let dir = c.log2_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (0.6875, -0.46875));
+    /// assert_eq!(dir, (Ordering::Greater, Ordering::Less));
+    /// ```
+    #[inline]
+    pub fn log2_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::log2(self, (), round)
+    }
+
+    /// Computes the logarithm to base 2.
+    ///
+    /// The following are implemented with the returned
+    /// [incomplete-computation value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (1.5, -0.5));
+    /// let log2 = Complex::with_val(53, c.log2_ref());
+    /// let expected = Complex::with_val(53, (0.6610, -0.4642));
+    /// assert!(*(log2 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn log2_ref(&self) -> Log2Incomplete<'_> {
+        Log2Incomplete { ref_self: self }
+    }
+
     /// Computes the logarithm to base 10, rounding to the nearest.
     ///
     /// # Examples
@@ -2615,6 +3010,164 @@ impl Complex {
     #[inline]
     pub fn exp_ref(&self) -> ExpIncomplete<'_> {
         ExpIncomplete { ref_self: self }
+    }
+
+    /// Computes 2 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp2 = c.exp2();
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(exp2 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn exp2(mut self) -> Self {
+        self.exp2_round(NEAREST2);
+        self
+    }
+
+    /// Computes 2 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (0.5, -0.75));
+    /// c.exp2_mut();
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn exp2_mut(&mut self) {
+        self.exp2_round(NEAREST2);
+    }
+
+    /// Computes 2 to the power of `self`, applying the specified rounding method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (0.5, -0.75));
+    /// // exp2(0.5 - 0.75i) = (1.2274 - 0.7025i)
+    /// // using 4 significant bits: (1.25 - 0.6875i)
+    /// let dir = c.exp2_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (1.25, -0.6875));
+    /// assert_eq!(dir, (Ordering::Greater, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn exp2_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::exp2(self, (), round)
+    }
+
+    /// Computes 2 to the power of `self`.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp2 = Complex::with_val(53, c.exp2_ref());
+    /// let expected = Complex::with_val(53, (1.2274, -0.7025));
+    /// assert!(*(exp2 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn exp2_ref(&self) -> Exp2Incomplete<'_> {
+        Exp2Incomplete { ref_self: self }
+    }
+
+    /// Computes 10 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp10 = c.exp10();
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(exp10 - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    #[must_use]
+    pub fn exp10(mut self) -> Self {
+        self.exp10_round(NEAREST2);
+        self
+    }
+
+    /// Computes 10 to the power of `self`, rounding to the nearest.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let mut c = Complex::with_val(53, (0.5, -0.75));
+    /// c.exp10_mut();
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(c - expected).abs().real() < 0.0001);
+    /// ```
+    #[inline]
+    pub fn exp10_mut(&mut self) {
+        self.exp10_round(NEAREST2);
+    }
+
+    /// Computes 10 to the power of `self`, applying the specified rounding method.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use core::cmp::Ordering;
+    /// use rug::float::Round;
+    /// use rug::Complex;
+    /// // Use only 4 bits of precision to show rounding.
+    /// let mut c = Complex::with_val(4, (0.5, -0.75));
+    /// // exp10(0.5 - 0.75i) = (-0.4918 - 3.1238i)
+    /// // using 4 significant bits: (-0.5 - 3i)
+    /// let dir = c.exp10_round((Round::Nearest, Round::Nearest));
+    /// assert_eq!(c, (-0.5, -3));
+    /// assert_eq!(dir, (Ordering::Less, Ordering::Greater));
+    /// ```
+    #[inline]
+    pub fn exp10_round(&mut self, round: Round2) -> Ordering2 {
+        xmpc::exp10(self, (), round)
+    }
+
+    /// Computes 10 to the power of `self`.
+    ///
+    /// The following are implemented with the returned [incomplete-computation
+    /// value][icv] as `Src`:
+    ///   * <code>[Assign]\<Src> for [Complex]</code>
+    ///   * <code>[AssignRound]\<Src> for [Complex]</code>
+    ///   * <code>[CompleteRound]\<[Completed][CompleteRound::Completed] = [Complex]> for Src</code>
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Complex;
+    /// let c = Complex::with_val(53, (0.5, -0.75));
+    /// let exp10 = Complex::with_val(53, c.exp10_ref());
+    /// let expected = Complex::with_val(53, (-0.4918, -3.1238));
+    /// assert!(*(exp10 - expected).abs().real() < 0.0001);
+    /// ```
+    ///
+    /// [icv]: `crate`#incomplete-computation-values
+    #[inline]
+    pub fn exp10_ref(&self) -> Exp10Incomplete<'_> {
+        Exp10Incomplete { ref_self: self }
     }
 
     /// Computes the sine, rounding to the nearest.
@@ -3825,7 +4378,7 @@ impl Complex {
     ///
     /// [icv]: `crate`#incomplete-computation-values
     #[inline]
-    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         RandomBitsIncomplete { rng }
     }
 
@@ -3881,7 +4434,7 @@ impl Complex {
     ///
     /// [icv]: `crate`#incomplete-computation-values
     #[inline]
-    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete {
+    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete<'_> {
         RandomContIncomplete { rng }
     }
 
@@ -4277,9 +4830,12 @@ impl CompleteRound for NormIncomplete<'_> {
 }
 
 ref_math_op1_complex! { xmpc::log; struct LnIncomplete {} }
+ref_math_op1_complex! { xmpc::log2; struct Log2Incomplete {} }
 ref_math_op1_complex! { xmpc::log10; struct Log10Incomplete {} }
 ref_math_op0_complex! { xmpc::rootofunity; struct RootOfUnityIncomplete { n: u32, k: u32 } }
 ref_math_op1_complex! { xmpc::exp; struct ExpIncomplete {} }
+ref_math_op1_complex! { xmpc::exp2; struct Exp2Incomplete {} }
+ref_math_op1_complex! { xmpc::exp10; struct Exp10Incomplete {} }
 ref_math_op1_complex! { xmpc::sin; struct SinIncomplete {} }
 ref_math_op1_complex! { xmpc::cos; struct CosIncomplete {} }
 ref_math_op1_2_complex! { xmpc::sin_cos; struct SinCosIncomplete {} }
@@ -4610,7 +5166,6 @@ impl Display for ParseComplexError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseComplexError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

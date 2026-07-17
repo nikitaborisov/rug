@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,13 +14,13 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Assign;
 #[allow(unused_imports)]
 use crate::ops::{
     AddFrom, BitAndFrom, BitOrFrom, BitXorFrom, DivFrom, DivRounding, DivRoundingAssign,
     DivRoundingFrom, MulFrom, NegAssign, NotAssign, Pow, PowAssign, PowFrom, RemFrom, RemRounding,
     RemRoundingAssign, RemRoundingFrom, ShlFrom, ShrFrom, SubFrom,
 };
-use crate::Assign;
 use core::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
 #[cfg(feature = "std")]
 use std::borrow::Cow;

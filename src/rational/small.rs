@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -286,8 +286,8 @@ impl Assign for SmallRational {
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::SmallRational;
     use crate::Assign;
+    use crate::rational::SmallRational;
 
     #[test]
     fn check_assign() {

@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,18 +14,18 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::MiniComplex;
-use crate::ext::xmpfr;
-use crate::ext::xmpfr::{ordering1, raw_round, OptFloat, EXP_ZERO};
-use crate::float::Round;
-use crate::misc;
-use crate::misc::VecLike;
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::complex::MiniComplex;
+use crate::ext::xmpfr;
+use crate::ext::xmpfr::{EXP_ZERO, OptFloat, ordering1, raw_round};
+use crate::float::Round;
+use crate::misc;
+use crate::misc::VecLike;
 use crate::{Complex, Float};
-use az::UnwrappedCast;
+use az::StrictCast;
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem::MaybeUninit;
@@ -226,7 +226,7 @@ where
 }
 
 pub unsafe fn sum_raw(rop: *mut mpc_t, pointers: &[*const mpc_t], rnd: Round2) -> Ordering2 {
-    let n = pointers.len().unwrapped_cast();
+    let n = pointers.len().strict_cast();
     let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round2(rnd);
     ordering2(unsafe { mpc::sum(rop, tab, n, rnd) })
@@ -293,7 +293,7 @@ unsafe fn dot_raw(
     rnd: Round2,
 ) -> Ordering2 {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
-    let n = pointers_a.len().unwrapped_cast();
+    let n = pointers_a.len().strict_cast();
     let a = misc::cast_ptr(pointers_a.as_ptr());
     let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round2(rnd);
@@ -306,8 +306,11 @@ unsafe_wrap! { fn sqr(op: O) -> mpc::sqr }
 unsafe_wrap! { fn sqrt(op: O) -> mpc::sqrt }
 unsafe_wrap! { fn conj(op: O) -> mpc::conj }
 unsafe_wrap! { fn log(op: O) -> mpc::log }
+unsafe_wrap! { fn log2(op: O) -> mpc::log2 }
 unsafe_wrap! { fn log10(op: O) -> mpc::log10 }
 unsafe_wrap! { fn exp(op: O) -> mpc::exp }
+unsafe_wrap! { fn exp2(op: O) -> mpc::exp2 }
+unsafe_wrap! { fn exp10(op: O) -> mpc::exp10 }
 unsafe_wrap! { fn sin(op: O) -> mpc::sin }
 unsafe_wrap! { fn cos(op: O) -> mpc::cos }
 unsafe_wrap! { fn tan(op: O) -> mpc::tan }
@@ -338,25 +341,25 @@ unsafe_wrap! { fn shr_usize(op1: O; op2: usize) -> div_2usize }
 
 #[inline]
 unsafe fn mul_2isize(rop: *mut mpc_t, op1: *const mpc_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::mul_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2isize(rop: *mut mpc_t, op1: *const mpc_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::div_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn mul_2usize(rop: *mut mpc_t, op1: *const mpc_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::mul_2ui(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2usize(rop: *mut mpc_t, op1: *const mpc_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpc::div_2ui(rop, op1, op2, rnd) }
 }
 

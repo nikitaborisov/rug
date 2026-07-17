@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,19 +14,19 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 use crate::complex::MiniComplex;
 use crate::ext::xmpc;
-use crate::ext::xmpc::{OptComplex, Ordering2, Round2, NEAREST2};
+use crate::ext::xmpc::{NEAREST2, OptComplex, Ordering2, Round2};
 use crate::float::MiniFloat;
 use crate::ops::{
     AddAssignRound, AddFrom, AddFromRound, AssignRound, CompleteRound, DivAssignRound, DivFrom,
     DivFromRound, MulAssignRound, MulFrom, MulFromRound, NegAssign, Pow, PowAssign, PowAssignRound,
     PowFrom, PowFromRound, SubAssignRound, SubFrom, SubFromRound,
 };
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use crate::{Complex, Float};
 use az::{CheckedAs, CheckedCast};
 use core::ffi::{c_long, c_ulong};
@@ -133,6 +133,60 @@ arith_binary_self_round! {
     PowFrom { pow_from }
     PowFromRound { pow_from_round }
     PowIncomplete
+}
+
+arith_mini_commut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Add { add }
+    AddAssign { add_assign }
+    AddAssignRound { add_assign_round }
+    AddFrom { add_from }
+    AddFromRound { add_from_round }
+    MiniComplex;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubAssignRound { sub_assign_round }
+    SubFrom { sub_from }
+    SubFromRound { sub_from_round }
+    MiniComplex;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulAssignRound { mul_assign_round }
+    MulFrom { mul_from }
+    MulFromRound { mul_from_round }
+    MiniComplex;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Div { div }
+    DivAssign { div_assign }
+    DivAssignRound { div_assign_round }
+    DivFrom { div_from }
+    DivFromRound { div_from_round }
+    MiniComplex;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Complex, (u32, u32), Round2, NEAREST2, Ordering2;
+    Pow { pow }
+    PowAssign { pow_assign }
+    PowAssignRound { pow_assign_round }
+    PowFrom { pow_from }
+    PowFromRound { pow_from_round }
+    MiniComplex;
+    PowMiniIncomplete, PowOwnedMiniIncomplete;
+    PowFromMiniIncomplete, PowFromOwnedMiniIncomplete
 }
 
 arith_commut_round! {
@@ -768,15 +822,16 @@ fn mul_sub<O: OptComplex>(
 
 #[cfg(test)]
 mod tests {
-    use crate::float;
-    use crate::float::arith::tests as float_tests;
-    use crate::float::{FreeCache, Special};
-    use crate::ops::{NegAssign, Pow};
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
-    use crate::{Complex, Float};
+    use crate::complex::MiniComplex;
+    use crate::float;
+    use crate::float::arith::tests as float_tests;
+    use crate::float::{FreeCache, Special};
+    use crate::ops::{AddFrom, NegAssign, Pow, SubFrom};
+    use crate::{Assign, Complex, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
 
@@ -904,7 +959,7 @@ mod tests {
     #[test]
     fn check_arith_others() {
         use crate::tests::{
-            F32, F64, I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE,
+            F32, F64, I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE,
         };
         let large = [
             Complex::with_val(20, (Special::Zero, 1.0)),
@@ -1118,5 +1173,66 @@ mod tests {
         assert_eq!(c.clone() >> 10u32, c.clone() >> 10usize);
         assert_eq!(c.clone() >> 10u32, c.clone() >> 10isize);
         assert_eq!(c.clone() >> 10u32, c.clone() << -10isize);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn check_mini_ops() {
+        let big = Complex::with_val(53, (10.5, -2.5));
+        let mini = MiniComplex::from((3.25f32, 1.5f32));
+        let mut bm = Complex::new(53);
+
+        // commutative
+        let sum = MiniComplex::from((13.75, -1.0));
+        assert_eq!(big.clone() + mini, sum);
+        assert_eq!(big.clone() + &mini, sum);
+        assert_eq!(Complex::with_val(53, &big + mini), sum);
+        assert_eq!(Complex::with_val(53, &big + &mini), sum);
+
+        bm.assign(big.clone());
+        bm += mini;
+        assert_eq!(bm.clone(), sum);
+        bm.assign(big.clone());
+        bm += &mini;
+        assert_eq!(bm.clone(), sum);
+
+        assert_eq!(mini + big.clone(), sum);
+        assert_eq!(&mini + big.clone(), sum);
+        assert_eq!(Complex::with_val(53, mini + &big), sum);
+        assert_eq!(Complex::with_val(53, &mini + &big), sum);
+
+        bm.assign(big.clone());
+        bm.add_from(mini);
+        assert_eq!(bm.clone(), sum);
+        bm.assign(big.clone());
+        bm.add_from(&mini);
+        assert_eq!(bm.clone(), sum);
+
+        // non-commutative
+        let diff1 = MiniComplex::from((7.25, -4.0));
+        assert_eq!(big.clone() - mini, diff1);
+        assert_eq!(big.clone() - &mini, diff1);
+        assert_eq!(Complex::with_val(53, &big - mini), diff1);
+        assert_eq!(Complex::with_val(53, &big - &mini), diff1);
+
+        bm.assign(big.clone());
+        bm -= mini;
+        assert_eq!(bm.clone(), diff1);
+        bm.assign(big.clone());
+        bm -= &mini;
+        assert_eq!(bm.clone(), diff1);
+
+        let diff2 = MiniComplex::from((-7.25, 4.0));
+        assert_eq!(mini - big.clone(), diff2);
+        assert_eq!(&mini - big.clone(), diff2);
+        assert_eq!(Complex::with_val(53, mini - &big), diff2);
+        assert_eq!(Complex::with_val(53, &mini - &big), diff2);
+
+        bm.assign(big.clone());
+        bm.sub_from(mini);
+        assert_eq!(bm.clone(), diff2);
+        bm.assign(big.clone());
+        bm.sub_from(&mini);
+        assert_eq!(bm.clone(), diff2);
     }
 }

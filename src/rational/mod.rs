@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,8 @@ This module provides support for arbitrary-precision rational numbers of type
 mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
 mod casts;
 mod cmp;
 #[cfg(feature = "num-traits")]
@@ -41,9 +43,8 @@ pub use crate::rational::borrow::BorrowRational;
 pub use crate::rational::mini::MiniRational;
 #[allow(deprecated)]
 pub use crate::rational::small::SmallRational;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An error which can be returned when a checked conversion from a floating-point
@@ -80,7 +81,6 @@ impl Display for TryFromFloatError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for TryFromFloatError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

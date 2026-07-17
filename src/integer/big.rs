@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -25,8 +25,9 @@ use crate::rand::MutRandState;
 #[cfg(feature = "rational")]
 use crate::rational::BorrowRational;
 use crate::{Assign, Complete};
-use az::{Az, Cast, CheckedCast, UnwrappedAs, UnwrappedCast, WrappingCast};
+use az::{Az, Cast, CheckedCast, StrictAs, StrictCast, WrappingCast};
 use core::cmp::Ordering;
+use core::error::Error;
 use core::ffi::{c_uint, c_ulong};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem;
@@ -39,8 +40,6 @@ use gmp_mpfr_sys::gmp;
 #[cfg(feature = "rational")]
 use gmp_mpfr_sys::gmp::mpq_t;
 use gmp_mpfr_sys::gmp::{bitcnt_t, limb_t, mpz_t};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An arbitrary-precision integer.
@@ -305,7 +304,7 @@ impl Integer {
     pub fn capacity(&self) -> usize {
         self.inner
             .alloc
-            .unwrapped_as::<usize>()
+            .strict_as::<usize>()
             .checked_mul(gmp::LIMB_BITS.az::<usize>())
             .expect("overflow")
     }
@@ -339,7 +338,7 @@ impl Integer {
             .expect("overflow");
         if alloc_bits < req_bits {
             unsafe {
-                gmp::mpz_realloc2(self.as_raw_mut(), req_bits.unwrapped_cast());
+                gmp::mpz_realloc2(self.as_raw_mut(), req_bits.strict_cast());
             }
         }
     }
@@ -390,22 +389,22 @@ impl Integer {
     /// ```
     pub fn shrink_to(&mut self, min_capacity: usize) {
         let min_limbs = DivRounding::div_ceil(min_capacity, gmp::LIMB_BITS.az::<usize>());
-        if min_limbs >= self.inner.alloc.unwrapped_as::<usize>() {
+        if min_limbs >= self.inner.alloc.strict_as::<usize>() {
             return;
         }
         let used_limbs = self.inner.size.checked_abs().expect("overflow");
-        if min_limbs > used_limbs.unwrapped_as::<usize>() {
+        if min_limbs > used_limbs.strict_as::<usize>() {
             // we already know that self.inner.alloc > min_limbs
             // and that min_limbs > 0
             unsafe {
-                gmp::_mpz_realloc(self.as_raw_mut(), min_limbs.unwrapped_cast());
+                gmp::_mpz_realloc(self.as_raw_mut(), min_limbs.strict_cast());
             }
         } else if self.inner.alloc > used_limbs {
             if used_limbs == 0 {
                 *self = Integer::ZERO;
             } else {
                 unsafe {
-                    gmp::_mpz_realloc(self.as_raw_mut(), used_limbs.unwrapped_cast());
+                    gmp::_mpz_realloc(self.as_raw_mut(), used_limbs.strict_cast());
                 }
             }
         }
@@ -822,10 +821,10 @@ impl Integer {
         let zero_count = len.checked_sub(digit_count).expect("not enough capacity");
         let zero_bytes = zero_count * T::PRIVATE.bytes;
         let (zeros, digits) = if order.order() < 0 {
-            let offset = digit_count.unwrapped_cast();
+            let offset = digit_count.strict_cast();
             (unsafe { dst.offset(offset) }, dst)
         } else {
-            let offset = zero_count.unwrapped_cast();
+            let offset = zero_count.strict_cast();
             (dst, unsafe { dst.offset(offset) })
         };
         unsafe {
@@ -1075,7 +1074,7 @@ impl Integer {
         xmpz::realloc_for_mpn_set_str(self, bytes.len(), radix);
         unsafe {
             let size = gmp::mpn_set_str(self.inner.d.as_ptr(), bytes.as_ptr(), bytes.len(), radix);
-            self.inner.size = (if is_negative { -size } else { size }).unwrapped_cast();
+            self.inner.size = (if is_negative { -size } else { size }).strict_cast();
         }
     }
 
@@ -1823,7 +1822,7 @@ impl Integer {
     #[inline]
     pub fn to_f64_exp(&self) -> (f64, u32) {
         let (f, exp) = xmpz::get_f64_2exp(self);
-        (f, exp.unwrapped_cast())
+        (f, exp.strict_cast())
     }
 
     /// Returns a string representation of the number for the specified `radix`.
@@ -2288,7 +2287,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn significant_bits(&self) -> u64 {
-        xmpz::significant_bits(self).unwrapped_cast()
+        xmpz::significant_bits(self).strict_cast()
     }
 
     /// Returns the number of bits required to represent the value using a
@@ -2318,7 +2317,7 @@ impl Integer {
     /// [`significant_bits`]: Integer::significant_bits
     #[inline]
     pub fn signed_bits(&self) -> u32 {
-        xmpz::signed_bits(self).unwrapped_cast()
+        xmpz::signed_bits(self).strict_cast()
     }
 
     /// Returns the number of one bits if the value ≥ 0.
@@ -2333,7 +2332,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn count_ones(&self) -> Option<u32> {
-        xmpz::popcount(self).map(UnwrappedCast::unwrapped_cast)
+        xmpz::popcount(self).map(StrictCast::strict_cast)
     }
 
     /// Returns the number of zero bits if the value < 0.
@@ -2351,7 +2350,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn count_zeros(&self) -> Option<u32> {
-        xmpz::zerocount(self).map(UnwrappedCast::unwrapped_cast)
+        xmpz::zerocount(self).map(StrictCast::strict_cast)
     }
 
     /// Returns the location of the first zero, starting at `start`. If the bit
@@ -2371,7 +2370,7 @@ impl Integer {
     #[inline]
     #[doc(alias = "trailing_ones")]
     pub fn find_zero(&self, start: u32) -> Option<u32> {
-        xmpz::scan0(self, start.into()).map(UnwrappedCast::unwrapped_cast)
+        xmpz::scan0(self, start.into()).map(StrictCast::strict_cast)
     }
 
     /// Returns the location of the first one, starting at `start`. If the bit
@@ -2391,7 +2390,7 @@ impl Integer {
     #[inline]
     #[doc(alias = "trailing_zeros")]
     pub fn find_one(&self, start: u64) -> Option<u64> {
-        xmpz::scan1(self, start.into()).map(UnwrappedCast::unwrapped_cast)
+        xmpz::scan1(self, start.into()).map(StrictCast::strict_cast)
     }
 
     /// Sets the bit at location `index` to 1 if `val` is [`true`] or 0 if `val`
@@ -2467,7 +2466,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn hamming_dist(&self, other: &Self) -> Option<u64> {
-        xmpz::hamdist(self, other).map(UnwrappedCast::unwrapped_cast)
+        xmpz::hamdist(self, other).map(StrictCast::strict_cast)
     }
 
     /// Adds a list of [`Integer`] values.
@@ -2638,7 +2637,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn abs_ref(&self) -> AbsIncomplete {
+    pub fn abs_ref(&self) -> AbsIncomplete<'_> {
         AbsIncomplete { ref_self: self }
     }
 
@@ -2707,7 +2706,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn signum_ref(&self) -> SignumIncomplete {
+    pub fn signum_ref(&self) -> SignumIncomplete<'_> {
         SignumIncomplete { ref_self: self }
     }
 
@@ -2872,7 +2871,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn keep_bits_ref(&self, n: u64) -> KeepBitsIncomplete {
+    pub fn keep_bits_ref(&self, n: u64) -> KeepBitsIncomplete<'_> {
         let n = n.into();
         KeepBitsIncomplete { ref_self: self, n }
     }
@@ -4528,7 +4527,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn is_probably_prime(&self, reps: u32) -> IsPrime {
-        match xmpz::probab_prime_p(self, reps.unwrapped_cast()) {
+        match xmpz::probab_prime_p(self, reps.strict_cast()) {
             0 => IsPrime::No,
             1 => IsPrime::Probably,
             2 => IsPrime::Yes,
@@ -5241,7 +5240,7 @@ impl Integer {
     /// ```
     #[inline]
     pub fn remove_factor_mut(&mut self, factor: &Self) -> u32 {
-        xmpz::remove(self, (), factor).unwrapped_cast()
+        xmpz::remove(self, (), factor).strict_cast()
     }
 
     /// Removes all occurrences of `factor`, and counts the number of
@@ -5598,7 +5597,7 @@ impl Integer {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_bits(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(bits: u64, rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         let bits = bits.into();
         RandomBitsIncomplete { bits, rng }
     }
@@ -6320,7 +6319,7 @@ pub struct RemoveFactorIncomplete<'a> {
 impl Assign<RemoveFactorIncomplete<'_>> for (&mut Integer, &mut u32) {
     #[inline]
     fn assign(&mut self, src: RemoveFactorIncomplete<'_>) {
-        *self.1 = xmpz::remove(self.0, src.ref_self, src.factor).unwrapped_cast();
+        *self.1 = xmpz::remove(self.0, src.ref_self, src.factor).strict_cast();
     }
 }
 
@@ -6437,7 +6436,7 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseIntegerError>
     use self::{ParseErrorKind as Kind, ParseIntegerError as Error};
 
     assert!((2..=36).contains(&radix), "radix out of range");
-    let bradix = radix.unwrapped_as::<u8>();
+    let bradix = radix.strict_as::<u8>();
 
     let mut digits = VecLike::new();
     digits.reserve(bytes.len());
@@ -6534,7 +6533,6 @@ impl Display for ParseIntegerError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

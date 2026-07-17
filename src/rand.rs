@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -38,12 +38,12 @@ so that they can be used with methods like
 <code>[Integer]::[random\_below][Integer::random_below]</code>.
 */
 
+use crate::Integer;
 #[cfg(feature = "std")]
 use crate::misc;
-use crate::Integer;
 use az::Cast;
 #[cfg(feature = "std")]
-use az::{UnwrappedAs, UnwrappedCast};
+use az::{StrictAs, StrictCast};
 use core::ffi::c_ulong;
 #[cfg(feature = "std")]
 use core::ffi::c_void;
@@ -1528,10 +1528,10 @@ unsafe extern "C" fn thread_custom_boxed_iset(dst: *mut randstate_t, src: *const
 #[cfg(gmp_limb_bits_64)]
 unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
-    let limbs = limbs.unwrapped_as::<isize>();
+    let limbs = limbs.strict_as::<isize>();
     for i in 0..limbs {
         let n = u64::from(gener.r#gen()) | (u64::from(gener.r#gen()) << 32);
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(i) = n;
         }
@@ -1540,16 +1540,16 @@ unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
         let mut n = u64::from(gener.r#gen());
         if rest > 32 {
             let mask = !(!0 << (rest - 32));
-            n |= u64::from(gener.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
+            n |= u64::from(gener.gen_bits((rest - 32).strict_cast()) & mask) << 32;
         }
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(limbs) = n;
         }
     } else if rest > 0 {
         let mask = !(!0 << rest);
-        let n = u64::from(gener.gen_bits(rest.unwrapped_cast()) & mask);
-        let n = n.unwrapped_cast();
+        let n = u64::from(gener.gen_bits(rest.strict_cast()) & mask);
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(limbs) = n;
         }
@@ -1560,16 +1560,16 @@ unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
 #[cfg(gmp_limb_bits_32)]
 unsafe fn gen_bits(gener: &mut dyn RandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
-    let limbs = limbs.unwrapped_as::<isize>();
+    let limbs = limbs.strict_as::<isize>();
     for i in 0..limbs {
-        let val = gener.r#gen().unwrapped_cast();
+        let val = gener.r#gen().strict_cast();
         unsafe {
             *dest.offset(i) = val;
         }
     }
     if rest > 0 {
         let mask = !(!0 << rest);
-        let val = (gener.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
+        let val = (gener.gen_bits(rest.strict_cast()) & mask).strict_cast();
         unsafe {
             *dest.offset(limbs) = val;
         }
@@ -1603,10 +1603,10 @@ unsafe fn gen_copy(gener: &dyn RandGen, dst: *mut randstate_t) {
 #[cfg(gmp_limb_bits_64)]
 unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 64, nbits % 64);
-    let limbs = limbs.unwrapped_as::<isize>();
+    let limbs = limbs.strict_as::<isize>();
     for i in 0..limbs {
         let n = u64::from(gener.r#gen()) | (u64::from(gener.r#gen()) << 32);
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(i) = n;
         }
@@ -1615,16 +1615,16 @@ unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbit
         let mut n = u64::from(gener.r#gen());
         if rest > 32 {
             let mask = !(!0 << (rest - 32));
-            n |= u64::from(gener.gen_bits((rest - 32).unwrapped_cast()) & mask) << 32;
+            n |= u64::from(gener.gen_bits((rest - 32).strict_cast()) & mask) << 32;
         }
-        let n = n.unwrapped_cast();
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(limbs) = n;
         }
     } else if rest > 0 {
         let mask = !(!0 << rest);
-        let n = u64::from(gener.gen_bits(rest.unwrapped_cast()) & mask);
-        let n = n.unwrapped_cast();
+        let n = u64::from(gener.gen_bits(rest.strict_cast()) & mask);
+        let n = n.strict_cast();
         unsafe {
             *dest.offset(limbs) = n;
         }
@@ -1635,16 +1635,16 @@ unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbit
 #[cfg(gmp_limb_bits_32)]
 unsafe fn thread_gen_bits(gener: &mut dyn ThreadRandGen, dest: *mut limb_t, nbits: c_ulong) {
     let (limbs, rest) = (nbits / 32, nbits % 32);
-    let limbs = limbs.unwrapped_as::<isize>();
+    let limbs = limbs.strict_as::<isize>();
     for i in 0..limbs {
-        let val = gener.r#gen().unwrapped_cast();
+        let val = gener.r#gen().strict_cast();
         unsafe {
             *dest.offset(i) = val;
         }
     }
     if rest > 0 {
         let mask = !(!0 << rest);
-        let val = (gener.gen_bits(rest.unwrapped_cast()) & mask).unwrapped_cast();
+        let val = (gener.gen_bits(rest.strict_cast()) & mask).strict_cast();
         unsafe {
             *dest.offset(limbs) = val;
         }
@@ -1728,7 +1728,7 @@ mod hide {
     #[repr(transparent)]
     pub struct Private<'a>(pub(crate) &'a mut randstate_t);
     pub trait SealedMutRandState {
-        fn private(&mut self) -> Private;
+        fn private(&mut self) -> Private<'_>;
     }
 }
 use self::hide::{Private, SealedMutRandState};
@@ -1736,14 +1736,14 @@ use self::hide::{Private, SealedMutRandState};
 impl MutRandState for RandState<'_> {}
 impl SealedMutRandState for RandState<'_> {
     #[inline]
-    fn private(&mut self) -> Private {
+    fn private(&mut self) -> Private<'_> {
         Private(&mut self.inner)
     }
 }
 impl MutRandState for ThreadRandState<'_> {}
 impl SealedMutRandState for ThreadRandState<'_> {
     #[inline]
-    fn private(&mut self) -> Private {
+    fn private(&mut self) -> Private<'_> {
         Private(&mut self.inner)
     }
 }

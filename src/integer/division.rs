@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -789,8 +789,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::ops::{DivRounding, RemRounding};
     use crate::Integer;
+    use crate::ops::{DivRounding, RemRounding};
 
     macro_rules! check_div_rem_prim {
         ($list:expr, $against:expr) => {
@@ -841,7 +841,7 @@ mod tests {
     }
     #[test]
     fn check_div_rem_prim() {
-        use crate::tests::{I128, I16, I32, I64, I8, U128, U16, U32, U64, U8};
+        use crate::tests::{I8, I16, I32, I64, I128, U8, U16, U32, U64, U128};
         let large = [(1, 100), (-11, 200), (33, 150)];
         let against = (large.iter().map(|&(n, s)| Integer::from(n) << s))
             .chain(U32.iter().map(|&x| Integer::from(x)))

@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,8 +14,8 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::misc;
 use crate::Float;
+use crate::misc;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Pointer, Result as FmtResult,
     UpperExp, UpperHex,
@@ -78,6 +78,11 @@ impl<'a> BorrowFloat<'a> {
             inner: raw,
             phantom: PhantomData,
         }
+    }
+
+    #[cfg(feature = "complex")]
+    pub(crate) const fn into_raw(b: BorrowFloat<'a>) -> mpfr_t {
+        b.inner
     }
 
     /// Gets a reference to [`Float`] from a `BorrowFloat`.

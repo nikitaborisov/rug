@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,10 +14,10 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Integer;
 use crate::ext::xmpz::*;
 use crate::misc;
 use crate::misc::NegAbs;
-use crate::Integer;
 use az::{CheckedCast, WrappingAs, WrappingCast};
 use core::cmp::Ordering;
 use gmp_mpfr_sys::gmp;

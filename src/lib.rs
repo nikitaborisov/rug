@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -276,10 +276,10 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.27"
+rug = "1.30"
 ```
 
-Rug requires rustc version 1.65.0 or later.
+Rug requires rustc version 1.85.0 or later.
 
 Rug also depends on the [GMP], [MPFR] and [MPC] libraries through the low-level
 FFI bindings in the [gmp-mpfr-sys crate][sys crate], which needs some setup to
@@ -302,8 +302,7 @@ The Rug crate has six optional features:
     type and its supporting features. This feature requires the `integer`
     feature.
  6. `std`, enabled by default. This is for features that are not possible under
-    `no_std`, such as methods that return [`String`] or the implementation of
-    the [`Error`][std::error::Error] trait.
+    `no_std`, such as methods that return [`String`].
  7. `serde`, disabled by default. This provides serialization support for the
     [`Integer`], [`Rational`], [`Float`] and [`Complex`] number types, providing
     that they are enabled. This feature requires the `std` feature and the
@@ -314,7 +313,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.27"
+version = "1.30"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -335,13 +334,21 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
- 2. `nightly-float`, disabled by default. This requires the nightly compiler,
+ 2. `num-complex`, disabled by default. This adds conversion methods to and from
+    complex floats as provided by the [*num-complex* crate]. (The plan is to
+    promote this to an optional feature once the [*num-complex* crate] reaces
+    version 1.0.0.)
+ 3. `nightly-float`, disabled by default. This requires the nightly compiler,
     and implements some operations with the experimental [`f16`] and [`f128`]
     primitives. (The plan is to always implement the operations and remove this
     experimental feature once the primitives are stabilized.)
+ 4. `borsh`, disabled by default. This provides serialization support using the
+    [*borsh* crate]. (The plan is to promote this to an optional feature.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
 [*Incomplete-computation values*]: #incomplete-computation-values
+[*borsh* crate]: https://crates.io/crates/borsh
+[*num-complex* crate]: https://crates.io/crates/num-complex
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
 [GMP]: https://gmplib.org/
@@ -363,7 +370,7 @@ updated to an incompatible newer version.
 */
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 #![warn(missing_docs)]
-#![doc(html_root_url = "https://docs.rs/rug/~1.27")]
+#![doc(html_root_url = "https://docs.rs/rug/~1.30")]
 #![doc(html_logo_url = "data:image/svg+xml;base64,
 PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzMuODY3IDMzLjg2NyIgeG1s
 bnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIC0yNjMuMTMpIj48Y2lyY2xl
@@ -458,7 +465,7 @@ mod ext;
 #[cfg(any(feature = "integer", feature = "float"))]
 mod misc;
 mod ops_prim;
-#[cfg(all(feature = "serde", any(feature = "integer", feature = "float")))]
+#[cfg(any(feature = "serde", feature = "borsh"))]
 mod serdeize;
 
 pub mod ops;
@@ -589,9 +596,16 @@ pub mod rand;
 
 pub use az;
 
+// Used by doc tests. Not public API.
+#[doc(hidden)]
+pub mod private {
+    #[cfg(any(feature = "integer", feature = "float"))]
+    pub use crate::misc::{cast_ptr, cast_ptr_mut};
+}
+
 #[cfg(any(feature = "integer", feature = "float"))]
 mod static_assertions {
-    use gmp_mpfr_sys::gmp::{limb_t, LIMB_BITS, NAIL_BITS, NUMB_BITS};
+    use gmp_mpfr_sys::gmp::{LIMB_BITS, NAIL_BITS, NUMB_BITS, limb_t};
 
     static_assert!(NAIL_BITS == 0);
     static_assert!(NUMB_BITS == LIMB_BITS);

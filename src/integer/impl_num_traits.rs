@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,15 +18,15 @@ use crate::ext::xmpz;
 use crate::integer::ParseIntegerError;
 use crate::ops::{DivRounding, RemRounding};
 use crate::{Assign, Integer};
-use az::{CheckedCast, UnwrappedCast};
+use az::{CheckedCast, StrictCast};
 use num_integer::{ExtendedGcd, Integer as NumInteger, Roots};
+use num_traits::Num;
 use num_traits::cast::{FromPrimitive, ToPrimitive};
 use num_traits::identities::{ConstZero, One, Zero};
 use num_traits::ops::checked::{CheckedDiv, CheckedRem};
 use num_traits::ops::euclid::{CheckedEuclid, Euclid};
 use num_traits::ops::mul_add::{MulAdd, MulAddAssign};
 use num_traits::sign::Signed;
-use num_traits::Num;
 
 impl Zero for Integer {
     #[inline]
@@ -71,7 +71,7 @@ impl Num for Integer {
 
     #[inline]
     fn from_str_radix(src: &str, radix: u32) -> Result<Self, ParseIntegerError> {
-        Integer::from_str_radix(src, radix.unwrapped_cast())
+        Integer::from_str_radix(src, radix.strict_cast())
     }
 }
 

@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -115,6 +115,74 @@ arith_binary_self! {
     BitXorFrom { bitxor_from }
     BitXorIncomplete;
     rhs_has_more_alloc
+}
+
+arith_mini_commut! {
+    Integer;
+    Add { add }
+    AddAssign { add_assign }
+    AddFrom { add_from }
+    MiniInteger;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubFrom { sub_from }
+    MiniInteger;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulFrom { mul_from }
+    MiniInteger;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Div { div }
+    DivAssign { div_assign }
+    DivFrom { div_from }
+    MiniInteger;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Integer;
+    Rem { rem }
+    RemAssign { rem_assign }
+    RemFrom { rem_from }
+    MiniInteger;
+    RemMiniIncomplete, RemOwnedMiniIncomplete;
+    RemFromMiniIncomplete, RemFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitAnd { bitand }
+    BitAndAssign { bitand_assign }
+    BitAndFrom { bitand_from }
+    MiniInteger;
+    BitAndMiniIncomplete, BitAndOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitOr { bitor }
+    BitOrAssign { bitor_assign }
+    BitOrFrom { bitor_from }
+    MiniInteger;
+    BitOrMiniIncomplete, BitOrOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Integer;
+    BitXor { bitxor }
+    BitXorAssign { bitxor_assign }
+    BitXorFrom { bitxor_from }
+    MiniInteger;
+    BitXorMiniIncomplete, BitXorOwnedMiniIncomplete
 }
 
 arith_prim_commut! {
@@ -581,8 +649,9 @@ fn rhs_has_more_alloc(lhs: &Integer, rhs: &Integer) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use crate::integer::MiniInteger;
     use crate::ops::{AddFrom, Pow, SubFrom};
-    use crate::Integer;
+    use crate::{Assign, Complete, Integer};
     use core::ops::{AddAssign, SubAssign};
 
     macro_rules! test_op {
@@ -596,7 +665,7 @@ mod tests {
 
     #[test]
     fn check_arith() {
-        use crate::tests::{I128, I32, I64, ISIZE, U128, U32, U64, USIZE};
+        use crate::tests::{I32, I64, I128, ISIZE, U32, U64, U128, USIZE};
         let large = [(1, 100), (-11, 200), (33, 150)];
         let all = (large.iter().map(|&(n, s)| Integer::from(n) << s))
             .chain(U32.iter().map(|&x| Integer::from(x)))
@@ -656,7 +725,7 @@ mod tests {
 
     #[test]
     fn check_arith_u_s() {
-        use crate::tests::{I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE};
+        use crate::tests::{I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE};
         let large = [(1, 100), (-11, 200), (33, 150)];
         let against = (large.iter().map(|&(n, s)| Integer::from(n) << s))
             .chain(U32.iter().map(|&x| Integer::from(x)))
@@ -790,6 +859,64 @@ mod tests {
         assert_eq!(neg.clone() << 10, Integer::from(-33) << 60);
         assert_eq!(neg.clone() << -100, neg.clone() >> 100);
         assert_eq!(neg.clone() << -100, -1);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn check_mini_ops() {
+        let big = Integer::from(10);
+        let mini = MiniInteger::from(3);
+        let mut bm = Integer::new();
+
+        // commutative
+        assert_eq!(big.clone() + mini, 13);
+        assert_eq!(big.clone() + &mini, 13);
+        assert_eq!((&big + mini).complete(), 13);
+        assert_eq!((&big + &mini).complete(), 13);
+
+        bm.assign(&big);
+        bm += mini;
+        assert_eq!(bm, 13);
+        bm.assign(&big);
+        bm += &mini;
+        assert_eq!(bm, 13);
+
+        assert_eq!(mini + big.clone(), 13);
+        assert_eq!(&mini + big.clone(), 13);
+        assert_eq!((mini + &big).complete(), 13);
+        assert_eq!((&mini + &big).complete(), 13);
+
+        bm.assign(&big);
+        bm.add_from(mini);
+        assert_eq!(bm, 13);
+        bm.assign(&big);
+        bm.add_from(&mini);
+        assert_eq!(bm, 13);
+
+        // non-commutative
+        assert_eq!(big.clone() - mini, 7);
+        assert_eq!(big.clone() - &mini, 7);
+        assert_eq!((&big - mini).complete(), 7);
+        assert_eq!((&big - &mini).complete(), 7);
+
+        bm.assign(&big);
+        bm -= mini;
+        assert_eq!(bm, 7);
+        bm.assign(&big);
+        bm -= &mini;
+        assert_eq!(bm, 7);
+
+        assert_eq!(mini - big.clone(), -7);
+        assert_eq!(&mini - big.clone(), -7);
+        assert_eq!((mini - &big).complete(), -7);
+        assert_eq!((&mini - &big).complete(), -7);
+
+        bm.assign(&big);
+        bm.sub_from(mini);
+        assert_eq!(bm, -7);
+        bm.assign(&big);
+        bm.sub_from(&mini);
+        assert_eq!(bm, -7);
     }
 
     fn check_single_addmul<F, T>(i: &mut Integer, j: &mut i32, f: F, u: i32)

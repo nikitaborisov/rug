@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -15,13 +15,14 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::ext::xmpz;
-use crate::integer::big;
 #[allow(deprecated)]
 use crate::integer::SmallInteger;
+use crate::integer::big;
 use crate::integer::{MiniInteger, ParseIntegerError, TryFromIntegerError};
 use crate::misc::StringLike;
 use crate::{Assign, Integer};
 use az::{Az, CheckedCast};
+use core::error::Error;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerHex, Octal, Result as FmtResult, UpperHex,
 };
@@ -30,8 +31,6 @@ use core::mem;
 use core::mem::MaybeUninit;
 use core::str::FromStr;
 use gmp_mpfr_sys::gmp::limb_t;
-#[cfg(feature = "std")]
-use std::error::Error;
 
 impl Default for Integer {
     #[inline]
@@ -378,7 +377,6 @@ impl Display for TryFromIntegerError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for TryFromIntegerError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

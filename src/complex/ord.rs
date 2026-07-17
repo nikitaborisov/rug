@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -166,10 +166,10 @@ impl AsMut<Complex> for OrdComplex {
 #[allow(clippy::eq_op)]
 #[cfg(test)]
 mod tests {
+    use crate::Complex;
     use crate::complex::OrdComplex;
     use crate::float;
     use crate::float::{FreeCache, Special};
-    use crate::Complex;
     use core::hash::{Hash, Hasher};
     use core::ptr;
     use std::collections::hash_map::DefaultHasher;

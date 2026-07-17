@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -15,7 +15,7 @@
 // <https://www.gnu.org/licenses/>.
 
 use crate::float;
-use crate::float::tests::{clear_nanflag, nanflag, Cmp};
+use crate::float::tests::{Cmp, clear_nanflag, nanflag};
 use crate::float::{FreeCache, Round, Special};
 use crate::ops::{AddAssignRound, AssignRound, NegAssign, SubAssignRound, SubFrom, SubFromRound};
 use crate::{Assign, Complex, Float};
@@ -364,7 +364,10 @@ fn check_unwind_safety() {
     panic::catch_unwind(AssertUnwindSafe(|| {
         Complex::mutate_real_imag(&mut real, &mut Float::new(53), |c| {
             let new_val = Float::new(53);
-            new_data = new_val.inner().d;
+            #[allow(unused_assignments)]
+            {
+                new_data = new_val.inner().d;
+            }
             // drop old value
             *c.mut_real() = new_val;
             panic!();

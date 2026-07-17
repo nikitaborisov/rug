@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -653,7 +653,7 @@ impl MiniInteger {
     /// assert_eq!(Integer::from(abs_ref), 13);
     /// ```
     #[inline]
-    pub const fn borrow(&self) -> BorrowInteger {
+    pub const fn borrow(&self) -> BorrowInteger<'_> {
         // SAFETY: Since d points to the limbs, the mpz_t is in a consistent
         // state. Also, the lifetime of the BorrowInteger is the lifetime of
         // self, which covers the limbs.

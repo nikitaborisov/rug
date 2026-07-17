@@ -1,4 +1,4 @@
-<!-- Copyright © 2016–2025 Trevor Spiteri -->
+<!-- Copyright © 2016–2026 Trevor Spiteri -->
 
 <!-- Copying and distribution of this file, with or without modification, are
 permitted in any medium without royalty provided the copyright notice and this
@@ -28,61 +28,55 @@ version. See the full text of the [GNU LGPL] and [GNU GPL] for details.
 
 ## What’s new
 
-### Version 1.27.0 news (2025-01-24)
+### Version 1.30.0 news (2026-04-27)
 
-  * The [*az* crate], which is a dependency, is now re-exported ([issue 73]).
-  * The following methods were added to [`Float`][flo-1-27]:
-     * [`to_integer_in_place`][flo-tiip-1-27],
-       [`to_integer_round_in_place`][flo-tirip-1-27],
-       [`to_integer_exp_in_place`][flo-tieip-1-27] ([issue 75])
-     * [`to_rational_in_place`][flo-trip-1-27] ([issue 75])
-     * [`remainder_quo31`][flo-rq-1-27], [`remainder_quo31_mut`][flo-rqm-1-27],
-       [`remainder_quo31_round`][flo-rqr-1-27] ([issue 76])
-     * [`remainder_quo31_from`][flo-rqf-1-27],
-       [`remainder_quo31_from_round`][flo-rqfr-1-27]
-     * [`remainder_quo31_ref`][flo-rqref-1-27]
-     * [`frexp`][flo-f-1-27], [`frexp_mut`][flo-fm-1-27],
-       [`frexp_ref`][flo-fr-1-27] ([issue 76])
-  * Bug fix: <code>[Float][flo-1-27]::[to\_f16][flo-tf16-1-27]</code> and
-    <code>[Float][flo-1-27]::[to\_f128][flo-tf128-1-27]</code> were giving bad
-    results for some subnormal numbers ([issue 80]).
+  * Arithmetic operators are now overloaded to work between:
+     * [`Integer`][int-1-30] and [`MiniInteger`][mi-1-30]
+     * [`Rational`][rat-1-30] and [`MiniRational`][mr-1-30]
+     * [`Float`][flo-1-30] and [`MiniFloat`][mf-1-30]
+     * [`Complex`][com-1-30] and [`MiniComplex`][mc-1-30]
+  * The following method was added to [`MiniRational`][mr-1-30]:
+     * [`const_from_canonical`][mr-cfc-1-30]
 
-#### Compatibility note
+[com-1-30]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
+[flo-1-30]: https://docs.rs/rug/~1.30/rug/struct.Float.html
+[int-1-30]: https://docs.rs/rug/~1.30/rug/struct.Integer.html
+[mc-1-30]: https://docs.rs/rug/~1.30/rug/complex/struct.MiniComplex.html
+[mf-1-30]: https://docs.rs/rug/~1.30/rug/float/struct.MiniFloat.html
+[mi-1-30]: https://docs.rs/rug/~1.30/rug/integer/struct.MiniInteger.html
+[mr-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html
+[mr-cfc-1-30]: https://docs.rs/rug/~1.30/rug/rational/struct.MiniRational.html#method.const_from_canonical
+[rat-1-30]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
 
-  * These subnormalization methods for [`Float`][flo-1-27] now handle numbers with
-    exponents smaller than subnormals by rounding them to either 0 or a
-    subnormal with the minimum nonzero magnitude ([issue 78]):
-      * [`subnormalize_ieee`][flo-si-1-27],
-        [`subnormalize_ieee_round`][flo-sir-1-27]
-      * [`subnormalize`][flo-s-1-27],
-        [`subnormalize_round`][flo-sr-1-27]
+### Version 1.29.0 news (2026-03-20)
+
+  * The [*az* crate] dependency was updated to [version 1.3][az-1-3].
+  * The [gmp-mpfr-sys][sys crate] dependency was updated to [version
+    1.7][sys-1-7].
+  * The following methods were added to [`Complex`][com-1-29]:
+     * [`exp2`][com-e2-1-29], [`exp2_mut`][com-e2m-1-29],
+       [`exp2_round`][com-e2ro-1-29], [`exp2_ref`][com-e2re-1-29]
+     * [`exp10`][com-e10-1-29], [`exp10_mut`][com-e10m-1-29],
+       [`exp10_round`][com-e10ro-1-29], [`exp10_ref`][com-e10re-1-29]
+     * [`log2`][com-l2-1-29], [`log2_mut`][com-l2m-1-29],
+       [`log2_round`][com-l2ro-1-29], [`log2_ref`][com-l2re-1-29]
 
 [*az* crate]: https://crates.io/crates/az
-[flo-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html
-[flo-f-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp
-[flo-fm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_mut
-[flo-fr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.frexp_ref
-[flo-rq-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31
-[flo-rqf-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from
-[flo-rqfr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_from_round
-[flo-rqm-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_mut
-[flo-rqr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_round
-[flo-rqref-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.remainder_quo31_ref
-[flo-s-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize
-[flo-si-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee
-[flo-sir-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_ieee_round
-[flo-sr-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.subnormalize_round
-[flo-tf128-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f128
-[flo-tf16-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_f16
-[flo-tieip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_exp_in_place
-[flo-tiip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_in_place
-[flo-tirip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_integer_round_in_place
-[flo-trip-1-27]: https://docs.rs/rug/~1.27/rug/struct.Float.html#method.to_rational_in_place
-[issue 73]: https://gitlab.com/tspiteri/rug/-/issues/73
-[issue 75]: https://gitlab.com/tspiteri/rug/-/issues/75
-[issue 76]: https://gitlab.com/tspiteri/rug/-/issues/76
-[issue 78]: https://gitlab.com/tspiteri/rug/-/issues/78
-[issue 80]: https://gitlab.com/tspiteri/rug/-/issues/80
+[az-1-3]: https://docs.rs/az/~1.3/az/index.html
+[com-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html
+[com-e10-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10
+[com-e10m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_mut
+[com-e10re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_ref
+[com-e10ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp10_round
+[com-e2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2
+[com-e2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_mut
+[com-e2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_ref
+[com-e2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.exp2_round
+[com-l2-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2
+[com-l2m-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_mut
+[com-l2re-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_ref
+[com-l2ro-1-29]: https://docs.rs/rug/~1.29/rug/struct.Complex.html#method.log2_round
+[sys-1-7]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html
 
 ### Other releases
 
@@ -174,10 +168,10 @@ a dependency inside [*Cargo.toml*]:
 
 ```toml
 [dependencies]
-rug = "1.27"
+rug = "1.30"
 ```
 
-Rug requires rustc version 1.65.0 or later.
+Rug requires rustc version 1.85.0 or later.
 
 Rug also depends on the [GMP], [MPFR] and [MPC] libraries through the low-level
 FFI bindings in the [gmp-mpfr-sys crate][sys crate], which needs some setup to
@@ -199,8 +193,7 @@ The Rug crate has six optional features:
  5. `rand`, enabled by default. Required for the [`RandState`] type and its
     supporting features. This feature requires the `integer` feature.
  6. `std`, enabled by default. This is for features that are not possible under
-    `no_std`, such as methods that return [`String`] or the implementation of
-    the [`Error`] trait.
+    `no_std`, such as methods that return [`String`].
  7. `serde`, disabled by default. This provides serialization support for the
     [`Integer`], [`Rational`], [`Float`] and [`Complex`] number types, providing
     that they are enabled. This feature requires the `std` feature and the
@@ -211,7 +204,7 @@ selectively, you can add the dependency like this to [*Cargo.toml*]:
 
 ```toml
 [dependencies.rug]
-version = "1.27"
+version = "1.30"
 default-features = false
 features = ["integer", "float", "std"]
 ```
@@ -232,14 +225,22 @@ updated to an incompatible newer version.
     [*num-traits* crate] and the [*num-integer* crate]. (The plan is to promote
     this to an optional feature once the [*num-traits* crate] and the
     [*num-integer* crate] reach version 1.0.0.)
- 2. `nightly-float`, disabled by default. This requires the nightly compiler,
+ 2. `num-complex`, disabled by default. This adds conversion methods to and from
+    complex floats as provided by the [*num-complex* crate]. (The plan is to
+    promote this to an optional feature once the [*num-complex* crate] reaces
+    version 1.0.0.)
+ 3. `nightly-float`, disabled by default. This requires the nightly compiler,
     and implements some operations with the experimental [`f16`] and [`f128`]
     primitives. (The plan is to always implement the operations and remove this
     experimental feature once the primitives are stabilized.)
+ 4. `borsh`, disabled by default. This provides serialization support using the
+    [*borsh* crate]. (The plan is to promote this to an optional feature.)
 
 [*Cargo.toml*]: https://doc.rust-lang.org/cargo/guide/dependencies.html
-[*Incomplete-computation values*]: https://docs.rs/rug/~1.27/rug/index.html#incomplete-computation-values
+[*Incomplete-computation values*]: https://docs.rs/rug/~1.30/rug/index.html#incomplete-computation-values
 [*RELEASES.md*]: https://gitlab.com/tspiteri/rug/blob/master/RELEASES.md
+[*borsh* crate]: https://crates.io/crates/borsh
+[*num-complex* crate]: https://crates.io/crates/num-complex
 [*num-integer* crate]: https://crates.io/crates/num-integer
 [*num-traits* crate]: https://crates.io/crates/num-traits
 [GMP]: https://gmplib.org/
@@ -248,28 +249,28 @@ updated to an incompatible newer version.
 [GNU]: https://www.gnu.org/
 [MPC]: https://www.multiprecision.org/mpc/
 [MPFR]: https://www.mpfr.org/
-[`Assign::assign`]: https://docs.rs/rug/~1.27/rug/trait.Assign.html#tymethod.assign
-[`Assign`]: https://docs.rs/rug/~1.27/rug/trait.Assign.html
-[`Complex`]: https://docs.rs/rug/~1.27/rug/struct.Complex.html
+[`Assign::assign`]: https://docs.rs/rug/~1.30/rug/trait.Assign.html#tymethod.assign
+[`Assign`]: https://docs.rs/rug/~1.30/rug/trait.Assign.html
+[`Complex`]: https://docs.rs/rug/~1.30/rug/struct.Complex.html
 [`Error`]: https://doc.rust-lang.org/nightly/std/error/trait.Error.html
-[`Float`]: https://docs.rs/rug/~1.27/rug/struct.Float.html
-[`Integer`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html
-[`RandState`]: https://docs.rs/rug/~1.27/rug/rand/struct.RandState.html
-[`Rational`]: https://docs.rs/rug/~1.27/rug/struct.Rational.html
+[`Float`]: https://docs.rs/rug/~1.30/rug/struct.Float.html
+[`Integer`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html
+[`RandState`]: https://docs.rs/rug/~1.30/rug/rand/struct.RandState.html
+[`Rational`]: https://docs.rs/rug/~1.30/rug/struct.Rational.html
 [`String`]: https://doc.rust-lang.org/nightly/std/string/struct.String.html
 [`f128`]: https://doc.rust-lang.org/nightly/std/primitive.f128.html
 [`f16`]: https://doc.rust-lang.org/nightly/std/primitive.f16.html
-[`new`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.new
-[`ops`]: https://docs.rs/rug/~1.27/rug/ops/index.html
-[`parse_radix`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.parse_radix
-[`parse`]: https://docs.rs/rug/~1.27/rug/struct.Integer.html#method.parse
+[`new`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.new
+[`ops`]: https://docs.rs/rug/~1.30/rug/ops/index.html
+[`parse_radix`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.parse_radix
+[`parse`]: https://docs.rs/rug/~1.30/rug/struct.Integer.html#method.parse
 [assignment]: https://doc.rust-lang.org/reference/expressions/operator-expr.html#assignment-expressions
-[operators]: https://docs.rs/rug/~1.27/rug/index.html#operators
-[primitive types]: https://docs.rs/rug/~1.27/rug/index.html#using-with-primitive-types
+[operators]: https://docs.rs/rug/~1.30/rug/index.html#operators
+[primitive types]: https://docs.rs/rug/~1.30/rug/index.html#using-with-primitive-types
 [rug crate]: https://crates.io/crates/rug
 [serde crate]: https://crates.io/crates/serde
 [sys crate]: https://crates.io/crates/gmp-mpfr-sys
-[sys gnu]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-gnulinux
-[sys mac]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-macos
-[sys win]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html#building-on-windows
-[sys]: https://docs.rs/gmp-mpfr-sys/~1.6/gmp_mpfr_sys/index.html
+[sys gnu]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-gnulinux
+[sys mac]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-macos
+[sys win]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html#building-on-windows
+[sys]: https://docs.rs/gmp-mpfr-sys/~1.7/gmp_mpfr_sys/index.html

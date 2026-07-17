@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,10 @@ This module provides support for complex numbers of type
 pub(crate) mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
+#[cfg(feature = "num-complex")]
+mod casts;
 mod cmp;
 #[cfg(feature = "num-traits")]
 mod impl_num_traits;

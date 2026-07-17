@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Assign;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 #[cfg(feature = "complex")]
 use crate::complex::BorrowComplex;
 use crate::ext::xmpfr;
@@ -33,16 +38,12 @@ use crate::ops::{
 };
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use crate::Assign;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
-use az::{Az, CheckedCast, SaturatingCast, UnwrappedAs, UnwrappedCast, WrappingAs};
+use az::{Az, CheckedCast, SaturatingCast, StrictAs, StrictCast, WrappingAs};
 use core::cmp::Ordering;
+use core::error::Error;
 #[cfg(feature = "integer")]
 use core::ffi::c_int;
-use core::ffi::{c_char, CStr};
+use core::ffi::{CStr, c_char};
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::num::FpCategory;
@@ -56,8 +57,6 @@ use gmp_mpfr_sys::gmp::mpz_t;
 use gmp_mpfr_sys::mpc::mpc_t;
 use gmp_mpfr_sys::mpfr;
 use gmp_mpfr_sys::mpfr::{exp_t, mpfr_t, prec_t};
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 A multi-precision floating-point number with arbitrarily large precision and
@@ -252,7 +251,7 @@ impl Float {
     #[inline]
     pub(crate) fn inner_data(&self) -> &[limb_t] {
         if self.is_normal() {
-            let prec = self.inner.prec.unwrapped_as::<usize>();
+            let prec = self.inner.prec.strict_as::<usize>();
             let limbs = DivRounding::div_ceil(prec, gmp::LIMB_BITS.az::<usize>());
             unsafe { slice::from_raw_parts(self.inner.d.as_ptr(), limbs) }
         } else {
@@ -388,7 +387,7 @@ impl Float {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec.unwrapped_cast());
+        xmpfr::write_new_nan(&mut ret, prec.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -460,7 +459,7 @@ impl Float {
             (float::prec_min()..=float::prec_max()).contains(&prec),
             "precision out of range"
         );
-        xmpfr::prec_round(self, prec.unwrapped_cast(), round)
+        xmpfr::prec_round(self, prec.strict_cast(), round)
     }
 
     /// Create a new [`Float`] with the specified precision and with value 0.
@@ -548,7 +547,7 @@ impl Float {
             "precision out of range"
         );
         let mut ret = MaybeUninit::uninit();
-        xmpfr::write_new_nan(&mut ret, prec.unwrapped_cast());
+        xmpfr::write_new_nan(&mut ret, prec.strict_cast());
         // Safety: write_new_nan initializes ret.
         unsafe { ret.assume_init() }
     }
@@ -613,7 +612,7 @@ impl Float {
             (float::prec_min_64()..=float::prec_max_64()).contains(&prec),
             "precision out of range"
         );
-        xmpfr::prec_round(self, prec.unwrapped_cast(), round)
+        xmpfr::prec_round(self, prec.strict_cast(), round)
     }
 
     /// Creates a [`Float`] from an initialized [MPFR floating-point
@@ -973,7 +972,7 @@ impl Float {
         let exp = if i.is_zero() {
             exp.saturating_cast()
         } else {
-            exp.unwrapped_cast()
+            exp.strict_cast()
         };
         Some((i, exp))
     }
@@ -1140,7 +1139,7 @@ impl Float {
         let exp = if i.is_zero() {
             exp.saturating_cast()
         } else {
-            exp.unwrapped_cast()
+            exp.strict_cast()
         };
         Some(exp)
     }
@@ -1498,8 +1497,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f16)]
-    ///
     /// use rug::Float;
     /// let zero = Float::new(64);
     /// let (d0, exp0) = zero.to_f16_exp();
@@ -1528,8 +1525,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f16)]
-    ///
     /// use rug::float::Round;
     /// use rug::Float;
     /// let frac_10_3 = Float::with_val(64, 10) / 3u32;
@@ -1659,7 +1654,7 @@ impl Float {
     #[inline]
     pub fn to_f64_exp_round(&self, round: Round) -> (f64, i32) {
         let (f, exp) = xmpfr::get_f64_2exp(self, round);
-        (f, exp.unwrapped_cast())
+        (f, exp.strict_cast())
     }
 
     #[cfg(feature = "nightly-float")]
@@ -1676,8 +1671,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f128)]
-    ///
     /// use rug::Float;
     /// let zero = Float::new(64);
     /// let (d0, exp0) = zero.to_f128_exp();
@@ -1706,8 +1699,6 @@ impl Float {
     /// # Examples
     ///
     /// ```rust
-    /// #![feature(f128)]
-    ///
     /// use rug::float::Round;
     /// use rug::Float;
     /// let frac_10_3 = Float::with_val(128, 10) / 3u32;
@@ -1941,7 +1932,7 @@ impl Float {
             let c_buf = mpfr::get_str(
                 write_ptr,
                 maybe_exp.as_mut_ptr(),
-                format.radix.unwrapped_cast(),
+                format.radix.strict_cast(),
                 digits,
                 f.as_raw(),
                 raw_round(format.round),
@@ -1953,7 +1944,7 @@ impl Float {
             assert!(c_len < size, "buffer overflow");
             vec.set_len(c_len);
         }
-        let exp = exp.unwrapped_cast();
+        let exp = exp.strict_cast();
         (sign, s, Some(exp))
     }
 
@@ -2024,6 +2015,110 @@ impl Float {
     pub const fn as_abs(&self) -> BorrowFloat<'_> {
         let mut raw = self.inner;
         raw.sign = 1;
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowFloat::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Float`] multiplied by 2<sup>`shift`</sup>,
+    /// rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Float]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponent.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// number is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned
+    /// number is infinite.
+    ///
+    /// Unlike implementations of [`Shl`] and [`ShlAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 13);
+    /// let shifted_f = f.as_shl(4);
+    /// assert_eq!(*shifted_f, 13 << 4);
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shl(2);
+    /// assert_eq!(*reshifted_f, 13 << 6);
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShlAssign`]: core::ops::ShlAssign
+    /// [`Shl`]: core::ops::Shl
+    pub fn as_shl(&self, shift: i32) -> BorrowFloat<'_> {
+        let mut raw = self.inner;
+        if self.is_normal() {
+            let shift = shift.strict_as::<exp_t>();
+            raw.exp = if let Some(exp) = raw
+                .exp
+                .checked_add(shift)
+                .filter(|&x| xmpfr::get_emin() <= x && x <= xmpfr::get_emax())
+            {
+                exp
+            } else if shift.is_negative() {
+                xmpfr::EXP_ZERO
+            } else {
+                xmpfr::EXP_INF
+            };
+        }
+        // Safety: the lifetime of the return type is equal to the lifetime of self.
+        unsafe { BorrowFloat::from_raw(raw) }
+    }
+
+    /// Borrows a copy of the [`Float`] multiplied by
+    /// 2<sup>&minus;`shift`</sup>, rounding towards zero.
+    ///
+    /// The returned object implements <code>[Deref]\<[Target][Deref::Target] = [Float]></code>.
+    ///
+    /// This method performs a shallow copy changing the exponent.
+    ///
+    /// If the required exponent is less than the minimum exponent, the returned
+    /// number is zero (rounding is always towards zero for this method). If the
+    /// required exponent is larger than the maximum exponent, the returned
+    /// number is infinite.
+    ///
+    /// Unlike implementations of [`Shr`] and [`ShrAssign`], this method does
+    /// not set the [MPFR NaN flag] if a NaN is encountered.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use rug::Float;
+    /// let f = Float::with_val(53, 13);
+    /// let shifted_f = f.as_shr(4);
+    /// assert_eq!(*shifted_f, 13.0 / 16.0);
+    /// // methods taking &self can be used on the returned object
+    /// let reshifted_f = shifted_f.as_shr(2);
+    /// assert_eq!(*reshifted_f, 13.0 / 64.0);
+    /// ```
+    ///
+    /// [Deref::Target]: core::ops::Deref::Target
+    /// [Deref]: core::ops::Deref
+    /// [MPFR NaN flag]: gmp_mpfr_sys::mpfr::set_nanflag
+    /// [`ShrAssign`]: core::ops::ShrAssign
+    /// [`Shr`]: core::ops::Shr
+    pub fn as_shr(&self, shift: i32) -> BorrowFloat<'_> {
+        let mut raw = self.inner;
+        if self.is_normal() {
+            let shift = shift.strict_as::<exp_t>();
+            raw.exp = if let Some(exp) = raw
+                .exp
+                .checked_sub(shift)
+                .filter(|&x| xmpfr::get_emin() <= x && x <= xmpfr::get_emax())
+            {
+                exp
+            } else if shift.is_negative() {
+                xmpfr::EXP_ZERO
+            } else {
+                xmpfr::EXP_INF
+            };
+        }
         // Safety: the lifetime of the return type is equal to the lifetime of self.
         unsafe { BorrowFloat::from_raw(raw) }
     }
@@ -2475,14 +2570,14 @@ impl Float {
         exp_max: i32,
     ) -> Option<Ordering> {
         unsafe {
-            let save_emin = mpfr::get_emin();
+            let save_emin = xmpfr::get_emin();
             if mpfr::set_emin(exp_min.checked_cast()?) != 0 {
                 return None;
             }
-            let save_emax = mpfr::get_emax();
+            let save_emax = xmpfr::get_emax();
             if exp_max
                 .checked_cast()
-                .map_or(true, |x| mpfr::set_emax(x) != 0)
+                .is_none_or(|x| mpfr::set_emax(x) != 0)
             {
                 mpfr::set_emin(save_emin);
                 return None;
@@ -2526,7 +2621,7 @@ impl Float {
     /// // sig_bits must be greater or equal to precision
     /// assert!(sig_bits >= 16);
     /// let (check_int, check_exp) = float.to_integer_exp().unwrap();
-    /// assert_eq!(check_int << sig_bits << (check_exp - exp), *significand);
+    /// assert_eq!(check_int << (sig_bits as usize) << (check_exp - exp), *significand);
     /// ```
     ///
     /// [Deref::Target]: core::ops::Deref::Target
@@ -2788,7 +2883,7 @@ impl Float {
         }
         let exp_min = exp_t::from(normal_exp_min);
         let sub_exp_min = exp_min
-            .checked_sub((self.prec() - 1).unwrapped_as::<exp_t>())
+            .checked_sub((self.prec() - 1).strict_as::<exp_t>())
             .expect("overflow");
         let exp = xmpfr::get_exp(self);
         if exp >= exp_min {
@@ -2842,10 +2937,10 @@ impl Float {
             Ordering::Equal => 0,
             Ordering::Greater => 1,
         };
+        let save_emin = xmpfr::get_emin();
+        let save_emax = xmpfr::get_emax();
+        assert!(save_emax >= exp_min, "`normal_exp_min` too large");
         unsafe {
-            let save_emin = mpfr::get_emin();
-            let save_emax = mpfr::get_emax();
-            assert!(save_emax >= exp_min, "`normal_exp_min` too large");
             mpfr::set_emin(sub_exp_min);
             mpfr::set_emax(exp_min);
             let ret = mpfr::subnormalize(self.as_raw_mut(), prev, raw_round(round));
@@ -11607,7 +11702,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete {
+    pub fn random_bits(rng: &mut dyn MutRandState) -> RandomBitsIncomplete<'_> {
         RandomBitsIncomplete { rng }
     }
 
@@ -11652,7 +11747,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete {
+    pub fn random_cont(rng: &mut dyn MutRandState) -> RandomContIncomplete<'_> {
         RandomContIncomplete { rng }
     }
 
@@ -11681,7 +11776,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_normal(rng: &mut dyn MutRandState) -> RandomNormalIncomplete {
+    pub fn random_normal(rng: &mut dyn MutRandState) -> RandomNormalIncomplete<'_> {
         RandomNormalIncomplete { rng }
     }
 
@@ -11710,7 +11805,7 @@ impl Float {
     ///
     /// [icv]: crate#incomplete-computation-values
     #[inline]
-    pub fn random_exp(rng: &mut dyn MutRandState) -> RandomExpIncomplete {
+    pub fn random_exp(rng: &mut dyn MutRandState) -> RandomExpIncomplete<'_> {
         RandomExpIncomplete { rng }
     }
 }
@@ -12488,11 +12583,7 @@ pub(crate) fn req_chars(f: &Float, format: Format, extra: usize) -> usize {
     let size_no_sign = if f.is_zero() {
         1
     } else if f.is_infinite() || f.is_nan() {
-        if format.radix > 10 {
-            5
-        } else {
-            3
-        }
+        if format.radix > 10 { 5 } else { 3 }
     } else {
         use core::f64::consts::LOG10_2;
         let digits = req_digits(f, format);
@@ -12576,7 +12667,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
         let c_buf = mpfr::get_str(
             write_ptr,
             maybe_exp.as_mut_ptr(),
-            radix_with_case.unwrapped_cast(),
+            radix_with_case.strict_cast(),
             digits,
             f.as_raw(),
             raw_round(format.round),
@@ -12590,7 +12681,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
         let added_digits = c_len - usize::from(added_sign);
         let digits_before_point = if format.exp == ExpFormat::Exp
             || exp <= 0
-            || exp.unwrapped_as::<usize>() > added_digits
+            || exp.strict_as::<usize>() > added_digits
         {
             exp = exp.checked_sub(1).expect("overflow");
             1
@@ -12604,7 +12695,7 @@ pub(crate) fn append_to_string(s: &mut StringLike, f: &Float, format: Format) {
             // no point
             s.increase_len(c_len);
         } else {
-            let point_ptr = write_ptr.offset(bytes_before_point.unwrapped_as());
+            let point_ptr = write_ptr.offset(bytes_before_point.strict_as());
             point_ptr.copy_to(point_ptr.offset(1), c_len - bytes_before_point);
             *point_ptr = b'.' as c_char;
             s.increase_len(c_len + 1);
@@ -12652,7 +12743,7 @@ impl AssignRound<ParseIncomplete> for Float {
                 self.as_raw_mut(),
                 c_string.as_slice().as_ptr().cast(),
                 c_str_end.as_mut_ptr(),
-                radix.unwrapped_cast(),
+                radix.strict_cast(),
                 raw_round(round),
             )
         };
@@ -12681,7 +12772,7 @@ macro_rules! parse_error {
 
 fn parse(mut bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseFloatError> {
     assert!((2..=36).contains(&radix), "radix {radix} out of range");
-    let bradix = radix.unwrapped_as::<u8>();
+    let bradix = radix.strict_as::<u8>();
     let small_bound = b'a' - 10 + bradix;
     let capital_bound = b'A' - 10 + bradix;
     let digit_bound = b'0' + bradix;
@@ -12908,7 +12999,6 @@ impl Display for ParseFloatError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseFloatError {
     #[allow(deprecated)]
     fn description(&self) -> &str {
@@ -12946,17 +13036,13 @@ fn ieee_storage_bits_for_prec(prec: u32) -> Option<u32> {
     let p;
     #[cfg(feature = "std")]
     {
-        p = k - (f64::from(k).log2() * 4.0).round().unwrapped_as::<u32>() + 13;
+        p = k - (f64::from(k).log2() * 4.0).round().strict_as::<u32>() + 13;
     }
     #[cfg(not(feature = "std"))]
     {
-        p = k - libm::round(libm::log2(f64::from(k)) * 4.0).unwrapped_as::<u32>() + 13;
+        p = k - libm::round(libm::log2(f64::from(k)) * 4.0).strict_as::<u32>() + 13;
     }
-    if p == prec {
-        Some(k)
-    } else {
-        None
-    }
+    if p == prec { Some(k) } else { None }
 }
 
 impl PartialOrd<UExpIncomplete> for Float {

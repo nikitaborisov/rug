@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -371,6 +371,8 @@ impl RandGen for OnesZerosRand {
 #[cfg(feature = "rand")]
 #[test]
 fn check_nan_random_bits() {
+    use crate::ext::xmpfr;
+
     // Least significant 64 bits (two 32-bit words) of mantissa
     // will be ones, all others will be zeros. With 256 bits of
     // precision, the "random" number will be 0.0{192}1{64}. This
@@ -378,9 +380,8 @@ fn check_nan_random_bits() {
     for i in 0..2 {
         let mut zeros_ones = OnesZerosRand { one_words: 2 };
         let mut rand = RandState::new_custom(&mut zeros_ones);
-        let save_emin;
+        let save_emin = xmpfr::get_emin();
         unsafe {
-            save_emin = mpfr::get_emin();
             mpfr::set_emin(-192 + i);
         }
         let f = Float::with_val(256, Float::random_bits(&mut rand));

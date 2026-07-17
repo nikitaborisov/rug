@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,18 +14,20 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
+#[cfg(feature = "rational")]
+use crate::float::BorrowFloat;
 use crate::float::{MiniFloat, Round, Special};
 use crate::misc;
 use crate::misc::{NegAbs, VecLike};
 use crate::ops::NegAssign;
 #[cfg(feature = "rand")]
 use crate::rand::MutRandState;
-use crate::Float;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
-use az::{CheckedAs, UnwrappedCast, WrappingAs};
+use az::{CheckedAs, StrictCast, WrappingAs};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem::MaybeUninit;
@@ -100,6 +102,16 @@ pub fn raw_round(round: Round) -> rnd_t {
 #[inline]
 pub fn ordering1(ord: c_int) -> Ordering {
     ord.cmp(&0)
+}
+
+#[inline]
+pub fn get_emin() -> exp_t {
+    unsafe { mpfr::get_emin() }
+}
+
+#[inline]
+pub fn get_emax() -> exp_t {
+    unsafe { mpfr::get_emax() }
 }
 
 #[inline]
@@ -312,7 +324,7 @@ where
 }
 
 pub unsafe fn sum_raw(rop: *mut mpfr_t, pointers: &[*const mpfr_t], rnd: Round) -> Ordering {
-    let n = pointers.len().unwrapped_cast();
+    let n = pointers.len().strict_cast();
     let tab = misc::cast_ptr(pointers.as_ptr());
     let rnd = raw_round(rnd);
     ordering1(unsafe { mpfr::sum(rop, tab, n, rnd) })
@@ -371,7 +383,7 @@ unsafe fn dot_raw(
     rnd: Round,
 ) -> Ordering {
     debug_assert_eq!(pointers_a.len(), pointers_b.len());
-    let n = pointers_a.len().unwrapped_cast();
+    let n = pointers_a.len().strict_cast();
     let a = misc::cast_ptr(pointers_a.as_ptr());
     let b = misc::cast_ptr(pointers_b.as_ptr());
     let rnd = raw_round(rnd);
@@ -551,7 +563,7 @@ pub fn frexp<O: OptFloat>(rop: &mut Float, op: O, rnd: Round) -> (Ordering, i32)
         ord = mpfr::frexp(exp.as_mut_ptr(), rop, op, raw_round(rnd));
         exp32 = if mpfr::number_p(rop) != 0 {
             let exp = exp.assume_init();
-            exp.unwrapped_cast()
+            exp.strict_cast()
         } else {
             0
         };
@@ -574,25 +586,25 @@ pub fn set_f128(rop: &mut Float, src: f128, rnd: Round) -> Ordering {
 
 #[inline]
 unsafe fn mul_2isize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::mul_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2isize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: isize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::div_2si(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn mul_2usize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::mul_2ui(rop, op1, op2, rnd) }
 }
 
 #[inline]
 unsafe fn div_2usize(rop: *mut mpfr_t, op1: *const mpfr_t, op2: usize, rnd: rnd_t) -> c_int {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe { mpfr::div_2ui(rop, op1, op2, rnd) }
 }
 
@@ -1214,7 +1226,7 @@ pub fn z_div<O: OptFloat>(rop: &mut Float, op1: &Integer, op2: O, rnd: Round) ->
     if let Some(op1) = op1.to_i32() {
         si_div(rop, op1.into(), op2, rnd)
     } else {
-        let op1 = Float::with_val(op1.significant_bits() as u32, op1);
+        let op1 = Float::with_val_64(op1.significant_bits(), op1);
         div(rop, &op1, op2, rnd)
     }
 }
@@ -1271,11 +1283,53 @@ pub fn div_q<O: OptFloat>(rop: &mut Float, op1: O, op2: &Rational, rnd: Round) -
 
 #[cfg(feature = "rational")]
 pub fn q_div<O: OptFloat>(rop: &mut Float, op1: &Rational, op2: O, rnd: Round) -> Ordering {
-    let denom = {
-        let op1_den = op1.denom();
-        let op2 = op2.unwrap_or(rop);
-        let prec = (op1_den.significant_bits() as u32).checked_add(op2.prec()).expect("overflow");
-        Float::with_val(prec, op1_den * op2)
-    };
-    z_div(rop, op1.numer(), &denom, rnd)
+    if op1.is_zero() {
+        return ui_div(rop, 0, op2, rnd);
+    }
+
+    let op1_num = op1.numer();
+    let op1_den = op1.denom();
+    let op2_u = op2.unwrap_or(rop);
+
+    // Multiply op1_den to op2 to get our denominator. But we need to check that
+    // this product does not overflow if op2 has a large exponent (issue 85).
+    if op2_u.is_normal() {
+        let denom_prec = op1_den
+            .significant_bits()
+            .checked_add(u64::from(op2_u.prec()))
+            .expect("overflow");
+
+        let mut op2_raw = *op2_u.inner();
+        let mut deferred_exp = 0;
+        if op2_raw.exp > 0 {
+            deferred_exp = op2_raw.exp;
+            op2_raw.exp = 0;
+        }
+        let normalized_denom = {
+            // Safety: normalized_op2 lives long enough
+            let normalized_op2 = unsafe { BorrowFloat::from_raw(op2_raw) };
+            Float::with_val_64(denom_prec, op1_den * &*normalized_op2)
+        };
+        let ordering_div = z_div(rop, op1_num, &normalized_denom, rnd);
+        if deferred_exp > 0 {
+            debug_assert!(rop.is_normal());
+            let ordering_shift = {
+                let rop = rop.as_raw_mut();
+                unsafe { mpfr::div_2si(rop, rop, deferred_exp, rnd_t::RNDZ) }
+            };
+            if rop.is_normal() {
+                // shifting was exact
+                ordering_div
+            } else {
+                // shifting caused underflow, which is more significant than the division
+                ordering1(ordering_shift)
+            }
+        } else {
+            ordering_div
+        }
+    } else {
+        // Any non-normal number multiplied by a positive integer is itself,
+        // so the denominator = positive integer * op2 = op2
+        z_div(rop, op1_num, op2, rnd)
+    }
 }

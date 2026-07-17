@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -21,7 +21,7 @@ use crate::misc::NegAbs;
 use crate::ops::{NegAssign, SubFrom};
 use crate::rational::MiniRational;
 use crate::{Assign, Integer, Rational};
-use az::{Az, CheckedAs, UnwrappedAs, UnwrappedCast};
+use az::{Az, CheckedAs, StrictAs, StrictCast};
 use core::cmp::Ordering;
 use core::ffi::{c_int, c_long, c_ulong};
 use core::mem;
@@ -198,7 +198,7 @@ int_rat! { fn floor, floor_int, |rop, num, den| {
 int_rat! { fn round, round_int, |rop, num, den| {
     // The remainder cannot be larger than the divisor, but we
     // allocate an extra limb because the GMP docs suggest we should.
-    let limbs = den.inner().size.abs().unwrapped_as::<usize>() + 1;
+    let limbs = den.inner().size.abs().strict_as::<usize>() + 1;
     let bits = limbs
         .checked_mul(gmp::LIMB_BITS.az::<usize>())
         .expect("overflow");
@@ -469,7 +469,7 @@ pub fn shr_isize<O: OptRational>(rop: &mut Rational, op1: O, op2: isize) {
 
 #[inline]
 unsafe fn mpq_mul_2exp_usize(rop: *mut mpq_t, op1: *const mpq_t, op2: usize) {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe {
         gmp::mpq_mul_2exp(rop, op1, op2);
     }
@@ -477,7 +477,7 @@ unsafe fn mpq_mul_2exp_usize(rop: *mut mpq_t, op1: *const mpq_t, op2: usize) {
 
 #[inline]
 unsafe fn mpq_div_2exp_usize(rop: *mut mpq_t, op1: *const mpq_t, op2: usize) {
-    let op2 = op2.unwrapped_cast();
+    let op2 = op2.strict_cast();
     unsafe {
         gmp::mpq_div_2exp(rop, op1, op2);
     }
@@ -588,7 +588,7 @@ pub fn cmp_finite_d(op1: &Rational, op2: f64) -> Ordering {
         let mut op2_f = op2_f.assume_init();
         gmp::mpf_set_d(&mut op2_f, op2);
         let mut rhs = MaybeUninit::uninit();
-        gmp::mpf_init2(rhs.as_mut_ptr(), (den1_bits + 53).unwrapped_cast());
+        gmp::mpf_init2(rhs.as_mut_ptr(), (den1_bits + 53).strict_cast());
         let mut rhs = rhs.assume_init();
         gmp::mpf_set_z(&mut rhs, den1.as_raw());
         gmp::mpf_mul(&mut rhs, &rhs, &op2_f);

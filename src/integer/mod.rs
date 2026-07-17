@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -42,6 +42,8 @@ assert_eq!(int, 15);
 pub(crate) mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
 mod casts;
 mod cmp;
 mod division;

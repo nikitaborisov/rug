@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,15 +14,17 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::ext::xmpfr;
-use crate::float::mini;
-use crate::float::{MiniFloat, Round};
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::ext::xmpfr;
+use crate::float::mini;
+use crate::float::{MiniFloat, Round};
 use crate::{Assign, Float};
-use az::{Cast, CheckedAs, CheckedCast, SaturatingCast, UnwrappedCast, WrappingAs};
+#[allow(deprecated)]
+use az::UnwrappedCast;
+use az::{Cast, CheckedAs, CheckedCast, SaturatingCast, StrictCast, WrappingAs};
 use core::cmp::Ordering;
 
 macro_rules! cast_int_uint_common {
@@ -37,7 +39,7 @@ macro_rules! cast_int_uint_common {
         impl Cast<$Prim> for &'_ Float {
             #[inline]
             fn cast(self) -> $Prim {
-                self.unwrapped_cast()
+                self.strict_cast()
             }
         }
 
@@ -73,20 +75,36 @@ macro_rules! cast_int_uint_common {
             }
         }
 
-        impl UnwrappedCast<$Prim> for Float {
+        impl StrictCast<$Prim> for Float {
             #[inline]
-            fn unwrapped_cast(self) -> $Prim {
-                (&self).unwrapped_cast()
+            fn strict_cast(self) -> $Prim {
+                (&self).strict_cast()
             }
         }
 
-        impl UnwrappedCast<$Prim> for &'_ Float {
+        impl StrictCast<$Prim> for &'_ Float {
             #[inline]
-            fn unwrapped_cast(self) -> $Prim {
+            fn strict_cast(self) -> $Prim {
                 if self.is_nan() {
                     panic!("NaN");
                 }
                 self.checked_cast().expect("overflow")
+            }
+        }
+
+        #[allow(deprecated)]
+        impl UnwrappedCast<$Prim> for Float {
+            #[inline]
+            fn unwrapped_cast(self) -> $Prim {
+                (&self).strict_cast()
+            }
+        }
+
+        #[allow(deprecated)]
+        impl UnwrappedCast<$Prim> for &'_ Float {
+            #[inline]
+            fn unwrapped_cast(self) -> $Prim {
+                self.strict_cast()
             }
         }
     };
@@ -333,18 +351,36 @@ impl CheckedCast<Integer> for &'_ Float {
 }
 
 #[cfg(feature = "integer")]
-impl UnwrappedCast<Integer> for Float {
+impl StrictCast<Integer> for Float {
     #[inline]
-    fn unwrapped_cast(self) -> Integer {
-        (&self).unwrapped_cast()
+    fn strict_cast(self) -> Integer {
+        (&self).strict_cast()
     }
 }
 
 #[cfg(feature = "integer")]
+impl StrictCast<Integer> for &'_ Float {
+    #[inline]
+    fn strict_cast(self) -> Integer {
+        self.checked_cast().expect("not finite")
+    }
+}
+
+#[cfg(feature = "integer")]
+#[allow(deprecated)]
+impl UnwrappedCast<Integer> for Float {
+    #[inline]
+    fn unwrapped_cast(self) -> Integer {
+        (&self).strict_cast()
+    }
+}
+
+#[cfg(feature = "integer")]
+#[allow(deprecated)]
 impl UnwrappedCast<Integer> for &'_ Float {
     #[inline]
     fn unwrapped_cast(self) -> Integer {
-        self.checked_cast().expect("not finite")
+        self.strict_cast()
     }
 }
 
@@ -386,18 +422,36 @@ impl CheckedCast<Rational> for &'_ Float {
 }
 
 #[cfg(feature = "rational")]
-impl UnwrappedCast<Rational> for Float {
+impl StrictCast<Rational> for Float {
     #[inline]
-    fn unwrapped_cast(self) -> Rational {
-        (&self).unwrapped_cast()
+    fn strict_cast(self) -> Rational {
+        (&self).strict_cast()
     }
 }
 
 #[cfg(feature = "rational")]
+impl StrictCast<Rational> for &'_ Float {
+    #[inline]
+    fn strict_cast(self) -> Rational {
+        self.checked_cast().expect("not finite")
+    }
+}
+
+#[cfg(feature = "rational")]
+#[allow(deprecated)]
+impl UnwrappedCast<Rational> for Float {
+    #[inline]
+    fn unwrapped_cast(self) -> Rational {
+        (&self).strict_cast()
+    }
+}
+
+#[cfg(feature = "rational")]
+#[allow(deprecated)]
 impl UnwrappedCast<Rational> for &'_ Float {
     #[inline]
     fn unwrapped_cast(self) -> Rational {
-        self.checked_cast().expect("not finite")
+        self.strict_cast()
     }
 }
 

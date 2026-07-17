@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,14 +14,14 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use crate::complex::MiniComplex;
-#[allow(deprecated)]
-use crate::complex::SmallComplex;
-use crate::float::Special;
 #[cfg(feature = "integer")]
 use crate::Integer;
 #[cfg(feature = "rational")]
 use crate::Rational;
+use crate::complex::MiniComplex;
+#[allow(deprecated)]
+use crate::complex::SmallComplex;
+use crate::float::Special;
 use crate::{Complex, Float};
 
 impl PartialEq for Complex {
@@ -121,12 +121,12 @@ eq_re! { f16 f128 }
 
 #[cfg(test)]
 mod tests {
-    use crate::float;
-    use crate::float::{FreeCache, Special};
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::float;
+    use crate::float::{FreeCache, Special};
     use crate::{Assign, Complex, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
@@ -199,7 +199,7 @@ mod tests {
 
     #[test]
     fn check_eq_others() {
-        use crate::tests::{F32, F64, I128, I32, I64, U128, U32, U64};
+        use crate::tests::{F32, F64, I32, I64, I128, U32, U64, U128};
         #[cfg(feature = "integer")]
         let z = [
             Integer::from(0),

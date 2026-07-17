@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,9 +16,10 @@
 
 use crate::ext::xmpq;
 use crate::ext::xmpq::OptRational;
-use crate::integer::arith::AsLong;
 use crate::integer::MiniInteger;
+use crate::integer::arith::AsLong;
 use crate::ops::{AddFrom, DivFrom, MulFrom, NegAssign, Pow, PowAssign, SubFrom};
+use crate::rational::MiniRational;
 use crate::{Assign, Complete, Integer, Rational};
 use az::{CheckedAs, CheckedCast};
 use core::ffi::{c_long, c_ulong};
@@ -70,6 +71,41 @@ arith_binary_self! {
     DivFrom { div_from }
     DivIncomplete;
     rhs_has_more_alloc
+}
+
+arith_mini_commut! {
+    Rational;
+    Add { add }
+    AddAssign { add_assign }
+    AddFrom { add_from }
+    MiniRational;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Rational;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubFrom { sub_from }
+    MiniRational;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut! {
+    Rational;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulFrom { mul_from }
+    MiniRational;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut! {
+    Rational;
+    Div { div }
+    DivAssign { div_assign }
+    DivFrom { div_from }
+    MiniRational;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
 }
 
 arith_commut! {
@@ -367,8 +403,9 @@ fn rhs_has_more_alloc(lhs: &Rational, rhs: &Rational) -> bool {
 #[cfg(test)]
 mod tests {
     use crate::ops::Pow;
+    use crate::ops::{AddFrom, SubFrom};
     use crate::rational::MiniRational;
-    use crate::{Integer, Rational};
+    use crate::{Assign, Complete, Integer, Rational};
 
     macro_rules! test_ref_op {
         ($first:expr, $second:expr) => {
@@ -496,7 +533,7 @@ mod tests {
 
     #[test]
     fn check_arith_u_s() {
-        use crate::tests::{I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE};
+        use crate::tests::{I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE};
         let large = [(1, 3, 100), (-11, 5, 200), (33, 79, -150)];
         let against = (large.iter().map(|&(n, d, s)| Rational::from((n, d)) << s))
             .chain(num_den(I32))
@@ -520,6 +557,67 @@ mod tests {
         check_u_s!(U32, against);
         check_u_s!(U64, against);
         check_u_s!(USIZE, against);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn check_mini_ops() {
+        let big = Rational::from((10, 3));
+        let mini = MiniRational::from((3, 2));
+        let mut bm = Rational::new();
+
+        // commutative
+        let sum = MiniRational::from((29, 6));
+        assert_eq!(big.clone() + mini, sum);
+        assert_eq!(big.clone() + &mini, sum);
+        assert_eq!((&big + mini).complete(), sum);
+        assert_eq!((&big + &mini).complete(), sum);
+
+        bm.assign(&big);
+        bm += mini;
+        assert_eq!(bm, sum);
+        bm.assign(&big);
+        bm += &mini;
+        assert_eq!(bm, sum);
+
+        assert_eq!(mini + big.clone(), sum);
+        assert_eq!(&mini + big.clone(), sum);
+        assert_eq!((mini + &big).complete(), sum);
+        assert_eq!((&mini + &big).complete(), sum);
+
+        bm.assign(&big);
+        bm.add_from(mini);
+        assert_eq!(bm, sum);
+        bm.assign(&big);
+        bm.add_from(&mini);
+        assert_eq!(bm, sum);
+
+        // non-commutative
+        let diff1 = MiniRational::from((11, 6));
+        assert_eq!(big.clone() - mini, diff1);
+        assert_eq!(big.clone() - &mini, diff1);
+        assert_eq!((&big - mini).complete(), diff1);
+        assert_eq!((&big - &mini).complete(), diff1);
+
+        bm.assign(&big);
+        bm -= mini;
+        assert_eq!(bm, diff1);
+        bm.assign(&big);
+        bm -= &mini;
+        assert_eq!(bm, diff1);
+
+        let diff2 = MiniRational::from((-11, 6));
+        assert_eq!(mini - big.clone(), diff2);
+        assert_eq!(&mini - big.clone(), diff2);
+        assert_eq!((mini - &big).complete(), diff2);
+        assert_eq!((&mini - &big).complete(), diff2);
+
+        bm.assign(&big);
+        bm.sub_from(mini);
+        assert_eq!(bm, diff2);
+        bm.assign(&big);
+        bm.sub_from(&mini);
+        assert_eq!(bm, diff2);
     }
 
     #[test]

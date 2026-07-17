@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,22 +14,22 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+#[cfg(feature = "integer")]
+use crate::Integer;
 use crate::ext::xmpfr;
-use crate::float::big;
-use crate::float::big::{ExpFormat, Format};
 #[allow(deprecated)]
 use crate::float::SmallFloat;
+use crate::float::big;
+use crate::float::big::{ExpFormat, Format};
 use crate::float::{Constant, MiniFloat, OrdFloat, Round, Special};
 use crate::misc::StringLike;
 use crate::ops::AssignRound;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::{rational::TryFromFloatError, Rational};
 use crate::{Assign, Float};
 #[cfg(feature = "rational")]
+use crate::{Rational, rational::TryFromFloatError};
+#[cfg(feature = "rational")]
 use az::CheckedCast;
-use az::{UnwrappedAs, UnwrappedCast};
+use az::{StrictAs, StrictCast};
 use core::cmp::Ordering;
 use core::fmt::{
     Binary, Debug, Display, Formatter, LowerExp, LowerHex, Octal, Result as FmtResult, UpperExp,
@@ -49,7 +49,7 @@ impl Clone for Float {
 
     #[inline]
     fn clone_from(&mut self, source: &Float) {
-        xmpfr::set_prec_nan(self, source.prec().unwrapped_cast());
+        xmpfr::set_prec_nan(self, source.prec().strict_cast());
         if !source.is_nan() {
             self.assign(source);
         }
@@ -311,7 +311,7 @@ macro_rules! conv_ops_cast {
             type Ordering = Ordering;
             #[inline]
             fn assign_round(&mut self, src: $New, round: Round) -> Ordering {
-                self.assign_round(src.unwrapped_as::<$Existing>(), round)
+                self.assign_round(src.strict_as::<$Existing>(), round)
             }
         }
 

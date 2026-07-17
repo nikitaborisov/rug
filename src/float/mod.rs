@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -24,6 +24,8 @@ This module provides support for floating-point numbers of type
 pub(crate) mod arith;
 pub(crate) mod big;
 mod borrow;
+#[cfg(feature = "borsh")]
+mod borsh;
 mod casts;
 mod cmp;
 #[cfg(feature = "num-traits")]
@@ -37,6 +39,7 @@ pub(crate) mod small;
 pub(crate) mod tests;
 mod traits;
 
+use crate::ext::xmpfr;
 pub use crate::float::big::ParseFloatError;
 pub use crate::float::borrow::BorrowFloat;
 pub use crate::float::mini::{MiniFloat, ToMini};
@@ -59,7 +62,7 @@ println!("Minimum exponent is {}", float::exp_min());
 */
 #[inline]
 pub fn exp_min() -> i32 {
-    unsafe { mpfr::get_emin() }.saturating_cast()
+    xmpfr::get_emin().saturating_cast()
 }
 
 /**
@@ -74,7 +77,7 @@ println!("Maximum exponent is {}", float::exp_max());
 */
 #[inline]
 pub fn exp_max() -> i32 {
-    unsafe { mpfr::get_emax() }.saturating_cast()
+    xmpfr::get_emax().saturating_cast()
 }
 
 /**

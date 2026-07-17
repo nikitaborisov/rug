@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,28 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
-use core::fmt::{Display, Formatter, Result as FmtResult};
+use crate::serdeize::{Data, PrecReq, PrecVal};
+
+use core::fmt::{Formatter, Result as FmtResult};
 use serde::de::{Deserialize, Deserializer, Error as DeError, MapAccess, SeqAccess, Visitor};
 use serde::ser::{SerializeStruct, Serializer};
-
-#[allow(dead_code)]
-pub enum PrecReq {
-    Zero,
-    One,
-    Two,
-}
-
-pub enum PrecVal {
-    Zero,
-    One(u32),
-    Two((u32, u32)),
-}
-
-pub struct Data {
-    pub prec: PrecVal,
-    pub radix: i32,
-    pub value: String,
-}
 
 pub fn serialize<S: Serializer>(
     name: &'static str,
@@ -210,24 +193,6 @@ pub fn deserialize<'de, D: Deserializer<'de>>(
         PrecReq::One | PrecReq::Two => PREC_FIELDS,
     };
     deserializer.deserialize_struct(name, fields, BigVisitor(name, prec_req))
-}
-
-pub fn check_range<T, D>(name: &'static str, val: T, min: T, max: T) -> Result<(), D>
-where
-    T: Copy + Display + Ord,
-    D: DeError,
-{
-    if val < min {
-        Err(DeError::custom(format_args!(
-            "{name} {val} less than minimum {min}"
-        )))
-    } else if val > max {
-        Err(DeError::custom(format_args!(
-            "{name} {val} greater than maximum {max}"
-        )))
-    } else {
-        Ok(())
-    }
 }
 
 #[cfg(test)]

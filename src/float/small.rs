@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -209,9 +209,9 @@ impl Assign for SmallFloat {
 #[cfg(test)]
 #[allow(clippy::float_cmp)]
 mod tests {
+    use crate::Assign;
     use crate::float;
     use crate::float::{FreeCache, SmallFloat, Special};
-    use crate::Assign;
 
     #[test]
     fn check_assign() {

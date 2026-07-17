@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +16,7 @@
 
 #![allow(dead_code)]
 
-use az::{Az, UnwrappedAs, WrappingCast};
+use az::{Az, StrictAs, WrappingCast};
 use core::ffi::c_char;
 use core::fmt::Write;
 use core::mem;
@@ -239,8 +239,7 @@ impl StringLike {
         }
         self.reserve(s.len());
         #[cfg(feature = "std")]
-        let StringLike::Malloc { ptr, cap: _, len } = self
-        else {
+        let StringLike::Malloc { ptr, cap: _, len } = self else {
             unreachable!();
         };
         #[cfg(not(feature = "std"))]
@@ -251,7 +250,7 @@ impl StringLike {
         // returned by malloc/realloc with non-zero size.
         unsafe {
             ptr.cast::<u8>()
-                .offset((*len).unwrapped_as())
+                .offset((*len).strict_as())
                 .copy_from_nonoverlapping(s.as_ptr(), s.len());
             self.increase_len(s.len());
         }
@@ -267,7 +266,7 @@ impl StringLike {
                 // a dangling pointer created with NonNull::dangling, or a
                 // pointer returned by malloc/realloc with non-zero size.
                 unsafe {
-                    let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    let s = slice::from_raw_parts(ptr.cast::<u8>(), (*len).strict_as());
                     str::from_utf8_unchecked(s)
                 }
             }
@@ -284,7 +283,7 @@ impl StringLike {
                 // a dangling pointer created with NonNull::dangling, or a
                 // pointer returned by malloc/realloc with non-zero size.
                 unsafe {
-                    let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).unwrapped_as());
+                    let s = slice::from_raw_parts_mut(ptr.cast::<u8>(), (*len).strict_as());
                     str::from_utf8_unchecked_mut(s)
                 }
             }
@@ -299,7 +298,7 @@ impl StringLike {
             }
             StringLike::Malloc { ptr, cap, len } => {
                 let new_cap = len
-                    .checked_add(additional.unwrapped_as::<size_t>())
+                    .checked_add(additional.strict_as::<size_t>())
                     .expect("overflow");
                 if new_cap > *cap {
                     let new_ptr = if *cap == 0 {
@@ -326,7 +325,7 @@ impl StringLike {
                 // obtained from String::as_mut_ptr.
                 unsafe {
                     slice::from_raw_parts_mut(
-                        mu_ptr.offset(s.len().unwrapped_as()),
+                        mu_ptr.offset(s.len().strict_as()),
                         s.capacity() - s.len(),
                     )
                 }
@@ -338,8 +337,8 @@ impl StringLike {
                 // a pointer returned by malloc/realloc with non-zero size.
                 unsafe {
                     slice::from_raw_parts_mut(
-                        mu_ptr.offset((*len).unwrapped_as()),
-                        (*cap - *len).unwrapped_as(),
+                        mu_ptr.offset((*len).strict_as()),
+                        (*cap - *len).strict_as(),
                     )
                 }
             }
@@ -364,7 +363,7 @@ impl StringLike {
                 len,
             } => {
                 let new_len = len
-                    .checked_add(increment.unwrapped_as::<size_t>())
+                    .checked_add(increment.strict_as::<size_t>())
                     .expect("overflow");
                 *len = new_len;
             }
@@ -434,7 +433,7 @@ impl<T> VecLike<T> {
             let bytes_cap = new_cap
                 .checked_mul(mem::size_of::<T>())
                 .expect("overflow")
-                .unwrapped_as();
+                .strict_as();
             let new_ptr = if self.cap == 0 {
                 // cannot use realloc, as for empty slice self.ptr is dangling
                 // to satisfy slice::from_raw_parts_mut, which does not allow
@@ -454,7 +453,7 @@ impl<T> VecLike<T> {
         }
         debug_assert!(self.cap > self.len);
         unsafe {
-            self.ptr.offset(self.len.unwrapped_as()).write(elem);
+            self.ptr.offset(self.len.strict_as()).write(elem);
         }
         self.len += 1;
     }
@@ -510,36 +509,99 @@ impl<T> Extend<T> for VecLike<T> {
     }
 }
 
-pub trait SameSizeAndAlign {
-    const CHECK_SIZE: ();
-    const CHECK_ALIGN: ();
-}
-
-impl<Src, Dst> SameSizeAndAlign for (Src, Dst) {
-    const CHECK_SIZE: () = assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
-    const CHECK_ALIGN: () = assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
-}
-
-#[allow(clippy::let_unit_value)]
-pub const fn cast_ptr<Src, Dst>(ptr: *const Src) -> *const Dst
-where
-    (Src, Dst): SameSizeAndAlign,
-{
-    // Force the size and alignment checks to be evaluated at compile time
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+/// Casts a const pointer ensuring the size and alignment match.
+pub const fn cast_ptr<Src, Dst>(ptr: *const Src) -> *const Dst {
+    const {
+        assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
+        assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
+    }
 
     ptr.cast()
 }
 
-#[allow(clippy::let_unit_value)]
-pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst
-where
-    (Src, Dst): SameSizeAndAlign,
-{
-    // Force the size and alignment checks to be evaluated at compile time
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_SIZE;
-    let _check = <(Src, Dst) as SameSizeAndAlign>::CHECK_ALIGN;
+/// Casts a mutable pointer ensuring the size and alignment match.
+pub const fn cast_ptr_mut<Src, Dst>(ptr: *mut Src) -> *mut Dst {
+    const {
+        assert!(mem::size_of::<Src>() == mem::size_of::<Dst>());
+        assert!(mem::align_of::<Src>() == mem::align_of::<Dst>());
+    }
 
     ptr.cast()
 }
+
+/// These are doc tests that should not appear in the docs, but are useful as
+/// doc tests can check to ensure compilation failure.
+///
+/// The first two snippets succeed, and act as a control.
+///
+/// ```rust
+/// use rug::private::cast_ptr;
+///
+/// #[repr(transparent)]
+/// #[derive(Debug, PartialEq)]
+/// struct Wrapper(u32);
+///
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let casted: *const Wrapper = cast_ptr::<u32, Wrapper>(ptr);
+/// unsafe {
+///     assert_eq!((*casted).0, 123);
+/// }
+/// ```
+///
+/// ```rust
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(transparent)]
+/// #[derive(Debug, PartialEq)]
+/// struct Wrapper(u32);
+///
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let casted: *mut Wrapper = cast_ptr_mut::<u32, Wrapper>(ptr);
+/// unsafe {
+///     (*casted).0 = 456;
+/// }
+/// assert_eq!(value, 456);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr;
+///
+/// #[repr(C)]
+/// struct Words([u32; 2]);
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let _size_mismatch = cast_ptr::<u32, Words>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr;
+///
+/// #[repr(C)]
+/// struct Bytes([u8; 4]);
+/// let value: u32 = 123;
+/// let ptr: *const u32 = &value;
+/// let _alignment_mismatch = cast_ptr::<u32, Bytes>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(C)]
+/// struct Words([u32; 2]);
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let _size_mismatch = cast_ptr_mut::<u32, Words>(ptr);
+/// ```
+///
+/// ```rust,compile_fail
+/// use rug::private::cast_ptr_mut;
+///
+/// #[repr(C)]
+/// struct Bytes([u8; 4]);
+/// let mut value: u32 = 123;
+/// let ptr: *mut u32 = &mut value;
+/// let _alignment_mismatch = cast_ptr_mut::<u32, Bytes>(ptr);
+/// ```
+fn _compile_fail_tests() {}

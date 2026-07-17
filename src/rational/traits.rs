@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -18,9 +18,9 @@ use crate::ext::xmpq;
 use crate::ext::xmpz;
 use crate::misc;
 use crate::misc::StringLike;
-use crate::rational::big;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
+use crate::rational::big;
 use crate::rational::{MiniRational, ParseRationalError, TryFromFloatError};
 use crate::{Assign, Integer, Rational};
 use az::CheckedCast;

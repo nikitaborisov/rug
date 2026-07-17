@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -19,7 +19,7 @@ use crate::rational::MiniRational;
 #[allow(deprecated)]
 use crate::rational::SmallRational;
 use crate::{Integer, Rational};
-use az::{UnwrappedAs, UnwrappedCast};
+use az::{StrictAs, StrictCast};
 use core::cmp::Ordering;
 
 impl Eq for Rational {}
@@ -175,7 +175,7 @@ macro_rules! cmp_num_cast {
         impl PartialOrd<$New> for Rational {
             #[inline]
             fn partial_cmp(&self, other: &$New) -> Option<Ordering> {
-                self.partial_cmp(&(*other).unwrapped_as::<$Existing>())
+                self.partial_cmp(&(*other).strict_as::<$Existing>())
             }
         }
         cmp_common! { $New }
@@ -208,7 +208,7 @@ macro_rules! cmp_f {
             #[inline]
             fn partial_cmp(&self, other: &$T) -> Option<Ordering> {
                 if other.is_finite() {
-                    Some(xmpq::cmp_finite_d(self, (*other).unwrapped_cast()))
+                    Some(xmpq::cmp_finite_d(self, (*other).strict_cast()))
                 } else if other.is_nan() {
                     None
                 } else if other.is_sign_negative() {
@@ -226,9 +226,9 @@ cmp_f! { f32 f64 }
 
 #[cfg(test)]
 mod tests {
-    use crate::rational::MiniRational;
-    use crate::tests::{I128, I32, I64, U128, U32, U64};
     use crate::Rational;
+    use crate::rational::MiniRational;
+    use crate::tests::{I32, I64, I128, U32, U64, U128};
     use az::{Az, Cast};
     use core::cmp::Ordering;
     use core::ops::Neg;

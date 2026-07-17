@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -20,18 +20,17 @@ use crate::integer::big as big_integer;
 use crate::misc;
 use crate::misc::{StringLike, VecLike};
 use crate::ops::{NegAssign, SubFrom};
-use crate::rational::arith::MulIncomplete;
 use crate::rational::BorrowRational;
+use crate::rational::arith::MulIncomplete;
 use crate::{Assign, Complete, Integer};
-use az::{Cast, CheckedCast, UnwrappedAs, UnwrappedCast};
+use az::{Cast, CheckedCast, StrictAs, StrictCast};
 use core::cmp::Ordering;
+use core::error::Error;
 use core::fmt::{Display, Formatter, Result as FmtResult};
 use core::mem::{ManuallyDrop, MaybeUninit};
 use core::ops::{Add, AddAssign, Mul, MulAssign, Sub, SubAssign};
 use gmp_mpfr_sys::gmp;
 use gmp_mpfr_sys::gmp::mpq_t;
-#[cfg(feature = "std")]
-use std::error::Error;
 
 /**
 An arbitrary-precision rational number.
@@ -3057,17 +3056,17 @@ impl Assign<ParseIncomplete> for Rational {
             let (num, den) = self.as_mut_numer_denom_no_canonicalization();
             xmpz::realloc_for_mpn_set_str(num, num_len, src.radix);
             let size = gmp::mpn_set_str(num.inner_mut().d.as_ptr(), num_str, num_len, src.radix);
-            num.inner_mut().size = (if src.is_negative { -size } else { size }).unwrapped_cast();
+            num.inner_mut().size = (if src.is_negative { -size } else { size }).strict_cast();
 
             if den_len == 0 {
                 // The number is in canonical form if the denominator is 1.
                 xmpz::set_1(den);
                 return;
             }
-            let den_str = num_str.offset(num_len.unwrapped_cast());
+            let den_str = num_str.offset(num_len.strict_cast());
             xmpz::realloc_for_mpn_set_str(den, den_len, src.radix);
             let size = gmp::mpn_set_str(den.inner_mut().d.as_ptr(), den_str, den_len, src.radix);
-            den.inner_mut().size = size.unwrapped_cast();
+            den.inner_mut().size = size.strict_cast();
             xmpq::canonicalize(self);
         }
     }
@@ -3079,7 +3078,7 @@ fn parse(bytes: &[u8], radix: i32) -> Result<ParseIncomplete, ParseRationalError
     use self::{ParseErrorKind as Kind, ParseRationalError as Error};
 
     assert!((2..=36).contains(&radix), "radix out of range");
-    let bradix = radix.unwrapped_as::<u8>();
+    let bradix = radix.strict_as::<u8>();
 
     let mut digits = VecLike::new();
     digits.reserve(bytes.len() + 1);
@@ -3213,7 +3212,6 @@ impl Display for ParseRationalError {
     }
 }
 
-#[cfg(feature = "std")]
 impl Error for ParseRationalError {
     #[allow(deprecated)]
     fn description(&self) -> &str {

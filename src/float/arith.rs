@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -14,6 +14,11 @@
 // a copy of the GNU General Public License along with this program. If not, see
 // <https://www.gnu.org/licenses/>.
 
+use crate::Float;
+#[cfg(feature = "integer")]
+use crate::Integer;
+#[cfg(feature = "rational")]
+use crate::Rational;
 use crate::ext::xmpfr;
 use crate::ext::xmpfr::OptFloat;
 use crate::float::{MiniFloat, Round};
@@ -23,11 +28,6 @@ use crate::ops::{
     PowFrom, PowFromRound, RemAssignRound, RemFrom, RemFromRound, SubAssignRound, SubFrom,
     SubFromRound,
 };
-use crate::Float;
-#[cfg(feature = "integer")]
-use crate::Integer;
-#[cfg(feature = "rational")]
-use crate::Rational;
 use az::CheckedCast;
 use core::cmp::Ordering;
 use core::ffi::{c_long, c_ulong};
@@ -144,6 +144,71 @@ arith_binary_self_round! {
     PowFrom { pow_from }
     PowFromRound { pow_from_round }
     PowIncomplete
+}
+
+arith_mini_commut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Add { add }
+    AddAssign { add_assign }
+    AddAssignRound { add_assign_round }
+    AddFrom { add_from }
+    AddFromRound { add_from_round }
+    MiniFloat;
+    AddMiniIncomplete, AddOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Sub { sub }
+    SubAssign { sub_assign }
+    SubAssignRound { sub_assign_round }
+    SubFrom { sub_from }
+    SubFromRound { sub_from_round }
+    MiniFloat;
+    SubMiniIncomplete, SubOwnedMiniIncomplete;
+    SubFromMiniIncomplete, SubFromOwnedMiniIncomplete
+}
+arith_mini_commut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Mul { mul }
+    MulAssign { mul_assign }
+    MulAssignRound { mul_assign_round }
+    MulFrom { mul_from }
+    MulFromRound { mul_from_round }
+    MiniFloat;
+    MulMiniIncomplete, MulOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Div { div }
+    DivAssign { div_assign }
+    DivAssignRound { div_assign_round }
+    DivFrom { div_from }
+    DivFromRound { div_from_round }
+    MiniFloat;
+    DivMiniIncomplete, DivOwnedMiniIncomplete;
+    DivFromMiniIncomplete, DivFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Rem { rem }
+    RemAssign { rem_assign }
+    RemAssignRound { rem_assign_round }
+    RemFrom { rem_from }
+    RemFromRound { rem_from_round }
+    MiniFloat;
+    RemMiniIncomplete, RemOwnedMiniIncomplete;
+    RemFromMiniIncomplete, RemFromOwnedMiniIncomplete
+}
+arith_mini_noncommut_round! {
+    Float, u32, Round, Round::Nearest, Ordering;
+    Pow { pow }
+    PowAssign { pow_assign }
+    PowAssignRound { pow_assign_round }
+    PowFrom { pow_from }
+    PowFromRound { pow_from_round }
+    MiniFloat;
+    PowMiniIncomplete, PowOwnedMiniIncomplete;
+    PowFromMiniIncomplete, PowFromOwnedMiniIncomplete
 }
 
 #[cfg(feature = "integer")]
@@ -801,14 +866,14 @@ fn mul_sub<O: OptFloat>(rop: &mut Float, mul: MulIncomplete<'_>, sub: O, rnd: Ro
 
 #[cfg(test)]
 pub(crate) mod tests {
-    use crate::float;
-    use crate::float::{FreeCache, Special};
-    use crate::ops::Pow;
-    use crate::Float;
     #[cfg(feature = "integer")]
     use crate::Integer;
     #[cfg(feature = "rational")]
     use crate::Rational;
+    use crate::float;
+    use crate::float::{FreeCache, MiniFloat, Special};
+    use crate::ops::{AddFrom, Pow, SubFrom};
+    use crate::{Assign, Float};
     #[cfg(feature = "integer")]
     use core::str::FromStr;
 
@@ -951,7 +1016,7 @@ pub(crate) mod tests {
     #[test]
     fn check_arith_others() {
         use crate::tests::{
-            F32, F64, I128, I16, I32, I64, I8, ISIZE, U128, U16, U32, U64, U8, USIZE,
+            F32, F64, I8, I16, I32, I64, I128, ISIZE, U8, U16, U32, U64, U128, USIZE,
         };
         let large = [
             Float::with_val(20, Special::Zero),
@@ -1054,5 +1119,82 @@ pub(crate) mod tests {
         assert_eq!(neg.clone() >> 10u32, neg.clone() >> 10usize);
         assert_eq!(neg.clone() >> 10u32, neg.clone() >> 10isize);
         assert_eq!(neg.clone() >> 10u32, neg.clone() << -10isize);
+    }
+
+    #[test]
+    #[allow(clippy::op_ref)]
+    fn check_mini_ops() {
+        let big = Float::with_val(53, 10.5);
+        let mini = MiniFloat::from(3.25f32);
+        let mut bm = Float::new(53);
+
+        // commutative
+        assert_eq!(big.clone() + mini, Float::with_val(53, 13.75));
+        assert_eq!(big.clone() + &mini, Float::with_val(53, 13.75));
+        assert_eq!(Float::with_val(53, &big + mini), Float::with_val(53, 13.75));
+        assert_eq!(
+            Float::with_val(53, &big + &mini),
+            Float::with_val(53, 13.75)
+        );
+
+        bm.assign(big.clone());
+        bm += mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+        bm.assign(big.clone());
+        bm += &mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+
+        assert_eq!(mini + big.clone(), Float::with_val(53, 13.75));
+        assert_eq!(&mini + big.clone(), Float::with_val(53, 13.75));
+        assert_eq!(Float::with_val(53, mini + &big), Float::with_val(53, 13.75));
+        assert_eq!(
+            Float::with_val(53, &mini + &big),
+            Float::with_val(53, 13.75)
+        );
+
+        bm.assign(big.clone());
+        bm.add_from(mini);
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+        bm.assign(big.clone());
+        bm.add_from(&mini);
+        assert_eq!(bm.clone(), Float::with_val(53, 13.75));
+
+        // non-commutative
+        assert_eq!(big.clone() - mini, Float::with_val(53, 7.25));
+        assert_eq!(big.clone() - &mini, Float::with_val(53, 7.25));
+        assert_eq!(Float::with_val(53, &big - mini), Float::with_val(53, 7.25));
+        assert_eq!(Float::with_val(53, &big - &mini), Float::with_val(53, 7.25));
+
+        bm.assign(big.clone());
+        bm -= mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 7.25));
+        bm.assign(big.clone());
+        bm -= &mini;
+        assert_eq!(bm.clone(), Float::with_val(53, 7.25));
+
+        assert_eq!(mini - big.clone(), Float::with_val(53, -7.25));
+        assert_eq!(&mini - big.clone(), Float::with_val(53, -7.25));
+        assert_eq!(Float::with_val(53, mini - &big), Float::with_val(53, -7.25));
+        assert_eq!(
+            Float::with_val(53, &mini - &big),
+            Float::with_val(53, -7.25)
+        );
+
+        bm.assign(big.clone());
+        bm.sub_from(mini);
+        assert_eq!(bm.clone(), Float::with_val(53, -7.25));
+        bm.assign(big.clone());
+        bm.sub_from(&mini);
+        assert_eq!(bm.clone(), Float::with_val(53, -7.25));
+    }
+
+    #[cfg(feature = "rational")]
+    #[test]
+    fn check_issue_85() {
+        let x = Rational::from((1, 2));
+        let y = Float::with_val(1, 1) << (float::exp_max() - 1);
+
+        let non_zero = x / y;
+        assert!(!non_zero.is_zero());
     }
 }

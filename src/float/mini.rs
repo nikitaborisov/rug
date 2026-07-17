@@ -1,4 +1,4 @@
-// Copyright © 2016–2025 Trevor Spiteri
+// Copyright © 2016–2026 Trevor Spiteri
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU Lesser General Public License as published by the Free
@@ -891,7 +891,7 @@ impl MiniFloat {
     /// assert_eq!(Float::with_val(53, abs_ref), 13);
     /// ```
     #[inline]
-    pub const fn borrow(&self) -> BorrowFloat {
+    pub const fn borrow(&self) -> BorrowFloat<'_> {
         // SAFETY: Since d points to the limbs, the mpfr_t is in a consistent
         // state. Also, the lifetime of the BorrowFloat is the lifetime of self,
         // which covers the limbs.
@@ -1202,7 +1202,7 @@ macro_rules! from_float {
             const MANT_MASK: $Uns = IMPLICIT - 1;
             const EXP_MASK: $Uns = !(SIGN_MASK | MANT_MASK);
 
-            let val: $Uns = unsafe { mem::transmute(val) };
+            let val: $Uns = $Float::to_bits(val);
             let prec = $Float::MANTISSA_DIGITS as prec_t;
             let sign = if (val & SIGN_MASK) == 0 { 1 } else { -1 };
             let exp_bits = val & EXP_MASK;

@@ -1,11 +1,11 @@
-# Copyright © 2016–2025 Trevor Spiteri
+# Copyright © 2016–2026 Trevor Spiteri
 
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and this
 # notice are preserved. This file is offered as-is, without any warranty.
 
 variables:
-  MSRV: 1.65.0
+  MSRV: 1.85.0
 
 stages:
   - clibs
@@ -15,7 +15,7 @@ before_script:
   - getconf LONG_BIT
   - rustup self update
   - rustup --version
-  - if [ -n "$TOOLCHAIN" ]; then rustup toolchain install --profile minimal $TOOLCHAIN; fi
+  - if [ -n "$TOOLCHAIN" ]; then rustup toolchain install --force-non-host --profile minimal $TOOLCHAIN; fi
   - if [ -d cargo/registry/cache ]; then rm -rf $CARGO_HOME/registry/cache && mkdir -p $CARGO_HOME/registry && cp -R cargo/registry/cache $CARGO_HOME/registry/ && echo Copied registry/cache; fi
   - (if cd $CARGO_HOME/registry && [ -d src ]; then rm -r src; fi)
   - (if cd $CARGO_HOME/registry && [ -d cache ]; then find cache -name \*.crate | sort; fi)
@@ -98,9 +98,11 @@ nightly-x86_64-gnulinux-tarpaulin:
     TOOLCHAIN: nightly-x86_64
     REQ_COVERAGE: "78.0"
   script:
-  - cargo install --version 0.31.5 --locked cargo-tarpaulin
+  - cargo install --version 0.35.4 --locked cargo-tarpaulin
   - etc/extract-doc-tests.sh
+  - "echo Required coverage: $REQ_COVERAGE"
   - etc/invoke-tarpaulin.sh --fail-under $REQ_COVERAGE
+  - "echo Required coverage: $REQ_COVERAGE"
   - etc/extract-doc-tests.sh restore
   only:
   - ci
@@ -117,9 +119,9 @@ nightly-x86_64-gnulinux-valgrind:
   script:
   - apt-get update -qq && apt-get install -y -qq valgrind
   - etc/extract-doc-tests.sh
-  - cargo +$TOOLCHAIN test --features "num-traits serde nightly-float" --lib
+  - cargo +$TOOLCHAIN test --features "num-complex num-traits serde borsh nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/debug/deps/rug* | grep -v '\.d')"
-  - cargo +$TOOLCHAIN test --release --features "num-traits serde nightly-float" --lib
+  - cargo +$TOOLCHAIN test --release --features "num-complex num-traits serde borsh nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/release/deps/rug* | grep -v '\.d')"
   - etc/extract-doc-tests.sh restore
   only:
@@ -207,9 +209,9 @@ nightly-i686-gnulinux-valgrind:
   script:
   - apt-get update -qq && apt-get install -y -qq valgrind
   - etc/extract-doc-tests.sh
-  - cargo +$TOOLCHAIN test --features "num-traits serde nightly-float" --lib
+  - cargo +$TOOLCHAIN test --features "num-complex num-traits serde borsh nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/debug/deps/rug* | grep -v '\.d')"
-  - cargo +$TOOLCHAIN test --release --features "num-traits serde nightly-float" --lib
+  - cargo +$TOOLCHAIN test --release --features "num-complex num-traits serde borsh nightly-float" --lib
   - valgrind $VALGRIND_OPTIONS "$(ls target/release/deps/rug* | grep -v '\.d')"
   - etc/extract-doc-tests.sh restore
   only:
@@ -243,7 +245,7 @@ pages:
   - rm -rf public
   - mkdir public
   - cp etc/{index.html,rug.svg} public
-  - cargo +$TOOLCHAIN doc --no-deps --features "fail-on-warnings num-traits serde nightly-float" -Z rustdoc-map
+  - cargo +$TOOLCHAIN doc --no-deps --features "fail-on-warnings num-complex num-traits serde borsh nightly-float" -Z rustdoc-map
   - mv target/doc public/dev
   artifacts:
     paths:
